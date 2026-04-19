@@ -1,0 +1,43 @@
+{
+  "colors": {
+    "primaryColor": "#4361ee",
+    "secondaryColor": "#3f37c9",
+    "successColor": "#4ade80",
+    "infoColor": "#60a5fa",
+    "warningColor": "#fbbf24",
+    "dangerColor": "#f87171",
+    "textColor": "#1f2937",
+    "textLight": "#ffffff",
+    "backgroundColor": "#f9fafb",
+    "colorRed": "#ef4444",
+    "colorOrange": "#f97316",
+    "colorYellow": "#eab308",
+    "colorGreen": "#22c55e",
+    "colorCyan": "#06b6d4",
+    "colorBlue": "#3b82f6",
+    "colorPurple": "#8b5cf6"
+  },
+  "layout": {
+    "cardSpacing": 16,
+    "sidebarWidth": 250,
+    "contentPadding": 20
+  },
+  "animation": {
+    "hoverDuration": 0.3,
+    "fadeInDuration": 0.5,
+    "scrollDuration": 500
+  },
+  "border": {
+    "radiusSmall": 4,
+    "radiusMedium": 8,
+    "radiusLarge": 12,
+    "radiusXl": 16
+  },
+  "features": {
+    "enableStyleToggle": true,
+    "enableAnimations": true,
+    "enableSmoothScroll": true,
+    "enableButtonHoverEffects": true,
+    "enableTableHoverEffects": true
+  }
+}

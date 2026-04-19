@@ -1,0 +1,463 @@
+/* 蓝色微蓝色主题样式 */
+
+/* 基础颜色定义 */
+:root {
+  --primary-color: #1677ff;
+  --primary-light: #4096ff;
+  --primary-lighter: #69b1ff;
+  --primary-lightest: #bae0ff;
+  --secondary-color: #0958d9;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-light: #999999;
+  --bg-primary: #f0f7ff;
+  --bg-secondary: #ffffff;
+  --border-color: #e1e8ed;
+  --shadow: 0 2px 8px rgba(22, 119, 255, 0.1);
+  --shadow-hover: 0 4px 16px rgba(22, 119, 255, 0.15);
+}
+
+/* 重置页面背景 */
+html {
+  background-color: var(--bg-primary);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* 重置面板样式 */
+.panel {
+  border: none;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.panel:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+/* 修改面板头部样式 */
+.panel-heading {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  color: white !important;
+  border: none !important;
+  padding: 15px 20px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel-heading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 49%, rgba(255, 255, 255, 0.1) 50%, transparent 51%);
+  background-size: 10px 10px;
+  opacity: 0.3;
+}
+
+.panel-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* 修改表格样式 */
+.table {
+  margin-bottom: 0;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  border-color: var(--border-color);
+}
+
+/* 修改按钮样式 - 蓝色微蓝色主题优化版 */
+.btn {
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: 500;
+  transition: box-shadow 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 主要按钮 - 深蓝色 */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+/* 信息按钮 - 中蓝色 */
+.btn-info {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+.btn-info:hover,
+.btn-info:focus {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* 成功按钮 - 蓝绿色 */
+.btn-success {
+  background-color: #00b8d9;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  background-color: #0091b2;
+}
+
+/* 警告按钮 - 蓝黄色 */
+.btn-warning {
+  background-color: #0091ea;
+}
+
+.btn-warning:hover,
+.btn-warning:focus {
+  background-color: #0064b7;
+}
+
+/* 危险按钮 - 蓝红色 */
+.btn-danger {
+  background-color: #3d5afe;
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+  background-color: #304ffe;
+}
+
+/* 块状按钮额外样式 */
+.btn-block {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* 小型按钮优化 */
+.btn-xs {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* 为带有图标的按钮增加间距 */
+.btn i {
+  margin-right: 5px;
+}
+
+.btn-block i {
+  display: block;
+  margin: 0 auto 5px;
+  font-size: 18px;
+}
+
+/* 选中状态按钮 */
+.btn.active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 禁用状态按钮 */
+.btn:disabled {
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+/* 按钮组样式 */
+.btn-group .btn {
+  border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.btn-group .btn:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+/* 响应式按钮大小 */
+@media (max-width: 768px) {
+  .btn-block {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .btn-block i {
+    font-size: 16px;
+  }
+}
+
+/* 修改导航栏样式 */
+.navbar-header.bg-primary,
+.navbar-header.bg-dark {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+}
+
+.navbar-brand {
+  color: white !important;
+  font-weight: 600;
+}
+
+/* 修改侧边栏样式 */
+.app-aside.bg-light.dker {
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+}
+
+.navi > ul > li > a {
+  padding: 12px 20px;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  margin: 2px 10px;
+  transition: all 0.3s ease;
+}
+
+.navi > ul > li > a:hover {
+  background-color: var(--primary-lightest);
+  color: var(--primary-color);
+}
+
+.navi > ul > li.active > a {
+  background-color: var(--primary-lightest);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* 修改列表组样式 */
+.list-group-item {
+  border-color: var(--border-color);
+  padding: 12px 16px;
+  background-color: var(--bg-secondary);
+}
+
+.list-group-item.active {
+  background-color: var(--primary-lightest) !important;
+  color: var(--primary-color) !important;
+  border-color: var(--primary-light) !important;
+}
+
+/* 修改徽章样式 */
+.badge {
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-weight: 500;
+}
+
+/* 修改导航栏折叠区域样式 */
+.collapse.pos-rlt.navbar-collapse.box-shadow {
+  box-shadow: var(--shadow) !important;
+  transition: all 0.3s ease;
+}
+
+/* 为导航栏折叠区域的不同背景类添加统一的蓝色主题样式 */
+.collapse.pos-rlt.navbar-collapse.box-shadow.bg-primary,
+.collapse.pos-rlt.navbar-collapse.box-shadow.bg-white-only {
+  background: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* 修改导航按钮样式 */
+.navbar-btn {
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.navbar-btn:hover {
+  color: var(--primary-color) !important;
+  background-color: var(--primary-lightest) !important;
+}
+
+/* 修改下拉菜单样式 */
+.dropdown-menu {
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow) !important;
+  padding: 5px 0 !important;
+  overflow: hidden;
+}
+
+.dropdown-menu > li > a {
+  padding: 10px 20px !important;
+  color: var(--text-secondary) !important;
+  transition: all 0.3s ease;
+}
+
+.dropdown-menu > li > a:hover {
+  background-color: var(--primary-lightest) !important;
+  color: var(--primary-color) !important;
+}
+
+/* 修改头像和用户名样式 */
+.thumb-sm.avatar {
+  border: 2px solid var(--primary-light);
+  transition: border-color 0.3s ease;
+}
+
+.dropdown-toggle {
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-toggle:hover {
+  background-color: var(--primary-lightest) !important;
+}
+
+/* 点击后的样式 */
+.open > .dropdown-toggle {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.dropdown-toggle:hover .thumb-sm.avatar,
+.open > .dropdown-toggle .thumb-sm.avatar {
+  border-color: var(--primary-color);
+}
+
+/* 修改信息提示样式 */
+.alert {
+  border-radius: 6px;
+  border: none;
+  box-shadow: var(--shadow);
+}
+
+.alert-danger {
+  background-color: #fff2f0;
+  color: #cf1322;
+}
+
+/* 修改头像样式 */
+.img-thumbnail-avatar {
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* 移除所有动画效果 */
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .panel-heading {
+    padding: 12px 15px !important;
+  }
+  
+  .btn {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}
+
+/* 简洁化样式 */
+#nr {
+  font-size: 16px !important;
+  background: none !important;
+  -webkit-background-clip: none !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  animation: none !important;
+}
+
+.marquee {
+  background-color: var(--primary-lightest) !important;
+  border-radius: 8px !important;
+  padding: 10px !important;
+}
+
+/* 优化内容区域 */
+.wrapper {
+  padding: 15px;
+}
+
+/* 美化链接样式 */
+a {
+  color: var(--primary-color);
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--secondary-color);
+}
+
+/* 美化标题样式 */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* 美化输入框 */
+.form-control {
+  border-color: var(--border-color);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
+}
+
+/* 移除所有悬浮效果 */
+
+/* 优化导航栏 */
+.breadcrumb {
+  background-color: transparent;
+  padding: 10px 0;
+  margin-bottom: 20px;
+}
+
+.breadcrumb a {
+  color: var(--primary-color);
+}
+
+.breadcrumb > .active {
+  color: var(--text-light);
+}
+
+/* 优化表格隔行变色 */
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f8fafc;
+}
+
+/* 优化分页样式 */
+.pagination > li > a,
+.pagination > li > span {
+  color: var(--primary-color);
+  border-color: var(--border-color);
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+.pagination > .active > a,
+.pagination > .active > a:hover,
+.pagination > .active > a:focus {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* 简化加载动画 */
+.loading {
+  border: 3px solid var(--primary-lightest);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}
