@@ -1,239 +1,145 @@
 <?php
+include("../includes/common.php");
+$title = '分站任务';
+include './head.php';
+if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
+if($userrow['power'] < 1) exit("<script language='javascript'>window.location.href='./index.php';</script>");
 
-include "../includes/common.php";
-
-function createSiteTaskLogTable() {
-    global $DB;
-
-    $sql = "CREATE TABLE IF NOT EXISTS `pre_sitetask_log` (
-      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-      `userid` int(11) unsigned NOT NULL,
-      `taskid` int(11) unsigned NOT NULL,
-      `taskname` varchar(255) NOT NULL,
-      `money` varchar(32) NOT NULL,
-      `addtime` datetime DEFAULT NULL,
-      `status` tinyint(1) NOT NULL DEFAULT 0,
-      `remark` text,
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='站点任务记录表';";
-
-    try {
-        $DB->exec($sql);
-    } catch (Exception $e) {
+$tasks = $DB->getAll("SELECT * FROM pre_sitetask WHERE active=1 ORDER BY sort ASC, id ASC");
+$task_status = array();
+if(function_exists('q8_sitetask_status')) {
+    foreach($tasks as $task_index => $task_row) {
+        $task_status[intval($task_row['id'])] = q8_sitetask_status($task_row, $userrow);
     }
 }
-
-createSiteTaskLogTable();
-
-$title = "站点任务";
-include "./head.php";
-if ($islogin2 == 1) {
-} else {
-    exit("<script language='javascript'>window.location.href='./login.php';</script>");
-}
-
-$my = isset($_GET["my"]) ? $_GET["my"] : null;
-
-if ($my == "claim") {
-    $taskid = intval($_GET["id"]);
-    $uid = intval($userrow['uid']);
-    $today = date('Y-m-d');
-    $task = $DB->getRow("SELECT * FROM pre_sitetask WHERE id=:id AND active=1 LIMIT 1", array(':id' => $taskid));
-
-    if (!$task) {
-        showmsg('任务不存在或已关闭！', 3);
-    }
-
-    $count = $DB->getColumn("SELECT COUNT(*) FROM pre_sitetask_log WHERE userid=:uid AND taskid=:taskid AND DATE(addtime)=:today", array(':uid' => $uid, ':taskid' => $taskid, ':today' => $today));
-
-    if ($count > 0) {
-        showmsg('今天已提交过该任务申请！', 3);
-    }
-
-    $totalCount = $DB->getColumn("SELECT COUNT(*) FROM pre_sitetask_log WHERE taskid=:taskid AND status=1", array(':taskid' => $taskid));
-    if ($totalCount >= $task['quantity']) {
-        showmsg('该任务奖励已发放完毕！', 3);
-    }
-
-    $completed = false;
-    switch ($task['task']) {
-        case 0:
-            if ($task['tid'] > 0) {
-                if ($task['type'] == 0) {
-                    $orderCount = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE zid=:uid AND tid=:tid AND DATE(addtime)=:today", array(':uid' => $uid, ':tid' => $task['tid'], ':today' => $today));
-                } else {
-                    $orderCount = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE zid=:uid AND tid=:tid", array(':uid' => $uid, ':tid' => $task['tid']));
-                }
-                $completed = ($orderCount >= $task['value']);
-            } else {
-                $completed = false;
-            }
-            break;
-        case 1:
-            if ($task['type'] == 0) {
-                $recharge = $DB->getColumn("SELECT SUM(money) FROM pre_point_record WHERE uid=:uid AND type=1 AND DATE(addtime)=:today", array(':uid' => $uid, ':today' => $today));
-            } else {
-                $recharge = $DB->getColumn("SELECT SUM(money) FROM pre_point_record WHERE uid=:uid AND type=1", array(':uid' => $uid));
-            }
-            $completed = ($recharge >= $task['value']);
-            break;
-        case 2:
-            if ($task['type'] == 0) {
-                $orderCount = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE uid=:uid AND DATE(addtime)=:today", array(':uid' => $uid, ':today' => $today));
-            } else {
-                $orderCount = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE uid=:uid", array(':uid' => $uid));
-            }
-            $completed = ($orderCount >= $task['value']);
-            break;
-        case 3:
-            if ($task['type'] == 0) {
-                $salesAmount = $DB->getColumn("SELECT SUM(money) FROM pre_orders WHERE uid=:uid AND DATE(addtime)=:today", array(':uid' => $uid, ':today' => $today));
-            } else {
-                $salesAmount = $DB->getColumn("SELECT SUM(money) FROM pre_orders WHERE uid=:uid", array(':uid' => $uid));
-            }
-            $completed = ($salesAmount >= $task['value']);
-            break;
-        case 4:
-            if ($task['type'] == 0) {
-                $inviteCount = $DB->getColumn("SELECT COUNT(*) FROM pre_user WHERE zid=:uid AND DATE(regtime)=:today", array(':uid' => $uid, ':today' => $today));
-            } else {
-                $inviteCount = $DB->getColumn("SELECT COUNT(*) FROM pre_user WHERE zid=:uid", array(':uid' => $uid));
-            }
-            $completed = ($inviteCount >= $task['value']);
-            break;
-        case 5:
-            if ($userrow['last'] == date('Y-m-d')) {
-                $completed = true;
-            }
-            break;
-    }
-
-    if (!$completed) {
-        showmsg('您还未完成该任务条件！', 3);
-    }
-
-    $DB->exec("INSERT INTO pre_sitetask_log (userid, taskid, taskname, money, addtime, status) VALUES (:uid, :taskid, :taskname, :money, :addtime, 0)", array(':uid' => $uid, ':taskid' => $taskid, ':taskname' => $task['name'], ':money' => $task['money'], ':addtime' => $date));
-
-    showmsg('任务申请已提交，请等待管理员审核！<br/><br/><a href="./sitetask.php">>>返回任务列表</a>', 1);
-} else {
 ?>
-<div class="wrapper-md">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="panel panel-default">
-                <div class="panel-heading font-bold">
-                    <i class="fa fa-tasks"></i> 站点任务
-                </div>
-                <div class="panel-body">
-                    <p class="text-muted">完成任务提交申请，等待管理员审核后即可获得奖励！</p>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-striped b-t b-light">
-                        <thead>
-                            <tr>
-                                <th>任务名称</th>
-                                <th>任务类型</th>
-                                <th>任务条件</th>
-                                <th>奖励金额</th>
-                                <th>剩余数量</th>
-                                <th>状态</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $uid = intval($userrow['uid']);
-                            $rs = $DB->query("SELECT * FROM pre_sitetask WHERE active=1 ORDER BY sort ASC");
-                            $today = date('Y-m-d');
-                            while ($res = $rs->fetch()) {
-                                $type = $res['type'] == 0 ? '今日' : '总计';
-                                $tasktype = sitetask_type($res['task']);
-                                if ($res['task'] == 5) {
-                                    $tasktype = $tasktype . '任务';
-                                } else {
-                                    $tasktype = $type . $tasktype . '任务';
-                                }
+<link rel="stylesheet" href="./public/css/blue_theme.css">
+<style>
+.st-banner{
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    border-radius:12px;padding:28px 24px;margin-bottom:20px;
+    color:#fff;position:relative;overflow:hidden;
+}
+.st-banner::before{
+    content:'';position:absolute;right:-50px;top:-50px;
+    width:200px;height:200px;border-radius:50%;
+    background:rgba(255,255,255,.07);
+}
+.st-banner::after{
+    content:'';position:absolute;right:40px;bottom:-30px;
+    width:120px;height:120px;border-radius:50%;
+    background:rgba(255,255,255,.05);
+}
+.st-banner-tag{
+    display:inline-block;background:rgba(255,255,255,.22);
+    border-radius:20px;padding:3px 14px;font-size:12px;margin-bottom:10px;
+}
+.st-banner h2{font-size:22px;font-weight:700;margin:0 0 6px;color:#fff;}
+.st-banner p{font-size:13px;opacity:1;margin:0;color:#fff;font-weight:700;}
+.st-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;
+}
+@media(max-width:600px){.st-grid{grid-template-columns:1fr;}}
+.st-card{
+    background:#fff;border-radius:12px;padding:18px 16px;
+    display:flex;align-items:flex-start;gap:14px;
+    box-shadow:0 2px 10px rgba(0,0,0,.07);
+    transition:box-shadow .2s,transform .2s;
+    border:1px solid #f0f0f0;
+}
+.st-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.12);transform:translateY(-2px);}
+.st-icon{
+    width:48px;height:48px;border-radius:12px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;color:#fff;
+}
+.st-card-body{flex:1;min-width:0;}
+.st-badge{
+    font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;
+    display:inline-block;margin-bottom:6px;color:#fff;
+}
+.st-card-title{font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:4px;}
+.st-card-desc{font-size:12px;color:#999;line-height:1.6;}
+.st-reward{font-size:12px;color:#e67e22;font-weight:700;margin-top:6px;}
+.st-progress{height:7px;border-radius:999px;background:#eef2f7;overflow:hidden;margin-top:10px;}
+.st-progress span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#22c55e,#14b8a6);}
+.st-status{font-size:12px;color:#667085;margin-top:7px;display:flex;justify-content:space-between;gap:8px;}
+.st-status b{color:#16a34a;}
+.st-status .is-pending{color:#f59e0b;}
+.st-status .is-soldout{color:#ef4444;}
+.st-empty{text-align:center;color:#ccc;padding:50px 0;font-size:14px;}
+.st-footer-note{color:#bbb;font-size:12px;text-align:center;margin-top:4px;}
+</style>
+<div class="wrapper">
+<div class="col-sm-12">
+<div class="panel panel-default">
+    <div class="panel-heading font-bold">
+        <i class="fa fa-tasks"></i>&nbsp;&#20998;&#31449;&#20219;&#21153;
+    </div>
+    <div class="panel-body">
 
-                                $claimed = $DB->getColumn("SELECT COUNT(*) FROM pre_sitetask_log WHERE userid=:uid AND taskid=:taskid AND DATE(addtime)=:today", array(':uid' => $uid, ':taskid' => $res['id'], ':today' => $today));
-                                $totalClaimed = $DB->getColumn("SELECT COUNT(*) FROM pre_sitetask_log WHERE taskid=:taskid AND status=1", array(':taskid' => $res['id']));
-                                $remain = $res['quantity'] - $totalClaimed;
+        <div class="st-banner">
+            <div class="st-banner-tag">&#128226; &#24179;&#21488;&#20844;&#21578;</div>
+            <h2>&#11088; &#24179;&#21488;&#20998;&#31449;&#20219;&#21153;&#25919;&#31574;</h2>
+            <p>&#23436;&#25104;&#20219;&#21153;&#21363;&#21487;&#33719;&#24471;&#22870;&#21169;&#65281;&#31283;&#23450; &middot; &#38271;&#20037; &middot; &#35802;&#20449;&#65292;&#27426;&#36814;&#38271;&#26399;&#21512;&#20316;&#12290;</p>
+        </div>
 
-                                $btnClass = $claimed > 0 ? 'btn-default' : 'btn-success';
-                                $btnText = $claimed > 0 ? '今日已提交' : '提交申请';
-                                $disabled = $claimed > 0 || $remain <= 0 ? 'disabled' : '';
-
-                                echo '<tr>
-                                    <td>' . $res['name'] . '</td>
-                                    <td>' . $tasktype . '</td>
-                                    <td>' . $res['value'] . '</td>
-                                    <td><span class="text-danger">' . $res['money'] . ' 元</span></td>
-                                    <td>' . ($remain > 0 ? $remain : '<span class="text-muted">已领完</span>') . '</td>
-                                    <td>' . ($res['desc'] ? $res['desc'] : '-') . '</td>
-                                    <td>
-                                        <a href="./sitetask.php?my=claim&id=' . $res['id'] . '" class="btn ' . $btnClass . ' btn-sm" ' . $disabled . '>
-                                            <i class="fa fa-paper-plane"></i> ' . $btnText . '
-                                        </a>
-                                    </td>
-                                </tr>';
-                            }
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
+        <?php if(empty($tasks)){ ?>
+        <div class="st-empty">
+            <i class="fa fa-inbox fa-3x" style="display:block;margin-bottom:10px;"></i>
+            &#26242;&#26080;&#20219;&#21153;&#65292;&#35831;&#31561;&#24453;&#24179;&#21488;&#21457;&#24067;
+        </div>
+        <?php }else{ ?>
+        <div class="st-grid">
+        <?php
+        $icon_map = [
+            0 => ['fa fa-bullhorn',        '#e67e22'],
+            1 => ['fa fa-credit-card',     '#3498db'],
+            2 => ['fa fa-shopping-cart',   '#27ae60'],
+            3 => ['fa fa-bar-chart',       '#9b59b6'],
+            4 => ['fa fa-key',             '#1abc9c'],
+            5 => ['fa fa-calendar-check-o','#e74c3c'],
+        ];
+        $i = 1;
+        foreach($tasks as $t){
+            $type  = intval($t['task']);
+            $icon  = isset($icon_map[$type]) ? $icon_map[$type][0] : 'fa fa-star';
+            $color = isset($icon_map[$type]) ? $icon_map[$type][1] : '#95a5a6';
+            $name  = htmlspecialchars((string)$t['name'],  ENT_QUOTES, 'UTF-8');
+            $desc  = htmlspecialchars((string)($t['desc'] ?: ''), ENT_QUOTES, 'UTF-8');
+            $money = htmlspecialchars((string)$t['money'], ENT_QUOTES, 'UTF-8');
+            $status = isset($task_status[intval($t['id'])]) ? $task_status[intval($t['id'])] : array('progress'=>0,'target'=>floatval($t['value']),'done'=>false,'claimed'=>false,'claim_text'=>'');
+            $target = max(0.01, floatval($status['target']));
+            $progress = floatval($status['progress']);
+            $percent = min(100, round($progress / $target * 100, 1));
+            $stateText = $status['claimed'] ? '&#24050;&#33258;&#21160;&#21457;&#25918;' : ($status['claim_text'] === 'soldout' ? '&#22870;&#21169;&#24050;&#21457;&#23436;' : ($status['done'] ? '&#36798;&#26631;&#24453;&#21457;&#25918;' : '&#26410;&#36798;&#26631;'));
+            $stateClass = $status['claimed'] ? '' : ($status['claim_text'] === 'soldout' ? 'is-soldout' : ($status['done'] ? 'is-pending' : ''));
+        ?>
+        <div class="st-card">
+            <div class="st-icon" style="background:<?php echo $color?>">
+                <i class="<?php echo $icon?>"></i>
             </div>
-
-            <div class="panel panel-default">
-                <div class="panel-heading font-bold">
-                    <i class="fa fa-history"></i> 我的任务记录
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-striped b-t b-light">
-                        <thead>
-                            <tr>
-                                <th>任务名称</th>
-                                <th>奖励金额</th>
-                                <th>提交时间</th>
-                                <th>审核状态</th>
-                                <th>备注</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $logRs = $DB->query("SELECT * FROM pre_sitetask_log WHERE userid=:uid ORDER BY id DESC LIMIT 20", array(':uid' => $uid));
-                            while ($log = $logRs->fetch()) {
-                                $statusText = '';
-                                $statusClass = '';
-                                switch ($log['status']) {
-                                    case 0:
-                                        $statusText = '待审核';
-                                        $statusClass = 'label-warning';
-                                        break;
-                                    case 1:
-                                        $statusText = '已通过';
-                                        $statusClass = 'label-success';
-                                        break;
-                                    case 2:
-                                        $statusText = '已拒绝';
-                                        $statusClass = 'label-danger';
-                                        break;
-                                }
-                                echo '<tr>
-                                    <td>' . $log['taskname'] . '</td>
-                                    <td><span class="text-success">' . $log['money'] . ' 元</span></td>
-                                    <td>' . $log['addtime'] . '</td>
-                                    <td><span class="label ' . $statusClass . '">' . $statusText . '</span></td>
-                                    <td>' . ($log['remark'] ? $log['remark'] : '-') . '</td>
-                                </tr>';
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+            <div class="st-card-body">
+                <span class="st-badge" style="background:<?php echo $color?>">&#20219;&#21153;<?php echo $i?></span>
+                <div class="st-card-title"><?php echo $name?></div>
+                <?php if($desc){ ?><div class="st-card-desc"><?php echo $desc?></div><?php }?>
+                <div class="st-reward">&#9733; &#22870;&#21161; &#165;<?php echo $money?></div>
+                <div class="st-progress"><span style="width:<?php echo $percent;?>%"></span></div>
+                <div class="st-status">
+                    <span><?php echo round($progress, 2);?> / <?php echo htmlspecialchars((string)$status['target'], ENT_QUOTES, 'UTF-8');?></span>
+                    <b class="<?php echo $stateClass;?>"><?php echo $stateText;?></b>
                 </div>
             </div>
         </div>
+        <?php $i++; } ?>
+        </div>
+        <?php }?>
+
+        <p class="st-footer-note">
+            &#20197;&#19978;&#20219;&#21153;&#26368;&#32456;&#35299;&#37322;&#26435;&#24402;&#26412;&#24179;&#21488;&#25152;&#26377;&#65292;&#20855;&#20307;&#22870;&#21161;&#20197;&#23454;&#38469;&#32467;&#31639;&#20026;&#20934;&#12290;
+        </p>
     </div>
 </div>
-<?php
-}
-include "./foot.php";
-?>
+</div>
+</div>
+<?php include './foot.php'; ?>

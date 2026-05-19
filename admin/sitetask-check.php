@@ -9,6 +9,7 @@ if ($islogin == 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 adminpermission("site", 1);
+if(function_exists('q8_sitetask_ensure_log_table')) q8_sitetask_ensure_log_table();
 
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 
@@ -26,7 +27,7 @@ if ($my == "pass") {
     $DB->beginTransaction();
     try {
         $DB->exec("UPDATE pre_sitetask_log SET status=1 WHERE id=:id", array(':id' => $id));
-        $DB->exec("UPDATE pre_user SET money=money+:money WHERE uid=:uid", array(':money' => $log['money'], ':uid' => $log['userid']));
+        changeUserMoney($log['userid'], $log['money'], true, hex2bin('e8b5a0e98081'), 'Site task approved: ' . $log['taskname']);
         $DB->commit();
         showmsg('审核通过，奖励已发放！<br/><br/><a href="./sitetask-check.php">>>返回审核列表</a>', 1);
     } catch (Exception $e) {

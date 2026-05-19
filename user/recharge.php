@@ -7,6 +7,7 @@ $title='充值余额';
 include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php?back=recharge';</script>");
 ?>
+<link rel="stylesheet" href="./public/css/blue_theme.css">
 <style>
 img.logo{width: 20px;margin: -2px 5px 0 5px;}
 </style>
@@ -18,20 +19,21 @@ img.logo{width: 20px;margin: -2px 5px 0 5px;}
 	</div>
 	<div class="panel-body text-center">
 <?php
-$rebate_enabled = isset($conf['recharge_rebate_enabled']) ? $conf['recharge_rebate_enabled'] : 1;
-$rebate_rate = isset($conf['recharge_rebate_rate']) ? $conf['recharge_rebate_rate'] : 3;
-if ($rebate_enabled == 1) {
-    $example_rebate = round(100 * ($rebate_rate / 100), 2);
-    $example_total = 100 + $example_rebate;
-    $example_rebate2 = round(200 * ($rebate_rate / 100), 2);
-    $example_total2 = 200 + $example_rebate2;
-    echo '<div class="alert alert-success text-left">
-<b>充值返利活动：</b>所有用户充值均可获得 <font color="red"><strong>' . $rebate_rate . '%</strong></font> 的额外余额返利！<br/>
-例如：充值100元，实际到账' . $example_total . '元；充值200元，实际到账' . $example_total2 . '元<br/>
-返利金额将在充值成功后自动发放到您的账户余额中
-</div>';
-}
-?>
+	$rebate_enabled = isset($conf['recharge_rebate_enabled']) ? intval($conf['recharge_rebate_enabled']) : 0;
+	$rebate_rate = isset($conf['recharge_rebate_rate']) ? floatval($conf['recharge_rebate_rate']) : 0;
+	$rebate_min = isset($conf['recharge_rebate_min']) ? floatval($conf['recharge_rebate_min']) : 0;
+	$rebate_rules = isset($conf['recharge_rebate_rules']) ? trim($conf['recharge_rebate_rules']) : '';
+	if ($rebate_enabled == 1 && ($rebate_rules !== '' || $rebate_rate > 0)) {
+	    $example_money = 100;
+	    $example_rebate = q8_calc_online_recharge_bonus($example_money, $conf);
+	    $example_total = $example_money + $example_rebate;
+	    echo '<div class="alert alert-success text-left">
+	<b>&#20805;&#20540;&#36820;&#21033;&#27963;&#21160;&#65306;</b>' . ($rebate_rules !== '' ? '&#20805;&#20540;&#28385;100&#20803;&#36820;1%&#65292;&#28385;5000&#20803;&#36820;5%&#65292;&#28385;10000&#20803;&#36820;8%' : (($rebate_min > 0 ? '&#20805;&#20540;&#28385;' . $rebate_min . '&#20803;&#21487;' : '&#20805;&#20540;&#21487;') . '&#33719;&#24471;' . $rebate_rate . '%&#39069;&#22806;&#36820;&#21033;')) . '<br/>
+	&#20363;&#22914;&#65306;&#20805;&#20540;' . $example_money . '&#20803;&#65292;&#23454;&#38469;&#21040;&#36134;' . $example_total . '&#20803;<br/>
+	&#36820;&#21033;&#37329;&#39069;&#23558;&#22312;&#20805;&#20540;&#25104;&#21151;&#21518;&#33258;&#21160;&#21457;&#25918;&#21040;&#24744;&#30340;&#36134;&#25143;&#20313;&#39069;&#20013;
+	</div>';
+	}
+	?>
 			<b>我当前的账户余额：<span style="font-size:16px; color:#FF6133;"><?php echo $userrow['rmb']?></span> 元</b>
 			<hr>
 			<input type="text" class="form-control" name="value" id="rechargeAmount" autocomplete="off" placeholder="输入要充值的余额" oninput="calculateRebate()"><br>
@@ -40,7 +42,9 @@ if ($rebate_enabled == 1) {
 				<b>实际到账金额：</b><span id="totalAmount" style="font-size:16px; color:#FF6133;">0.00</span> 元
 			</div>
 <?php
-if(!empty($conf['codepay_key']))echo '<button type="submit" class="btn btn-default" id="buy_usdt"><img src="../other/usdt-trc20/static/img/tether.svg" class="logo">USDT - TRC20</button>&nbsp;';
+$usdtPayParts = explode('|', isset($conf['codepay_id']) ? $conf['codepay_id'] : '');
+$usdtPayEnabled = isset($conf['usdtpay_api']) && intval($conf['usdtpay_api']) == 1 && !empty($conf['codepay_key']) && isset($usdtPayParts[0], $usdtPayParts[1]) && floatval($usdtPayParts[0]) > 0 && floatval($usdtPayParts[1]) > 0;
+if($usdtPayEnabled)echo '<button type="submit" class="btn btn-default" id="buy_usdt"><img src="../other/usdt-trc20/static/img/tether.svg" class="logo">USDT - TRC20</button>&nbsp;';
 if($conf['alipay_api'])echo '<button type="submit" class="btn btn-default" id="buy_alipay"><img src="../assets/img/alipay.png" class="logo">支付宝</button>&nbsp;';
 if($conf['qqpay_api'])echo '<button type="submit" class="btn btn-default" id="buy_qqpay"><img src="../assets/img/qqpay.png" class="logo">QQ钱包</button>&nbsp;';
 if($conf['wxpay_api'])echo '<button type="submit" class="btn btn-default" id="buy_wxpay"><img src="../assets/img/wxpay.png" class="logo">微信支付</button>&nbsp;';
@@ -98,10 +102,28 @@ function calculateRebate() {
 	var rebateAmount = document.getElementById('rebateAmount');
 	var totalAmount = document.getElementById('totalAmount');
 	var rebateEnabled = <?php echo isset($conf['recharge_rebate_enabled']) ? $conf['recharge_rebate_enabled'] : 1;?>;
-	var rebateRate = <?php echo isset($conf['recharge_rebate_rate']) ? $conf['recharge_rebate_rate'] : 3;?>;
+	var rebateRate = <?php echo isset($conf['recharge_rebate_rate']) ? $conf['recharge_rebate_rate'] : 0;?>;
+		var rebateMin = <?php echo isset($conf['recharge_rebate_min']) ? floatval($conf['recharge_rebate_min']) : 0;?>;
+		var rebateRules = <?php echo isset($conf['recharge_rebate_rules']) ? json_encode((string)$conf['recharge_rebate_rules']) : '""'; ?>;
 
 	if (rebateEnabled == 1 && !isNaN(value) && value > 0) {
-		var rebate = value * (rebateRate / 100);
+		var currentRate = 0;
+		if (rebateRules) {
+			String(rebateRules).split('|').forEach(function(item) {
+				var parts = item.split(':');
+				if (parts.length !== 2) return;
+				var threshold = parseFloat(parts[0]);
+				var rate = parseFloat(parts[1]);
+				if (!isNaN(threshold) && !isNaN(rate) && value >= threshold) currentRate = rate;
+			});
+		} else if (rebateMin <= 0 || value >= rebateMin) {
+			currentRate = rebateRate;
+		}
+		if (currentRate <= 0) {
+			rebateInfo.style.display = 'none';
+			return;
+		}
+		var rebate = value * (currentRate / 100);
 		var total = value + rebate;
 		rebateAmount.textContent = rebate.toFixed(2);
 		totalAmount.textContent = total.toFixed(2);
@@ -123,6 +145,7 @@ function dopay(type){
 	}, 'json');
 }
 $(document).ready(function(){
+	calculateRebate();
 $("#buy_usdt").click(function(){
 	dopay('usdt_pay')
 });

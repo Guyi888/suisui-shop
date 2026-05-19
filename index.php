@@ -80,5 +80,12 @@ if($conf['forceloginhome']==1 && !$islogin2){
 
 $mod = isset($_GET['mod'])?$_GET['mod']:'index';
 $loadfile = \lib\Template::load($mod);
+ob_start();
 include $loadfile;
+$q8_template_html = ob_get_clean();
+if (function_exists('q8_inject_custom_css_into_html')) {
+	echo q8_inject_custom_css_into_html($q8_template_html, 'site');
+} else {
+	echo $q8_template_html;
+}
 include ROOT."template/default/chat/widget.php";

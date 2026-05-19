@@ -24,23 +24,31 @@ while($res = $rs->fetch()){
 $title = '消息列表';
 include 'head.php';
 ?>
+<link rel="stylesheet" href="./public/css/blue_theme.css?v=q8msg1">
 <style>
-.msg-head{text-align: center;min-width: 360px;padding: 7px;background-color: #f9f9f9 !important;}
-.msg-body{padding: 15px;margin-bottom: 20px;}
-</style>
+	.q8-message-table td{vertical-align:middle!important}
+	.q8-message-action{width:88px}
+	.q8-message-action .btn{height:28px;min-width:62px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;font-weight:800;line-height:1}
+	.q8-msg-card{min-width:360px;max-width:680px;background:#f7fbff}
+	.q8-msg-head{padding:18px 20px;text-align:center;background:linear-gradient(135deg,#1677ff,#22c4c8);color:#fff}
+	.q8-msg-head h4{margin:0;color:#fff;font-weight:900}
+	.q8-msg-head small{display:block;margin-top:6px;color:rgba(255,255,255,.82)}
+	.q8-msg-body{padding:18px 20px;color:#1f2937;line-height:1.8;background:#fff;word-break:break-word}
+	@media(max-width:768px){.q8-msg-card{min-width:0;width:92vw}.q8-message-action{width:auto}}
+	</style>
 <div class="wrapper">
 <div class="col-sm-12">
 <div class="panel panel-default">
 <div class="panel-heading font-bold">消息列表</div>
 <div class="panel-body"><a href="javascript:msg_read_all();" class="btn btn-primary">一键已读</a></div>
 <div class="well well-sm" style="margin: 0;">我共收到 <b><?php echo $msgcount?></b> 个消息</div>      <div class="table-responsive">
-        <table class="table table-striped b-t b-light">
+        <table class="table table-striped b-t b-light q8-message-table">
           <thead><th>操作</th><th>通知标题</th><th>接收时间</th><th>阅读状态</th></tr></thead>
 <?php
 foreach($msgrow as $row){
 echo '
 	<tr class="onclick '.($row['read']?'':'warning').'"  >
-	<td><a class="btn btn-info btn-xs" onclick="show('.$row['id'].')">查看</a></td>
+	<td class="q8-message-action"><a class="btn btn-info btn-xs" onclick="show('.$row['id'].')">&#26597;&#30475;</a></td>
 	<td>'.$row['title'].'</td>
 	<td>'.$row['addtime'].'</td>
 	<td>'.($row['read']?'<span class="label label-success">已读</span>':'<span class="label label-warning">未读</span>').'</td>
@@ -90,8 +98,8 @@ function show(id) {
 			if(data.code==0){
 				layer.open({
 				  type: 1,
-				  skin: 'layui-layer-lan',
-				  anim: 2,
+				  skin: 'layui-layer-rim q8-msg-layer',
+				  anim: 0,
 				  btn: ['关闭窗口'],
 				  btnAlign:'c',
 				  shadeClose: true,

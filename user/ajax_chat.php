@@ -9,15 +9,10 @@ $user_ip = real_ip();
 $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
 function getSessionId($DB, $user_ip, $user_agent) {
-    global $islogin2, $userrow;
-    $zid = ($islogin2 == 1 && isset($userrow['zid'])) ? $userrow['zid'] : 0;
-    if($zid > 0) {
-        $row = $DB->getRow("SELECT * FROM shua_chat_session WHERE zid=? AND status=1 ORDER BY id DESC LIMIT 1", [$zid]);
-    } else {
-        $row = $DB->getRow("SELECT * FROM shua_chat_session WHERE zid=0 AND user_ip=? AND status=1 ORDER BY id DESC LIMIT 1", [$user_ip]);
-    }
+    $row = $DB->getRow("SELECT * FROM shua_chat_session WHERE user_ip=? AND status=1 ORDER BY id DESC LIMIT 1", [$user_ip]);
     if($row) return $row['id'];
-    $DB->exec("INSERT INTO shua_chat_session (zid, user_ip, user_agent, status, last_msg_time, create_time) VALUES (?,?,?,?,?,NOW())", [$zid, $user_ip, $user_agent, 1, date('Y-m-d H:i:s')]);
+    // 自动创建新会话
+    $DB->exec("INSERT INTO shua_chat_session (user_ip, user_agent, status, last_msg_time, create_time) VALUES (?,?,?,?,NOW())", [$user_ip, $user_agent, 1, date('Y-m-d H:i:s')]);
     return $DB->lastInsertId();
 }
 

@@ -27,7 +27,7 @@ if($_GET['last']==1){
 
 ?>
 <div class="panel panel-default">
-     <div class="panel-heading font-bold" style="background-color: #9ee2ff;color: white;">分站排行</div>
+     <div class="panel-heading font-bold" style="background-color: #9999CC;color: white;">分站排行</div>
 <ul class="nav nav-tabs">
 <li class="<?php echo $_GET['last']!=1?'active':null;?>" style="width:50%"><a href="rank.php"><center>今日销售排行</center></a></li>
 <li class="<?php echo $_GET['last']==1?'active':null;?>" style="width:50%"><a href="rank.php?last=1"><center>昨日销售排行</center></a></li>

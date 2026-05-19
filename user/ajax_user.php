@@ -12,6 +12,234 @@ if (!$islogin2) {
     exit('{"code":-1,"msg":"未登录"}');
 }
 
+if (!function_exists('q8_user_batch_adjust_value')) {
+    function q8_user_batch_adjust_value($currentValue, $operation, $batchType, $value)
+    {
+        if ($batchType === 'fixed') {
+            return round($operation === 'add' ? $currentValue + $value : $currentValue - $value, 2);
+        }
+        $percentage = $value / 100;
+        return round($operation === 'add' ? $currentValue * (1 + $percentage) : $currentValue * (1 - $percentage), 2);
+    }
+}
+
+if (!function_exists('q8_user_batch_price_type_label')) {
+    function q8_user_batch_price_type_label($priceType)
+    {
+        $labels = array(
+            'price' => '销售价格',
+            'cost2' => '下级专业版价格',
+            'cost' => '下级普通版价格',
+        );
+        return isset($labels[$priceType]) ? $labels[$priceType] : '价格';
+    }
+}
+
+if (!function_exists('q8_user_encode_price_history_payload')) {
+    function q8_user_encode_price_history_payload($priceData, $affectedCount = 0)
+    {
+        return json_encode(array(
+            'items' => is_array($priceData) ? $priceData : array(),
+            'affected_count' => intval($affectedCount)
+        ));
+    }
+}
+
+if (!function_exists('q8_user_decode_price_history_payload')) {
+    function q8_user_decode_price_history_payload($raw)
+    {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded) && isset($decoded['items']) && is_array($decoded['items'])) {
+            return array(
+                'items' => $decoded['items'],
+                'affected_count' => isset($decoded['affected_count']) ? intval($decoded['affected_count']) : count($decoded['items']),
+                'accurate_count' => true
+            );
+        }
+        if (!is_array($decoded)) {
+            $decoded = @unserialize($raw);
+        }
+        if (is_array($decoded)) {
+            return array(
+                'items' => $decoded,
+                'affected_count' => count($decoded),
+                'accurate_count' => false
+            );
+        }
+        return array(
+            'items' => array(),
+            'affected_count' => 0,
+            'accurate_count' => false
+        );
+    }
+}
+
+if (!function_exists('q8_user_site_price_rule_validate')) {
+    function q8_user_site_price_rule_validate($name, $p2, $p1, $p0)
+    {
+        if ($name === '' || trim((string)$p2) === '' || trim((string)$p1) === '' || trim((string)$p0) === '') {
+            return '请确保各项不能为空';
+        }
+        $p2 = floatval($p2);
+        $p1 = floatval($p1);
+        $p0 = floatval($p0);
+        if ($p2 > $p1) {
+            return '下级专业版加价不能高于下级普通版加价';
+        }
+        if ($p2 > $p0) {
+            return '下级专业版加价不能高于销售价格加价';
+        }
+        if ($p1 > $p0) {
+            return '下级普通版加价不能高于销售价格加价';
+        }
+        return '';
+    }
+}
+
+if (!function_exists('q8_user_site_price_rule_duplicate')) {
+    function q8_user_site_price_rule_duplicate($zid, $name, $excludeId = 0)
+    {
+        global $DB;
+
+        if (intval($excludeId) > 0) {
+            return $DB->getRow(
+                "SELECT id FROM pre_price WHERE zid=:zid AND id<>:id AND name=:name LIMIT 1",
+                array(':zid' => intval($zid), ':id' => intval($excludeId), ':name' => $name)
+            );
+        }
+
+        return $DB->getRow(
+            "SELECT id FROM pre_price WHERE zid=:zid AND name=:name LIMIT 1",
+            array(':zid' => intval($zid), ':name' => $name)
+        );
+    }
+}
+
+if (in_array($act, array('get_site_price_rule', 'add_site_price_rule', 'edit_site_price_rule', 'delete_site_price_rule', 'set_site_price_rule'), true)) {
+    if ($userrow['power'] <= 0) {
+        exit(json_encode(array('code' => -1, 'msg' => '没有权限使用此功能'), JSON_UNESCAPED_UNICODE));
+    }
+
+    if ($act === 'get_site_price_rule') {
+        $id = intval(isset($_GET['id']) ? $_GET['id'] : 0);
+        $row = q8_price_rule_fetch_row($id, $userrow['zid']);
+        if (!$row) {
+            exit(json_encode(array('code' => -1, 'msg' => '模板不存在'), JSON_UNESCAPED_UNICODE));
+        }
+        $row['code'] = 0;
+        exit(json_encode($row, JSON_UNESCAPED_UNICODE));
+    }
+
+    if ($act === 'add_site_price_rule') {
+        $name = trim(isset($_POST['name']) ? $_POST['name'] : '');
+        $kind = intval(isset($_POST['kind']) ? $_POST['kind'] : 0);
+        $raw_p_2 = isset($_POST['p_2']) ? $_POST['p_2'] : '';
+        $raw_p_1 = isset($_POST['p_1']) ? $_POST['p_1'] : '';
+        $raw_p_0 = isset($_POST['p_0']) ? $_POST['p_0'] : '';
+        $error = q8_user_site_price_rule_validate($name, $raw_p_2, $raw_p_1, $raw_p_0);
+        if ($error !== '') {
+            exit(json_encode(array('code' => -1, 'msg' => $error), JSON_UNESCAPED_UNICODE));
+        }
+        if (q8_user_site_price_rule_duplicate($userrow['zid'], $name)) {
+            exit(json_encode(array('code' => -1, 'msg' => '模板名称已存在'), JSON_UNESCAPED_UNICODE));
+        }
+
+        $result = $DB->exec(
+            "INSERT INTO pre_price (zid,kind,name,p_0,p_1,p_2) VALUES (:zid,:kind,:name,:p0,:p1,:p2)",
+            array(
+                ':zid' => intval($userrow['zid']),
+                ':kind' => $kind,
+                ':name' => $name,
+                ':p0' => floatval($raw_p_0),
+                ':p1' => floatval($raw_p_1),
+                ':p2' => floatval($raw_p_2),
+            )
+        );
+        if ($result !== false) {
+            $CACHE->clear('pricerules');
+            exit(json_encode(array('code' => 0, 'msg' => '分站加价模板新增成功'), JSON_UNESCAPED_UNICODE));
+        }
+        exit(json_encode(array('code' => -1, 'msg' => '分站加价模板新增失败：' . $DB->error()), JSON_UNESCAPED_UNICODE));
+    }
+
+    if ($act === 'edit_site_price_rule') {
+        $id = intval(isset($_POST['prid']) ? $_POST['prid'] : 0);
+        if (!q8_price_rule_exists_for_owner($id, $userrow['zid'])) {
+            exit(json_encode(array('code' => -1, 'msg' => '模板不存在或无权操作'), JSON_UNESCAPED_UNICODE));
+        }
+
+        $name = trim(isset($_POST['name']) ? $_POST['name'] : '');
+        $kind = intval(isset($_POST['kind']) ? $_POST['kind'] : 0);
+        $raw_p_2 = isset($_POST['p_2']) ? $_POST['p_2'] : '';
+        $raw_p_1 = isset($_POST['p_1']) ? $_POST['p_1'] : '';
+        $raw_p_0 = isset($_POST['p_0']) ? $_POST['p_0'] : '';
+        $error = q8_user_site_price_rule_validate($name, $raw_p_2, $raw_p_1, $raw_p_0);
+        if ($error !== '') {
+            exit(json_encode(array('code' => -1, 'msg' => $error), JSON_UNESCAPED_UNICODE));
+        }
+        if (q8_user_site_price_rule_duplicate($userrow['zid'], $name, $id)) {
+            exit(json_encode(array('code' => -1, 'msg' => '模板名称已存在'), JSON_UNESCAPED_UNICODE));
+        }
+
+        $result = $DB->exec(
+            "UPDATE pre_price SET kind=:kind,name=:name,p_0=:p0,p_1=:p1,p_2=:p2 WHERE id=:id AND zid=:zid",
+            array(
+                ':kind' => $kind,
+                ':name' => $name,
+                ':p0' => floatval($raw_p_0),
+                ':p1' => floatval($raw_p_1),
+                ':p2' => floatval($raw_p_2),
+                ':id' => $id,
+                ':zid' => intval($userrow['zid']),
+            )
+        );
+        if ($result !== false) {
+            $CACHE->clear('pricerules');
+            exit(json_encode(array('code' => 0, 'msg' => '分站加价模板修改成功'), JSON_UNESCAPED_UNICODE));
+        }
+        exit(json_encode(array('code' => -1, 'msg' => '分站加价模板修改失败：' . $DB->error()), JSON_UNESCAPED_UNICODE));
+    }
+
+    if ($act === 'delete_site_price_rule') {
+        $id = intval(isset($_POST['id']) ? $_POST['id'] : 0);
+        if (!q8_price_rule_exists_for_owner($id, $userrow['zid'])) {
+            exit(json_encode(array('code' => -1, 'msg' => '模板不存在或无权操作'), JSON_UNESCAPED_UNICODE));
+        }
+        $DB->beginTransaction();
+        try {
+            if (intval($userrow['site_prid']) === $id) {
+                $DB->exec("UPDATE pre_site SET site_prid=0 WHERE zid=:zid", array(':zid' => intval($userrow['zid'])));
+            }
+            $DB->exec(
+                "DELETE FROM pre_price WHERE id=:id AND zid=:zid LIMIT 1",
+                array(':id' => $id, ':zid' => intval($userrow['zid']))
+            );
+            $DB->commit();
+            $CACHE->clear('pricerules');
+            exit(json_encode(array('code' => 0, 'msg' => '分站加价模板删除成功'), JSON_UNESCAPED_UNICODE));
+        } catch (Exception $e) {
+            $DB->rollback();
+            exit(json_encode(array('code' => -1, 'msg' => '分站加价模板删除失败：' . $e->getMessage()), JSON_UNESCAPED_UNICODE));
+        }
+    }
+
+    $id = intval(isset($_POST['id']) ? $_POST['id'] : 0);
+    if ($id < 0) {
+        $id = 0;
+    }
+    if ($id > 0 && !q8_price_rule_exists_for_owner($id, $userrow['zid'])) {
+        exit(json_encode(array('code' => -1, 'msg' => '模板不存在或无权使用'), JSON_UNESCAPED_UNICODE));
+    }
+    $result = $DB->exec(
+        "UPDATE pre_site SET site_prid=:site_prid WHERE zid=:zid",
+        array(':site_prid' => $id, ':zid' => intval($userrow['zid']))
+    );
+    if ($result !== false) {
+        exit(json_encode(array('code' => 0, 'msg' => '当前分站加价模板已更新'), JSON_UNESCAPED_UNICODE));
+    }
+    exit(json_encode(array('code' => -1, 'msg' => '当前分站加价模板更新失败：' . $DB->error()), JSON_UNESCAPED_UNICODE));
+}
+
 switch ($act) {
     case 'refund':
         // 禁用用户自助退款功能
@@ -76,9 +304,13 @@ switch ($act) {
                 continue;
             }
             $price_obj->setToolInfo($row['tid'], $row);
-            $price                      = $price_obj->getToolPrice($row['tid']);
+            $price                      = $price_obj->getManageSalePrice($row['tid']);
             $a                          = (float)$up / 100;
-            $data[$row['tid']]['price'] = round($price * ($a + 1), 2);
+            $new_price                  = round($price * ($a + 1), 2);
+            if ($new_price == $price) {
+                continue;
+            }
+            $data[$row['tid']]['price'] = $new_price;
         }
 
         // 保存历史记录
@@ -94,7 +326,7 @@ switch ($act) {
         }
 
         $history_desc = "价格提升：" . $up . "%";
-        $history_data = json_encode($original_price);
+        $history_data = q8_user_encode_price_history_payload($original_price, count($data));
 
         // 检查并创建历史记录表
         $DB->exec("CREATE TABLE IF NOT EXISTS pre_price_history (
@@ -132,7 +364,7 @@ switch ($act) {
             }
 
             $DB->commit();
-            exit('{"code":0,"msg":"价格提升成功，共修改了'.count($data).'个商品"}');
+            exit('{"code":0,"msg":"价格提升成功，共修改了'.$updated_count.'个商品"}');
         } catch (Exception $e) {
             $DB->rollback();
             exit('{"code":-1,"msg":"价格提升失败：' . $e->getMessage() . '"}');
@@ -195,6 +427,232 @@ switch ($act) {
         break;
 
     case 'batch_update_price':
+        unset($islogin2);
+        $price_obj = new \lib\Price($userrow['zid'], $userrow);
+
+        $operation = isset($_POST['operation']) ? trim($_POST['operation']) : '';
+        $price_type = isset($_POST['price_type']) ? trim($_POST['price_type']) : '';
+        $batch_type = isset($_POST['batch_type']) ? trim($_POST['batch_type']) : '';
+        $raw_value = isset($_POST['value']) ? trim($_POST['value']) : '';
+        $cid = isset($_POST['cid']) ? trim($_POST['cid']) : '';
+        $name = isset($_POST['name']) ? trim($_POST['name']) : '';
+        $status = isset($_POST['status']) ? intval($_POST['status']) : 0;
+
+        if ($operation !== 'add' && $operation !== 'subtract') {
+            exit('{"code":-1,"msg":"操作类型错误"}');
+        }
+
+        $allowed_price_types = $userrow['power'] == 2 ? array('price', 'cost2', 'cost') : array('price');
+        if (!in_array($price_type, $allowed_price_types, true)) {
+            exit('{"code":-1,"msg":"价格类型错误"}');
+        }
+
+        if ($batch_type !== 'fixed' && $batch_type !== 'percent') {
+            exit('{"code":-1,"msg":"批量类型错误"}');
+        }
+
+        if ($raw_value === '' || !is_numeric($raw_value)) {
+            exit('{"code":-1,"msg":"修改值必须为数字"}');
+        }
+
+        $value = round(floatval($raw_value), 2);
+        if ($value < 0) {
+            exit('{"code":-1,"msg":"修改值不能为负数"}');
+        }
+        if ($batch_type === 'percent' && $value <= 0) {
+            exit('{"code":-1,"msg":"百分比必须为正数"}');
+        }
+
+        $where = "active=1";
+        if (!empty($cid) && $cid !== '0') {
+            $cid_array = explode(',', $cid);
+            $cid_array = array_filter($cid_array, function ($id) {
+                return is_numeric($id) && $id > 0;
+            });
+            if (!empty($cid_array)) {
+                $where .= " AND cid IN ('" . implode("','", $cid_array) . "')";
+            }
+        }
+        if (!empty($name)) {
+            $where .= " AND name LIKE '%" . daddslashes($name) . "%'";
+        }
+        if ($status === 1) {
+            $where .= " AND close=0";
+        } elseif ($status === 2) {
+            $where .= " AND close=1";
+        }
+
+        $sql = $DB->query("SELECT * FROM pre_tools WHERE {$where}");
+        $data = array();
+        $updated_count = 0;
+
+        while ($row = $sql->fetch()) {
+            if ($row['price'] == 0 || strpos($row['name'], '免费') !== false) {
+                continue;
+            }
+
+            $tid = intval($row['tid']);
+            $price_obj->setToolInfo($tid, $row);
+
+            $current_sale_price = round($price_obj->getManageSalePrice($tid), 2);
+            $current_child_normal_price = $userrow['power'] == 2 ? round($price_obj->getManageChildNormalPrice($tid), 2) : 0;
+            $current_child_pro_price = $userrow['power'] == 2 ? round($price_obj->getManageChildProfessionalPrice($tid), 2) : null;
+            $current_self_cost_price = round($price_obj->getManageSelfCostPrice($tid), 2);
+            $current_delete_status = intval($price_obj->getToolDel($tid));
+            $current_min_sale_price = $userrow['power'] == 2 ? $current_child_normal_price : $current_self_cost_price;
+
+            if ($price_type === 'cost2') {
+                $current_value = $current_child_pro_price;
+            } elseif ($price_type === 'cost') {
+                $current_value = $current_child_normal_price;
+            } else {
+                $current_value = $current_sale_price;
+            }
+
+            $new_value = q8_user_batch_adjust_value($current_value, $operation, $batch_type, $value);
+            if ($new_value < 0) {
+                continue;
+            }
+
+            $next_price_info = array(
+                'price' => $current_sale_price,
+                'cost' => $current_child_normal_price,
+                'cost2' => $current_child_pro_price,
+                'del' => $current_delete_status,
+            );
+
+            if ($price_type === 'cost2') {
+                if ($new_value < $current_self_cost_price) {
+                    continue;
+                }
+
+                $next_price_info['cost2'] = $new_value;
+                if ($next_price_info['cost'] < $next_price_info['cost2']) {
+                    $next_price_info['cost'] = $next_price_info['cost2'];
+                }
+                if ($next_price_info['price'] < $next_price_info['cost']) {
+                    $next_price_info['price'] = $next_price_info['cost'];
+                }
+
+                $main_cost2 = round($price_obj->getMainCost2(), 2);
+                $main_cost = round($price_obj->getMainCost(), 2);
+                $main_price = round($price_obj->getMainPrice(), 2);
+                if ($conf['fenzhan_pricelimit'] == 1) {
+                    if ($main_cost2 > 0 && (($main_cost2 > 1 && $next_price_info['cost2'] > $main_cost2 * 2) || ($main_cost2 <= 1 && $next_price_info['cost2'] > 2))) {
+                        continue;
+                    }
+                    if ($main_cost > 0 && (($main_cost > 1 && $next_price_info['cost'] > $main_cost * 2) || ($main_cost <= 1 && $next_price_info['cost'] > 2))) {
+                        continue;
+                    }
+                    if (($main_price > 1 && $next_price_info['price'] > $main_price * 2) || ($main_price <= 1 && $next_price_info['price'] > 2)) {
+                        continue;
+                    }
+                }
+            } elseif ($price_type === 'cost') {
+                if ($new_value < $current_child_pro_price) {
+                    continue;
+                }
+
+                $next_price_info['cost'] = $new_value;
+                if ($next_price_info['price'] < $next_price_info['cost']) {
+                    $next_price_info['price'] = $next_price_info['cost'];
+                }
+
+                $main_cost2 = round($price_obj->getMainCost2(), 2);
+                $main_cost = round($price_obj->getMainCost(), 2);
+                $main_price = round($price_obj->getMainPrice(), 2);
+                if ($conf['fenzhan_pricelimit'] == 1) {
+                    if ($main_cost2 > 0 && (($main_cost2 > 1 && $next_price_info['cost2'] > $main_cost2 * 2) || ($main_cost2 <= 1 && $next_price_info['cost2'] > 2))) {
+                        continue;
+                    }
+                    if ($main_cost > 0 && (($main_cost > 1 && $next_price_info['cost'] > $main_cost * 2) || ($main_cost <= 1 && $next_price_info['cost'] > 2))) {
+                        continue;
+                    }
+                    if (($main_price > 1 && $next_price_info['price'] > $main_price * 2) || ($main_price <= 1 && $next_price_info['price'] > 2)) {
+                        continue;
+                    }
+                }
+            } else {
+                if ($new_value < $current_min_sale_price) {
+                    continue;
+                }
+
+                $next_price_info['price'] = $new_value;
+
+                $main_price = round($price_obj->getMainPrice(), 2);
+                if ($conf['fenzhan_pricelimit'] == 1) {
+                    if (($main_price > 1 && $next_price_info['price'] > $main_price * 2) || ($main_price <= 1 && $next_price_info['price'] > 2)) {
+                        continue;
+                    }
+                }
+            }
+
+            if ($userrow['power'] == 2) {
+                if (
+                    round($next_price_info['price'], 2) == $current_sale_price
+                    && round($next_price_info['cost'], 2) == $current_child_normal_price
+                    && round(floatval($next_price_info['cost2']), 2) == round(floatval($current_child_pro_price), 2)
+                ) {
+                    continue;
+                }
+            } elseif (round($next_price_info['price'], 2) == $current_sale_price) {
+                continue;
+            }
+
+            $data[$tid] = $next_price_info;
+            $updated_count++;
+        }
+
+        if ($updated_count <= 0) {
+            exit('{"code":-1,"msg":"没有找到符合条件的商品或修改后价格不符合要求"}');
+        }
+
+        $price_history = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$userrow['zid']}'");
+        $original_price = array();
+        while ($row = $price_history->fetch()) {
+            $original_price[$row['tid']] = array(
+                'price' => $row['price'],
+                'cost' => $row['cost'],
+                'cost2' => $row['cost2'],
+                'del' => $row['del']
+            );
+        }
+
+        $history_desc = "批量" . ($operation === 'add' ? "加价" : "降价") . "：" . q8_user_batch_price_type_label($price_type) . " " . ($batch_type === 'fixed' ? $value . "元" : $value . "%");
+        $history_data = q8_user_encode_price_history_payload($original_price, $updated_count);
+
+        $DB->exec("CREATE TABLE IF NOT EXISTS pre_price_history (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            zid INT UNSIGNED NOT NULL,
+            price_data TEXT NOT NULL,
+            description VARCHAR(255) NOT NULL,
+            create_time DATETIME NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        $DB->exec("INSERT INTO pre_price_history (zid, price_data, description, create_time) VALUES ('{$userrow['zid']}', '{$history_data}', '{$history_desc}', NOW())");
+
+        $DB->beginTransaction();
+        try {
+            foreach ($data as $tid => $price_info) {
+                $saved = $price_obj->setPriceInfo(
+                    $tid,
+                    $price_info['del'],
+                    $price_info['price'],
+                    $price_info['cost'],
+                    $price_info['cost2']
+                );
+                if (!$saved) {
+                    throw new Exception($DB->error());
+                }
+            }
+            $DB->commit();
+            exit("{\"code\":0,\"msg\":\"批量修改成功，共更新了 {$updated_count} 个商品\"}");
+        } catch (Exception $e) {
+            $DB->rollback();
+            exit('{"code":-1,"msg":"批量修改失败：' . $e->getMessage() . '"}');
+        }
+        break;
+    case 'batch_update_price_legacy':
         unset($islogin2);
         $price_obj = new \lib\Price($userrow['zid'], $userrow);
 
@@ -625,20 +1083,14 @@ switch ($act) {
             exit('{"code":-1,"msg":"此卡密已被使用！"}');
         }
         $money = $myrow['money'];
-        // 计算充值返利
-        $rebate_money = 0;
-        $rebate_rate = 0;
-        if (isset($conf['recharge_rebate_enabled']) && $conf['recharge_rebate_enabled'] == 1) {
-            $rebate_rate = isset($conf['recharge_rebate_rate']) ? $conf['recharge_rebate_rate'] : 3;
-            $rebate_money = round($money * ($rebate_rate / 100), 2);
-        }
+        $rebate_money = q8_calc_online_recharge_bonus($money, $conf);
+        $rebate_rate = function_exists('q8_get_recharge_rebate_rate') ? q8_get_recharge_rebate_rate($money, $conf) : (isset($conf['recharge_rebate_rate']) ? floatval($conf['recharge_rebate_rate']) : 0);
         if ($DB->exec("UPDATE `pre_kms` SET `status`=1 WHERE `kid`='{$myrow['kid']}'")) {
             $DB->exec("UPDATE `pre_kms` SET `zid` ='{$userrow['zid']}',`usetime` ='" . $date . "' WHERE `kid`='{$myrow['kid']}'");
             // 充值主金额
             $rs = changeUserMoney($userrow['zid'], $money, true, '充值', '你使用加款卡充值了' . $money . '元余额');
-            // 发放返利
             if ($rebate_money > 0) {
-                changeUserMoney($userrow['zid'], $rebate_money, true, "充值返利", "你使用加款卡充值了" . $money . "元余额，获得" . $rebate_rate . "%返利" . $rebate_money . "元已到账，感谢充值！");
+                changeUserMoney($userrow['zid'], $rebate_money, true, hex2bin('e8b5a0e98081'), hex2bin('e58aa0e6acbee58da1e58585e580bc') . $money . hex2bin('e58583e8b5a0e98081') . $rebate_rate . '%=' . $rebate_money . hex2bin('e58583'));
             }
             if ($rs) {
                 if ($rebate_money > 0) {
@@ -800,20 +1252,13 @@ switch ($act) {
         $sql = $DB->query("SELECT * FROM pre_price_history WHERE zid='{$userrow['zid']}' ORDER BY create_time DESC LIMIT $offset,$pagesize");
         $history = [];
         while ($row = $sql->fetch()) {
-            // 尝试使用JSON解析，如果失败则尝试使用序列化解析
-            $price_data = json_decode($row['price_data'], true);
-            if (!is_array($price_data)) {
-                $price_data = @unserialize($row['price_data']);
-                if (!is_array($price_data)) {
-                    $price_data = [];
-                }
-            }
-
+            $history_payload = q8_user_decode_price_history_payload($row['price_data']);
             $history[] = [
                 'id' => $row['id'],
                 'description' => $row['description'],
                 'create_time' => $row['create_time'],
-                'price_data_count' => count($price_data)
+                'price_data_count' => $history_payload['affected_count'],
+                'price_data_count_accurate' => $history_payload['accurate_count'] ? 1 : 0
             ];
         }
 
@@ -844,7 +1289,7 @@ switch ($act) {
                 'del' => $row['del']
             ];
         }
-        $current_price_json = json_encode($current_price_data);
+        $current_price_json = q8_user_encode_price_history_payload($current_price_data, count($current_price_data));
         $DB->exec("INSERT INTO pre_price_history (zid, price_data, description, create_time) VALUES ('{$userrow['zid']}', '{$current_price_json}', '恢复到上一次修改前的状态', NOW())");
 
         // 使用事务确保操作的原子性
@@ -854,9 +1299,9 @@ switch ($act) {
             $DB->exec("DELETE FROM pre_site_price WHERE zid='{$userrow['zid']}'");
 
             // 恢复上一次的价格数据
-            $last_price_data = json_decode($last_history['price_data'], true);
-            if (is_array($last_price_data)) {
-                foreach ($last_price_data as $tid => $price_info) {
+            $last_price_payload = q8_user_decode_price_history_payload($last_history['price_data']);
+            if (is_array($last_price_payload['items'])) {
+                foreach ($last_price_payload['items'] as $tid => $price_info) {
                     $sql = "INSERT INTO pre_site_price (zid, tid, price, cost, cost2, del, create_time, update_time)
                            VALUES (:zid, :tid, :price, :cost, :cost2, :del, NOW(), NOW())";
 
@@ -899,7 +1344,7 @@ switch ($act) {
                 'del' => $row['del']
             ];
         }
-        $current_price_json = json_encode($current_price_data);
+        $current_price_json = q8_user_encode_price_history_payload($current_price_data, count($current_price_data));
         $DB->exec("INSERT INTO pre_price_history (zid, price_data, description, create_time) VALUES ('{$userrow['zid']}', '{$current_price_json}', '恢复到指定历史版本前的状态', NOW())");
 
         // 使用事务确保操作的原子性
@@ -909,9 +1354,9 @@ switch ($act) {
             $DB->exec("DELETE FROM pre_site_price WHERE zid='{$userrow['zid']}'");
 
             // 恢复指定历史版本的价格数据
-            $history_price_data = json_decode($history['price_data'], true);
-            if (is_array($history_price_data)) {
-                foreach ($history_price_data as $tid => $price_info) {
+            $history_price_payload = q8_user_decode_price_history_payload($history['price_data']);
+            if (is_array($history_price_payload['items'])) {
+                foreach ($history_price_payload['items'] as $tid => $price_info) {
                     $sql = "INSERT INTO pre_site_price (zid, tid, price, cost, cost2, del, create_time, update_time)
                            VALUES (:zid, :tid, :price, :cost, :cost2, :del, NOW(), NOW())";
 
@@ -934,6 +1379,140 @@ switch ($act) {
             $DB->rollback();
             exit('{"code":-1,"msg":"恢复失败：' . $e->getMessage() . '"}');
         }
+        break;
+    case 'get_site_price_rule':
+        if ($userrow['power'] <= 0) {
+            exit('{"code":-1,"msg":"没有权限使用此功能"}');
+        }
+        $id = intval(isset($_GET['id']) ? $_GET['id'] : 0);
+        $row = q8_price_rule_fetch_row($id, $userrow['zid']);
+        if (!$row) {
+            exit('{"code":-1,"msg":"模板不存在"}');
+        }
+        $row['code'] = 0;
+        exit(json_encode($row, JSON_UNESCAPED_UNICODE));
+        break;
+    case 'add_site_price_rule':
+        if ($userrow['power'] <= 0) {
+            exit('{"code":-1,"msg":"没有权限使用此功能"}');
+        }
+        $name = trim(isset($_POST['name']) ? $_POST['name'] : '');
+        $kind = intval(isset($_POST['kind']) ? $_POST['kind'] : 0);
+        $raw_p_2 = isset($_POST['p_2']) ? $_POST['p_2'] : '';
+        $raw_p_1 = isset($_POST['p_1']) ? $_POST['p_1'] : '';
+        $raw_p_0 = isset($_POST['p_0']) ? $_POST['p_0'] : '';
+        $error = q8_user_site_price_rule_validate($name, $raw_p_2, $raw_p_1, $raw_p_0);
+        if ($error !== '') {
+            exit(json_encode(array('code' => -1, 'msg' => $error), JSON_UNESCAPED_UNICODE));
+        }
+        $p_2 = floatval($raw_p_2);
+        $p_1 = floatval($raw_p_1);
+        $p_0 = floatval($raw_p_0);
+        if (q8_user_site_price_rule_duplicate($userrow['zid'], $name)) {
+            exit('{"code":-1,"msg":"模板名称已存在"}');
+        }
+        $result = $DB->exec(
+            "INSERT INTO pre_price (zid,kind,name,p_0,p_1,p_2) VALUES (:zid,:kind,:name,:p0,:p1,:p2)",
+            array(
+                ':zid' => intval($userrow['zid']),
+                ':kind' => $kind,
+                ':name' => $name,
+                ':p0' => $p_0,
+                ':p1' => $p_1,
+                ':p2' => $p_2,
+            )
+        );
+        if ($result !== false) {
+            $CACHE->clear('pricerules');
+            exit('{"code":0,"msg":"分站加价模板新增成功"}');
+        }
+        exit(json_encode(array('code' => -1, 'msg' => '分站加价模板新增失败：' . $DB->error()), JSON_UNESCAPED_UNICODE));
+        break;
+    case 'edit_site_price_rule':
+        if ($userrow['power'] <= 0) {
+            exit('{"code":-1,"msg":"没有权限使用此功能"}');
+        }
+        $id = intval(isset($_POST['prid']) ? $_POST['prid'] : 0);
+        if (!q8_price_rule_exists_for_owner($id, $userrow['zid'])) {
+            exit('{"code":-1,"msg":"模板不存在或无权操作"}');
+        }
+        $name = trim(isset($_POST['name']) ? $_POST['name'] : '');
+        $kind = intval(isset($_POST['kind']) ? $_POST['kind'] : 0);
+        $raw_p_2 = isset($_POST['p_2']) ? $_POST['p_2'] : '';
+        $raw_p_1 = isset($_POST['p_1']) ? $_POST['p_1'] : '';
+        $raw_p_0 = isset($_POST['p_0']) ? $_POST['p_0'] : '';
+        $error = q8_user_site_price_rule_validate($name, $raw_p_2, $raw_p_1, $raw_p_0);
+        if ($error !== '') {
+            exit(json_encode(array('code' => -1, 'msg' => $error), JSON_UNESCAPED_UNICODE));
+        }
+        $p_2 = floatval($raw_p_2);
+        $p_1 = floatval($raw_p_1);
+        $p_0 = floatval($raw_p_0);
+        if (q8_user_site_price_rule_duplicate($userrow['zid'], $name, $id)) {
+            exit('{"code":-1,"msg":"模板名称已存在"}');
+        }
+        $result = $DB->exec(
+            "UPDATE pre_price SET kind=:kind,name=:name,p_0=:p0,p_1=:p1,p_2=:p2 WHERE id=:id AND zid=:zid",
+            array(
+                ':kind' => $kind,
+                ':name' => $name,
+                ':p0' => $p_0,
+                ':p1' => $p_1,
+                ':p2' => $p_2,
+                ':id' => $id,
+                ':zid' => intval($userrow['zid']),
+            )
+        );
+        if ($result !== false) {
+            $CACHE->clear('pricerules');
+            exit('{"code":0,"msg":"分站加价模板修改成功"}');
+        }
+        exit(json_encode(array('code' => -1, 'msg' => '分站加价模板修改失败：' . $DB->error()), JSON_UNESCAPED_UNICODE));
+        break;
+    case 'delete_site_price_rule':
+        if ($userrow['power'] <= 0) {
+            exit('{"code":-1,"msg":"没有权限使用此功能"}');
+        }
+        $id = intval(isset($_POST['id']) ? $_POST['id'] : 0);
+        if (!q8_price_rule_exists_for_owner($id, $userrow['zid'])) {
+            exit('{"code":-1,"msg":"模板不存在或无权操作"}');
+        }
+        $DB->beginTransaction();
+        try {
+            if (intval($userrow['site_prid']) === $id) {
+                $DB->exec("UPDATE pre_site SET site_prid=0 WHERE zid=:zid", array(':zid' => intval($userrow['zid'])));
+            }
+            $DB->exec(
+                "DELETE FROM pre_price WHERE id=:id AND zid=:zid LIMIT 1",
+                array(':id' => $id, ':zid' => intval($userrow['zid']))
+            );
+            $DB->commit();
+            $CACHE->clear('pricerules');
+            exit('{"code":0,"msg":"分站加价模板删除成功"}');
+        } catch (Exception $e) {
+            $DB->rollback();
+            exit(json_encode(array('code' => -1, 'msg' => '分站加价模板删除失败：' . $e->getMessage()), JSON_UNESCAPED_UNICODE));
+        }
+        break;
+    case 'set_site_price_rule':
+        if ($userrow['power'] <= 0) {
+            exit('{"code":-1,"msg":"没有权限使用此功能"}');
+        }
+        $id = intval(isset($_POST['id']) ? $_POST['id'] : 0);
+        if ($id < 0) {
+            $id = 0;
+        }
+        if ($id > 0 && !q8_price_rule_exists_for_owner($id, $userrow['zid'])) {
+            exit('{"code":-1,"msg":"模板不存在或无权使用"}');
+        }
+        $result = $DB->exec(
+            "UPDATE pre_site SET site_prid=:site_prid WHERE zid=:zid",
+            array(':site_prid' => $id, ':zid' => intval($userrow['zid']))
+        );
+        if ($result !== false) {
+            exit('{"code":0,"msg":"当前分站加价模板已更新"}');
+        }
+        exit(json_encode(array('code' => -1, 'msg' => '当前分站加价模板更新失败：' . $DB->error()), JSON_UNESCAPED_UNICODE));
         break;
     default:
         exit('{"code":-4,"msg":"No Act"}');

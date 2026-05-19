@@ -1,508 +1,341 @@
 <?php
-
-include './includes/common.php';
-?><!DOCTYPE html>
-<html lang="zh-CN">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<title><?php echo $conf['sitename'];?> - 上架日志</title>
-		<link href="//lib.baomitu.com/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-		<link href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-		<style>
-			* {
-				margin: 0;
-				padding: 0;
-				box-sizing: border-box;
-			}
-
-			body {
-				background-color: #f5f5f5;
-				font-family: 'Microsoft YaHei', Arial, sans-serif;
-				line-height: 1.6;
-				color: #333;
-			}
-
-			.container {
-				max-width: 1200px;
-				margin: 0 auto;
-				padding: 20px;
-			}
-
-			.page-title {
-				font-size: 24px;
-				font-weight: bold;
-				color: #333;
-				margin: 0;
-			}
-
-			/* 头部容器样式 */
-			.header-container {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				margin-bottom: 30px;
-			}
-
-			.panel {
-				background: white;
-				border-radius: 10px;
-				margin-bottom: 25px;
-				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-				overflow: hidden;
-				transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-			}
-
-			.panel-heading {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				padding: 20px 25px;
-				background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-				color: white;
-				cursor: pointer;
-				transition: all 0.3s ease;
-			}
-
-			.panel-heading:hover {
-				background: linear-gradient(135deg, #ff8a8e 0%, #fac0b4 100%);
-			}
-
-			.panel-heading-left {
-				display: flex;
-				align-items: center;
-			}
-
-			.date-text {
-				font-size: 16px;
-				font-weight: 500;
-				margin-right: 20px;
-			}
-
-			.today-badge {
-				font-size: 18px;
-				font-weight: 600;
-			}
-
-			.item-count {
-				color: #fff;
-				font-weight: normal;
-				margin-left: 10px;
-				font-size: 14px;
-			}
-
-			.toggle-btn {
-				background: rgba(255, 255, 255, 0.2);
-				border: 2px solid rgba(255, 255, 255, 0.3);
-				color: white;
-				padding: 8px 16px;
-				border-radius: 20px;
-				font-size: 14px;
-				cursor: pointer;
-				transition: all 0.3s ease-in-out;
-				display: flex;
-				align-items: center;
-				gap: 5px;
-				position: relative;
-				overflow: hidden;
-			}
-
-			.toggle-btn .circle {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				width: 20px;
-				height: 20px;
-				background-color: white;
-				border-radius: 50%;
-				opacity: 0;
-				transition: all 0.3s ease-in-out;
-			}
-
-			.toggle-btn .toggle-text {
-				position: relative;
-				z-index: 1;
-				transition: all 0.3s ease-in-out;
-			}
-
-			.toggle-btn:hover {
-				background: rgba(255, 255, 255, 0.3);
-				border-color: rgba(255, 255, 255, 0.4);
-				box-shadow: 0 0 0 8px transparent;
-				border-radius: 24px;
-			}
-
-			.toggle-btn:hover .circle {
-				width: 150px;
-				height: 150px;
-				opacity: 0.2;
-			}
-
-			.toggle-btn:hover .toggle-text {
-				transform: translateX(8px);
-			}
-
-			.toggle-btn:active {
-				scale: 0.95;
-				box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
-			}
-
-			.toggle-icon {
-				font-size: 12px;
-				transition: transform 0.3s ease;
-				position: relative;
-				z-index: 1;
-			}
-
-			.toggle-icon.rotated {
-				transform: rotate(180deg);
-			}
-
-			.panel-body {
-				padding: 0 25px;
-				border-top: 1px solid #f0f0f0;
-				overflow: hidden;
-				max-height: 0;
-				opacity: 0;
-				transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-							max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-							opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-			}
-
-			.panel-body.open {
-				padding: 25px;
-				max-height: 2000px;
-				opacity: 1;
-			}
-
-			.items-container {
-				position: relative;
-			}
-
-			.visible-items {
-				margin-bottom: 20px;
-			}
-
-			.hidden-items {
-				display: none;
-			}
-
-			.product-link {
-				display: inline-block;
-				background: #f9f9f9;
-				border: 1px solid #e0e0e0;
-				border-radius: 8px;
-				padding: 12px 16px;
-				margin: 5px;
-				font-size: 14px;
-				color: #333;
-				text-decoration: none;
-				transition: all 0.3s ease;
-				max-width: calc(33.333% - 10px);
-				min-width: 280px;
-			}
-
-			.product-link:hover {
-				background: #f5f5f5;
-				box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-				color: #4d9cf8;
-				text-decoration: none;
-			}
-
-			@media (max-width: 768px) {
-				.container {
-					padding: 15px;
-				}
-
-				.panel-heading {
-					flex-direction: column;
-					align-items: flex-start;
-					gap: 10px;
-				}
-
-				.panel-heading-left {
-					flex-direction: column;
-					align-items: flex-start;
-					gap: 5px;
-				}
-
-				.date-text {
-					margin-right: 0;
-				}
-
-				.toggle-btn {
-					align-self: flex-end;
-				}
-
-				.product-link {
-					max-width: 100%;
-					min-width: unset;
-					width: 100%;
-					margin: 5px 0;
-				}
-			}
-
-			/* 动画按钮样式 */
-			.animated-button {
-				position: relative;
-				display: flex;
-				align-items: center;
-				gap: 4px;
-				padding: 12px 24px;
-				border: 4px solid;
-				border-color: transparent;
-				font-size: 14px;
-				background-color: inherit;
-				border-radius: 100px;
-				font-weight: 600;
-				color: greenyellow;
-				box-shadow: 0 0 0 2px greenyellow;
-				cursor: pointer;
-				overflow: hidden;
-				transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-				margin: 0;
-				width: fit-content;
-			}
-
-			.animated-button svg {
-				position: absolute;
-				width: 24px;
-				fill: greenyellow;
-				z-index: 9;
-				transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-			}
-
-			.animated-button .arr-1 {
-				right: 16px;
-			}
-
-			.animated-button .arr-2 {
-				left: -25%;
-			}
-
-			.animated-button .circle {
-				position: absolute;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
-				width: 20px;
-				height: 20px;
-				background-color: greenyellow;
-				border-radius: 50%;
-				opacity: 0;
-				transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-			}
-
-			.animated-button .text {
-				position: relative;
-				z-index: 1;
-				transform: translateX(-12px);
-				transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-			}
-
-			.animated-button:hover {
-				box-shadow: 0 0 0 12px transparent;
-				color: #212121;
-				border-radius: 12px;
-			}
-
-			.animated-button:hover .arr-1 {
-				right: -25%;
-			}
-
-			.animated-button:hover .arr-2 {
-				left: 16px;
-			}
-
-			.animated-button:hover .text {
-				transform: translateX(12px);
-			}
-
-			.animated-button:hover svg {
-				fill: #212121;
-			}
-
-			.animated-button:active {
-				scale: 0.95;
-				box-shadow: 0 0 0 4px greenyellow;
-			}
-
-			.animated-button:hover .circle {
-				width: 220px;
-				height: 220px;
-				opacity: 1;
-			}
-
-			/* 响应式设计 */
-			@media (max-width: 768px) {
-				.header-container {
-					flex-direction: row;
-					align-items: center;
-					gap: 10px;
-					flex-wrap: wrap;
-				}
-
-				.page-title {
-					font-size: 20px;
-				}
-
-				.animated-button {
-					font-size: 12px;
-					padding: 10px 16px;
-				}
-
-				.animated-button .arr-1 {
-					right: 4px;
-				}
-
-				.animated-button .arr-2 {
-					right: 4px;
-				}
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-			<div class="header-container">
-				<!-- 动画返回按钮 -->
-				<a href="/" class="animated-button">
-				  <svg viewBox="0 0 24 24" class="arr-2" xmlns="http://www.w3.org/2000/svg">
-				    <path
-				      d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-				    ></path>
-				  </svg>
-				  <span class="text"><<< 返回首页</span>
-				  <span class="circle"></span>
-				  <svg viewBox="0 0 24 24" class="arr-1" xmlns="http://www.w3.org/2000/svg">
-				    <path
-				      d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
-				    ></path>
-				  </svg>
-				</a>
-				<h1 class="page-title">上架日志</h1>
-			</div>
-
-			<?php
-// 按日期分组日志
-$logs_by_date = array();
-$rs = $DB->query("SELECT * FROM pre_toollogs ORDER BY date DESC");
-while ($res = $rs->fetch()) {
-	$date = $res['date'];
-	if (!isset($logs_by_date[$date])) {
-		$logs_by_date[$date] = array();
-	}
-	$logs_by_date[$date][] = $res['content'];
-}
-
-// 遍历分组后的日志
-foreach ($logs_by_date as $date => $contents) {
-	// 合并同一天的所有商品
-	$all_products = array();
-	foreach ($contents as $content) {
-		$products = explode("\n", trim($content));
-		$products = array_filter($products);
-		$all_products = array_merge($all_products, $products);
-	}
-	$count = count($all_products);
-
-	// 分离可见和隐藏的商品
-	$visible_products = array_slice($all_products, 0, 30); // 显示前30个
-	$hidden_products = array_slice($all_products, 30); // 隐藏剩余的
-
-	echo '<div class="panel">
-						<div class="panel-heading" onclick="togglePanel(this)">
-							<div class="panel-heading-left">
-								<span class="date-text">' . htmlspecialchars($date) . '</span>
-								<span class="today-badge">今日上架</span>
-								<span class="item-count">(' . $count . ' 件商品)</span>
-							</div>
-							<button class="toggle-btn">
-							<span class="toggle-text">展开面板</span> <span class="toggle-icon">▼</span>
-							<span class="circle"></span>
-						</button>
-						</div>
-						<div class="panel-body">
-							<div class="items-container">
-								<div class="visible-items">';
-
-									foreach ($visible_products as $product) {
-									if (trim($product)) {
-										$goods_name = str_replace('上架：', '', $product);
-										$goods = $DB->getRow("SELECT tid, cid FROM pre_tools WHERE name = :name LIMIT 1", array(':name' => $goods_name));
-										if ($goods) {
-											echo '<a class="product-link" href="./?cid=' . $goods['cid'] . '&tid=' . $goods['tid'] . '">' . htmlspecialchars($product) . '</a>';
-										} else {
-											echo '<a class="product-link" href="./">' . htmlspecialchars($product) . '</a>';
-										}
-									}
-								}
-
-								echo '</div>';
-
-								if (!empty($hidden_products)) {
-									echo '<div class="hidden-items">';
-										foreach ($hidden_products as $product) {
-									if (trim($product)) {
-										$goods_name = str_replace('上架：', '', $product);
-										$goods = $DB->getRow("SELECT tid, cid FROM pre_tools WHERE name = :name LIMIT 1", array(':name' => $goods_name));
-										if ($goods) {
-											echo '<a class="product-link" href="./?cid=' . $goods['cid'] . '&tid=' . $goods['tid'] . '">' . htmlspecialchars($product) . '</a>';
-										} else {
-											echo '<a class="product-link" href="./">' . htmlspecialchars($product) . '</a>';
-										}
-									}
-								}
-									echo '</div>';
-								}
-
-							echo '</div>
-							</div>
-						</div>';
-
-}
+include("./includes/common.php");
+$title = '商品动态';
+$toolLogsToday = (new DateTimeImmutable('now', new DateTimeZone('Asia/Shanghai')))->format('Y-m-d');
 ?>
-		</div>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title><?php echo htmlspecialchars($title); ?> - <?php echo htmlspecialchars($conf['sitename']); ?></title>
+    <link rel="stylesheet" href="//lib.baomitu.com/layui/2.9.3/css/layui.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #f6f7fb;
+            color: #20242c;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+        }
+        .page-wrap {
+            width: min(980px, calc(100% - 24px));
+            margin: 0 auto;
+            padding: 28px 0 56px;
+        }
+        .page-title {
+            margin: 0 0 18px;
+            font-size: 30px;
+            line-height: 1.25;
+            font-weight: 800;
+            text-align: center;
+            color: #1f2937;
+            letter-spacing: 0;
+        }
+        .tab-bar {
+            width: fit-content;
+            max-width: 100%;
+            margin: 0 auto 22px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+        }
+        .tab-item {
+            min-width: 112px;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 20px;
+            color: #64748b;
+            cursor: pointer;
+            user-select: none;
+            transition: background .18s ease, color .18s ease;
+        }
+        .tab-item.active {
+            color: #ffffff;
+            background: #2563eb;
+        }
+        .tab-item.active-off {
+            color: #ffffff;
+            background: #ea580c;
+        }
+        .log-panel {
+            overflow: hidden;
+            margin-bottom: 14px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, .06);
+        }
+        .panel-heading {
+            min-height: 58px;
+            padding: 0 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            background: #ffffff;
+        }
+        .date-text {
+            font-weight: 800;
+            font-size: 16px;
+            color: #111827;
+        }
+        .item-count {
+            margin-left: 8px;
+            font-size: 13px;
+            color: #64748b;
+        }
+        .today-badge {
+            margin-left: 8px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 12px;
+        }
+        .toggle-btn {
+            flex: 0 0 auto;
+            border: 0;
+            background: transparent;
+            color: #64748b;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .panel-body {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            border-top: 1px solid transparent;
+            transition: max-height .22s ease, opacity .18s ease;
+        }
+        .panel-expanded .panel-body {
+            max-height: none;
+            overflow: visible;
+            opacity: 1;
+            border-top-color: #eef2f7;
+        }
+        .items-container {
+            display: grid;
+            gap: 8px;
+            padding: 14px 18px 18px;
+        }
+        .goods-row {
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 10px;
+            background: #f8fafc;
+            border: 1px solid #eef2f7;
+            border-radius: 6px;
+        }
+        .left {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tag {
+            flex: 0 0 auto;
+            min-width: 48px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            color: #ffffff;
+            font-size: 12px;
+            line-height: 18px;
+            text-align: center;
+        }
+        .tag-on { background: #2563eb; }
+        .tag-off { background: #ea580c; }
+        .text-overflow {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 14px;
+            line-height: 22px;
+        }
+        .goods-link {
+            color: #1d4ed8;
+            text-decoration: none;
+        }
+        .goods-link:hover { color: #0f766e; }
+        .goods-name { color: #334155; }
+        .load-more-btn {
+            width: 180px;
+            height: 42px;
+            margin: 20px auto 0;
+            display: none;
+            border: 0;
+            border-radius: 6px;
+            background: #111827;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        .load-more-btn:disabled {
+            cursor: default;
+            opacity: .65;
+        }
+        .loading-box,
+        .empty {
+            margin: 42px auto;
+            padding: 24px;
+            text-align: center;
+            color: #64748b;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .floating-button {
+            position: fixed;
+            left: 22px;
+            top: 24px;
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #111827;
+            color: #ffffff;
+            text-decoration: none;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, .18);
+        }
+        @media (max-width: 640px) {
+            .page-wrap { width: calc(100% - 18px); padding-top: 20px; }
+            .page-title { font-size: 24px; }
+            .tab-bar { width: 100%; }
+            .tab-item { flex: 1; min-width: 0; padding: 9px 10px; }
+            .panel-heading { padding: 0 12px; }
+            .items-container { padding: 12px; }
+            .text-overflow { white-space: normal; overflow-wrap: anywhere; }
+            .floating-button { left: 14px; top: 14px; }
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+    <h1 class="page-title">商品动态</h1>
+    <div class="tab-bar">
+        <div class="tab-item active" data-tab="on">上架日志</div>
+        <div class="tab-item" data-tab="off">下架日志</div>
+    </div>
+    <div id="toolLog-flow"><div class="loading-box">&#21152;&#36733;&#20013;...</div></div>
+    <div id="offLog-flow" style="display:none;"><div class="loading-box">&#21152;&#36733;&#20013;...</div></div>
+    <button id="load-more" class="load-more-btn"><span>加载更多</span></button>
+    <a class="floating-button" href="./"><i class="layui-icon layui-icon-return"></i></a>
+</div>
+<script src="//lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="//lib.baomitu.com/layui/2.9.3/layui.js"></script>
+<script>
+(function () {
+    var today = <?php echo json_encode($toolLogsToday, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+    var toggleOpenText = '\u5c55\u5f00 <span>\u25bc</span>';
+    var toggleCloseText = '\u6536\u8d77 <span>\u25b2</span>';
+    var loadingText = '\u52a0\u8f7d\u4e2d...';
+    var loadMoreText = '\u52a0\u8f7d\u66f4\u591a';
+    var loadFailText = '\u52a0\u8f7d\u5931\u8d25';
+    var todayBadgeText = '\u4eca\u65e5';
+    var emptyText = '\u6682\u65e0\u8bb0\u5f55';
+    var emptyOnText = '\u6682\u65e0\u4e0a\u67b6\u8bb0\u5f55';
+    var emptyOffText = '\u6682\u65e0\u4e0b\u67b6\u8bb0\u5f55';
+    var recordCountSuffix = ' &#26465;&#35760;&#24405;';
+    var state = {
+        on: { page: 1, loading: false, more: true, endpoint: 'ajax.php?act=toollogsgroup' },
+        off: { page: 1, loading: false, more: true, endpoint: 'ajax.php?act=toollogsoffline&limit=5' }
+    };
+    var currentTab = 'on';
 
-		<script>
-			function togglePanel(panelHeading) {
-				const panel = panelHeading.closest('.panel');
-				const body = panel.querySelector('.panel-body');
-				const btn = panelHeading.querySelector('.toggle-btn');
-				const icon = btn.querySelector('.toggle-icon');
-				const hiddenItems = panel.querySelector('.hidden-items');
+    function escapeHtml(text) {
+        return String(text || '').replace(/[&<>"']/g, function (s) {
+            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[s];
+        });
+    }
 
-				if (!body.classList.contains('open')) {
-					// 展开面板
-					body.classList.add('open');
-					btn.innerHTML = '<span class="toggle-text">收起面板</span> <span class="toggle-icon rotated">▼</span><span class="circle"></span>';
-					if (hiddenItems) {
-						hiddenItems.style.display = 'block';
-					}
-				} else {
-					// 收起面板
-					body.classList.remove('open');
-					btn.innerHTML = '<span class="toggle-text">展开面板</span> <span class="toggle-icon">▼</span><span class="circle"></span>';
-					if (hiddenItems) {
-						hiddenItems.style.display = 'none';
-					}
-				}
-			}
+    function togglePanel(header) {
+        var panel = $(header).closest('.log-panel');
+        var open = panel.hasClass('panel-expanded');
+        panel.toggleClass('panel-expanded', !open).toggleClass('panel-collapsed', open);
+        panel.find('.toggle-btn').html(open ? toggleOpenText : toggleCloseText);
+    }
 
-			// 默认展开第一个面板
-			document.addEventListener('DOMContentLoaded', function() {
-				const firstPanel = document.querySelector('.panel-heading');
-				if (firstPanel) {
-					const body = firstPanel.closest('.panel').querySelector('.panel-body');
-					body.classList.add('open');
-					const btn = firstPanel.querySelector('.toggle-btn');
-					btn.innerHTML = '<span class="toggle-text">收起面板</span> <span class="toggle-icon rotated">▼</span><span class="circle"></span>';
-					const hiddenItems = firstPanel.closest('.panel').querySelector('.hidden-items');
-					if (hiddenItems) {
-						hiddenItems.style.display = 'block';
-					}
-				}
-			});
-		</script>
-	</body>
+    function panelHtml(item) {
+        var count = item.list ? item.list.length : 0;
+        var isToday = String(item.time || '') === today;
+        var content = item.content || '<div class="empty">' + emptyText + '</div>';
+        return '<div class="log-panel ' + (isToday ? 'panel-expanded' : 'panel-collapsed') + '">' +
+            '<div class="panel-heading">' +
+                '<span><span class="date-text">' + escapeHtml(item.time) + '</span>' +
+                (isToday ? '<span class="today-badge">' + todayBadgeText + '</span>' : '') +
+                '<span class="item-count">(' + count + recordCountSuffix + ')</span></span>' +
+                '<button type="button" class="toggle-btn">' + (isToday ? toggleCloseText : toggleOpenText) + '</button>' +
+            '</div>' +
+            '<div class="panel-body"><div class="items-container">' + content + '</div></div>' +
+        '</div>';
+    }
+
+    function loadLogs(tab) {
+        var s = state[tab];
+        if (s.loading || !s.more) return;
+        var flow = tab === 'on' ? '#toolLog-flow' : '#offLog-flow';
+        if (s.page === 1) $(flow).html('<div class="loading-box">' + loadingText + '</div>');
+        s.loading = true;
+        $('#load-more').prop('disabled', true).find('span').text(loadingText);
+        $.getJSON(s.endpoint + '&page=' + s.page, function (res) {
+            if (res.code === 0 && res.data && res.data.length) {
+                if (s.page === 1) $(flow).empty();
+                var html = '';
+                $.each(res.data, function (_, item) {
+                    html += panelHtml(item);
+                });
+                $(flow).append(html);
+                s.more = s.page < Number(res.page || 0);
+                s.page += 1;
+            } else {
+                if (s.page === 1) $(flow).html('<div class="empty">' + (tab === 'on' ? emptyOnText : emptyOffText) + '</div>');
+                s.more = false;
+            }
+        }).fail(function () {
+            if (layui.layer) {
+                layui.layer.msg(loadFailText);
+            }
+        }).always(function () {
+            s.loading = false;
+            $('#load-more').prop('disabled', false).find('span').text(loadMoreText);
+            $('#load-more').toggle(state[currentTab].more);
+        });
+    }
+
+    $(document).on('click', '.panel-heading', function () {
+        togglePanel(this);
+    });
+
+    $('.tab-item').on('click', function () {
+        currentTab = $(this).data('tab');
+        $('.tab-item').removeClass('active active-off');
+        $(this).addClass(currentTab === 'on' ? 'active' : 'active-off');
+        $('#toolLog-flow').toggle(currentTab === 'on');
+        $('#offLog-flow').toggle(currentTab === 'off');
+        $('#load-more').toggle(state[currentTab].more);
+        if (state[currentTab].page === 1) {
+            loadLogs(currentTab);
+        }
+    });
+
+    $('#load-more').on('click', function () {
+        loadLogs(currentTab);
+    });
+
+    loadLogs('on');
+})();
+</script>
+</body>
 </html>

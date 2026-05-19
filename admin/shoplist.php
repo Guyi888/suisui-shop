@@ -1,130 +1,415 @@
 <?php
 /**
  * 商品管理
-**/
+ */
 include("../includes/common.php");
-$title='商品管理';
-include './head.php';
-if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
+$title = '商品管理';
 
-
-?>
-    <div class="col-md-12 center-block" style="float: none;">
-<?php
+if ($islogin != 1) {
+    exit("<script language='javascript'>window.location.href='./login.php';</script>");
+}
 adminpermission('shop', 1);
 
-$rs=$DB->query("SELECT * FROM pre_price order by id asc");
-$priceselect='<option value="0">不使用加价模板</option>';
-$price_class[0]='不加价';
-while($res = $rs->fetch()){
-	$kind = $res['kind']==1?'元':'倍';
-	$priceselect.='<option value="'.$res['id'].'" kind="'.$res['kind'].'" p_2="'.$res['p_2'].'" p_1="'.$res['p_1'].'" p_0="'.$res['p_0'].'" >'.$res['name'].'('.$res['p_2'].$kind.'|'.$res['p_1'].$kind.'|'.$res['p_0'].$kind.')</option>';
-	$price_class[$res['id']]=$res['name'];
+if (!function_exists('q8_admin_shop_escape')) {
+    function q8_admin_shop_escape($value)
+    {
+        return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+    }
 }
-$_SESSION['priceselect']=$priceselect;
-$_SESSION['price_class']=$price_class;
 
-$my=isset($_GET['my'])?$_GET['my']:null;
+if (!function_exists('q8_admin_shop_fetch_categories')) {
+    function q8_admin_shop_fetch_categories($DB)
+    {
+        $rows = $DB->getAll("SELECT cid,pid,name,active,sort FROM pre_class ORDER BY sort ASC,cid ASC");
+        $parents = array();
+        $children = array();
+        $map = array();
 
-if($my=='qk2')
-{
-$sql="TRUNCATE TABLE `pre_tools`";
-if($DB->exec($sql)!==false)
-	exit("<script language='javascript'>alert('清空成功！');window.location.href='shoplist.php';</script>");
-else
-	exit("<script language='javascript'>alert('清空失败！".$DB->error()."');history.go(-1);</script>");
+        foreach ($rows as $row) {
+            $row['cid'] = intval($row['cid']);
+            $row['pid'] = intval($row['pid']);
+            $row['active'] = intval($row['active']);
+            $map[$row['cid']] = $row;
+
+            if ($row['pid'] === 0) {
+                $parents[] = $row;
+            } else {
+                if (!isset($children[$row['pid']])) {
+                    $children[$row['pid']] = array();
+                }
+                $children[$row['pid']][] = $row;
+            }
+        }
+
+        return array($parents, $children, $map);
+    }
 }
-else
-{
 
-$cid = isset($_GET['cid'])?intval($_GET['cid']):0;
+if (!function_exists('q8_admin_shop_render_category_options')) {
+    function q8_admin_shop_render_category_options($parents, $children, $selected = '', $allowAll = true, $allowNone = false)
+    {
+        $html = '';
+
+        if ($allowAll) {
+            $html .= '<option value="">全部分类</option>';
+        }
+        if ($allowNone) {
+            $html .= '<option value="-1"' . ((string)$selected === '-1' ? ' selected' : '') . '>未分类</option>';
+        }
+
+        foreach ($parents as $parent) {
+            $label = $parent['name'] . ($parent['active'] == 1 ? '' : ' [隐藏]');
+            $html .= '<option value="' . intval($parent['cid']) . '"' . ((string)$selected === (string)$parent['cid'] ? ' selected' : '') . '>' . q8_admin_shop_escape($label) . '</option>';
+
+            if (isset($children[$parent['cid']])) {
+                foreach ($children[$parent['cid']] as $child) {
+                    $childLabel = '-- ' . $child['name'] . ($child['active'] == 1 ? '' : ' [隐藏]');
+                    $html .= '<option value="' . intval($child['cid']) . '"' . ((string)$selected === (string)$child['cid'] ? ' selected' : '') . '>' . q8_admin_shop_escape($childLabel) . '</option>';
+                }
+            }
+        }
+
+        foreach ($children as $pid => $orphanRows) {
+            $exists = false;
+            foreach ($parents as $parent) {
+                if (intval($parent['cid']) === intval($pid)) {
+                    $exists = true;
+                    break;
+                }
+            }
+            if ($exists) {
+                continue;
+            }
+
+            foreach ($orphanRows as $child) {
+                $label = '-- ' . $child['name'] . ' [孤立]';
+                $html .= '<option value="' . intval($child['cid']) . '"' . ((string)$selected === (string)$child['cid'] ? ' selected' : '') . '>' . q8_admin_shop_escape($label) . '</option>';
+            }
+        }
+
+        return $html;
+    }
+}
+
+if (!function_exists('q8_admin_shop_fetch_price_rules')) {
+    function q8_admin_shop_fetch_price_rules($DB)
+    {
+$rows = $DB->getAll("SELECT id,name,kind,p_0,p_1,p_2 FROM pre_price WHERE zid=0 ORDER BY id ASC");
+        $legacySelect = '<option value="0">不使用加价模板</option>';
+        $legacyMap = array(0 => '不加价');
+        $rules = array();
+
+        foreach ($rows as $row) {
+            $row['id'] = intval($row['id']);
+            $row['kind'] = intval($row['kind']);
+            $row['p_0'] = (string)$row['p_0'];
+            $row['p_1'] = (string)$row['p_1'];
+            $row['p_2'] = (string)$row['p_2'];
+            $unitLabel = $row['kind'] === 1 ? '元' : '倍';
+
+            $legacySelect .= '<option value="' . $row['id'] . '" kind="' . $row['kind'] . '" p_2="' . q8_admin_shop_escape($row['p_2']) . '" p_1="' . q8_admin_shop_escape($row['p_1']) . '" p_0="' . q8_admin_shop_escape($row['p_0']) . '">' . q8_admin_shop_escape($row['name']) . '(' . q8_admin_shop_escape($row['p_2']) . $unitLabel . '|' . q8_admin_shop_escape($row['p_1']) . $unitLabel . '|' . q8_admin_shop_escape($row['p_0']) . $unitLabel . ')</option>';
+            $legacyMap[$row['id']] = $row['name'];
+            $rules[] = $row;
+        }
+
+        $_SESSION['priceselect'] = $legacySelect;
+        $_SESSION['price_class'] = $legacyMap;
+
+        return array($rules, $legacyMap);
+    }
+}
+
+if (!function_exists('q8_admin_shop_normalize_filters')) {
+    function q8_admin_shop_normalize_filters($typeOptions, $statusOptions, $pageSizeOptions)
+    {
+        $status = isset($_GET['status']) ? trim((string)$_GET['status']) : '';
+        if ($status === '1') {
+            $status = 'show';
+        } elseif ($status === '0') {
+            $status = 'hide';
+        }
+        if (!isset($statusOptions[$status])) {
+            $status = '';
+        }
+
+        $type = isset($_GET['type']) ? trim((string)$_GET['type']) : '';
+        if (!isset($typeOptions[$type])) {
+            $type = '';
+        }
+
+        $pageSize = isset($_GET['num']) ? intval($_GET['num']) : 30;
+        if (!in_array($pageSize, $pageSizeOptions, true)) {
+            $pageSize = 30;
+        }
+
+        return array(
+            'kw' => isset($_GET['kw']) ? trim((string)$_GET['kw']) : '',
+            'cid' => isset($_GET['cid']) ? intval($_GET['cid']) : 0,
+            'prid' => isset($_GET['prid']) ? intval($_GET['prid']) : 0,
+            'tid' => isset($_GET['tid']) ? intval($_GET['tid']) : 0,
+            'type' => $type,
+            'status' => $status,
+            'num' => $pageSize
+        );
+    }
+}
+
+$my = isset($_GET['my']) ? trim((string)$_GET['my']) : '';
+if ($my === 'qk2') {
+    adminpermission('shop', 2);
+    $ok = $DB->exec("TRUNCATE TABLE `pre_tools`") !== false;
+    header('Location: shoplist.php?notice=' . ($ok ? 'clear_success' : 'clear_failed'));
+    exit;
+}
+
+list($categoryParents, $categoryChildren, $categoryMap) = q8_admin_shop_fetch_categories($DB);
+list($priceRules, $priceRuleMap) = q8_admin_shop_fetch_price_rules($DB);
+
+$typeOptions = apply_filters('admin_shop_list_type_options', array(
+    '' => '全部来源',
+    '1' => '对接商品',
+    '4' => '发卡商品',
+    'other' => '自营商品'
+));
+$statusOptions = apply_filters('admin_shop_list_status_options', array(
+    '' => '全部状态',
+    'show' => '前台显示',
+    'hide' => '前台隐藏',
+    'up' => '上架中',
+    'down' => '已下架'
+));
+$pageSizeOptions = apply_filters('admin_shop_list_page_size_options', array(30, 50, 60, 80, 100));
+$filters = q8_admin_shop_normalize_filters($typeOptions, $statusOptions, $pageSizeOptions);
+
+$globalStats = $DB->getRow("SELECT
+    COUNT(*) AS total,
+    SUM(CASE WHEN active=1 THEN 1 ELSE 0 END) AS visible_total,
+    SUM(CASE WHEN active=0 THEN 1 ELSE 0 END) AS hidden_total,
+    SUM(CASE WHEN close=0 THEN 1 ELSE 0 END) AS onsale_total,
+    SUM(CASE WHEN close=1 THEN 1 ELSE 0 END) AS down_total,
+    SUM(CASE WHEN is_curl IN (1,2) THEN 1 ELSE 0 END) AS docking_total,
+    SUM(CASE WHEN is_curl=4 THEN 1 ELSE 0 END) AS card_total,
+    SUM(CASE WHEN is_curl NOT IN (1,2,4) THEN 1 ELSE 0 END) AS self_total
+FROM pre_tools");
+
+$noticeMap = array(
+    'clear_success' => array('type' => 'success', 'icon' => 'fa-check-circle', 'text' => '商品表已清空。'),
+    'clear_failed' => array('type' => 'danger', 'icon' => 'fa-exclamation-triangle', 'text' => '商品表清空失败，请稍后再试。')
+);
+$notice = isset($_GET['notice']) && isset($noticeMap[$_GET['notice']]) ? $noticeMap[$_GET['notice']] : null;
+
+$currentCategoryName = '';
+if ($filters['cid'] > 0 && isset($categoryMap[$filters['cid']])) {
+    $currentCategoryName = $categoryMap[$filters['cid']]['name'];
+} elseif ($filters['cid'] === -1) {
+    $currentCategoryName = '未分类';
+}
+
+$shopListAssetVersion = isset($adminAssetVersion) ? $adminAssetVersion : ((defined('VERSION') ? VERSION : '1.0.0') . '.20260426admin37');
+$shopListContext = apply_filters('admin_shop_list_context', array(
+    'filters' => $filters,
+    'stats' => array(
+        'total' => intval($globalStats['total']),
+        'visible' => intval($globalStats['visible_total']),
+        'hidden' => intval($globalStats['hidden_total']),
+        'onsale' => intval($globalStats['onsale_total']),
+        'down' => intval($globalStats['down_total']),
+        'docking' => intval($globalStats['docking_total']),
+        'card' => intval($globalStats['card_total']),
+        'self' => intval($globalStats['self_total'])
+    ),
+    'categories' => count($categoryMap),
+    'price_rules' => count($priceRules),
+    'current_category' => $currentCategoryName,
+    'notice' => $notice
+));
+
+include './head.php';
+$shopListAssetVersion = isset($adminAssetVersion) ? $adminAssetVersion : ((defined('VERSION') ? VERSION : '1.0.0') . '.20260426admin40');
 ?>
-<div class="block">
-<div class="block-title clearfix">
-<h2 id="blocktitle"></h2>
-<span class="pull-right">
-<?php if(isset($_GET['cid']))echo '<span style="color:red;font-size:13px;margin-right:10px;">提示：如果出现排序操作移动不了，请点击"重置商品排序"按钮</span>';?>
-<select id="pagesize" class="form-control" title="每页显示"><option value="30">30</option><option value="50">50</option><option value="60">60</option><option value="80">80</option><option value="100">100</option></select><span>
-</span></span>
+<link rel="stylesheet" href="./assets/css/admin-shop-list.css?v=<?php echo urlencode($shopListAssetVersion); ?>">
+
+<div class="col-xs-12 admin-shop-page">
+    <?php echo q8_render_action('admin_shop_list_page_before', $shopListContext); ?>
+
+    <?php if ($notice) { ?>
+    <div class="alert alert-<?php echo q8_admin_shop_escape($notice['type']); ?> admin-shop-notice">
+        <i class="fa <?php echo q8_admin_shop_escape($notice['icon']); ?>"></i>
+        <span><?php echo q8_admin_shop_escape($notice['text']); ?></span>
+    </div>
+    <?php } ?>
+
+    <section class="admin-shop-hero">
+        <div class="admin-shop-hero__content">
+            <p class="admin-shop-hero__eyebrow"><?php echo html_entity_decode('&#21830;&#21697;&#20013;&#24515;', ENT_QUOTES, 'UTF-8'); ?></p>
+            <h2>统一管理商品、库存、价格模板、上下架与前台展示联动</h2>
+            <p>这一页只处理后台商品维度的维护工作，不改动下单业务逻辑。分类筛选、价格调整、库存处理、批量上下架、移动分类和前台预览入口都会集中在这里完成。</p>
+        </div>
+        <div class="admin-shop-hero__aside">
+            <a href="./shopedit.php?my=add<?php echo $filters['cid'] > 0 ? '&amp;cid=' . intval($filters['cid']) : ''; ?>" class="admin-shop-hero__chip"><i class="fa fa-plus-circle"></i> 新增商品</a>
+            <a href="./classlist.php" class="admin-shop-hero__chip"><i class="fa fa-sitemap"></i> 分类管理</a>
+            <a href="./batchgoods.php" class="admin-shop-hero__chip"><i class="fa fa-cloud-download"></i> 批量对接</a>
+        </div>
+    </section>
+
+    <section class="admin-shop-stats">
+        <a class="admin-shop-stat" href="./shoplist.php">
+            <span class="admin-shop-stat__icon admin-shop-stat__icon--primary"><i class="fa fa-cubes"></i></span>
+            <div>
+                <span>商品总数</span>
+                <strong><?php echo intval($shopListContext['stats']['total']); ?></strong>
+            </div>
+        </a>
+        <a class="admin-shop-stat" href="./shoplist.php?status=up">
+            <span class="admin-shop-stat__icon admin-shop-stat__icon--success"><i class="fa fa-arrow-circle-up"></i></span>
+            <div>
+                <span>上架中</span>
+                <strong><?php echo intval($shopListContext['stats']['onsale']); ?></strong>
+            </div>
+        </a>
+        <a class="admin-shop-stat" href="./shoplist.php?status=down">
+            <span class="admin-shop-stat__icon admin-shop-stat__icon--warning"><i class="fa fa-arrow-circle-down"></i></span>
+            <div>
+                <span>已下架</span>
+                <strong><?php echo intval($shopListContext['stats']['down']); ?></strong>
+            </div>
+        </a>
+        <a class="admin-shop-stat" href="./shoplist.php?status=hide">
+            <span class="admin-shop-stat__icon admin-shop-stat__icon--accent"><i class="fa fa-eye-slash"></i></span>
+            <div>
+                <span>前台隐藏</span>
+                <strong><?php echo intval($shopListContext['stats']['hidden']); ?></strong>
+            </div>
+        </a>
+    </section>
+
+    <?php echo q8_render_action('admin_shop_list_stats_after', $shopListContext); ?>
+
+    <section class="admin-shop-map">
+        <article>
+            <i class="fa fa-desktop"></i>
+            <div>
+                <strong>前台联动</strong>
+                <p>商品显隐、上下架、前台预览和分类归属都会从这里衔接，改动会直接影响首页与下单页的展示结果。</p>
+            </div>
+        </article>
+        <article>
+            <i class="fa fa-tags"></i>
+            <div>
+                <strong>分类联动</strong>
+                <p>支持按分类查看、按分类重排和批量移动分类，方便和前台首页、用户中心分类结构保持一致。</p>
+            </div>
+        </article>
+        <article>
+            <i class="fa fa-plug"></i>
+            <div>
+                <strong>对接联动</strong>
+                <p>对接商品、发卡商品和自营商品在这里统一落表，后续同步、克隆、发卡库存也都以这里为基准入口。</p>
+            </div>
+        </article>
+    </section>
+
+    <section class="block admin-shop-panel">
+        <div class="block-title admin-shop-panel__title">
+            <div>
+                <h3>商品列表</h3>
+                <p><?php echo $currentCategoryName !== '' ? '当前正在查看分类：' . q8_admin_shop_escape($currentCategoryName) . '，可以直接调整该分类内商品排序。' : '支持关键词、分类、来源、状态和加价模板多条件筛选。'; ?></p>
+            </div>
+            <div class="admin-shop-panel__actions">
+                <a href="./shoprank.php" class="btn btn-default"><i class="fa fa-bar-chart"></i> 销量排行</a>
+                <button type="button" class="btn btn-default" data-shop-action="replace-name"><i class="fa fa-font"></i> 批量替换商品名</button>
+                <button type="button" class="btn btn-default" data-shop-action="replace-inputs"><i class="fa fa-keyboard-o"></i> 批量替换输入框标题</button>
+                <?php if ($filters['cid'] > 0) { ?>
+                <button type="button" class="btn btn-default" data-shop-action="reset-sort" data-cid="<?php echo intval($filters['cid']); ?>"><i class="fa fa-sort"></i> 重置当前分类排序</button>
+                <?php } ?>
+                <button type="button" class="btn btn-default" data-shop-action="refresh"><i class="fa fa-refresh"></i> 刷新</button>
+            </div>
+        </div>
+
+        <?php echo q8_render_action('admin_shop_list_filters_before', $shopListContext); ?>
+
+        <form id="shopFilterForm" class="admin-shop-filter-form" method="get" action="./shoplist.php">
+            <input type="hidden" name="tid" value="<?php echo intval($filters['tid']); ?>">
+
+            <div class="admin-shop-filter-grid">
+                <label class="admin-shop-field admin-shop-field--wide">
+                    <span class="admin-shop-field__label">关键词</span>
+                    <span class="admin-shop-field__control admin-shop-field__control--icon">
+                        <i class="fa fa-search"></i>
+                        <input type="text" class="form-control" name="kw" value="<?php echo q8_admin_shop_escape($filters['kw']); ?>" placeholder="输入商品名称或商品 ID">
+                    </span>
+                </label>
+                <label class="admin-shop-field">
+                    <span class="admin-shop-field__label">分类</span>
+                    <select class="form-control" name="cid">
+                        <?php echo q8_admin_shop_render_category_options($categoryParents, $categoryChildren, $filters['cid'], true, true); ?>
+                    </select>
+                </label>
+                <label class="admin-shop-field">
+                    <span class="admin-shop-field__label">来源</span>
+                    <select class="form-control" name="type">
+                        <?php foreach ($typeOptions as $value => $label) { ?>
+                        <option value="<?php echo q8_admin_shop_escape($value); ?>"<?php echo $filters['type'] === (string)$value ? ' selected' : ''; ?>><?php echo q8_admin_shop_escape($label); ?></option>
+                        <?php } ?>
+                    </select>
+                </label>
+                <label class="admin-shop-field">
+                    <span class="admin-shop-field__label">状态</span>
+                    <select class="form-control" name="status">
+                        <?php foreach ($statusOptions as $value => $label) { ?>
+                        <option value="<?php echo q8_admin_shop_escape($value); ?>"<?php echo $filters['status'] === (string)$value ? ' selected' : ''; ?>><?php echo q8_admin_shop_escape($label); ?></option>
+                        <?php } ?>
+                    </select>
+                </label>
+                <label class="admin-shop-field">
+                    <span class="admin-shop-field__label">加价模板</span>
+                    <select class="form-control" name="prid">
+                        <option value="0">全部模板</option>
+                        <?php foreach ($priceRules as $rule) { ?>
+                        <option value="<?php echo intval($rule['id']); ?>"<?php echo $filters['prid'] === intval($rule['id']) ? ' selected' : ''; ?>><?php echo q8_admin_shop_escape($rule['name']); ?></option>
+                        <?php } ?>
+                    </select>
+                </label>
+                <label class="admin-shop-field">
+                    <span class="admin-shop-field__label">每页数量</span>
+                    <select class="form-control" name="num" id="shopPageSize">
+                        <?php foreach ($pageSizeOptions as $pageSize) { ?>
+                        <option value="<?php echo intval($pageSize); ?>"<?php echo $filters['num'] === intval($pageSize) ? ' selected' : ''; ?>><?php echo intval($pageSize); ?></option>
+                        <?php } ?>
+                    </select>
+                </label>
+            </div>
+
+            <div class="admin-shop-filter-actions">
+                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> 应用筛选</button>
+                <a href="./shoplist.php" class="btn btn-default"><i class="fa fa-undo"></i> 重置筛选</a>
+            </div>
+        </form>
+
+        <?php echo q8_render_action('admin_shop_list_toolbar_after', $shopListContext); ?>
+
+        <div id="shopListTable" class="admin-shop-table-shell" data-source="./shoplist-table.php">
+            <div class="admin-shop-loading">
+                <i class="fa fa-spinner fa-spin"></i>
+                <span>正在加载商品列表</span>
+            </div>
+        </div>
+    </section>
+
+    <?php echo q8_render_action('admin_shop_list_page_after', $shopListContext); ?>
 </div>
-  <form onsubmit="return searchItem()" method="GET" class="form-inline">
 
-  <!-- 电脑端布局：所有按钮放在同一行 -->
-  <div class="hidden-xs">
-    <a href="./shopedit.php?my=add&cid=<?php echo htmlspecialchars($_GET['cid'])?>" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;添加商品</a>&nbsp;
-    <div class="form-group">
-      <input type="text" class="form-control" name="kw" placeholder="请输入商品名称">
-    </div>
-    <div class="form-group">
-      <select class="form-control" name="type">
-        <option value="0">商品类型</option>
-        <option value="1">对接</option>
-        <option value="4">发卡</option>
-        <option value="other">自营</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <select class="form-control" name="status">
-        <option value="0">商品状态</option>
-        <option value="1">显示</option>
-        <option value="0">隐藏</option>
-        <option value="up">上架</option>
-        <option value="down">下架</option>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-success">搜索</button>&nbsp;
-    <!-- 电脑端：功能按钮放在搜索的右边 -->
-    <a href="javascript:reset_sort(<?php echo $cid?>)" class="btn btn-info"><i class="fa fa-sort"></i>&nbsp;重置商品排序</a>&nbsp;
-    <a href="./shoprank.php" class="btn btn-info"><i class="fa fa-bar-chart"></i>&nbsp;商品销量排行</a>&nbsp;
-    <a href="javascript:change_shopname()" class="btn btn-info"><i class="fa fa-edit"></i>&nbsp;批量替换商品名称</a>&nbsp;
-    <a href="javascript:change_inputs()" class="btn btn-info"><i class="fa fa-edit"></i>&nbsp;批量替换输入框标题</a>&nbsp;
-    <a href="javascript:listTable('start')" class="btn btn-default" title="刷新商品列表"><i class="fa fa-refresh"></i></a>
-  </div>
-
-  <!-- 手机端布局：分两行显示 -->
-  <div class="visible-xs">
-    <!-- 第一行：添加商品按钮 + 更多按钮 + 刷新按钮 -->
-    <div class="row">
-      <div class="col-xs-6">
-        <a href="./shopedit.php?my=add&cid=<?php echo htmlspecialchars($_GET['cid'])?>" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;添加商品</a>
-      </div>
-      <div class="col-xs-6 text-right">
-        <!-- 手机端：更多按钮和刷新按钮放在添加商品的右边 -->
-        <div class="btn-group">
-          <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            更多 <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="javascript:reset_sort(<?php echo $cid?>)">重置商品排序</a></li>
-	<li><a href="./shoprank.php">商品销量排行</a></li>
-	<li><a href="javascript:change_shopname()">批量替换商品名称</a></li>
-	<li><a href="javascript:change_inputs()">批量替换输入框标题</a></li>
-  </ul>
-        </div>
-        <a href="javascript:listTable('start')" class="btn btn-default" title="刷新商品列表" style="margin-left: 5px;"><i class="fa fa-refresh"></i></a>
-      </div>
-    </div>
-    <!-- 第二行：搜索框 -->
-    <div class="row" style="margin-top: 10px;">
-      <div class="col-xs-12">
-        <div class="input-group">
-          <input type="text" class="form-control" name="kw" placeholder="请输入商品名称">
-          <span class="input-group-btn">
-            <button type="submit" class="btn btn-success">搜索</button>
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-</form>
-
-<div id="listTable"></div>
-<?php }?>
-    </div>
-<?php if(!isset($_GET['cid']))echo '<font color="grey">提示：查看单个分类的商品列表可进行商品排序操作</font>';?>
-  </div>
-
-<script src="<?php echo $cdnpublic?>layer/3.1.1/layer.js"></script>
-<script src="assets/js/shoplist.js?ver=<?php echo VERSION ?>"></script>
+<script>
+window.adminShopListConfig = <?php echo json_encode(array(
+    'priceRules' => $priceRules,
+    'defaultPageSize' => $filters['num'],
+    'currentCategoryId' => $filters['cid'],
+    'endpoints' => array(
+        'table' => './shoplist-table.php',
+        'ajax' => './ajax_shop.php'
+    )
+)); ?>;
+</script>
+<script src="./assets/js/shoplist.js?v=<?php echo urlencode($shopListAssetVersion); ?>"></script>
 </body>
 </html>

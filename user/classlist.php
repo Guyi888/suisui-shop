@@ -8,6 +8,7 @@ include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 
 ?>
+<link rel="stylesheet" href="./public/css/blue_theme.css">
 <div class="wrapper">
   <div class="col-sm-12 col-md-10 col-lg-8 center-block" style="float: none;">
 

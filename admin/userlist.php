@@ -244,12 +244,12 @@ else
 else
 {
 
-$numrows=$DB->getColumn("SELECT count(*) from pre_site WHERE power=0");
+$numrows=$DB->getColumn("SELECT count(*) from pre_site");
 
 ?>
 <div class="block">
 <div class="block-title clearfix">
-<h2>系统共有 <b><?php echo $numrows?></b> 个用户</h2>
+<h2>&#31995;&#32479;&#20849;&#26377; <b><?php echo $numrows?></b> &#20010;&#29992;&#25143;&#65288;&#21547;&#20998;&#31449;&#29992;&#25143;&#65289;</h2>
 </div>
 <a href="./userlist.php?my=add" class="btn btn-primary">添加用户</a>&nbsp;<a href="#" data-toggle="modal" data-target="#search" id="search" class="btn btn-success">搜索</a>&nbsp;<a href="javascript:listTable('start')" class="btn btn-default" title="刷新用户列表"><i class="fa fa-refresh"></i></a>
 <div id="listTable"></div>

@@ -8,6 +8,57 @@ $act = isset($_GET['act']) ? daddslashes($_GET['act']) : null;
 
 @header('Content-Type: application/json; charset=UTF-8');
 
+if (!function_exists('q8_ensure_today_recommend_column')) {
+	function q8_ensure_today_recommend_column($DB) {
+		static $done = false;
+		if ($done) return;
+		try {
+			$row = $DB->getRow("SHOW COLUMNS FROM `pre_tools` LIKE 'today_recommend'");
+			if (!$row) $DB->exec("ALTER TABLE `pre_tools` ADD `today_recommend` tinyint(1) NOT NULL DEFAULT 0, ADD INDEX `today_recommend` (`today_recommend`,`active`,`sort`)");
+		} catch (Exception $e) {}
+		$done = true;
+	}
+}
+
+if (!function_exists('q8_local_faka_stock_count')) {
+	function q8_local_faka_stock_count($DB, $tid) {
+		return intval($DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid=:tid AND orderid=0", array(':tid' => intval($tid))));
+	}
+}
+
+if (!function_exists('q8_front_stock_count')) {
+	function q8_front_stock_count($DB, $tool) {
+		if ($tool['is_curl'] == 4) return q8_local_faka_stock_count($DB, $tool['tid']);
+		if ($tool['is_curl'] == 2 && $tool['stock'] !== null) return q8_local_faka_stock_count($DB, $tool['tid']) + max(0, intval($tool['stock']));
+		if ($tool['stock'] !== null) return $tool['stock'];
+		return null;
+	}
+}
+
+if (!function_exists('q8_build_tool_payload')) {
+	function q8_build_tool_payload($DB, $conf, $price_obj, $res) {
+		if (isset($_SESSION['gift_id']) && isset($_SESSION['gift_tid']) && $_SESSION['gift_tid'] == $res['tid']) {
+			$price = $conf["cjmoney"] ? $conf["cjmoney"] : 0;
+		} elseif (isset($price_obj)) {
+			$price_obj->setToolInfo($res['tid'], $res);
+			if ($price_obj->getToolDel($res['tid']) == 1) return null;
+			$price = $price_obj->getToolPrice($res['tid']);
+		} else {
+			$price = $res['price'];
+		}
+		if ($res['is_curl'] == 4) {
+			$isfaka = 1;
+			$res['input'] = getFakaInput();
+		} else {
+			$isfaka = 0;
+		}
+		$parent_cid = intval($res['cid']);
+		$class_row = $DB->getRow("SELECT pid FROM pre_class WHERE cid=:cid LIMIT 1", array(':cid' => $res['cid']));
+		if ($class_row && intval($class_row['pid']) > 0) $parent_cid = intval($class_row['pid']);
+		return array('tid' => $res['tid'], 'cid' => $res['cid'], 'pcid' => $parent_cid, 'sort' => $res['sort'], 'name' => $res['name'], 'value' => $res['value'], 'price' => $price, 'input' => $res['input'], 'inputs' => $res['inputs'], 'desc' => $res['desc'], 'alert' => $res['alert'], 'shopimg' => $res['shopimg'], 'repeat' => $res['repeat'], 'multi' => $res['multi'], 'close' => $res['close'], 'prices' => $res['prices'], 'min' => $res['min'], 'max' => $res['max'], 'sales' => $res['sales'], 'isfaka' => $isfaka, 'stock' => q8_front_stock_count($DB, $res), 'today_recommend' => isset($res['today_recommend']) ? intval($res['today_recommend']) : 0);
+	}
+}
+
 // 对于system_info动作，允许直接访问，不需要严格的referer检查
 if ($act != 'system_info') {
     // 暂时禁用referer检查，测试是否是referer导致的问题
@@ -33,6 +84,89 @@ if ($conf['cjmsg'] != '') {
 	$cjmsg = '您今天的抽奖次数已经达到上限！';
 }
 switch ($act) {
+	case 'toollogsgroup':
+	case 'toollogsoffline':
+		if (function_exists('q8_toollog_ensure_tables')) q8_toollog_ensure_tables();
+		$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+		$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 5;
+		if (!isset($_GET['limit']) && $act == 'toollogsgroup') $limit = 3;
+		if ($limit < 1 || $limit > 20) $limit = 5;
+		$table = $act == 'toollogsoffline' ? 'pre_toollogs_offline' : 'pre_toollogs';
+		$label = $act == 'toollogsoffline' ? html_entity_decode('&#19979;&#26550;', ENT_QUOTES, 'UTF-8') : html_entity_decode('&#26032;&#19978;&#26550;', ENT_QUOTES, 'UTF-8');
+		$prefix = $act == 'toollogsoffline' ? html_entity_decode('&#21830;&#21697;&#19979;&#26550;', ENT_QUOTES, 'UTF-8') : html_entity_decode('&#21830;&#21697;&#19978;&#26550;', ENT_QUOTES, 'UTF-8');
+		$total = intval($DB->getColumn("SELECT COUNT(*) FROM {$table} WHERE active=1"));
+		$pages = $total > 0 ? ceil($total / $limit) : 0;
+		$offset = ($page - 1) * $limit;
+		$rows = array();
+		$allNames = array();
+		$allTids = array();
+		$rs = $DB->query("SELECT * FROM {$table} WHERE active=1 ORDER BY date DESC,id DESC LIMIT {$offset},{$limit}");
+		while ($row = $rs->fetch()) {
+			$entries = function_exists('q8_toollog_parse_content') ? q8_toollog_parse_content($row['content']) : array();
+			foreach ($entries as $entry) {
+				$allNames[$entry['name']] = true;
+				if (!empty($entry['tid'])) $allTids[intval($entry['tid'])] = true;
+			}
+			$row['_entries'] = $entries;
+			$rows[] = $row;
+		}
+		$nameLinkMap = array();
+		$tidLinkMap = array();
+		$tidList = array_keys($allTids);
+		if (!empty($tidList)) {
+			foreach (array_chunk($tidList, 300) as $chunk) {
+				$placeholders = implode(',', array_fill(0, count($chunk), '?'));
+				$stmt = $DB->query("SELECT tid,cid FROM pre_tools WHERE active=1 AND tid IN ({$placeholders})", $chunk);
+				while ($tool = $stmt->fetch()) {
+					$tid = intval($tool['tid']);
+					if ($tid > 0 && !isset($tidLinkMap[$tid])) $tidLinkMap[$tid] = './?cid=' . intval($tool['cid']) . '&tid=' . $tid;
+				}
+			}
+		}
+		$nameList = array_keys($allNames);
+		if (!empty($nameList)) {
+			foreach (array_chunk($nameList, 300) as $chunk) {
+				$placeholders = implode(',', array_fill(0, count($chunk), '?'));
+				$stmt = $DB->query("SELECT name,tid,cid,close FROM pre_tools WHERE active=1 AND name IN ({$placeholders}) ORDER BY close ASC,tid DESC", $chunk);
+				while ($tool = $stmt->fetch()) {
+					if (!isset($nameLinkMap[$tool['name']])) $nameLinkMap[$tool['name']] = './?cid=' . intval($tool['cid']) . '&tid=' . intval($tool['tid']);
+				}
+			}
+		}
+		$cacheFile = sys_get_temp_dir() . '/q8_' . $act . '_' . $page . '_' . $limit . '.json';
+		if (is_file($cacheFile) && filemtime($cacheFile) >= time() - 60) exit(file_get_contents($cacheFile));
+		$data = array();
+		foreach ($rows as $row) {
+			$content = '';
+			$list = array();
+			foreach ($row['_entries'] as $entry) {
+				$name = $entry['name'];
+				$tid = !empty($entry['tid']) ? intval($entry['tid']) : 0;
+				$list[] = array('name' => $name, 'action' => $label);
+				$safeName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+				$link = $tid > 0 && isset($tidLinkMap[$tid]) ? $tidLinkMap[$tid] : (isset($nameLinkMap[$name]) ? $nameLinkMap[$name] : '');
+				$nameHtml = $link ? '<a class="goods-link" href="' . $link . '">' . $safeName . '</a>' : '<span class="goods-name">' . $safeName . '</span>';
+				$content .= '<div class="goods-row"><div class="left"><span class="tag ' . ($act == 'toollogsoffline' ? 'tag-off' : 'tag-on') . '">' . $label . '</span><div class="text-overflow">' . $nameHtml . '</div></div></div>';
+			}
+			$data[] = array('id' => intval($row['id']), 'name' => $prefix, 'time' => $row['date'], 'addtime' => $row['addtime'], 'endtime' => $row['date'] . ' 23:59:59', 'content' => $content, 'list' => $list);
+		}
+		$result = json_encode(array('code' => 0, 'msg' => 'success', 'total' => $total, 'page' => $pages, 'pages' => $pages, 'data' => $data), JSON_UNESCAPED_UNICODE);
+		@file_put_contents($cacheFile, $result);
+		exit($result);
+		break;
+	case 'gettodayrecommend':
+		q8_ensure_today_recommend_column($DB);
+		$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 8;
+		if ($limit < 1) $limit = 8;
+		if ($limit > 12) $limit = 12;
+		$rs = $DB->query("SELECT A.* FROM pre_tools A INNER JOIN pre_class B ON B.cid=A.cid AND B.active=1 WHERE A.active=1 AND A.close=0 AND A.cid>0 AND A.today_recommend=1 ORDER BY A.sort ASC,A.tid DESC LIMIT {$limit}");
+		$data = array();
+		while ($res = $rs->fetch(PDO::FETCH_ASSOC)) {
+			$item = q8_build_tool_payload($DB, $conf, isset($price_obj) ? $price_obj : null, $res);
+			if ($item !== null) $data[] = $item;
+		}
+		exit(json_encode(array("code" => 0, "msg" => "succ", "data" => $data), JSON_UNESCAPED_UNICODE));
+		break;
 	case 'getshuoshuo':
 		$uin = isset($_GET['uin']) ? daddslashes($_GET['uin']) : exit('{"code":-1,"msg":"参数错误"}');
 		$page = isset($_GET['page']) ? intval($_GET['page']) : 1;

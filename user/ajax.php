@@ -14,30 +14,6 @@ case 'login':
 	if(!$user || !$pass){
 		exit('{"code":-1,"msg":"用户名或密码不能为空"}');
 	}
-
-	// 登录失败限制检查
-	$login_limit_enable = isset($conf['login_limit_enable']) ? intval($conf['login_limit_enable']) : 0;
-	if($login_limit_enable == 1){
-		$login_limit_max = intval($conf['login_limit_max']) > 0 ? intval($conf['login_limit_max']) : 5;
-		$login_limit_time = intval($conf['login_limit_time']) > 0 ? intval($conf['login_limit_time']) : 30;
-		$cache_file = ROOT.'cache/login_fail_'.md5($clientip).'.json';
-		$now_time = time();
-
-		if(file_exists($cache_file)){
-			$cache_data = json_decode(file_get_contents($cache_file), true);
-			if($cache_data && isset($cache_data['fail_count']) && $cache_data['fail_count'] >= $login_limit_max){
-				$fail_time = $cache_data['last_fail_time'];
-				$expire_time = $fail_time + ($login_limit_time * 60);
-				if($now_time < $expire_time){
-					$remain_minutes = ceil(($expire_time - $now_time) / 60);
-					exit('{"code":-1,"msg":"登录失败次数过多，请'.$remain_minutes.'分钟后再试"}');
-				}else{
-					@unlink($cache_file);
-				}
-			}
-		}
-	}
-
 	if($conf['captcha_open_login']==1 && $conf['captcha_open']==1){
 		if(isset($_POST['geetest_challenge']) && isset($_POST['geetest_validate']) && isset($_POST['geetest_seccode'])){
 			$GtSdk = new \lib\GeetestLib($conf['captcha_id'], $conf['captcha_key']);
@@ -101,13 +77,6 @@ case 'login':
 		ob_clean();
 		setcookie("user_token", $token, time() + 604800, '/');
 		log_result('分站登录', 'User:'.$user.' IP:'.$clientip, null, 1);
-
-		// 登录成功，清除登录失败记录
-		if(isset($login_limit_enable) && $login_limit_enable == 1){
-			$cache_file = ROOT.'cache/login_fail_'.md5($clientip).'.json';
-			@unlink($cache_file);
-		}
-
 		if($_SESSION['Oauth_qq_openid'] && $_SESSION['Oauth_qq_token']){
 			$DB->exec("UPDATE pre_site SET qq_openid=:qq_openid,lasttime=NOW() WHERE zid=:zid", [':qq_openid'=>$_SESSION['Oauth_qq_openid'], ':zid'=>$row['zid']]);
 			unset($_SESSION['Oauth_qq_openid']);
@@ -120,30 +89,6 @@ case 'login':
 			exit('{"code":0,"msg":"登陆用户中心成功！"}');
 		}
 	}else {
-		// 登录失败，记录失败次数
-		if(isset($login_limit_enable) && $login_limit_enable == 1){
-			$cache_file = ROOT.'cache/login_fail_'.md5($clientip).'.json';
-			$now_time = time();
-
-			if(file_exists($cache_file)){
-				$cache_data = json_decode(file_get_contents($cache_file), true);
-				if($cache_data && isset($cache_data['last_fail_time'])){
-					// 检查上次失败时间是否在限制时间内（30分钟内）
-					if(($now_time - $cache_data['last_fail_time']) < 1800){
-						$cache_data['fail_count'] = isset($cache_data['fail_count']) ? $cache_data['fail_count'] + 1 : 1;
-					}else{
-						// 超过30分钟，重新计数
-						$cache_data['fail_count'] = 1;
-					}
-					$cache_data['last_fail_time'] = $now_time;
-				}else{
-					$cache_data = ['fail_count' => 1, 'last_fail_time' => $now_time];
-				}
-			}else{
-				$cache_data = ['fail_count' => 1, 'last_fail_time' => $now_time];
-			}
-			@file_put_contents($cache_file, json_encode($cache_data));
-		}
 		exit('{"code":-1,"msg":"用户名或密码不正确！"}');
 	}
 break;
@@ -178,9 +123,25 @@ case 'quickreg':
 	if(strlen($nickname)>32) $nickname = mb_strcut($nickname, 0, 32);
 	$faceimg = $_SESSION['Oauth_qq_faceimg'];
 
-	$sql="insert into `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`qq_openid`,`nickname`,`faceimg`,`rmb`,`qq`,`reg_ip`,`sitename`,`keywords`,`description`,`addtime`,`lasttime`,`status`) values (:upzid,0,NULL,NULL,:user,:pwd,:qq_openid,:nickname,:faceimg,'0',NULL,:reg_ip,NULL,NULL,NULL,NOW(),NOW(),'1')";
-	$data = [':upzid'=>$siterow['zid']?$siterow['zid']:0, ':user'=>$user, ':pwd'=>$pwd, ':qq_openid'=>$openid, ':nickname'=>$nickname, ':faceimg'=>$faceimg, ':reg_ip'=>$clientip];
-	if($DB->exec($sql, $data)){
+	$sitePayload = array(
+		'upzid' => $siterow['zid'] ? $siterow['zid'] : 0,
+		'power' => 0,
+		'domain' => null,
+		'domain2' => null,
+		'user' => $user,
+		'pwd' => $pwd,
+		'qq_openid' => $openid,
+		'nickname' => $nickname,
+		'faceimg' => $faceimg,
+		'rmb' => '0',
+		'qq' => null,
+		'sitename' => null,
+		'keywords' => null,
+		'description' => null,
+		'status' => 1,
+		'lasttime' => $date
+	);
+	if(q8_insert_site_account($sitePayload, $conf, $date)!==false){
 		$zid = $DB->lastInsertId();
 		unset($_SESSION['Oauth_qq_openid']);
 		unset($_SESSION['Oauth_qq_token']);
@@ -234,7 +195,7 @@ break;
 case 'checkdomain':
 	$qz = daddslashes($_GET['qz']);
 	$domain = $qz . '.' . daddslashes($_GET['domain']);
-	$srow=$DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain OR domain3=:domain OR domain4=:domain OR domain5=:domain OR domain6=:domain LIMIT 1", [':domain'=>$domain]);
+	$srow=$DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain LIMIT 1", [':domain'=>$domain]);
 	if($srow)exit('1');
 	else exit('0');
 break;
@@ -322,9 +283,25 @@ case 'reguser':
 		unset($_SESSION['vc_code']);
 		exit('{"code":2,"msg":"验证码错误！"}');
 	}
-	$sql="insert into `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`rmb`,`qq`,`reg_ip`,`sitename`,`keywords`,`description`,`anounce`,`bottom`,`modal`,`addtime`,`lasttime`,`status`) values (:upzid,0,NULL,NULL,:user,:pwd,'0',:qq,:reg_ip,NULL,NULL,NULL,NULL,NULL,NULL,NOW(),NOW(),'1')";
-	$data = [':upzid'=>$siterow['zid']?$siterow['zid']:0, ':user'=>$user, ':pwd'=>$pwd, ':qq'=>$qq, ':reg_ip'=>$clientip];
-	if($DB->exec($sql, $data)){
+	$sitePayload = array(
+		'upzid' => $siterow['zid'] ? $siterow['zid'] : 0,
+		'power' => 0,
+		'domain' => null,
+		'domain2' => null,
+		'user' => $user,
+		'pwd' => $pwd,
+		'rmb' => '0',
+		'qq' => $qq,
+		'sitename' => null,
+		'keywords' => null,
+		'description' => null,
+		'anounce' => null,
+		'bottom' => null,
+		'modal' => null,
+		'status' => 1,
+		'lasttime' => $date
+	);
+	if(q8_insert_site_account($sitePayload, $conf, $date)!==false){
 		$zid = $DB->lastInsertId();
 		unset($_SESSION['addsalt']);
 		$DB->exec("UPDATE `pre_orders` SET `userid`='".$zid."' WHERE `userid`='".$cookiesid."'");
@@ -341,11 +318,10 @@ break;
 case 'paysite':
 	if($islogin2==1 && $userrow['power']>0)exit('{"code":-1,"msg":"您已开通过分站！"}');
 	elseif($conf['fenzhan_buy']==0)exit('{"code":-1,"msg":"当前站点未开启自助开通分站功能！"}');
-	if($is_fenzhan == true && $siterow['power']==2){
-		if($siterow['ktfz_price']>0)$conf['fenzhan_price']=$siterow['ktfz_price'];
-		if($conf['fenzhan_cost2']<=0)$conf['fenzhan_cost2']=$conf['fenzhan_price2'];
-		if($siterow['ktfz_price2']>0 && $siterow['ktfz_price2']>=$conf['fenzhan_cost2'])$conf['fenzhan_price2']=$siterow['ktfz_price2'];
-	}
+	$q8FenzhanPricing = q8_get_fenzhan_price_context($conf, $is_fenzhan, isset($siterow) ? $siterow : array());
+	$conf['fenzhan_price'] = $q8FenzhanPricing['normal_price'];
+	$conf['fenzhan_price2'] = $q8FenzhanPricing['professional_price'];
+	$conf['fenzhan_cost2'] = $q8FenzhanPricing['professional_cost'];
 	$kind = intval($_POST['kind']);
 	$qz = trim(strtolower(daddslashes($_POST['qz'])));
 	$domain = trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain'])))));
@@ -366,7 +342,7 @@ case 'paysite':
 		exit('{"code":-1,"msg":"域名前缀不合格！"}');
 	} elseif (!preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain)) {
 		exit('{"code":-1,"msg":"域名格式不正确！"}');
-	} elseif ($DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain OR domain3=:domain OR domain4=:domain OR domain5=:domain OR domain6=:domain LIMIT 1", [':domain'=>$domain]) || $qz=='www' || $domain==$_SERVER['HTTP_HOST'] || in_array($domain,explode(',',$conf['fenzhan_remain']))) {
+	} elseif ($DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain LIMIT 1", [':domain'=>$domain]) || $qz=='www' || $domain==$_SERVER['HTTP_HOST'] || in_array($domain,explode(',',$conf['fenzhan_remain']))) {
 		exit('{"code":-1,"msg":"此前缀已被使用！"}');
 	}
 	if(!$islogin2){
@@ -448,16 +424,40 @@ case 'paysite':
 		}
 		$keywords=$conf['keywords'];
 		$description=$conf['description'];
+		$q8PaysiteUpzid = $siterow['zid'] ? $siterow['zid'] : 0;
 		if($islogin2==1){
-			$sql="UPDATE `pre_site` SET `power`=:power,`domain`=:domain,`sitename`=:sitename,`title`=:title,`keywords`=:keywords,`description`=:description,`endtime`=:endtime WHERE `zid`=:zid";
+			$sql="UPDATE `pre_site` SET `power`=:power,`domain`=:domain,`sitename`=:sitename,`title`=:title,`keywords`=:keywords,`description`=:description,`endtime`=:endtime";
 			$data = [':power'=>$kind, ':domain'=>$domain, ':sitename'=>$name, ':title'=>$conf['title'], ':keywords'=>$keywords, ':description'=>$description, ':endtime'=>$endtime, ':zid'=>$userrow['zid']];
+			if (function_exists('q8_site_has_column') && q8_site_has_column('site_prid')) {
+				$sql .= ",`site_prid`=:site_prid";
+				$data[':site_prid'] = 0;
+			}
+			$sql .= " WHERE `zid`=:zid";
 			$DB->exec($sql, $data);
 			$zid=$userrow['zid'];
 		}else{
-			$sql="INSERT INTO `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`rmb`,`qq`,`reg_ip`,`sitename`,`title`,`keywords`,`description`,`addtime`,`endtime`,`status`) VALUES (:upzid, :power, :domain, NULL, :user, :pwd, :rmb, :qq, :reg_ip, :sitename, :title, :keywords, :description, NOW(), :endtime, 1)";
-			$data = [':upzid'=>$siterow['zid']?$siterow['zid']:0, ':power'=>$kind, ':domain'=>$domain, ':user'=>$user, ':pwd'=>$pwd, ':rmb'=>'0.00', ':qq'=>$qq, ':reg_ip'=>$clientip, ':sitename'=>$name, ':title'=>$conf['title'], ':keywords'=>$keywords, ':description'=>$description, ':endtime'=>$endtime];
-			$DB->exec($sql, $data);
-			$zid = $DB->lastInsertId();
+			$sitePayload = array(
+				'upzid' => $q8PaysiteUpzid,
+				'power' => $kind,
+				'domain' => $domain,
+				'domain2' => null,
+				'user' => $user,
+				'pwd' => $pwd,
+				'rmb' => '0.00',
+				'qq' => $qq,
+				'sitename' => $name,
+				'title' => $conf['title'],
+				'keywords' => $keywords,
+				'description' => $description,
+				'endtime' => $endtime,
+				'status' => 1,
+				'site_prid' => 0
+			);
+			if(q8_insert_site_account($sitePayload, $conf, $date)!==false){
+				$zid = $DB->lastInsertId();
+			}else{
+				$zid = 0;
+			}
 		}
 		if($zid){
 			$_SESSION['newzid']=$zid;
@@ -707,10 +707,16 @@ case 'usekm':
 		exit('{"code":-1,"msg":"此卡密已被使用！"}');
 	}
 	$money = $myrow['money'];
+	$rebate_money = function_exists('q8_calc_online_recharge_bonus') ? q8_calc_online_recharge_bonus($money, $conf) : 0;
+	$rebate_rate = function_exists('q8_get_recharge_rebate_rate') ? q8_get_recharge_rebate_rate($money, $conf) : 0;
 	if($DB->exec("UPDATE `pre_kms` SET `status`=1 WHERE `kid`='{$myrow['kid']}'")){
 		$DB->exec("UPDATE `pre_kms` SET `zid` ='{$userrow['zid']}',`usetime` ='".$date."' WHERE `kid`='{$myrow['kid']}'");
 		$rs = changeUserMoney($userrow['zid'], $money, true, '充值', '你使用加款卡充值了'.$money.'元余额');
 		if($rs){
+			if($rebate_money > 0) {
+				changeUserMoney($userrow['zid'], $rebate_money, true, hex2bin('e8b5a0e98081'), hex2bin('e58aa0e6acbee58da1e58585e580bc') . $money . hex2bin('e58583e8b5a0e98081') . $rebate_rate . '%=' . $rebate_money . hex2bin('e58583'));
+				exit('{"code":0,"msg":"' . hex2bin('e68890e58a9fe58585e580bc') . $money . hex2bin('e58583e4bd99e9a29defbc8ce9a29de5a496e88eb7e5be97') . $rebate_money . hex2bin('e58583e8bf94e588a9efbc81') . '"}');
+			}
 			exit('{"code":0,"msg":"成功充值'.$money.'元余额！"}');
 		}
 	}

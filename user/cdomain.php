@@ -4,6 +4,7 @@ $title='自助更换域名';
 include './head.php';
 if($islogin2==1){}else exit("<script>window.location.href='./login.php';</script>");
 ?>
+<link rel="stylesheet" href="./public/css/blue_theme.css">
   <div class="wrapper">
     <div class="col-sm-12 col-md-8 col-lg-6 center-block" style="float: none;">
 <?php
@@ -33,7 +34,7 @@ if($_GET['act']=='submit'){
 		showmsg('域名格式不正确！',3);
 	} elseif ($domain == $userrow['domain']) {
 		showmsg('不能和之前的域名一样！',3);
-	} elseif ($DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain OR domain3=:domain OR domain4=:domain OR domain5=:domain OR domain6=:domain LIMIT 1", [':domain'=>$domain]) || $qz=='www' || $domain==$_SERVER['HTTP_HOST'] || in_array($domain,explode(',',$conf['fenzhan_remain']))) {
+	} elseif ($DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain LIMIT 1", [':domain'=>$domain]) || $qz=='www' || $domain==$_SERVER['HTTP_HOST'] || in_array($domain,explode(',',$conf['fenzhan_remain']))) {
 		showmsg('此前缀已被使用！',3);
 	}
 	if($price>$userrow['rmb'])exit("<script language='javascript'>alert('你的余额不足，请充值！');window.location.href='./';</script>");
@@ -44,7 +45,7 @@ if($_GET['act']=='submit'){
 	}
 	$DB->exec("UPDATE `pre_site` SET `{$column}`=:domain,`rmb`=`rmb`-:rmb WHERE `zid`=:zid", [':domain'=>$domain, ':rmb'=>$price, ':zid'=>$userrow['zid']]);
 	addPointRecord($userrow['zid'], $price, '消费', '自助更换域名');
-	exit("<script language='javascript'>alert('成功更换域名为{$domain}，共花费{$price}元！');window.location.href='uset.php?mod=site';</script>");
+exit("<script language='javascript'>alert('成功更换域名为{$domain}，共花费{$price}元！');window.location.href='usetmoban.php?mod=site';</script>");
 }
 ?>
 	  <div class="panel panel-default text-center" id="recharge">

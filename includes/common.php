@@ -5,7 +5,7 @@ if (defined('IN_CRONLITE')) {
 	return;
 }
 define('CACHE_FILE', 0);
-define('VERSION', '2026051902');
+define('VERSION', '2026051904');
 define('IN_CRONLITE', true);
 define('tingdong', '3530793519');
 define('SYSTEM_ROOT', dirname(__FILE__) . '/');
@@ -68,6 +68,7 @@ if ($is_defend == true || CC_Defender == 3) {
 		cc_defender();
 	}
 }
+
 $scriptpath = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
 $sitepath = substr($scriptpath, 0, strrpos($scriptpath, '/'));
 $siteurl = ($_SERVER['SERVER_PORT'] == 443 ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $sitepath . '/';
@@ -266,9 +267,17 @@ $password_hash = $conf['syskey'];
 include_once SYSTEM_ROOT . "hooks.php";
 include_once SYSTEM_ROOT . "function.php";
 include_once SYSTEM_ROOT . "custom_css.php";
+include_once SYSTEM_ROOT . "q8_runtime_helpers.php";
 include_once SYSTEM_ROOT . "core.func.php";
 include_once SYSTEM_ROOT . "ajax.func.php";
 include_once SYSTEM_ROOT . "member.php";
+
+if (function_exists('q8_site_markup_template_ensure_fields')) {
+	q8_site_markup_template_ensure_fields();
+}
+if (function_exists('q8_price_rule_ensure_fields')) {
+	q8_price_rule_ensure_fields();
+}
 
 if (!file_exists(ROOT . 'install/install.lock') && file_exists(ROOT . 'install/index.php')) {
 	sysmsg('<h2>检测到无 install.lock 文件</h2><ul><li><font size="4">如果您尚未安装本程序，请<a href="/install/">前往安装</a></font></li><li><font size="4">如果您已经安装本程序，请手动放置一个空的 install.lock 文件到 /install 文件夹下，<b>为了您站点安全，在您完成它之前我们不会工作。</b></font></li></ul><br/><h4>为什么必须建立 install.lock 文件？</h4>它是安装保护文件，如果检测不到它，就会认为站点还没安装，此时任何人都可以安装/重装你的网站。<br/><br/>');
@@ -556,4 +565,8 @@ if(!$is_fenzhan && !strpos($_SERVER['PHP_SELF'], 'admin/') && !strpos($_SERVER['
             break;
         }
     }
+}
+
+if (function_exists('q8_record_front_visit')) {
+	q8_record_front_visit();
 }

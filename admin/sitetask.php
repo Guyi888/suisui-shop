@@ -50,6 +50,7 @@ function createSiteTaskTables() {
 
 // 执行表创建
 createSiteTaskTables();
+if(function_exists('q8_sitetask_ensure_log_table')) q8_sitetask_ensure_log_table();
 
 $title = "分站任务列表";
 include "./head.php";

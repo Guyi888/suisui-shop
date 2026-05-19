@@ -1,27 +1,214 @@
 <?php
 
-if (!function_exists('q8_admin_csrf_token')) {
-	function q8_admin_csrf_token()
-	{
-		return md5(session_id() . SYS_KEY);
+function q8_is_https_request() {
+
+	if ((isset($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && $_SERVER['HTTPS'] !== '')
+		|| (isset($_SERVER['SERVER_PORT']) && (string)$_SERVER['SERVER_PORT'] === '443')
+		|| (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
+		|| (isset($_SERVER['REQUEST_SCHEME']) && strtolower((string)$_SERVER['REQUEST_SCHEME']) === 'https')) {
+		return true;
 	}
+
+	return false;
+
 }
 
-if (!function_exists('q8_admin_check_csrf')) {
-	function q8_admin_check_csrf($token = null)
-	{
-		if ($token === null) {
-			if (isset($_POST['csrf_token'])) {
-				$token = $_POST['csrf_token'];
-			} elseif (isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
-				$token = $_SERVER['HTTP_X_CSRF_TOKEN'];
-			} else {
-				$token = '';
+function q8_get_cookie_domain() {
+
+	$host = isset($_SERVER['HTTP_HOST']) ? strtolower(trim((string)$_SERVER['HTTP_HOST'])) : '';
+	if ($host === '') {
+		return '';
+	}
+
+	$host = preg_replace('/:\d+$/', '', $host);
+	if ($host === 'localhost' || filter_var($host, FILTER_VALIDATE_IP)) {
+		return '';
+	}
+
+	return $host;
+
+}
+
+function q8_set_admin_token_backup_cookie($token, $expires) {
+
+	$domain = q8_get_cookie_domain();
+	$secure = q8_is_https_request();
+	setcookie('admin_token_backup', $token, $expires, '/', $domain, $secure, true);
+
+}
+
+function q8_clear_admin_token_backup_cookie() {
+
+	q8_set_admin_token_backup_cookie('', time() - 604800);
+
+}
+
+function q8_admin_csrf_token() {
+
+	return md5(session_id() . SYS_KEY);
+
+}
+
+function q8_admin_check_csrf($token = null) {
+
+	if ($token === null) {
+		if (isset($_POST['csrf_token'])) {
+			$token = $_POST['csrf_token'];
+		} elseif (isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+			$token = $_SERVER['HTTP_X_CSRF_TOKEN'];
+		} else {
+			$token = '';
+		}
+	}
+
+	$expected = q8_admin_csrf_token();
+	$token = (string)$token;
+
+	if (function_exists('hash_equals')) {
+		return hash_equals($expected, $token);
+	}
+
+	return $expected === $token;
+
+}
+
+function q8_admin_require_post_csrf($requireReferer = true) {
+
+	if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+		showmsg(html_entity_decode('&#35831;&#27714;&#26041;&#24335;&#38169;&#35823;&#65292;&#35831;&#21047;&#26032;&#39029;&#38754;&#21518;&#37325;&#35797;', ENT_QUOTES, 'UTF-8'), 3);
+	}
+
+	if ($requireReferer && !checkRefererHost()) {
+		exit;
+	}
+
+	if (!q8_admin_check_csrf()) {
+		showmsg(html_entity_decode('&#34920;&#21333;&#24050;&#22833;&#25928;&#65292;&#35831;&#21047;&#26032;&#39029;&#38754;&#21518;&#37325;&#35797;', ENT_QUOTES, 'UTF-8'), 3);
+	}
+
+}
+
+function q8_get_site_table_columns() {
+
+	global $DB;
+	static $columns = null;
+
+	if ($columns !== null) {
+		return $columns;
+	}
+
+	$columns = array();
+	$rows = $DB->getAll('SHOW COLUMNS FROM pre_site');
+	if (is_array($rows)) {
+		foreach ($rows as $row) {
+			if (!empty($row['Field'])) {
+				$columns[$row['Field']] = $row;
 			}
 		}
-		$expected = q8_admin_csrf_token();
-		return function_exists('hash_equals') ? hash_equals($expected, (string)$token) : $expected === (string)$token;
 	}
+
+	return $columns;
+
+}
+
+function q8_get_site_column_fallback($field, $meta, $conf = array(), $date = null) {
+
+	$type = strtolower(isset($meta['Type']) ? (string)$meta['Type'] : '');
+	if ($date === null || $date === '') {
+		$date = date('Y-m-d H:i:s');
+	}
+
+	if ($field === 'status') return 1;
+	if ($field === 'power' || $field === 'upzid' || $field === 'utype') return 0;
+	if ($field === 'addtime') return $date;
+	if ($field === 'endtime') return date('Y-m-d', strtotime('+1 year'));
+	if ($field === 'sitename' && isset($conf['sitename'])) return (string)$conf['sitename'];
+	if ($field === 'title' && isset($conf['title'])) return (string)$conf['title'];
+	if ($field === 'keywords' && isset($conf['keywords'])) return (string)$conf['keywords'];
+	if ($field === 'description' && isset($conf['description'])) return (string)$conf['description'];
+	if ($field === 'anounce' && isset($conf['anounce'])) return (string)$conf['anounce'];
+	if ($field === 'alert' && isset($conf['alert'])) return (string)$conf['alert'];
+
+	if (strpos($type, 'int') !== false || strpos($type, 'decimal') !== false || strpos($type, 'float') !== false || strpos($type, 'double') !== false) {
+		return 0;
+	}
+	if (strpos($type, 'datetime') !== false || strpos($type, 'timestamp') !== false) {
+		return $date;
+	}
+	if (preg_match('/^date\b/', $type)) {
+		return substr($date, 0, 10);
+	}
+
+	return '';
+
+}
+
+function q8_prepare_site_insert_payload($payload, $conf = array(), $date = null) {
+
+	$columns = q8_get_site_table_columns();
+	$values = array();
+	if ($date === null || $date === '') {
+		$date = date('Y-m-d H:i:s');
+	}
+
+	foreach ((array)$payload as $field => $value) {
+		if ($field === 'zid' || !isset($columns[$field])) {
+			continue;
+		}
+		$values[$field] = $value;
+	}
+
+	if (!isset($values['addtime']) && isset($columns['addtime'])) {
+		$values['addtime'] = $date;
+	}
+
+	foreach ($columns as $field => $meta) {
+		if ($field === 'zid' || array_key_exists($field, $values)) {
+			continue;
+		}
+		$nullable = isset($meta['Null']) && strtoupper((string)$meta['Null']) === 'YES';
+		$hasDefault = array_key_exists('Default', $meta) && $meta['Default'] !== null;
+		$extra = strtolower(isset($meta['Extra']) ? (string)$meta['Extra'] : '');
+		if (strpos($extra, 'auto_increment') !== false) {
+			continue;
+		}
+		if (!$nullable && !$hasDefault) {
+			$values[$field] = q8_get_site_column_fallback($field, $meta, $conf, $date);
+		}
+	}
+
+	return $values;
+
+}
+
+function q8_insert_site_account($payload, $conf = array(), $date = null) {
+
+	global $DB;
+
+	$values = q8_prepare_site_insert_payload($payload, $conf, $date);
+	if (empty($values)) {
+		return false;
+	}
+
+	if (function_exists('q8_site_markup_template_ensure_fields')) {
+		q8_site_markup_template_ensure_fields();
+	}
+	if (q8_site_has_column('site_prid') && !array_key_exists('site_prid', $values)) {
+		$values['site_prid'] = 0;
+	}
+
+	$fields = array();
+	$placeholders = array();
+	$params = array();
+	foreach ($values as $field => $value) {
+		$fields[] = '`' . $field . '`';
+		$placeholders[] = ':' . $field;
+		$params[':' . $field] = $value;
+	}
+
+	$sql = 'INSERT INTO `pre_site` (' . implode(',', $fields) . ') VALUES (' . implode(',', $placeholders) . ')';
+	return $DB->exec($sql, $params);
+
 }
 
 if (!function_exists('q8_render_action')) {
@@ -31,34 +218,229 @@ if (!function_exists('q8_render_action')) {
 	}
 }
 
-if (!function_exists('q8_get_fenzhan_price_context')) {
-	function q8_get_fenzhan_price_context($conf, $isFenzhan = false, $siteRow = array())
-	{
-		$normal = isset($conf['fenzhan_price']) ? $conf['fenzhan_price'] : 0;
-		$professional = isset($conf['fenzhan_price2']) ? $conf['fenzhan_price2'] : $normal;
+function q8_template_name_is_valid($template)
+{
 
-		if ($isFenzhan && is_array($siteRow)) {
-			if (isset($siteRow['ktfz_price']) && $siteRow['ktfz_price'] !== '') {
-				$normal = $siteRow['ktfz_price'];
-			}
-			if (isset($siteRow['ktfz_price2']) && $siteRow['ktfz_price2'] !== '') {
-				$professional = $siteRow['ktfz_price2'];
-			}
-		}
-
-		return array(
-			'normal_price' => $normal,
-			'professional_price' => $professional
-		);
+	$template = trim((string)$template);
+	if ($template === '' || $template === '0') {
+		return false;
 	}
+
+	if (!preg_match('/^[a-zA-Z0-9\-]+$/', $template)) {
+		return false;
+	}
+
+	return \lib\Template::exists($template);
+
 }
 
-if (!function_exists('q8_format_currency_amount')) {
-	function q8_format_currency_amount($amount)
-	{
-		$amount = floatval($amount);
-		return $amount == intval($amount) ? (string)intval($amount) : rtrim(rtrim(number_format($amount, 2, '.', ''), '0'), '.');
+function q8_template_name_for_save($template)
+{
+
+	$template = trim((string)$template);
+	if ($template === '' || $template === '0') {
+		return '';
 	}
+
+	if (!q8_template_name_is_valid($template)) {
+		return false;
+	}
+
+	return $template;
+
+}
+
+function q8_template_name_resolve($template, $fallback = 'default')
+{
+
+	$template = trim((string)$template);
+	$fallback = trim((string)$fallback);
+
+	if (q8_template_name_is_valid($template)) {
+		return $template;
+	}
+
+	if (q8_template_name_is_valid($fallback)) {
+		return $fallback;
+	}
+
+	return 'default';
+
+}
+
+function q8_get_fenzhan_price_context($conf, $isFenzhan = false, $siteRow = array())
+{
+
+	$normalPrice = isset($conf['fenzhan_price']) ? floatval($conf['fenzhan_price']) : 0;
+	$professionalPrice = isset($conf['fenzhan_price2']) ? floatval($conf['fenzhan_price2']) : 0;
+	$professionalCost = isset($conf['fenzhan_cost2']) ? floatval($conf['fenzhan_cost2']) : 0;
+
+	if ($professionalCost <= 0) {
+		$professionalCost = $professionalPrice;
+	}
+
+	if ($isFenzhan && is_array($siteRow) && intval(isset($siteRow['power']) ? $siteRow['power'] : 0) === 2) {
+		$siteNormalPrice = isset($siteRow['ktfz_price']) ? floatval($siteRow['ktfz_price']) : 0;
+		$siteProfessionalPrice = isset($siteRow['ktfz_price2']) ? floatval($siteRow['ktfz_price2']) : 0;
+
+		if ($siteNormalPrice > 0) {
+			$normalPrice = $siteNormalPrice;
+		}
+		if ($siteProfessionalPrice > 0 && $siteProfessionalPrice >= $professionalCost) {
+			$professionalPrice = $siteProfessionalPrice;
+		}
+	}
+
+	return array(
+		'normal_price' => round($normalPrice, 2),
+		'professional_price' => round($professionalPrice, 2),
+		'professional_cost' => round($professionalCost, 2),
+	);
+
+}
+
+function q8_format_currency_amount($amount)
+{
+
+	$formatted = number_format((float)$amount, 2, '.', '');
+	return rtrim(rtrim($formatted, '0'), '.');
+
+}
+
+function q8_get_message_scope_labels() {
+
+	return array(
+		0 => html_entity_decode('&#20840;&#37096;&#29992;&#25143;', ENT_QUOTES, 'UTF-8'),
+		1 => html_entity_decode('&#20840;&#37096;&#26222;&#36890;&#29992;&#25143;', ENT_QUOTES, 'UTF-8'),
+		2 => html_entity_decode('&#20840;&#37096;&#20998;&#31449;&#31449;&#38271;', ENT_QUOTES, 'UTF-8'),
+		3 => html_entity_decode('&#26222;&#21450;&#29256;&#20998;&#31449;&#31449;&#38271;', ENT_QUOTES, 'UTF-8'),
+		4 => html_entity_decode('&#19987;&#19994;&#29256;&#20998;&#31449;&#31449;&#38271;', ENT_QUOTES, 'UTF-8'),
+		5 => html_entity_decode('&#20027;&#31449;&#26222;&#36890;&#29992;&#25143;', ENT_QUOTES, 'UTF-8'),
+		6 => html_entity_decode('&#20998;&#31449;&#19979;&#32423;&#26222;&#36890;&#29992;&#25143;', ENT_QUOTES, 'UTF-8')
+	);
+
+}
+
+function q8_get_message_types_by_power($power) {
+
+	$power = intval($power);
+	if ($power === 2) return array(0, 2, 4);
+	if ($power === 1) return array(0, 2, 3);
+	return array(0, 1);
+
+}
+
+function q8_get_message_types_for_userrow($userrow) {
+
+	$power = intval(isset($userrow['power']) ? $userrow['power'] : 0);
+	$upzid = intval(isset($userrow['upzid']) ? $userrow['upzid'] : 0);
+
+	if ($power === 2) {
+		return array(0, 2, 4);
+	}
+	if ($power === 1) {
+		return array(0, 2, 3);
+	}
+
+	$types = array(0, 1);
+	$types[] = $upzid > 0 ? 6 : 5;
+	return $types;
+
+}
+
+function q8_parse_int_csv($csv) {
+
+	$result = array();
+	foreach (explode(',', (string)$csv) as $item) {
+		$item = intval(trim($item));
+		if ($item > 0) {
+			$result[$item] = $item;
+		}
+	}
+	return array_values($result);
+
+}
+
+function q8_build_int_csv($ids) {
+
+	$ids = q8_parse_int_csv(implode(',', (array)$ids));
+	if (empty($ids)) {
+		return '';
+	}
+	return implode(',', $ids) . ',';
+
+}
+
+function q8_count_unread_messages($userrow) {
+
+	global $DB;
+
+	$types = q8_get_message_types_for_userrow($userrow);
+	$typeSql = implode(',', array_map('intval', $types));
+	$readIds = q8_parse_int_csv(isset($userrow['msgread']) ? $userrow['msgread'] : '');
+	$sql = "SELECT count(*) FROM pre_message WHERE active=1 AND type IN ($typeSql)";
+	if (!empty($readIds)) {
+		$sql .= ' AND id NOT IN (' . implode(',', $readIds) . ')';
+	}
+
+	return intval($DB->getColumn($sql));
+
+}
+
+function q8_mark_message_read($zid, $msgread, $messageId) {
+
+	global $DB;
+
+	$zid = intval($zid);
+	$messageId = intval($messageId);
+	if ($zid <= 0 || $messageId <= 0) {
+		return false;
+	}
+
+	$readIds = q8_parse_int_csv($msgread);
+	if (!in_array($messageId, $readIds, true)) {
+		$readIds[] = $messageId;
+		sort($readIds, SORT_NUMERIC);
+		$DB->exec('UPDATE pre_message SET count=count+1 WHERE id=:id', array(':id' => $messageId));
+	}
+
+	return $DB->exec('UPDATE pre_site SET msgread=:msgread WHERE zid=:zid', array(':msgread' => q8_build_int_csv($readIds), ':zid' => $zid)) !== false;
+
+}
+
+function q8_mark_all_messages_read($zid, $power = null) {
+
+	global $DB;
+
+	$userrow = null;
+	if (is_array($zid)) {
+		$userrow = $zid;
+		$zid = intval(isset($userrow['zid']) ? $userrow['zid'] : 0);
+		$power = isset($userrow['power']) ? $userrow['power'] : 0;
+	}
+	$zid = intval($zid);
+	if ($zid <= 0) {
+		return false;
+	}
+
+	if ($userrow === null) {
+		$userrow = array('power' => intval($power));
+	}
+	$types = q8_get_message_types_for_userrow($userrow);
+	$typeSql = implode(',', array_map('intval', $types));
+	$rows = $DB->getAll("SELECT id FROM pre_message WHERE active=1 AND type IN ($typeSql)");
+	$ids = array();
+	if (is_array($rows)) {
+		foreach ($rows as $row) {
+			$id = intval(isset($row['id']) ? $row['id'] : 0);
+			if ($id > 0) {
+				$ids[] = $id;
+			}
+		}
+	}
+
+	return $DB->exec('UPDATE pre_site SET msgread=:msgread WHERE zid=:zid', array(':msgread' => q8_build_int_csv($ids), ':zid' => $zid)) !== false;
+
 }
 
 function curl_get($url)
@@ -121,7 +503,6 @@ function get_curl($url,$post=0,$referer=0,$cookie=0,$header=0,$ua=0,$nobaody=0,$
 
 	$httpheader[] = "Connection: close";
 
-	// 添加默认 Content-Type 头
 	if($post){
 		$httpheader[] = "Content-Type: application/x-www-form-urlencoded";
 	}
@@ -399,17 +780,19 @@ function send_mail($to, $sub, $msg)
 
 	global $conf;
 
+	$senderName = q8_mail_sender_name();
+
 	if($conf['mail_cloud']==1){
 
 		$mail = new \lib\mail\Sendcloud($conf['mail_apiuser'], $conf['mail_apikey']);
 
-		return $mail->send($to, $sub, $msg, $conf['mail_name2'], $conf['sitename']);
+		return $mail->send($to, $sub, $msg, $senderName, $conf['sitename']);
 
 	}elseif($conf['mail_cloud']==2){
 
 		$mail = new \lib\mail\Aliyun($conf['mail_apiuser'], $conf['mail_apikey']);
 
-		return $mail->send($to, $sub, $msg, $conf['mail_name2'], $conf['sitename']);
+		return $mail->send($to, $sub, $msg, $senderName, $conf['sitename']);
 
 	}else{
 
@@ -445,11 +828,11 @@ function send_mail($to, $sub, $msg)
 
 			$mail->Port = intval($conf['mail_port']);
 
-			$mail->setFrom($conf['mail_name'], $conf['sitename']);
+			$mail->setFrom($conf['mail_name'], $senderName);
 
 			$mail->addAddress($to);
 
-			$mail->addReplyTo($conf['mail_name'], $conf['sitename']);
+			$mail->addReplyTo($conf['mail_name'], $senderName);
 
 			$mail->isHTML(true);
 
@@ -468,6 +851,732 @@ function send_mail($to, $sub, $msg)
 		}
 
 	}
+
+}
+
+function q8_mail_sender_name()
+
+{
+
+	global $conf;
+
+	$name = trim((string)$conf['mail_name2']);
+
+	if ($name === '') {
+
+		$name = trim((string)$conf['sitename']);
+
+	}
+
+	if ($name === '') {
+
+		$name = trim((string)$conf['mail_name']);
+
+	}
+
+	return $name;
+
+}
+
+function q8_mail_center_valid_qq($value)
+
+{
+
+	$qq = trim((string)$value);
+
+	if ($qq === '') {
+
+		return '';
+
+	}
+
+	if (stripos($qq, '@qq.com') !== false) {
+
+		$qq = substr($qq, 0, stripos($qq, '@qq.com'));
+
+	}
+
+	$qq = preg_replace('/\D+/', '', $qq);
+
+	if (!preg_match('/^[1-9][0-9]{4,12}$/', $qq)) {
+
+		return '';
+
+	}
+
+	return $qq;
+
+}
+
+function q8_mail_center_active_sites()
+
+{
+
+	global $DB;
+
+	static $rows = null;
+
+	if ($rows !== null) {
+
+		return $rows;
+
+	}
+
+	$sql = "SELECT zid,user,qq,power,upzid,status FROM pre_site WHERE status=1 ORDER BY zid DESC";
+	$rows = $DB->getAll($sql);
+	if (!is_array($rows)) {
+		$rows = array();
+	}
+
+	return $rows;
+
+}
+
+function q8_mail_center_scope_where($scope)
+
+{
+
+	$scope = intval($scope);
+
+	switch ($scope) {
+
+		case 1:
+			return "status=1 AND power=0";
+
+		case 2:
+			return "status=1 AND power>0";
+
+		case 3:
+			return "status=1 AND power=1";
+
+		case 4:
+			return "status=1 AND power=2";
+
+		case 5:
+			return "status=1 AND power=0 AND upzid<=0";
+
+		case 6:
+			return "status=1 AND power=0 AND upzid>0";
+
+		default:
+			return "status=1";
+
+	}
+
+}
+
+function q8_mail_center_scope_match($row, $scope)
+
+{
+
+	if (!is_array($row) || intval($row['status']) !== 1) {
+
+		return false;
+
+	}
+
+	$scope = intval($scope);
+	$power = intval($row['power']);
+	$upzid = intval(isset($row['upzid']) ? $row['upzid'] : 0);
+
+	switch ($scope) {
+
+		case 1:
+			return $power === 0;
+
+		case 2:
+			return $power > 0;
+
+		case 3:
+			return $power === 1;
+
+		case 4:
+			return $power === 2;
+
+		case 5:
+			return $power === 0 && $upzid <= 0;
+
+		case 6:
+			return $power === 0 && $upzid > 0;
+
+		default:
+			return true;
+
+	}
+
+}
+
+function q8_mail_center_format_recipient($row)
+
+{
+
+	if (!is_array($row)) {
+
+		return null;
+
+	}
+
+	$qq = q8_mail_center_valid_qq(isset($row['qq']) ? $row['qq'] : '');
+	if ($qq === '') {
+		return null;
+	}
+
+	$zid = intval(isset($row['zid']) ? $row['zid'] : 0);
+	$username = trim((string)(isset($row['user']) ? $row['user'] : ''));
+	$power = intval(isset($row['power']) ? $row['power'] : 0);
+
+	return array(
+		'zid' => $zid,
+		'username' => $username,
+		'qq' => $qq,
+		'email' => $qq . '@qq.com',
+		'power' => $power,
+		'target_label' => 'UID ' . $zid . ' / ' . ($username === '' ? '--' : $username) . ' / ' . $qq . '@qq.com'
+	);
+
+}
+
+function q8_mail_center_recipients_by_scope($scope)
+
+{
+
+	$list = array();
+	foreach (q8_mail_center_active_sites() as $row) {
+		if (!q8_mail_center_scope_match($row, $scope)) {
+			continue;
+		}
+		$item = q8_mail_center_format_recipient($row);
+		if (!$item) {
+			continue;
+		}
+		$list[$item['zid']] = $item;
+	}
+
+	return array_values($list);
+
+}
+
+function q8_mail_center_scope_counts()
+
+{
+
+	$counts = array(0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0);
+	foreach ($counts as $scope => $count) {
+		$counts[$scope] = count(q8_mail_center_recipients_by_scope($scope));
+	}
+
+	return $counts;
+
+}
+
+function q8_mail_center_resolve_target($keyword)
+
+{
+
+	$keyword = trim((string)$keyword);
+	if ($keyword === '') {
+		return array('ok' => false, 'msg' => html_entity_decode('&#35831;&#36755;&#20837; UID / &#29992;&#25143;&#21517; / QQ', ENT_QUOTES, 'UTF-8'));
+	}
+
+	$rows = q8_mail_center_active_sites();
+	$normalizedQq = q8_mail_center_valid_qq($keyword);
+	$zid = ctype_digit($keyword) ? intval($keyword) : 0;
+
+	if ($zid > 0) {
+		foreach ($rows as $row) {
+			if (intval($row['zid']) === $zid) {
+				$item = q8_mail_center_format_recipient($row);
+				if (!$item) {
+					return array('ok' => false, 'msg' => html_entity_decode('&#35813; UID &#29992;&#25143;&#27809;&#26377;&#21487;&#29992;&#30340; QQ &#37038;&#31665;', ENT_QUOTES, 'UTF-8'));
+				}
+				return array('ok' => true, 'row' => $item, 'match' => 'zid');
+			}
+		}
+	}
+
+	$userMatches = array();
+	foreach ($rows as $row) {
+		if (trim((string)$row['user']) === $keyword) {
+			$userMatches[] = $row;
+		}
+	}
+	if (count($userMatches) > 1) {
+		return array('ok' => false, 'msg' => html_entity_decode('&#29992;&#25143;&#21517;&#21629;&#20013;&#22810;&#26465;&#35760;&#24405;&#65292;&#35831;&#25913;&#29992; UID &#25110; QQ &#31934;&#30830;&#25351;&#23450;', ENT_QUOTES, 'UTF-8'));
+	}
+	if (count($userMatches) === 1) {
+		$item = q8_mail_center_format_recipient($userMatches[0]);
+		if (!$item) {
+			return array('ok' => false, 'msg' => html_entity_decode('&#35813;&#29992;&#25143;&#27809;&#26377;&#21487;&#29992;&#30340; QQ &#37038;&#31665;', ENT_QUOTES, 'UTF-8'));
+		}
+		return array('ok' => true, 'row' => $item, 'match' => 'user');
+	}
+
+	if ($normalizedQq !== '') {
+		$qqMatches = array();
+		foreach ($rows as $row) {
+			if (q8_mail_center_valid_qq($row['qq']) === $normalizedQq) {
+				$qqMatches[] = $row;
+			}
+		}
+		if (count($qqMatches) > 1) {
+			return array('ok' => false, 'msg' => html_entity_decode('&#35813; QQ &#21629;&#20013;&#22810;&#26465;&#35760;&#24405;&#65292;&#35831;&#25913;&#29992; UID &#31934;&#30830;&#25351;&#23450;', ENT_QUOTES, 'UTF-8'));
+		}
+		if (count($qqMatches) === 1) {
+			$item = q8_mail_center_format_recipient($qqMatches[0]);
+			if (!$item) {
+				return array('ok' => false, 'msg' => html_entity_decode('&#35813; QQ &#29992;&#25143;&#27809;&#26377;&#21487;&#29992;&#30340;&#37038;&#31665;', ENT_QUOTES, 'UTF-8'));
+			}
+			return array('ok' => true, 'row' => $item, 'match' => 'qq');
+		}
+	}
+
+	return array('ok' => false, 'msg' => html_entity_decode('&#26410;&#25214;&#21040;&#21305;&#37197;&#30340;&#29992;&#25143;&#65292;&#35831;&#26816;&#26597; UID / &#29992;&#25143;&#21517; / QQ &#26159;&#21542;&#27491;&#30830;', ENT_QUOTES, 'UTF-8'));
+
+}
+
+function q8_mail_center_notice_type($scope)
+
+{
+
+	$scope = intval($scope);
+
+	return in_array($scope, array(0, 1, 2, 3, 4, 5, 6), true) ? $scope : 0;
+
+}
+
+function q8_mail_center_wrap_html($subject, $content)
+
+{
+
+	$subjectText = htmlspecialchars((string)$subject, ENT_QUOTES, 'UTF-8');
+
+	$body = trim((string)$content);
+
+	if ($body !== '' && $body === strip_tags($body) && strpos($body, '<') === false) {
+
+		$body = nl2br(htmlspecialchars($body, ENT_QUOTES, 'UTF-8'));
+
+	}
+
+	$sender = htmlspecialchars(q8_mail_sender_name(), ENT_QUOTES, 'UTF-8');
+
+	$timeText = date('Y-m-d H:i:s');
+
+	return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>' . $subjectText . '</title></head><body style="margin:0;padding:24px;background:#f3f6fb;font-family:Arial,Microsoft YaHei,sans-serif;color:#1f2937;"><div style="max-width:720px;margin:0 auto;background:#ffffff;border-radius:18px;border:1px solid #dbe4f0;overflow:hidden;"><div style="padding:28px 32px;background:linear-gradient(135deg,#0f4c81,#16a1c5);color:#ffffff;"><div style="font-size:13px;letter-spacing:0.12em;opacity:0.82;">MESSAGE CENTER</div><h1 style="margin:12px 0 8px;font-size:28px;line-height:1.25;">' . $subjectText . '</h1><div style="font-size:13px;opacity:0.9;">' . htmlspecialchars($timeText, ENT_QUOTES, 'UTF-8') . ' 闂?' . $sender . '</div></div><div style="padding:32px;font-size:15px;line-height:1.8;">' . $body . '</div><div style="padding:0 32px 28px;font-size:12px;line-height:1.7;color:#6b7280;">婵犵數濮烽弫鍛婃叏閻㈠壊鏁婇柡宥庡幖缁愭淇婇妶鍛殶缂佹唻绠撻弻娑滎槼妞ゃ劌鎳愭竟鏇犳喆閸曨厾鐦堥梻鍌氱墛娓氭宕曡箛鏇犳／闁诡垎宀€鍚嬮梺鍝勫閳ь剚鍓氶崥瀣煕閹扳晛濡兼い顒€顑呴—鍐Χ閸屾稒鐝栭梺绋跨箲閿曘垹顕ｇ拠娴嬫闁靛繒濮烽鎺楁⒑閼测斁鎷￠柛鎾寸懄娣囧﹥绂掔€ｎ偀鎷?' . $sender . ' 闂傚倸鍊搁崐鎼佸磹閻戣姤鍤勯柛顐ｆ礀閸屻劎鎲搁弮鍫澪ラ柛鎰ㄦ櫆閸庣喖鏌曡箛瀣労婵炶尙顭堥埞鎴︽偐鐠囇冧紣闁诲孩鍑归崣鍐ㄧ暦閿濆牏鐤€婵炴垶鐟ч崢鎾绘⒑閸涘﹦绠撻悗姘煎弮瀹曞疇銇愰幒鎾跺幗濡炪倖鎸鹃崳銉モ枔濠婂牊鐓涚€光偓閳ь剟宕伴幇顒夌劷闊洦绋戠粻鏌ユ煙闁箑澧柛濠冩礋濮婄粯鎷呮笟顖滃姼濡炪倖鍨靛Λ婵嬬嵁閹邦厾绡€婵﹩鍓涢鍡涙⒑閸涘﹣绶遍柛銊ゅ嵆瀵悂宕奸悢鍓佺畾濡炪倖鐗楃换鍐Υ閸愵煈鐔?/div></div></body></html>';
+
+}
+
+function q8_mail_center_ensure_tables()
+
+{
+
+	global $DB;
+
+	static $ensured = false;
+
+	if ($ensured) {
+
+		return;
+
+	}
+
+	$taskTable = 'pre_mail_task';
+
+	$itemTable = 'pre_mail_task_item';
+
+	$DB->exec("CREATE TABLE IF NOT EXISTS `{$taskTable}` (
+		`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+		`scope` tinyint(1) NOT NULL DEFAULT '0',
+		`target_mode` tinyint(1) NOT NULL DEFAULT '0',
+		`target_value` varchar(128) NOT NULL DEFAULT '',
+		`target_label` varchar(255) NOT NULL DEFAULT '',
+		`subject` varchar(255) NOT NULL DEFAULT '',
+		`content` mediumtext,
+		`sync_notice` tinyint(1) NOT NULL DEFAULT '0',
+		`notice_id` int(11) unsigned NOT NULL DEFAULT '0',
+		`total_count` int(11) unsigned NOT NULL DEFAULT '0',
+		`success_count` int(11) unsigned NOT NULL DEFAULT '0',
+		`fail_count` int(11) unsigned NOT NULL DEFAULT '0',
+		`status` tinyint(1) NOT NULL DEFAULT '0',
+		`last_error` varchar(255) NOT NULL DEFAULT '',
+		`creator` varchar(64) NOT NULL DEFAULT '',
+		`addtime` datetime DEFAULT NULL,
+		`starttime` datetime DEFAULT NULL,
+		`endtime` datetime DEFAULT NULL,
+		PRIMARY KEY (`id`),
+		KEY `status` (`status`),
+		KEY `addtime` (`addtime`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+	$taskColumns = array(
+		'target_mode' => "ALTER TABLE `{$taskTable}` ADD COLUMN `target_mode` tinyint(1) NOT NULL DEFAULT '0' AFTER `scope`",
+		'target_value' => "ALTER TABLE `{$taskTable}` ADD COLUMN `target_value` varchar(128) NOT NULL DEFAULT '' AFTER `target_mode`",
+		'target_label' => "ALTER TABLE `{$taskTable}` ADD COLUMN `target_label` varchar(255) NOT NULL DEFAULT '' AFTER `target_value`"
+	);
+	foreach ($taskColumns as $column => $sql) {
+		$safeColumn = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
+		$exists = $DB->getColumn("SHOW COLUMNS FROM `{$taskTable}` LIKE '{$safeColumn}'");
+		if (!$exists) {
+			$DB->exec($sql);
+		}
+	}
+
+	$DB->exec("CREATE TABLE IF NOT EXISTS `{$itemTable}` (
+		`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		`task_id` int(11) unsigned NOT NULL DEFAULT '0',
+		`zid` int(11) unsigned NOT NULL DEFAULT '0',
+		`username` varchar(64) NOT NULL DEFAULT '',
+		`qq` varchar(32) NOT NULL DEFAULT '',
+		`email` varchar(128) NOT NULL DEFAULT '',
+		`status` tinyint(1) NOT NULL DEFAULT '0',
+		`result` varchar(255) NOT NULL DEFAULT '',
+		`sent_at` datetime DEFAULT NULL,
+		`addtime` datetime DEFAULT NULL,
+		PRIMARY KEY (`id`),
+		KEY `task_status` (`task_id`,`status`),
+		KEY `zid` (`zid`),
+		KEY `email` (`email`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+	$ensured = true;
+
+}
+
+function q8_mail_center_sync_notice($title, $scope, $content)
+
+{
+
+	global $DB, $date;
+
+	$title = trim((string)$title);
+
+	$content = trim((string)$content);
+
+	if ($title === '' || $content === '') {
+
+		return 0;
+
+	}
+
+	$DB->exec("INSERT INTO pre_message (`type`,`title`,`content`,`addtime`,`active`) VALUES (:type,:title,:content,:addtime,1)", array(
+		':type' => q8_mail_center_notice_type($scope),
+		':title' => $title,
+		':content' => $content,
+		':addtime' => $date
+	));
+
+	return intval($DB->lastInsertId());
+
+}
+
+function q8_site_admin_notice_mode_labels()
+
+{
+
+	return array(
+        0 => html_entity_decode('&#20165;&#26174;&#31034;&#20027;&#31449;&#20844;&#21578;', ENT_QUOTES, 'UTF-8'),
+        1 => html_entity_decode('&#20027;&#31449;&#20844;&#21578; + &#20998;&#31449;&#33258;&#23450;&#20041;', ENT_QUOTES, 'UTF-8'),
+        2 => html_entity_decode('&#20165;&#26174;&#31034;&#20998;&#31449;&#33258;&#23450;&#20041;', ENT_QUOTES, 'UTF-8')
+	);
+
+}
+
+function q8_site_admin_notice_normalize_mode($mode)
+
+{
+
+	$mode = intval($mode);
+	return array_key_exists($mode, q8_site_admin_notice_mode_labels()) ? $mode : 1;
+
+}
+
+function q8_site_table_columns($refresh = false)
+
+{
+
+	global $DB;
+
+	static $columns = null;
+
+	if ($refresh || !is_array($columns)) {
+		$columns = array();
+		$rows = $DB->getAll('SHOW COLUMNS FROM `pre_site`');
+		if (is_array($rows)) {
+			foreach ($rows as $row) {
+				if (!empty($row['Field'])) {
+					$columns[(string)$row['Field']] = $row;
+				}
+			}
+		}
+	}
+
+	return $columns;
+
+}
+
+function q8_site_has_column($column)
+
+{
+
+	$column = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$column);
+	if ($column === '') {
+		return false;
+	}
+
+	$columns = q8_site_table_columns();
+	return isset($columns[$column]);
+
+}
+
+function q8_site_markup_template_ensure_fields()
+
+{
+
+	global $DB;
+
+	static $ensured = false;
+
+	if ($ensured) {
+		return;
+	}
+
+	$columns = array(
+		'site_prid' => "ALTER TABLE `pre_site` ADD COLUMN `site_prid` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `template`"
+	);
+
+	foreach ($columns as $column => $sql) {
+		$safeColumn = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
+		$exists = $DB->getColumn("SHOW COLUMNS FROM `pre_site` LIKE '{$safeColumn}'");
+		if (!$exists) {
+			$DB->exec($sql);
+		}
+	}
+
+	q8_site_table_columns(true);
+
+	$ensured = true;
+
+}
+
+function q8_price_rule_table_columns($refresh = false)
+
+{
+
+	global $DB;
+
+	static $columns = null;
+
+	if ($refresh || !is_array($columns)) {
+		$columns = array();
+		$rows = $DB->getAll('SHOW COLUMNS FROM `pre_price`');
+		if (is_array($rows)) {
+			foreach ($rows as $row) {
+				if (!empty($row['Field'])) {
+					$columns[(string)$row['Field']] = $row;
+				}
+			}
+		}
+	}
+
+	return $columns;
+
+}
+
+function q8_price_rule_has_column($column)
+
+{
+
+	$column = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$column);
+	if ($column === '') {
+		return false;
+	}
+
+	$columns = q8_price_rule_table_columns();
+	return isset($columns[$column]);
+
+}
+
+function q8_price_rule_ensure_fields()
+
+{
+
+	global $DB;
+
+	static $ensured = false;
+
+	if ($ensured) {
+		return;
+	}
+
+	$columns = array(
+		'zid' => "ALTER TABLE `pre_price` ADD COLUMN `zid` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `id`"
+	);
+
+	foreach ($columns as $column => $sql) {
+		$safeColumn = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
+		$exists = $DB->getColumn("SHOW COLUMNS FROM `pre_price` LIKE '{$safeColumn}'");
+		if (!$exists) {
+			$DB->exec($sql);
+		}
+	}
+
+	$indexExists = $DB->getColumn("SHOW INDEX FROM `pre_price` WHERE Key_name='idx_zid'");
+	if (!$indexExists) {
+		$DB->exec("ALTER TABLE `pre_price` ADD INDEX `idx_zid` (`zid`)");
+	}
+
+	q8_price_rule_table_columns(true);
+
+	$ensured = true;
+
+}
+
+function q8_price_rule_owner_id($zid)
+
+{
+
+	return max(0, intval($zid));
+
+}
+
+function q8_price_rule_fetch_rows($ownerZid = 0)
+
+{
+
+	global $DB;
+
+	q8_price_rule_ensure_fields();
+
+	return $DB->getAll(
+		"SELECT id,zid,name,kind,p_0,p_1,p_2 FROM pre_price WHERE zid=:zid ORDER BY id DESC",
+		array(':zid' => q8_price_rule_owner_id($ownerZid))
+	);
+
+}
+
+function q8_price_rule_fetch_row($id, $ownerZid = null)
+
+{
+
+	global $DB;
+
+	q8_price_rule_ensure_fields();
+
+	$id = intval($id);
+	if ($id <= 0) {
+		return false;
+	}
+
+	if ($ownerZid === null) {
+		return $DB->getRow(
+			"SELECT id,zid,name,kind,p_0,p_1,p_2 FROM pre_price WHERE id=:id LIMIT 1",
+			array(':id' => $id)
+		);
+	}
+
+	return $DB->getRow(
+		"SELECT id,zid,name,kind,p_0,p_1,p_2 FROM pre_price WHERE id=:id AND zid=:zid LIMIT 1",
+		array(':id' => $id, ':zid' => q8_price_rule_owner_id($ownerZid))
+	);
+
+}
+
+function q8_price_rule_exists_for_owner($id, $ownerZid = 0)
+
+{
+
+	global $DB;
+
+	q8_price_rule_ensure_fields();
+
+	return intval($DB->getColumn(
+		"SELECT COUNT(*) FROM pre_price WHERE id=:id AND zid=:zid",
+		array(':id' => intval($id), ':zid' => q8_price_rule_owner_id($ownerZid))
+	)) > 0;
+
+}
+
+function q8_site_admin_notice_ensure_fields()
+
+{
+
+	global $DB;
+
+	static $ensured = false;
+
+	if ($ensured) {
+		return;
+	}
+
+	$columns = array(
+		'admin_notice_panel' => "ALTER TABLE `pre_site` ADD COLUMN `admin_notice_panel` TEXT NULL AFTER `alert`",
+		'admin_notice_mode' => "ALTER TABLE `pre_site` ADD COLUMN `admin_notice_mode` TINYINT(1) NOT NULL DEFAULT '1' AFTER `admin_notice_panel`"
+	);
+
+	foreach ($columns as $column => $sql) {
+		$safeColumn = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
+		$exists = $DB->getColumn("SHOW COLUMNS FROM `pre_site` LIKE '{$safeColumn}'");
+		if (!$exists) {
+			$DB->exec($sql);
+		}
+	}
+
+	q8_site_table_columns(true);
+
+	$ensured = true;
+
+}
+
+function q8_site_admin_notice_render_segment($title, $content)
+
+{
+
+	$title = trim((string)$title);
+	$content = trim((string)$content);
+	if ($content === '') {
+		return '';
+	}
+
+	return '<section class="q8-site-notice-segment"><div class="q8-site-notice-segment__title">' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</div><div class="q8-site-notice-segment__body">' . $content . '</div></section>';
+
+}
+
+function q8_site_admin_notice_context($siteRow, $conf)
+
+{
+
+	q8_site_admin_notice_ensure_fields();
+
+	$globalPanel = trim((string)(isset($conf['gg_panel']) ? $conf['gg_panel'] : ''));
+	$customPanel = trim((string)(isset($siteRow['admin_notice_panel']) ? $siteRow['admin_notice_panel'] : ''));
+	$mode = q8_site_admin_notice_normalize_mode(isset($siteRow['admin_notice_mode']) ? $siteRow['admin_notice_mode'] : 1);
+	$html = '';
+	$layered = false;
+
+	if ($mode === 0) {
+		$html = $globalPanel;
+	} elseif ($mode === 2) {
+		$html = $customPanel !== '' ? $customPanel : $globalPanel;
+	} else {
+		$segments = array();
+		if ($globalPanel !== '') {
+            $segments[] = q8_site_admin_notice_render_segment(html_entity_decode('&#20027;&#31449;&#20844;&#21578;', ENT_QUOTES, 'UTF-8'), $globalPanel);
+		}
+		if ($customPanel !== '') {
+            $segments[] = q8_site_admin_notice_render_segment(html_entity_decode('&#20998;&#31449;&#20844;&#21578;', ENT_QUOTES, 'UTF-8'), $customPanel);
+		}
+		$layered = count($segments) > 1;
+		$html = $layered ? '<div class="q8-site-notice-stack">' . implode('', $segments) . '</div>' : implode('', $segments);
+	}
+
+	return array(
+		'mode' => $mode,
+		'mode_label' => q8_site_admin_notice_mode_labels()[$mode],
+		'global_html' => $globalPanel,
+		'custom_html' => $customPanel,
+		'html' => $html,
+		'is_layered' => $layered
+	);
 
 }
 
@@ -637,132 +1746,76 @@ function get_rand($proArr)
 
 
 
-function showmsg($content = '未知的异常',$type = 4,$back = false)
-
+function showmsg($content = 'Operation completed', $type = 4, $back = false)
 {
-
-switch($type)
-
-{
-
-case 1:
-
-	$panel="success";
-
-break;
-
-case 2:
-
-	$panel="info";
-
-break;
-
-case 3:
-
-	$panel="warning";
-
-break;
-
-case 4:
-
-	$panel="danger";
-
-break;
-
-}
-
-
-
-echo '<div class="panel panel-'.$panel.'">
-
-      <div class="panel-heading">
-
-        <h3 class="panel-title">提示信息</h3>
-
-        </div>
-
-        <div class="panel-body">';
-
-echo $content;
-
-
-
-if ($back) {
-
-	echo '<hr/><a href="'.$back.'"><< 返回上一页</a>';
-
-}
-
-else
-
-    echo '<hr/><a href="javascript:history.back(-1)"><< 返回上一页</a>';
-
-
-
-echo '</div>
-
-    </div>';
-
-exit;
-
-}
-
-
-
-if(!function_exists("is_https")){
-
-	function is_https() {
-
-		if(isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443){
-
-			return true;
-
-		}elseif(isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1')){
-
-			return true;
-
-		}elseif(isset($_SERVER['HTTP_X_CLIENT_SCHEME']) && $_SERVER['HTTP_X_CLIENT_SCHEME'] == 'https'){
-
-			return true;
-
-		}elseif(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'){
-
-			return true;
-
-		}elseif(isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == 'https'){
-
-			return true;
-
-		}elseif(isset($_SERVER['HTTP_EWS_CUSTOME_SCHEME']) && $_SERVER['HTTP_EWS_CUSTOME_SCHEME'] == 'https'){
-
-			return true;
-
-		}
-
-		return false;
-
+	switch ((int)$type) {
+		case 1:
+			$panel = 'success';
+		break;
+		case 2:
+			$panel = 'info';
+		break;
+		case 3:
+			$panel = 'warning';
+		break;
+		case 4:
+		default:
+			$panel = 'danger';
+		break;
 	}
-
+	echo '<div class="panel panel-'.$panel.'">';
+	echo '<div class="panel-heading"><h3 class="panel-title">System Notice</h3></div>';
+	echo '<div class="panel-body">';
+	echo $content;
+	if ($back) {
+		echo '<hr/><a href="'.htmlspecialchars($back, ENT_QUOTES).'">&lt;&lt; Back</a>';
+	} else {
+		echo '<hr/><a href="javascript:history.back(-1)">&lt;&lt; Back</a>';
+	}
+echo '</div></div>';
+exit;
 }
 
+if (!function_exists('is_https')) {
+	function is_https()
+	{
+		if (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) {
+			return true;
+		}
+		if (isset($_SERVER['HTTPS'])) {
+			$https = strtolower((string)$_SERVER['HTTPS']);
+			if ($https === 'on' || $https === '1') {
+				return true;
+			}
+		}
+		if (isset($_SERVER['HTTP_X_CLIENT_SCHEME']) && strtolower((string)$_SERVER['HTTP_X_CLIENT_SCHEME']) === 'https') {
+			return true;
+		}
+		if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') {
+			return true;
+		}
+		if (isset($_SERVER['REQUEST_SCHEME']) && strtolower((string)$_SERVER['REQUEST_SCHEME']) === 'https') {
+			return true;
+		}
+		if (isset($_SERVER['HTTP_EWS_CUSTOME_SCHEME']) && strtolower((string)$_SERVER['HTTP_EWS_CUSTOME_SCHEME']) === 'https') {
+			return true;
+		}
+		return false;
+	}
+}
 
-
-function sysmsg($content = "未知的异常", $is_exit = true)
-
+function sysmsg($content = 'Operation completed', $is_exit = true)
 {
-
-	echo "  \r\n	<!DOCTYPE html>\r\n	<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"zh-CN\">\r\n	<head>\r\n		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\r\n		<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n		<title>站点提示信息</title>\r\n		<style type=\"text/css\">\r\nhtml{background:#eee}body{background:#fff;color:#333;font-family:\"微软雅黑\",\"Microsoft YaHei\",sans-serif;margin:2em auto;padding:1em 2em;max-width:700px;-webkit-box-shadow:10px 10px 10px rgba(0,0,0,.13);box-shadow:10px 10px 10px rgba(0,0,0,.13);opacity:.8}h1{border-bottom:1px solid #dadada;clear:both;color:#666;font:24px \"微软雅黑\",\"Microsoft YaHei\",,sans-serif;margin:30px 0 0 0;padding:0;padding-bottom:7px}#error-page{margin-top:50px}h3{text-align:center}#error-page p{font-size:9px;line-height:1.5;margin:25px 0 20px}#error-page code{font-family:Consolas,Monaco,monospace}ul li{margin-bottom:10px;font-size:9px}a{color:#21759B;text-decoration:none;margin-top:-10px}a:hover{color:#D54E21}.button{background:#f7f7f7;border:1px solid #ccc;color:#555;display:inline-block;text-decoration:none;font-size:9px;line-height:26px;height:28px;margin:0;padding:0 10px 1px;cursor:pointer;-webkit-border-radius:3px;-webkit-appearance:none;border-radius:3px;white-space:nowrap;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;-webkit-box-shadow:inset 0 1px 0 #fff,0 1px 0 rgba(0,0,0,.08);box-shadow:inset 0 1px 0 #fff,0 1px 0 rgba(0,0,0,.08);vertical-align:top}.button.button-large{height:29px;line-height:28px;padding:0 12px}.button:focus,.button:hover{background:#fafafa;border-color:#999;color:#222}.button:focus{-webkit-box-shadow:1px 1px 1px rgba(0,0,0,.2);box-shadow:1px 1px 1px rgba(0,0,0,.2)}.button:active{background:#eee;border-color:#999;color:#333;-webkit-box-shadow:inset 0 2px 5px -3px rgba(0,0,0,.5);box-shadow:inset 0 2px 5px -3px rgba(0,0,0,.5)}table{table-layout:auto;border:1px solid #333;empty-cells:show;border-collapse:collapse}th{padding:4px;border:1px solid #333;overflow:hidden;color:#333;background:#eee}td{padding:4px;border:1px solid #333;overflow:hidden;color:#333}\r\n		</style>\r\n	</head>\r\n	<body id=\"error-page\">\r\n		";
-
-	echo "<h3>站点提示信息</h3>";
-
+	echo '<!DOCTYPE html>';
+	echo '<html lang="zh-CN"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>System Notice</title>';
+	echo '<style>html{background:#eee}body{background:#fff;color:#333;font-family:"Microsoft YaHei",sans-serif;margin:2em auto;padding:1em 2em;max-width:700px;box-shadow:10px 10px 10px rgba(0,0,0,.13);opacity:.95}h3{text-align:center;margin:0 0 20px}a{color:#21759B;text-decoration:none}a:hover{color:#D54E21}</style>';
+	echo '</head><body id="error-page">';
+	echo '<h3>System Notice</h3>';
 	echo $content;
-
-	echo "	</body>\r\n	</html>\r\n	";
+	echo '</body></html>';
 	if($is_exit) exit();
 	return 0;
-
 }
-
 
 
 function changeUserMoney($zid, $money, $add=true, $action=null, $bz=null, $orderid=null)
@@ -773,7 +1826,7 @@ function changeUserMoney($zid, $money, $add=true, $action=null, $bz=null, $order
 
 	if($money<=0)return;
 
-	// 使用参数化查询获取旧余额 - 修复SQL注入漏洞
+	// 濠电姷鏁告慨鐑藉极閹间礁纾婚柣妯款嚙缁犲灚銇勮箛鎾搭棤缂佲偓婵犲洦鐓冪憸婊堝礈濮樿鲸宕叉繛鎴炵懃缁剁偤鎮楅敐搴′簽妞わ缚鍗抽幃妤€鈻撻崹顔界彯闂佺顑呴敃銉︾┍婵犲洦鍤嬮梻鍫熺〒缁愮偞绻濋悽闈浶㈤悗姘煎櫍瀹曘垽顢楅崟顑芥嫽婵炶揪绲肩拃锕傛倿妤ｅ啯鐓涢柛顐亜婢ф壆绱掗鐣屾噰妤犵偞甯￠獮瀣籍閳ь剟鎮樻笟鈧娲礈閹绘帊绨煎┑鐐插级閿曘垽骞冮敓鐘插嵆闁靛骏绱曢崢鎼佹倵楠炲灝鍔氶柛鐕佸亝娣囧﹪宕归鍛數閻熸粍绮撳畷婊堟偄閻撳氦鎽曢梺鎸庣箓椤︻垳绮绘總鍛婄厱闁哄洢鍔岄獮姗€鏌ㄥ☉姘灈婵﹪缂氶妵鎰板箳濠靛浂妫栧┑鐘垫暩閸嬫劙宕戦幘瀵哥瘈婵炲牆鐏濋弸鎾绘煕鐎ｎ偅宕屾慨濠冩そ楠炴劖鎯旈敐鍥╂殼闂備胶顢婂▍鏇㈠礉濞嗘挶鈧礁鈻庨幘鍐茶€垮┑鐐村灦閻熴垽骞忓ú顏呪拺闁告稑锕﹂埥澶愭煥閺囶亞鐣垫鐐诧躬瀹曠喖顢涘☉姘箺婵犲痉鏉库偓鎾舵閳ユ枼鏋旈柡鍐ㄧ墛閹虫岸鏌ｉ幇顓犳殬濞存粍绮撻弻鐔煎级閸噮鏆㈢紓浣割儓椤曆囧煘閹达富鏁嶆慨妯块哺閹茶偐绱撴担铏瑰笡闁烩晩鍨伴悾鐑藉础閻愬秶鍠撶槐鎺懳熼崫鍕棆闂?- 濠电姷鏁告慨鐑藉极閹间礁纾块柟瀵稿Т缁躲倝鏌﹀Ο渚＆鐟滅増甯掔壕濂告煟閹邦垰鐨洪柣娑栧劦濮婃椽宕崟顓涙瀱闂佸憡蓱濡啫鐣烽崼鏇ㄦ晢濞达絿顭堟竟宥囩磽閸屾瑧鍔嶉柛鏃€顨婇幆渚€宕￠悙鈺傛杸闂佺粯锚閻忔岸寮抽埡鍛厱閻庯綆鍋嗗ú鎾寠濠靛洢浜滈柟鎯у船閻忊晝绱掗埀顒佸緞鐏炵浜鹃柛蹇擃槸娴滈箖姊洪崨濠冨闁稿妫濋幃锟犲箣閿旇В鎷虹紓渚囧灡濞叉牗鏅堕崣澶堜簻闁靛鍎崇粻濠氭煙椤曞棛绡€鐎规洖銈稿鎾偐閹绘帞瀵奸梻鍌欑劍閹爼宕曢鐐茬鐎广儱顦悡鏇㈡煙閻戞ɑ灏ù?
 	$oldmoney = $DB->getColumn("SELECT rmb FROM pre_site WHERE zid=:zid LIMIT 1", [':zid' => $zid]);
 
 	if($add == true){
@@ -794,7 +1847,7 @@ function changeUserMoney($zid, $money, $add=true, $action=null, $bz=null, $order
 
 	$bz = addslashes($bz);
 
-	// 使用参数化查询更新余额 - 修复SQL注入漏洞
+	// 濠电姷鏁告慨鐑藉极閹间礁纾婚柣妯款嚙缁犲灚銇勮箛鎾搭棤缂佲偓婵犲洦鐓冪憸婊堝礈濮樿鲸宕叉繛鎴炵懃缁剁偤鎮楅敐搴′簽妞わ缚鍗抽幃妤€鈻撻崹顔界彯闂佺顑呴敃銉︾┍婵犲洦鍤嬮梻鍫熺〒缁愮偞绻濋悽闈浶㈤悗姘煎櫍瀹曘垽顢楅崟顑芥嫽婵炶揪绲肩拃锕傛倿妤ｅ啯鐓涢柛顐亜婢ф壆绱掗鐣屾噰妤犵偞甯￠獮瀣籍閳ь剟鎮樻笟鈧娲礈閹绘帊绨煎┑鐐插级閿曘垽骞冮敓鐘插嵆闁靛骏绱曢崢鎼佹倵楠炲灝鍔氶柛鐕佸亝娣囧﹪宕归鍛數閻熸粍绮撳畷婊堟偄閻撳氦鎽曢梺鎸庣箓椤︻垳绮绘總鍛婄厱闁哄洢鍔岄獮姗€鏌ㄥ☉姘灈婵﹪缂氶妵鎰板箳濠靛浂妫栧┑鐘垫暩閸嬫劙宕戦幘瀵哥瘈婵炲牆鐏濋弸鎾绘煕鐎ｎ偅宕屾慨濠冩そ瀵剟濡烽敂鐣屽絽闂備礁鎽滈崰宥夊础閸愯尙鏆︽繛鍡樺姉椤╃兘鎮楅敐搴′簮闁归攱妞藉娲川婵犲嫮鐣甸柣搴㈠嚬閸撶喖宕洪埀顒併亜閹哄棗浜惧┑鐐点€嬬换婵囦繆閹绢喖纾奸柣鎰摠濞呭棝姊洪崨濠冨瘷闁告粈鐒︾瑧闂傚倸鍊烽懗鍫曞箠閹炬椿鏁嬫い鎾卞灩绾惧潡鏌熺€电校妞?- 濠电姷鏁告慨鐑藉极閹间礁纾块柟瀵稿Т缁躲倝鏌﹀Ο渚＆鐟滅増甯掔壕濂告煟閹邦垰鐨洪柣娑栧劦濮婃椽宕崟顓涙瀱闂佸憡蓱濡啫鐣烽崼鏇ㄦ晢濞达絿顭堟竟宥囩磽閸屾瑧鍔嶉柛鏃€顨婇幆渚€宕￠悙鈺傛杸闂佺粯锚閻忔岸寮抽埡鍛厱閻庯綆鍋嗗ú鎾寠濠靛洢浜滈柟鎯у船閻忊晝绱掗埀顒佸緞鐏炵浜鹃柛蹇擃槸娴滈箖姊洪崨濠冨闁稿妫濋幃锟犲箣閿旇В鎷虹紓渚囧灡濞叉牗鏅堕崣澶堜簻闁靛鍎崇粻濠氭煙椤曞棛绡€鐎规洖銈稿鎾偐閹绘帞瀵奸梻鍌欑劍閹爼宕曢鐐茬鐎广儱顦悡鏇㈡煙閻戞ɑ灏ù?
 	$res = $DB->exec("UPDATE pre_site SET rmb=:newmoney WHERE zid=:zid", [':newmoney' => $newmoney, ':zid' => $zid]);
 
 	if ($orderid) {
@@ -807,6 +1860,32 @@ function changeUserMoney($zid, $money, $add=true, $action=null, $bz=null, $order
 
 }
 
+function q8_resolve_point_record_orderid($row)
+{
+	$orderid = isset($row['orderid']) ? trim((string)$row['orderid']) : '';
+	if ($orderid !== '' && $orderid !== '0') {
+		return $orderid;
+	}
+
+	$bz = isset($row['bz']) ? trim((string)$row['bz']) : '';
+	if ($bz === '') {
+		return '';
+	}
+
+	$patterns = array(
+		'/\((\d{6,})\)\s*$/',
+		'/(?:订单(?:号|ID)|ID)[:：#]?\s*(\d{6,})/u',
+	);
+
+	foreach ($patterns as $pattern) {
+		if (preg_match($pattern, $bz, $matches)) {
+			return $matches[1];
+		}
+	}
+
+	return '';
+}
+
 
 
 function changeSupMoney($sid, $money, $add=true, $action=null, $bz=null)
@@ -817,7 +1896,7 @@ function changeSupMoney($sid, $money, $add=true, $action=null, $bz=null)
 
     if($money<=0)return;
 
-    // 使用参数化查询获取旧余额 - 修复SQL注入漏洞
+    // 濠电姷鏁告慨鐑藉极閹间礁纾婚柣妯款嚙缁犲灚銇勮箛鎾搭棤缂佲偓婵犲洦鐓冪憸婊堝礈濮樿鲸宕叉繛鎴炵懃缁剁偤鎮楅敐搴′簽妞わ缚鍗抽幃妤€鈻撻崹顔界彯闂佺顑呴敃銉︾┍婵犲洦鍤嬮梻鍫熺〒缁愮偞绻濋悽闈浶㈤悗姘煎櫍瀹曘垽顢楅崟顑芥嫽婵炶揪绲肩拃锕傛倿妤ｅ啯鐓涢柛顐亜婢ф壆绱掗鐣屾噰妤犵偞甯￠獮瀣籍閳ь剟鎮樻笟鈧娲礈閹绘帊绨煎┑鐐插级閿曘垽骞冮敓鐘插嵆闁靛骏绱曢崢鎼佹倵楠炲灝鍔氶柛鐕佸亝娣囧﹪宕归鍛數閻熸粍绮撳畷婊堟偄閻撳氦鎽曢梺鎸庣箓椤︻垳绮绘總鍛婄厱闁哄洢鍔岄獮姗€鏌ㄥ☉姘灈婵﹪缂氶妵鎰板箳濠靛浂妫栧┑鐘垫暩閸嬫劙宕戦幘瀵哥瘈婵炲牆鐏濋弸鎾绘煕鐎ｎ偅宕屾慨濠冩そ楠炴劖鎯旈敐鍥╂殼闂備胶顢婂▍鏇㈠礉濞嗘挶鈧礁鈻庨幘鍐茶€垮┑鐐村灦閻熴垽骞忓ú顏呪拺闁告稑锕﹂埥澶愭煥閺囶亞鐣垫鐐诧躬瀹曠喖顢涘☉姘箺婵犲痉鏉库偓鎾舵閳ユ枼鏋旈柡鍐ㄧ墛閹虫岸鏌ｉ幇顓犳殬濞存粍绮撻弻鐔煎级閸噮鏆㈢紓浣割儓椤曆囧煘閹达富鏁嶆慨妯块哺閹茶偐绱撴担铏瑰笡闁烩晩鍨伴悾鐑藉础閻愬秶鍠撶槐鎺懳熼崫鍕棆闂?- 濠电姷鏁告慨鐑藉极閹间礁纾块柟瀵稿Т缁躲倝鏌﹀Ο渚＆鐟滅増甯掔壕濂告煟閹邦垰鐨洪柣娑栧劦濮婃椽宕崟顓涙瀱闂佸憡蓱濡啫鐣烽崼鏇ㄦ晢濞达絿顭堟竟宥囩磽閸屾瑧鍔嶉柛鏃€顨婇幆渚€宕￠悙鈺傛杸闂佺粯锚閻忔岸寮抽埡鍛厱閻庯綆鍋嗗ú鎾寠濠靛洢浜滈柟鎯у船閻忊晝绱掗埀顒佸緞鐏炵浜鹃柛蹇擃槸娴滈箖姊洪崨濠冨闁稿妫濋幃锟犲箣閿旇В鎷虹紓渚囧灡濞叉牗鏅堕崣澶堜簻闁靛鍎崇粻濠氭煙椤曞棛绡€鐎规洖銈稿鎾偐閹绘帞瀵奸梻鍌欑劍閹爼宕曢鐐茬鐎广儱顦悡鏇㈡煙閻戞ɑ灏ù?
     $oldmoney = $DB->getColumn("SELECT rmb FROM pre_supplier WHERE sid=:sid LIMIT 1", [':sid' => $sid]);
 
     if($add == true){
@@ -838,7 +1917,7 @@ function changeSupMoney($sid, $money, $add=true, $action=null, $bz=null)
 
     $bz = addslashes($bz);
 
-    // 使用参数化查询更新余额 - 修复SQL注入漏洞
+    // 濠电姷鏁告慨鐑藉极閹间礁纾婚柣妯款嚙缁犲灚銇勮箛鎾搭棤缂佲偓婵犲洦鐓冪憸婊堝礈濮樿鲸宕叉繛鎴炵懃缁剁偤鎮楅敐搴′簽妞わ缚鍗抽幃妤€鈻撻崹顔界彯闂佺顑呴敃銉︾┍婵犲洦鍤嬮梻鍫熺〒缁愮偞绻濋悽闈浶㈤悗姘煎櫍瀹曘垽顢楅崟顑芥嫽婵炶揪绲肩拃锕傛倿妤ｅ啯鐓涢柛顐亜婢ф壆绱掗鐣屾噰妤犵偞甯￠獮瀣籍閳ь剟鎮樻笟鈧娲礈閹绘帊绨煎┑鐐插级閿曘垽骞冮敓鐘插嵆闁靛骏绱曢崢鎼佹倵楠炲灝鍔氶柛鐕佸亝娣囧﹪宕归鍛數閻熸粍绮撳畷婊堟偄閻撳氦鎽曢梺鎸庣箓椤︻垳绮绘總鍛婄厱闁哄洢鍔岄獮姗€鏌ㄥ☉姘灈婵﹪缂氶妵鎰板箳濠靛浂妫栧┑鐘垫暩閸嬫劙宕戦幘瀵哥瘈婵炲牆鐏濋弸鎾绘煕鐎ｎ偅宕屾慨濠冩そ瀵剟濡烽敂鐣屽絽闂備礁鎽滈崰宥夊础閸愯尙鏆︽繛鍡樺姉椤╃兘鎮楅敐搴′簮闁归攱妞藉娲川婵犲嫮鐣甸柣搴㈠嚬閸撶喖宕洪埀顒併亜閹哄棗浜惧┑鐐点€嬬换婵囦繆閹绢喖纾奸柣鎰摠濞呭棝姊洪崨濠冨瘷闁告粈鐒︾瑧闂傚倸鍊烽懗鍫曞箠閹炬椿鏁嬫い鎾卞灩绾惧潡鏌熺€电校妞?- 濠电姷鏁告慨鐑藉极閹间礁纾块柟瀵稿Т缁躲倝鏌﹀Ο渚＆鐟滅増甯掔壕濂告煟閹邦垰鐨洪柣娑栧劦濮婃椽宕崟顓涙瀱闂佸憡蓱濡啫鐣烽崼鏇ㄦ晢濞达絿顭堟竟宥囩磽閸屾瑧鍔嶉柛鏃€顨婇幆渚€宕￠悙鈺傛杸闂佺粯锚閻忔岸寮抽埡鍛厱閻庯綆鍋嗗ú鎾寠濠靛洢浜滈柟鎯у船閻忊晝绱掗埀顒佸緞鐏炵浜鹃柛蹇擃槸娴滈箖姊洪崨濠冨闁稿妫濋幃锟犲箣閿旇В鎷虹紓渚囧灡濞叉牗鏅堕崣澶堜簻闁靛鍎崇粻濠氭煙椤曞棛绡€鐎规洖銈稿鎾偐閹绘帞瀵奸梻鍌欑劍閹爼宕曢鐐茬鐎广儱顦悡鏇㈡煙閻戞ɑ灏ù?
     $res = $DB->exec("UPDATE pre_supplier SET rmb=:newmoney WHERE sid=:sid", [':newmoney' => $newmoney, ':sid' => $sid]);
 
     $DB->exec("INSERT INTO `pre_suppoints` (`sid`, `action`, `point`, `bz`, `addtime`) VALUES (:sid, :action, :point, :bz, NOW())", [':sid'=>$sid, ':action'=>$action, ':point'=>$money, ':bz'=>$bz]);
@@ -920,23 +1999,17 @@ function getServerIp(){
 
 
 /**
- * 生成分类选项列表，支持提示性分类
- */
+ * 闂傚倸鍊搁崐鎼佸磹閻戣姤鍊块柨鏇炲€归崕鎴犳喐閻楀牆绗掗柛銊ュ€搁埞鎴︽偐鐎圭姴顥濈紓浣瑰姈椤ㄥ﹪寮婚悢鍏煎亱闁割偆鍠撻崙锟犳⒑閹肩偛濡奸柛濠傜秺楠炲牓濡搁妷搴ｅ枛楠炴劖鎯旈敐鍐ｅ亾閹邦喚纾藉ù锝嗗絻娴滈箖姊虹化鏇炲⒉缂佸甯￠幃锟犲即閵忥紕鍘撻梺瀹犳〃缁€渚€寮抽悢鍏肩厵闁告劕寮堕ˉ鐐烘煏閸パ冾伃妞ゃ垺娲熼、妤呭磼濠婂嫭顔撳┑鐘愁問閸犳牠鏁冮妷銉富濞寸姴顑冮埀顑跨窔瀵挳濮€閻欌偓濞煎﹪姊洪崘鍙夋儓闁稿﹦鏁诲鎼佸川鐎涙ǚ鎷绘繛鎾村焹閸嬫挻绻涙担鍐插悩濞戞鏃堝礃椤忓棛鍘犻梻浣藉吹閸犳劖绔熼崱娑樻辈闁挎棁濮ら崣蹇旀叏濡も偓濡宕濋敃鍌涚厸闁告劑鍔庢晶鏇犵磼閳ь剛鈧綆鍠楅悡鍐偡濞嗗繐顏╅柛鏂诲€曢湁婵犲﹤鐗忛悾娲煛鐏炲墽娲存鐐叉喘濡啫鈽夊▎鎴滄喚闂傚倷绀侀幖顐﹀箯鐎ｎ喖绀堥柣鏃傚帶缁犳牗鎱ㄥ璇蹭壕闂佽鍠楅悷鈺佄涢崘銊㈡婵°倐鍋撴い銉﹀哺濮婄粯鎷呴崨濠冨創濠碘槅鍋呴悷褔宕氶幒妤€绠婚悹鍥蔼閹芥洟姊虹紒妯荤叆闁告艾顑夐崺娑㈠箛閻楀牏鍘甸梻渚囧弿缁犳垿寮稿☉妯锋斀闁炽儴灏欓惌娆撴煙椤旂厧妲绘い顓滃姂瀹曞ジ顢曢敐鍡╁悑闂傚倷鑳堕崢褔宕幐搴㈡珷閹兼番鍔岀粈鍡涙煙閻戞﹩娈旈梺鍗炴喘閺屾洘寰勫☉姘辨殸闂侀€炲苯澧扮紒顕呭灡缁岃鲸绻濋崶鑸垫櫖濠殿喗锕╅崜姘昂婵犵數鍋涢悺銊у垝鐏炵偓娅犲ù鐘差儏缁犵喓绱掔€ｎ偒鍎ラ柛姘儏椤法鎹勯悮鏉戜紣闂佽瀵掗崣鍐蓟閻斿吋鍤岄柣妤€鐗嗗☉褏绱撴担钘夎敿婵炲娲樼粋? */
 function getClassOptionList($selected = 0) {
     global $DB;
     $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 ORDER BY sort ASC");
     $select = '';
     while($res = $rs->fetch()) {
         if($res['is_disabled'] == 1) {
-            // 提示性分类，使用disabled属性
-            $select .= '<option disabled style="color: blue;">-—'.$res['name'].'—-</option>';
+            // 闂傚倸鍊搁崐鎼佸磹妞嬪海鐭嗗ù锝夋交閼板潡寮堕崼姘珔闁搞劍绻冮妵鍕冀椤愵澀绮剁紓浣插亾濠㈣泛顑勭换鍡涙煏閸繃鍣洪柛锝囨嚀椤╁ジ宕ㄩ娑欐杸濡炪倖姊婚悺鏃堟倿閻愵剛绠惧璺侯儑閵嗘帞绱掗纰辩吋妤犵偛顑夐幃鈺呭礃閸欏鈧箖鏌ｆ惔锛勭暛闁稿酣浜惰棟妞ゆ牜鍋涢崹鍌炴煕瀹€鈧崑娑氱不瑜版帒绾ч柛顐ｇ箓閳锋棃鏌熼绗哄仮闁诡喗顭堢粻娑樷槈濞嗘劙鏁梻鍌氭搐椤︾敻寮诲☉婊呯杸婵﹩鍏涘Ч妤呮⒑閻熸澘鏆遍柟铏姉濡叉劙骞掑Δ鈧悞鍨亜閹哄秶顦︾紒鍓佸仜閳规垿鎮欓弶鎴犵懆缂傚倸绉撮敃顏勵嚕椤愶箑绠涢柡澶婃健閸炲爼姊虹紒妯烩拹濞存粈绮欓崺鈧い鎺嗗亾闁挎洦浜滈～蹇涙倻濡顫￠梺瑙勵問閸犳稓绮ｅΔ鈧埞鎴﹀焺閸愩劎绁烽梺鐐藉劜鐎氬¨bled闂傚倸鍊搁崐宄懊归崶顒夋晪鐟滃繘骞戦姀銈呯婵°倐鍋撶痪鎯ь煼閺岋綁寮崒姘粯缂佺偓鍎抽…鐑藉蓟閿濆绠涙い鎺嶇劍閸庢捇姊?            $select .= '<option disabled style="color: blue;">-闂?.$res['name'].'闂?</option>';
         } else {
-            // 普通分类
-            $select .= '<option value="'.$res['cid'].'"'.($selected == $res['cid'] ? ' selected' : '').'>'.$res['name'].'</option>';
+            // 闂傚倸鍊搁崐鎼佸磹妞嬪海鐭嗗〒姘ｅ亾妤犵偞鐗犻、鏇㈡晝閳ь剛绮婚鐐村€甸柨婵嗛閺嬫盯姊婚崒銈呯仸闁哄被鍔岄埞鎴﹀幢閳哄倐锕傛⒑缂佹ê绗掗柣蹇斿哺婵＄敻宕熼姘鳖唺閻庡箍鍎卞Λ娑㈠Χ閻楀牏绡€闁靛骏缍嗗鎰版煥閺囨ê鐏茬€殿喛顕ч埥澶愬閻樻牑鏅犻弻鏇熷緞濞戙垺顎嶉悗瑙勬礃婵炲﹤顫?            $select .= '<option value="'.$res['cid'].'"'.($selected == $res['cid'] ? ' selected' : '').'>'.$res['name'].'</option>';
         }
     }
     return $select;
 }
-
-
-

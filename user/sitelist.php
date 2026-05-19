@@ -1,335 +1,515 @@
 <?php
-/**
- * 分站管理
-**/
-include("../includes/common.php");
+include '../includes/common.php';
+if ($islogin2 != 1) {
+    exit("<script language='javascript'>window.location.href='./login.php';</script>");
+}
 
-function addDomainColumnsIfNotExists() {
-    global $DB;
-    $columns = ['domain3', 'domain4', 'domain5', 'domain6'];
+function q8_sitelist_text($encoded)
+{
+    return html_entity_decode($encoded, ENT_QUOTES, 'UTF-8');
+}
 
-    try {
-        $result = $DB->query("DESCRIBE `pre_site`");
-        $existingColumns = [];
-        while($row = $result->fetch()) {
-            $existingColumns[] = $row['Field'];
+function q8_sitelist_escape($value)
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}
+
+function q8_sitelist_url($params = array())
+{
+    $query = http_build_query($params);
+    return './sitelist.php' . ($query !== '' ? '?' . $query : '');
+}
+
+function q8_sitelist_base_params()
+{
+    $params = array();
+    if (isset($_GET['page']) && intval($_GET['page']) > 1) {
+        $params['page'] = intval($_GET['page']);
+    }
+    if (isset($_GET['kw']) && trim((string)$_GET['kw']) !== '') {
+        $params['kw'] = trim((string)$_GET['kw']);
+    }
+    if (isset($_GET['zid']) && intval($_GET['zid']) > 0) {
+        $params['zid'] = intval($_GET['zid']);
+    }
+    return $params;
+}
+
+function q8_sitelist_back_link()
+{
+    return q8_sitelist_url(q8_sitelist_base_params());
+}
+
+function q8_sitelist_alert($message, $redirect = '')
+{
+    $messageJson = json_encode((string)$message);
+    $redirectJson = json_encode($redirect !== '' ? $redirect : q8_sitelist_back_link());
+    exit("<script>window.alert({$messageJson});window.location.href={$redirectJson};</script>");
+}
+
+function q8_sitelist_find_child_site($DB, $parentZid, $zid)
+{
+    return $DB->getRow(
+        "SELECT * FROM pre_site WHERE zid=:zid AND upzid=:upzid AND power>0 LIMIT 1",
+        array(':zid' => $zid, ':upzid' => $parentZid)
+    );
+}
+
+function q8_sitelist_power_label($power)
+{
+    $power = intval($power);
+    if ($power === 2) {
+        return q8_sitelist_text('&#19987;&#19994;&#29256;');
+    }
+    return q8_sitelist_text('&#26222;&#21450;&#29256;');
+}
+
+function q8_sitelist_power_badge($power)
+{
+    $power = intval($power);
+    $className = $power === 2 ? 'danger' : 'warning';
+    return '<span class="label label-' . $className . '">' . q8_sitelist_escape(q8_sitelist_power_label($power)) . '</span>';
+}
+
+function q8_sitelist_allowed_domains($conf)
+{
+    $domains = array();
+    foreach (explode(',', (string)$conf['fenzhan_domain']) as $domain) {
+        $domain = trim(strtolower($domain));
+        if ($domain !== '') {
+            $domains[] = $domain;
         }
+    }
+    return array_values(array_unique($domains));
+}
 
-        foreach($columns as $col) {
-            if(!in_array($col, $existingColumns)) {
-                $DB->exec("ALTER TABLE `pre_site` ADD COLUMN `{$col}` VARCHAR(255) NULL DEFAULT NULL AFTER `domain2`");
-            }
+if ($userrow['power'] < 2) {
+    showmsg(q8_sitelist_text('&#20320;&#27809;&#26377;&#26435;&#38480;&#20351;&#29992;&#27492;&#21151;&#33021;'), 3);
+}
+
+$title = q8_sitelist_text('&#20998;&#31449;&#31649;&#29702;');
+include './head.php';
+
+$my = isset($_GET['my']) ? trim((string)$_GET['my']) : '';
+$allowedDomains = q8_sitelist_allowed_domains($conf);
+$domainOptionsHtml = '';
+foreach ($allowedDomains as $allowedDomain) {
+    $domainOptionsHtml .= '<option value="' . q8_sitelist_escape($allowedDomain) . '">' . q8_sitelist_escape($allowedDomain) . '</option>';
+}
+
+if ($my === 'add_submit') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !checkRefererHost()) exit();
+    if (!$conf['fenzhan_adds']) {
+        showmsg(q8_sitelist_text('&#35831;&#22312;&#21069;&#21488;&#24320;&#36890;&#20998;&#31449;'), 3);
+    }
+
+    $user = trim((string)(isset($_POST['user']) ? $_POST['user'] : ''));
+    $pwd = trim((string)(isset($_POST['pwd']) ? $_POST['pwd'] : ''));
+    $prefix = trim(strtolower((string)(isset($_POST['qz']) ? $_POST['qz'] : '')));
+    $domainSuffix = trim(strtolower((string)(isset($_POST['domain']) ? $_POST['domain'] : '')));
+    $qq = trim((string)(isset($_POST['qq']) ? $_POST['qq'] : ''));
+    $endtime = trim((string)(isset($_POST['endtime']) ? $_POST['endtime'] : ''));
+    $sitename = trim((string)(isset($_POST['sitename']) ? $_POST['sitename'] : ''));
+    $domain = $prefix !== '' && $domainSuffix !== '' ? ($prefix . '.' . $domainSuffix) : '';
+    $todayStart = date('Y-m-d') . ' 00:00:00';
+
+    if ($user === '' || $pwd === '' || $prefix === '' || $domainSuffix === '' || $endtime === '' || $sitename === '') {
+        showmsg(q8_sitelist_text('&#20445;&#23384;&#38169;&#35823;&#65292;&#35831;&#30830;&#20445;&#24517;&#22635;&#39033;&#37117;&#24050;&#23436;&#25104;'), 3);
+    } elseif (!in_array($domainSuffix, $allowedDomains, true)) {
+        showmsg(q8_sitelist_text('&#22495;&#21517;&#21518;&#32512;&#19981;&#23384;&#22312;'));
+    } elseif (strlen($prefix) < 2 || strlen($prefix) > 10 || !preg_match('/^[a-z0-9\-]+$/', $prefix)) {
+        showmsg(q8_sitelist_text('&#22495;&#21517;&#21069;&#32512;&#19981;&#21512;&#26684;'));
+    } elseif (!preg_match('/^[a-zA-Z0-9]+$/', $user)) {
+        showmsg(q8_sitelist_text('&#29992;&#25143;&#21517;&#21482;&#33021;&#20026;&#33521;&#25991;&#25110;&#25968;&#23383;'));
+    } elseif (!preg_match('/^[a-zA-Z0-9\_\-\.]+$/', $domain)) {
+        showmsg(q8_sitelist_text('&#22495;&#21517;&#26684;&#24335;&#19981;&#27491;&#30830;'));
+    } elseif ($DB->getRow("SELECT zid FROM pre_site WHERE user=:user LIMIT 1", array(':user' => $user))) {
+        showmsg(q8_sitelist_text('&#29992;&#25143;&#21517;&#24050;&#23384;&#22312;'));
+    } elseif (strlen($pwd) < 6) {
+        showmsg(q8_sitelist_text('&#23494;&#30721;&#19981;&#33021;&#20302;&#20110; 6 &#20301;'));
+    } elseif (strlen($sitename) < 2) {
+        showmsg(q8_sitelist_text('&#32593;&#31449;&#21517;&#31216;&#22826;&#30701;'));
+    } elseif (strlen($qq) < 5 || !preg_match('/^[0-9]+$/', $qq)) {
+        showmsg(q8_sitelist_text('QQ &#26684;&#24335;&#19981;&#27491;&#30830;'));
+    } elseif ($DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain LIMIT 1", array(':domain' => $domain)) || $prefix === 'www' || $domain === $_SERVER['HTTP_HOST'] || in_array($domain, explode(',', (string)$conf['fenzhan_remain']), true)) {
+        showmsg(q8_sitelist_text('&#35813;&#22495;&#21517;&#24050;&#34987;&#20351;&#29992;'));
+    } elseif (intval($DB->getColumn("SELECT count(*) FROM pre_site WHERE upzid=:upzid AND addtime>:today_start", array(':upzid' => $userrow['zid'], ':today_start' => $todayStart))) > 20) {
+        showmsg(q8_sitelist_text('&#20170;&#26085;&#26032;&#22686;&#20998;&#31449;&#36807;&#22810;&#65292;&#35831;&#20351;&#29992;&#21069;&#21488;&#33258;&#21161;&#24320;&#36890;'), 3);
+    } else {
+        $payload = array(
+            'upzid' => intval($userrow['zid']),
+            'power' => 1,
+            'domain' => $domain,
+            'domain2' => null,
+            'user' => $user,
+            'pwd' => $pwd,
+            'rmb' => '0.00',
+            'qq' => $qq,
+            'sitename' => $sitename,
+            'title' => $conf['title'],
+            'keywords' => $conf['keywords'],
+            'description' => $conf['description'],
+            'anounce' => !empty($conf['fenzhan_html']) ? $conf['anounce'] : '',
+            'alert' => !empty($conf['fenzhan_html']) ? $conf['alert'] : '',
+            'addtime' => $date,
+            'endtime' => $endtime,
+            'status' => 1
+        );
+        if (q8_insert_site_account($payload, $conf, $date) !== false) {
+            q8_sitelist_alert(q8_sitelist_text('&#28155;&#21152;&#20998;&#31449;&#25104;&#21151;'), q8_sitelist_back_link());
         }
-    } catch(Exception $e) {
-        // 忽略错误
+        q8_sitelist_alert(q8_sitelist_text('&#28155;&#21152;&#20998;&#31449;&#22833;&#36133;&#65306;') . $DB->error());
     }
 }
-addDomainColumnsIfNotExists();
 
-$title='分站管理';
-include './head.php';
-if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
+if ($my === 'edit_submit') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !checkRefererHost()) exit();
+    $zid = intval(isset($_GET['zid']) ? $_GET['zid'] : 0);
+    $row = q8_sitelist_find_child_site($DB, $userrow['zid'], $zid);
+    if (!$row) {
+        showmsg(q8_sitelist_text('&#24403;&#21069;&#20998;&#31449;&#19981;&#23384;&#22312;&#25110;&#19981;&#23646;&#20110;&#20320;'), 3);
+    }
+
+    $domain2 = trim(strtolower((string)(isset($_POST['domain2']) ? $_POST['domain2'] : '')));
+    $sitename = trim((string)(isset($_POST['sitename']) ? $_POST['sitename'] : ''));
+    $endtime = trim((string)(isset($_POST['endtime']) ? $_POST['endtime'] : ''));
+
+    if ($sitename === '' || $endtime === '') {
+        showmsg(q8_sitelist_text('&#20445;&#23384;&#38169;&#35823;&#65292;&#35831;&#30830;&#20445;&#24517;&#22635;&#39033;&#19981;&#20026;&#31354;'), 3);
+    } elseif ($domain2 !== '' && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/', $domain2)) {
+        showmsg(q8_sitelist_text('&#22495;&#21517;&#26684;&#24335;&#19981;&#27491;&#30830;'));
+    } elseif ((!empty($domain2) && $DB->getRow("SELECT zid FROM pre_site WHERE (domain=:domain OR domain2=:domain) AND zid!=:zid LIMIT 1", array(':domain' => $domain2, ':zid' => $zid))) || $domain2 === $_SERVER['HTTP_HOST'] || (!empty($domain2) && (in_array($domain2, explode(',', (string)$conf['fenzhan_remain']), true) || in_array($domain2, $allowedDomains, true)))) {
+        showmsg(q8_sitelist_text('&#27492;&#22495;&#21517;&#24050;&#34987;&#20351;&#29992;'));
+    } else {
+        if (strpos($domain2, 'www.') === 0) {
+            $plainDomain = substr($domain2, 4);
+            if (in_array($plainDomain, explode(',', (string)$conf['fenzhan_remain']), true) || in_array($plainDomain, $allowedDomains, true)) {
+                showmsg(q8_sitelist_text('&#27492;&#22495;&#21517;&#24050;&#34987;&#20351;&#29992;'));
+            }
+        }
+
+        if ($DB->exec(
+            "UPDATE pre_site SET domain2=:domain2,sitename=:sitename,endtime=:endtime WHERE zid=:zid AND upzid=:upzid AND power>0",
+            array(':domain2' => $domain2, ':sitename' => $sitename, ':endtime' => $endtime, ':zid' => $zid, ':upzid' => $userrow['zid'])
+        ) !== false) {
+            q8_sitelist_alert(q8_sitelist_text('&#20462;&#25913;&#20998;&#31449;&#25104;&#21151;'), q8_sitelist_back_link());
+        }
+        q8_sitelist_alert(q8_sitelist_text('&#20462;&#25913;&#20998;&#31449;&#22833;&#36133;&#65306;') . $DB->error());
+    }
+}
+
+if ($my === 'delete_submit') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !checkRefererHost()) exit();
+    $zid = intval(isset($_GET['zid']) ? $_GET['zid'] : 0);
+    $row = q8_sitelist_find_child_site($DB, $userrow['zid'], $zid);
+    if (!$row) {
+        showmsg(q8_sitelist_text('&#24403;&#21069;&#20998;&#31449;&#19981;&#23384;&#22312;&#25110;&#19981;&#23646;&#20110;&#20320;'), 3);
+    }
+    if (floatval($row['rmb']) >= 1) {
+        showmsg(q8_sitelist_text('&#24403;&#21069;&#31449;&#28857;&#20313;&#39069;&#36739;&#22810;&#65292;&#26080;&#27861;&#21024;&#38500;'), 3);
+    }
+    if ($DB->exec("DELETE FROM pre_site WHERE zid=:zid AND upzid=:upzid AND power>0 LIMIT 1", array(':zid' => $zid, ':upzid' => $userrow['zid'])) !== false) {
+        q8_sitelist_alert(q8_sitelist_text('&#21024;&#38500;&#20998;&#31449;&#25104;&#21151;'), q8_sitelist_back_link());
+    }
+    q8_sitelist_alert(q8_sitelist_text('&#21024;&#38500;&#20998;&#31449;&#22833;&#36133;&#65306;') . $DB->error());
+}
 ?>
+<link rel="stylesheet" href="./public/css/blue_theme.css">
+<style>
+.q8-sitelist-actions{
+    display:grid;
+    gap:10px;
+    min-width:150px;
+}
+.q8-sitelist-actions .btn{
+    width:100%;
+    position:relative;
+    z-index:2;
+}
+.q8-sitelist-meta{
+    margin-top:6px;
+    color:#64748b;
+    font-size:12px;
+    line-height:1.7;
+}
+</style>
 <div class="wrapper">
-<div class="col-sm-12">
-		<div class="panel panel-default">
-<div class="modal fade" align="left" id="search" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myModalLabel">搜索分站</h4>
-      </div>
-      <div class="modal-body">
-      <form action="sitelist.php" method="GET">
-<input type="text" class="form-control" name="kw" placeholder="请输入分站用户名或域名或QQ或站长ID"><br/>
-<input type="submit" class="btn btn-primary btn-block" value="搜索"></form>
-</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="modal fade" align="left" id="search" tabindex="-1" role="dialog" aria-labelledby="siteSearchTitle" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="siteSearchTitle">&#25628;&#32034;&#20998;&#31449;</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form action="./sitelist.php" method="GET">
+                                <input type="text" class="form-control" name="kw" placeholder="&#35831;&#36755;&#20837;&#29992;&#25143;&#21517;&#12289;QQ&#12289;UID&#12289;&#22495;&#21517;&#25110;&#31449;&#28857;&#21517;&#31216;"><br/>
+                                <input type="submit" class="btn btn-primary btn-block" value="&#25628;&#32034;">
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">&#20851;&#38381;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php
+            if ($my === 'add') {
+            ?>
+            <div class="panel-heading font-bold">&#28155;&#21152;&#19979;&#32423;&#20998;&#31449;</div>
+            <div class="panel-body">
+                <form action="./sitelist.php?my=add_submit" method="POST" role="form">
+                    <div class="form-group">
+                        <label>&#31649;&#29702;&#21592;&#29992;&#25143;&#21517;</label>
+                        <input type="text" class="form-control" name="user" value="" required>
+                    </div>
+                    <div class="form-group">
+                        <label>&#31649;&#29702;&#21592;&#23494;&#30721;</label>
+                        <input type="text" class="form-control" name="pwd" value="123456" required>
+                    </div>
+                    <div class="form-group">
+                        <label>&#32465;&#23450;&#22495;&#21517;</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="qz" value="" placeholder="&#36755;&#20837;&#20108;&#32423;&#21069;&#32512;" required>
+                            <div class="input-group-addon" style="padding:0;border:0;background:transparent;">
+                                <select name="domain" class="form-control" style="border-radius:0 4px 4px 0;"><?php echo $domainOptionsHtml; ?></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>&#32593;&#31449;&#21517;&#31216;</label>
+                        <input type="text" class="form-control" name="sitename" value="<?php echo q8_sitelist_escape($conf['sitename']); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>&#31449;&#38271; QQ</label>
+                        <input type="text" class="form-control" name="qq" value="" required>
+                    </div>
+                    <div class="form-group">
+                        <label>&#21040;&#26399;&#26102;&#38388;</label>
+                        <input type="date" class="form-control" name="endtime" value="<?php echo date('Y-m-d', strtotime('+1 year')); ?>" required>
+                    </div>
+                    <input type="submit" class="btn btn-primary btn-block" value="&#30830;&#35748;&#28155;&#21152;">
+                </form>
+                <br/>
+                <a href="<?php echo q8_sitelist_escape(q8_sitelist_back_link()); ?>" class="external">&gt;&gt; <?php echo q8_sitelist_text('&#36820;&#22238;&#20998;&#31449;&#21015;&#34920;'); ?></a>
+            </div>
+            <?php
+            } elseif ($my === 'edit') {
+                $zid = intval(isset($_GET['zid']) ? $_GET['zid'] : 0);
+                $row = q8_sitelist_find_child_site($DB, $userrow['zid'], $zid);
+                if (!$row) {
+                    showmsg(q8_sitelist_text('&#24403;&#21069;&#20998;&#31449;&#19981;&#23384;&#22312;&#25110;&#19981;&#23646;&#20110;&#20320;'), 3);
+                }
+            ?>
+            <div class="panel-heading font-bold">&#20462;&#25913;&#20998;&#31449;&#20449;&#24687;</div>
+            <div class="panel-body">
+                <div class="alert alert-info">
+                    <?php echo q8_sitelist_text('&#24403;&#21069;&#27491;&#22312;&#31649;&#29702;&#20998;&#31449;&#65306;'); ?><b><?php echo q8_sitelist_escape($row['user']); ?></b>
+                    <span class="pull-right">ZID&#65306;<?php echo intval($row['zid']); ?></span>
+                </div>
+                <form action="./sitelist.php?my=edit_submit&amp;zid=<?php echo intval($row['zid']); ?>" method="POST" role="form">
+                    <div class="form-group">
+                        <label>&#20998;&#31449;&#31867;&#22411;</label>
+                        <input type="text" class="form-control" value="<?php echo q8_sitelist_escape(q8_sitelist_power_label($row['power'])); ?>" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>&#32465;&#23450;&#22495;&#21517;</label>
+                        <input type="text" class="form-control" value="<?php echo q8_sitelist_escape($row['domain']); ?>" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>&#39069;&#22806;&#22495;&#21517;</label>
+                        <input type="text" class="form-control" name="domain2" value="<?php echo q8_sitelist_escape($row['domain2']); ?>" placeholder="&#27809;&#26377;&#35831;&#30041;&#31354;">
+                    </div>
+                    <div class="form-group">
+                        <label>&#31449;&#28857;&#21517;&#31216;</label>
+                        <input type="text" class="form-control" name="sitename" value="<?php echo q8_sitelist_escape($row['sitename']); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>&#21040;&#26399;&#26102;&#38388;</label>
+                        <input type="date" class="form-control" name="endtime" value="<?php echo date('Y-m-d', strtotime($row['endtime'])); ?>" required>
+                    </div>
+                    <input type="submit" class="btn btn-primary btn-block" value="&#20445;&#23384;&#20998;&#31449;&#20449;&#24687;">
+                </form>
+                <br/>
+                <a href="<?php echo q8_sitelist_escape(q8_sitelist_back_link()); ?>" class="external">&gt;&gt; <?php echo q8_sitelist_text('&#36820;&#22238;&#20998;&#31449;&#21015;&#34920;'); ?></a>
+            </div>
+            <?php
+            } elseif ($my === 'delete') {
+                $zid = intval(isset($_GET['zid']) ? $_GET['zid'] : 0);
+                $row = q8_sitelist_find_child_site($DB, $userrow['zid'], $zid);
+                if (!$row) {
+                    showmsg(q8_sitelist_text('&#24403;&#21069;&#20998;&#31449;&#19981;&#23384;&#22312;&#25110;&#19981;&#23646;&#20110;&#20320;'), 3);
+                }
+            ?>
+            <div class="panel-heading font-bold">&#21024;&#38500;&#20998;&#31449;</div>
+            <div class="panel-body">
+                <div class="alert alert-danger">
+                    <?php echo q8_sitelist_text('&#20320;&#21363;&#23558;&#21024;&#38500;&#20998;&#31449;&#65306;'); ?><b><?php echo q8_sitelist_escape($row['user']); ?></b>
+                    <span class="pull-right">ZID&#65306;<?php echo intval($row['zid']); ?></span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th style="width: 160px;">&#20998;&#31449;&#31867;&#22411;</th>
+                                <td><?php echo q8_sitelist_power_badge($row['power']); ?></td>
+                            </tr>
+                            <tr>
+                                <th>&#31449;&#28857;&#21517;&#31216;</th>
+                                <td><?php echo q8_sitelist_escape($row['sitename']); ?></td>
+                            </tr>
+                            <tr>
+                                <th>&#20313;&#39069;</th>
+                                <td><?php echo q8_sitelist_escape($row['rmb']); ?></td>
+                            </tr>
+                            <tr>
+                                <th>&#32465;&#23450;&#22495;&#21517;</th>
+                                <td><?php echo q8_sitelist_escape($row['domain']); ?><?php if (!empty($row['domain2'])) echo '<br>' . q8_sitelist_escape($row['domain2']); ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-warning">&#21024;&#38500;&#21069;&#35831;&#30830;&#35748;&#35813;&#20998;&#31449;&#24050;&#22791;&#20221;&#65292;&#19988;&#36134;&#21495;&#20313;&#39069;&#19981;&#36275; 1 &#20803;&#12290;</div>
+                <form action="./sitelist.php?my=delete_submit&amp;zid=<?php echo intval($row['zid']); ?>" method="POST" role="form">
+                    <button type="submit" class="btn btn-danger btn-block">&#30830;&#35748;&#21024;&#38500;&#35813;&#20998;&#31449;</button>
+                </form>
+                <br/>
+                <a href="<?php echo q8_sitelist_escape(q8_sitelist_back_link()); ?>" class="external">&gt;&gt; <?php echo q8_sitelist_text('&#36820;&#22238;&#20998;&#31449;&#21015;&#34920;'); ?></a>
+            </div>
+            <?php
+            } else {
+                $params = array(':upzid' => $userrow['zid']);
+                $where = "upzid=:upzid AND power>0";
+                $linkParams = array();
+
+                if (isset($_GET['zid']) && intval($_GET['zid']) > 0) {
+                    $filterZid = intval($_GET['zid']);
+                    $where .= " AND zid=:filter_zid";
+                    $params[':filter_zid'] = $filterZid;
+                    $linkParams['zid'] = $filterZid;
+                } elseif (isset($_GET['kw']) && trim((string)$_GET['kw']) !== '') {
+                    $kw = trim((string)$_GET['kw']);
+                    $where .= " AND (user=:kw_user OR domain=:kw_domain OR domain2=:kw_domain2 OR qq=:kw_qq OR zid=:kw_zid OR sitename=:kw_sitename)";
+                    $params[':kw_user'] = $kw;
+                    $params[':kw_domain'] = $kw;
+                    $params[':kw_domain2'] = $kw;
+                    $params[':kw_qq'] = $kw;
+                    $params[':kw_zid'] = intval($kw);
+                    $params[':kw_sitename'] = $kw;
+                    $linkParams['kw'] = $kw;
+                }
+
+                $numrows = intval($DB->getColumn("SELECT count(*) FROM pre_site WHERE {$where}", $params));
+                $normalSiteCount = intval($DB->getColumn("SELECT count(*) FROM pre_site WHERE upzid=:upzid AND power=1", array(':upzid' => $userrow['zid'])));
+                $proSiteCount = intval($DB->getColumn("SELECT count(*) FROM pre_site WHERE upzid=:upzid AND power=2", array(':upzid' => $userrow['zid'])));
+                $pagesize = 30;
+                $pages = max(1, ceil($numrows / $pagesize));
+                $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+                if ($page > $pages) {
+                    $page = $pages;
+                }
+                $offset = $pagesize * ($page - 1);
+
+                $rows = $DB->getAll(
+                    "SELECT zid,user,sitename,qq,rmb,addtime,endtime,domain,domain2,power FROM pre_site WHERE {$where} ORDER BY zid DESC LIMIT {$offset},{$pagesize}",
+                    $params
+                );
+                echo '<div class="alert alert-info">' . q8_sitelist_text('&#20320;&#20849;&#26377;') . ' <b>' . $numrows . '</b> ' . q8_sitelist_text('&#20010;&#19979;&#32423;&#20998;&#31449;') . ' &nbsp;|&nbsp; ' . q8_sitelist_text('&#26222;&#21450;&#29256;') . ' <b>' . $normalSiteCount . '</b> &nbsp;|&nbsp; ' . q8_sitelist_text('&#19987;&#19994;&#29256;') . ' <b>' . $proSiteCount . '</b><br/>' . (!empty($conf['fenzhan_adds']) ? '<a href="./sitelist.php?my=add" class="btn btn-primary external">' . q8_sitelist_text('&#28155;&#21152;&#20998;&#31449;') . '</a>&nbsp;' : '') . '<a href="#" data-toggle="modal" data-target="#search" class="btn btn-success">' . q8_sitelist_text('&#25628;&#32034;') . '</a></div>';
+            ?>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>ZID</th>
+                        <th><?php echo q8_sitelist_text('&#29992;&#25143;&#21517;'); ?></th>
+                        <th><?php echo q8_sitelist_text('&#20998;&#31449;&#20449;&#24687;'); ?></th>
+                        <th><?php echo q8_sitelist_text('&#20313;&#39069;'); ?></th>
+                        <th><?php echo q8_sitelist_text('&#24320;&#36890; / &#21040;&#26399;&#26102;&#38388;'); ?></th>
+                        <th><?php echo q8_sitelist_text('&#32465;&#23450;&#22495;&#21517;'); ?></th>
+                        <th><?php echo q8_sitelist_text('&#25805;&#20316;'); ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    if ($rows) {
+                        foreach ($rows as $res) {
+                            echo '<tr>';
+                            echo '<td><b>' . intval($res['zid']) . '</b></td>';
+                            echo '<td>' . q8_sitelist_escape($res['user']) . '</td>';
+                            echo '<td><div><strong>' . q8_sitelist_escape($res['sitename']) . '</strong> ' . q8_sitelist_power_badge($res['power']) . '</div><div class="q8-sitelist-meta">QQ&#65306;' . q8_sitelist_escape($res['qq']) . '</div></td>';
+                            echo '<td>' . q8_sitelist_escape($res['rmb']) . '</td>';
+                            echo '<td>' . q8_sitelist_escape($res['addtime']) . '<br>' . q8_sitelist_escape($res['endtime']) . '</td>';
+                            echo '<td>' . q8_sitelist_escape($res['domain']) . (!empty($res['domain2']) ? '<br>' . q8_sitelist_escape($res['domain2']) : '') . '</td>';
+                            echo '<td><div class="q8-sitelist-actions">';
+                            echo '<button type="button" class="btn btn-info" data-q8-sitelist-href="./sitelist.php?my=edit&amp;zid=' . intval($res['zid']) . '">' . q8_sitelist_text('&#32534;&#36753;') . '</button>';
+                            echo '<button type="button" class="btn btn-danger" data-q8-sitelist-href="./sitelist.php?my=delete&amp;zid=' . intval($res['zid']) . '">' . q8_sitelist_text('&#21024;&#38500;') . '</button>';
+                            echo '</div></td>';
+                            echo '</tr>';
+                        }
+                    } else {
+                        echo '<tr><td colspan="7" class="text-center text-muted">' . q8_sitelist_text('&#26242;&#26080;&#31526;&#21512;&#26465;&#20214;&#30340;&#19979;&#32423;&#20998;&#31449;') . '</td></tr>';
+                    }
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php
+                echo '<ul class="pagination" style="margin-left:1em">';
+                $firstParams = $linkParams;
+                $firstParams['page'] = 1;
+                $prevParams = $linkParams;
+                $prevParams['page'] = max(1, $page - 1);
+                $nextParams = $linkParams;
+                $nextParams['page'] = min($pages, $page + 1);
+                $lastParams = $linkParams;
+                $lastParams['page'] = $pages;
+
+                if ($page > 1) {
+                    echo '<li><a href="' . q8_sitelist_escape(q8_sitelist_url($firstParams)) . '" class="external">' . q8_sitelist_text('&#39318;&#39029;') . '</a></li>';
+                    echo '<li><a href="' . q8_sitelist_escape(q8_sitelist_url($prevParams)) . '" class="external">&laquo;</a></li>';
+                } else {
+                    echo '<li class="disabled"><a>' . q8_sitelist_text('&#39318;&#39029;') . '</a></li>';
+                    echo '<li class="disabled"><a>&laquo;</a></li>';
+                }
+
+                $start = $page - 10 > 1 ? $page - 10 : 1;
+                $end = $page + 10 < $pages ? $page + 10 : $pages;
+                for ($i = $start; $i < $page; $i++) {
+                    $pageParams = $linkParams;
+                    $pageParams['page'] = $i;
+                    echo '<li><a href="' . q8_sitelist_escape(q8_sitelist_url($pageParams)) . '" class="external">' . $i . '</a></li>';
+                }
+                echo '<li class="disabled"><a>' . $page . '</a></li>';
+                for ($i = $page + 1; $i <= $end; $i++) {
+                    $pageParams = $linkParams;
+                    $pageParams['page'] = $i;
+                    echo '<li><a href="' . q8_sitelist_escape(q8_sitelist_url($pageParams)) . '" class="external">' . $i . '</a></li>';
+                }
+
+                if ($page < $pages) {
+                    echo '<li><a href="' . q8_sitelist_escape(q8_sitelist_url($nextParams)) . '" class="external">&raquo;</a></li>';
+                    echo '<li><a href="' . q8_sitelist_escape(q8_sitelist_url($lastParams)) . '" class="external">' . q8_sitelist_text('&#23614;&#39029;') . '</a></li>';
+                } else {
+                    echo '<li class="disabled"><a>&raquo;</a></li>';
+                    echo '<li class="disabled"><a>' . q8_sitelist_text('&#23614;&#39029;') . '</a></li>';
+                }
+                echo '</ul>';
+            }
+            ?>
+        </div>
     </div>
-  </div>
 </div>
-<?php
-if($userrow['power']<2){
-	showmsg('你没有权限使用此功能！',3);
-}
-$my=isset($_GET['my'])?$_GET['my']:null;
-
-if($my=='add')
-{
-$domains=explode(',',$conf['fenzhan_domain']);
-$select='';
-foreach($domains as $domain){
-	$select.='<option value="'.$domain.'">'.$domain.'</option>';
-}
-echo '<div class="panel panel-default">
-<div class="panel-heading font-bold">添加一个分站</div>';
-echo '<div class="panel-body">';
-echo '<form action="./sitelist.php?my=add_submit" method="POST">
-<div class="form-group">
-<label>管理员用户名:</label><br>
-<input type="text" class="form-control" name="user" value="" required>
-</div>
-<div class="form-group">
-<label>管理员密码:</label><br>
-<input type="text" class="form-control" name="pwd" value="123456" required>
-</div>
-<div class="form-group">
-<label>绑定域名:</label><br>
-<div class="input-group">
-<input type="text" class="form-control" name="qz" value="" placeholder="输入二级前缀" required>
-<div class="input-group-addon"><select name="domain">'.$select.'</select></div>
-</div>
-</div>
-<div class="form-group">
-<label>网站名称:</label><br>
-<input type="text" class="form-control" name="sitename" value="'.$conf['sitename'].'">
-</div>
-<div class="form-group">
-<label>站长QQ:</label><br>
-<input type="text" class="form-control" name="qq" value="">
-</div>
-<div class="form-group">
-<label>到期时间:</label><br>
-<input type="date" class="form-control" name="endtime" value="'.date("Y-m-d",strtotime("+1 years")).'" required>
-</div>
-<input type="submit" class="btn btn-primary btn-block" value="确定添加"></form>';
-echo '<br/><a href="./sitelist.php">>>返回分站列表</a>';
-echo '</div></div>';
-}
-elseif($my=='edit')
-{
-$zid=intval($_GET['zid']);
-$row=$DB->getRow("SELECT * FROM pre_site WHERE zid='$zid' AND upzid='{$userrow['zid']}' AND power=1 LIMIT 1");
-if(!$row)
-	showmsg('当前记录不存在！',3);
-echo '<div class="panel panel-default">
-<div class="panel-heading font-bold">修改分站信息</div>';
-echo '<div class="panel-body">';
-echo '<form action="./sitelist.php?my=edit_submit&zid='.$zid.'" method="POST">
-<div class="form-group">
-<label>绑定域名:</label><br>
-<input type="text" class="form-control" name="domain" value="'.$row['domain'].'" disabled>
-</div>
-<div class="form-group">
-<label>额外域名1:</label><br>
-<input type="text" class="form-control" name="domain2" value="'.$row['domain2'].'" placeholder="没有请留空">
-</div>
-<div class="form-group">
-<label>额外域名2:</label><br>
-<input type="text" class="form-control" name="domain3" value="'.$row['domain3'].'" placeholder="没有请留空">
-</div>
-<div class="form-group">
-<label>额外域名3:</label><br>
-<input type="text" class="form-control" name="domain4" value="'.$row['domain4'].'" placeholder="没有请留空">
-</div>
-<div class="form-group">
-<label>额外域名4:</label><br>
-<input type="text" class="form-control" name="domain5" value="'.$row['domain5'].'" placeholder="没有请留空">
-</div>
-<div class="form-group">
-<label>额外域名5:</label><br>
-<input type="text" class="form-control" name="domain6" value="'.$row['domain6'].'" placeholder="没有请留空">
-</div>
-<div class="form-group">
-<label>站点名称:</label><br>
-<input type="text" class="form-control" name="sitename" value="'.$row['sitename'].'">
-</div>
-<div class="form-group">
-<label>到期时间:</label><br>
-<input type="date" class="form-control" name="endtime" value="'.date("Y-m-d",strtotime($row['endtime'])).'" required>
-</div>
-<input type="submit" class="btn btn-primary btn-block" value="确定修改"></form>';
-echo '<br/><a href="./sitelist.php">>>返回分站列表</a>';
-echo '</div></div>';
-}
-elseif($my=='add_submit')
-{
-if(!$conf['fenzhan_adds'])showmsg('请在前台开通分站');
-$user=trim(htmlspecialchars(strip_tags(daddslashes($_POST['user']))));
-$pwd=trim(htmlspecialchars(strip_tags(daddslashes($_POST['pwd']))));
-$qz = trim(htmlspecialchars(strtolower(daddslashes($_POST['qz']))));
-$domain = trim(htmlspecialchars(strtolower(strip_tags(daddslashes($_POST['domain'])))));
-$qq=trim(htmlspecialchars(strip_tags(daddslashes($_POST['qq']))));
-$endtime=trim(htmlspecialchars(strip_tags(daddslashes($_POST['endtime']))));
-$sitename=trim(htmlspecialchars(strip_tags(daddslashes($_POST['sitename']))));
-$keywords=$conf['keywords'];
-$description=$conf['description'];
-$domain = $qz . '.' . $domain;
-$thtime =date("Y-m-d").' 00:00:00';
-if($user==NULL or $pwd==NULL or $qz==NULL or $domain==NULL or $endtime==NULL){
-	showmsg('保存错误,请确保每项都不为空!',3);
-} elseif (!in_array($_POST['domain'],explode(',',$conf['fenzhan_domain']))) {
-	showmsg('域名后缀不存在！');
-} elseif (strlen($qz) < 2 || strlen($qz) > 10 || !preg_match('/^[a-z0-9\-]+$/',$qz)) {
-	showmsg('域名前缀不合格！');
-} elseif (!preg_match('/^[a-zA-Z0-9]+$/',$user)) {
-	showmsg('用户名只能为英文或数字！');
-} elseif (!preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain)) {
-	showmsg('域名格式不正确');
-} elseif ($DB->getRow("SELECT zid FROM pre_site WHERE user=:user LIMIT 1", [':user'=>$user])) {
-	showmsg('用户名已存在！');
-} elseif (strlen($pwd) < 6) {
-	showmsg('密码不能低于6位');
-} elseif (strlen($sitename) < 2) {
-	showmsg('网站名称太短！');
-} elseif (strlen($qq) < 5 || !preg_match('/^[0-9]+$/',$qq)) {
-	showmsg('QQ格式不正确！');
-} elseif ($DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain LIMIT 1", [':domain'=>$domain]) || $qz=='www' || $domain==$_SERVER['HTTP_HOST'] || in_array($domain,explode(',',$conf['fenzhan_remain']))) {
-	showmsg('此前缀已被使用！');
-} elseif ($DB->getColumn("SELECT count(*) FROM pre_site WHERE upzid='{$userrow['zid']}' and addtime>'$thtime'")>20) {
-	showmsg('你今天添加的分站较多，暂无法后台手动添加，请直接使用前台网址自助开通分站！',3);
-} else {
-if($conf['fenzhan_html']==1){
-	$anounce=$conf['anounce'];
-	$alert=$conf['alert'];
-}
-$sql="INSERT INTO `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`rmb`,`qq`,`sitename`,`keywords`,`description`,`anounce`,`alert`,`addtime`,`endtime`,`status`) VALUES (:upzid, :power, :domain, NULL, :user, :pwd, :rmb, :qq, :sitename, :keywords, :description, :anounce, :alert, NOW(), :endtime, 1)";
-$data = [':upzid'=>$userrow['zid'], ':power'=>1, ':domain'=>$domain, ':user'=>$user, ':pwd'=>$pwd, ':rmb'=>'0.00', ':qq'=>$qq, ':sitename'=>$sitename, ':keywords'=>$keywords, ':description'=>$description, ':anounce'=>$anounce, ':alert'=>$alert, ':endtime'=>$endtime];
-if($DB->exec($sql, $data)){
-	showmsg('添加分站成功！<br/><br/><a href="./sitelist.php">>>返回分站列表</a>',1);
-}else
-	showmsg('添加分站失败！'.$DB->error(),4);
-}
-}
-elseif($my=='edit_submit')
-{
-$zid=intval($_GET['zid']);
-$rows=$DB->getRow("SELECT * FROM pre_site WHERE zid='$zid' AND upzid='{$userrow['zid']}' AND power=1 LIMIT 1");
-if(!$rows)
-	showmsg('当前记录不存在！',3);
-$domain2=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain2'])))));
-$domain3=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain3'])))));
-$domain4=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain4'])))));
-$domain5=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain5'])))));
-$domain6=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain6'])))));
-$endtime=trim(htmlspecialchars(strip_tags(daddslashes($_POST['endtime']))));
-$sitename=trim(htmlspecialchars(strip_tags(daddslashes($_POST['sitename']))));
-if($sitename==NULL or $endtime==NULL){
-showmsg('保存错误,请确保每项都不为空!',3);
-} elseif (!empty($domain2) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain2)) {
-	showmsg('域名2格式不正确');
-} elseif (!empty($domain3) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain3)) {
-	showmsg('域名3格式不正确');
-} elseif (!empty($domain4) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain4)) {
-	showmsg('域名4格式不正确');
-} elseif (!empty($domain5) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain5)) {
-	showmsg('域名5格式不正确');
-} elseif (!empty($domain6) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain6)) {
-	showmsg('域名6格式不正确');
-} else {
-foreach([$domain2,$domain3,$domain4,$domain5,$domain6] as $d){
-	if(!empty($d) && $DB->getRow("SELECT zid FROM pre_site WHERE (domain=:domain OR domain2=:domain OR domain3=:domain OR domain4=:domain OR domain5=:domain OR domain6=:domain) AND zid!=:zid LIMIT 1", [':domain'=>$d, ':zid'=>$zid])) {
-		showmsg('域名 '.$d.' 已被使用！');
-	}
-	if(!empty($d) && ($d==$_SERVER['HTTP_HOST'] || in_array($d,explode(',',$conf['fenzhan_remain'])) || in_array($d,explode(',',$conf['fenzhan_domain'])))) {
-		showmsg('域名 '.$d.' 已被使用！');
-	}
-	if(!empty($d) && strpos($d,'www.')!==false){
-		$domain=str_replace('www.','',$d);
-		if(in_array($domain,explode(',',$conf['fenzhan_remain'])) || in_array($domain,explode(',',$conf['fenzhan_domain'])))
-			showmsg('域名 '.$d.' 已被使用！');
-	}
-}
-if($DB->exec("UPDATE pre_site SET domain2=:domain2,domain3=:domain3,domain4=:domain4,domain5=:domain5,domain6=:domain6,sitename=:sitename,endtime=:endtime WHERE zid=:zid", [':domain2'=>$domain2, ':domain3'=>$domain3, ':domain4'=>$domain4, ':domain5'=>$domain5, ':domain6'=>$domain6, ':sitename'=>$sitename, ':endtime'=>$endtime, ':zid'=>$zid])!==false)
-	showmsg('修改分站成功！<br/><br/><a href="./sitelist.php">>>返回分站列表</a>',1);
-else
-	showmsg('修改分站失败！'.$DB->error(),4);
-}
-}
-elseif($my=='delete')
-{
-$zid=intval($_GET['zid']);
-$srow=$DB->getRow("SELECT * FROM pre_site WHERE zid='{$zid}' limit 1");
-if($srow['rmb']>=1)showmsg('当前站点余额较多，无法删除',3);
-$sql="DELETE FROM pre_site WHERE zid='$zid' AND upzid='{$userrow['zid']}' AND power=1";
-if($DB->exec($sql)!==false)
-	showmsg('删除成功！<br/><br/><a href="./sitelist.php">>>返回分站列表</a>',1);
-else
-	showmsg('删除失败！'.$DB->error(),4);
-}
-else
-{
-
-$numrows=$DB->getColumn("SELECT count(*) FROM pre_site WHERE upzid='{$userrow['zid']}' AND power=1");
-if(isset($_GET['zid'])){
-	$zid=intval($_GET['zid']);
-	$sql = " zid={$zid} AND upzid='{$userrow['zid']}' AND power=1";
-}elseif(isset($_GET['kw'])){
-	$kw=daddslashes($_GET['kw']);
-	$sql = " (user='{$kw}' OR domain='{$kw}' OR qq='{$kw}' OR zid='{$kw}') AND upzid='{$userrow['zid']}' AND power=1";
-}else{
-	$sql = " upzid='{$userrow['zid']}' AND power=1";
-}
-$con='你共有 <b>'.$numrows.'</b> 个下级分站<br/>'.($conf['fenzhan_adds']==1?'<a href="./sitelist.php?my=add" class="btn btn-primary">添加分站</a>':null).'&nbsp;<a href="#" data-toggle="modal" data-target="#search" id="search" class="btn btn-success">搜索</a>';
-
-echo '<div class="well well-sm" style="margin: 0;">';
-echo $con;
-echo '</div>';
-
-?>
-      <div class="table-responsive">
-        <table class="table table-striped b-t b-light">
-          <thead><tr><th>ZID</th><th>用户名</th><th>站点名称/站长QQ</th><th>余额</th><th>开通/到期时间</th><th>绑定域名</th><th>操作</th></tr></thead>
-          <tbody>
-<?php
-$pagesize=30;
-$pages=ceil($numrows/$pagesize);
-$page=isset($_GET['page'])?intval($_GET['page']):1;
-$offset=$pagesize*($page - 1);
-
-$rs=$DB->query("SELECT * FROM pre_site WHERE{$sql} ORDER BY zid DESC LIMIT $offset,$pagesize");
-while($res = $rs->fetch())
-{
-$domains = $res['domain'];
-if(!empty($res['domain2'])) $domains .= '<br/>'.$res['domain2'];
-if(!empty($res['domain3'])) $domains .= '<br/>'.$res['domain3'];
-if(!empty($res['domain4'])) $domains .= '<br/>'.$res['domain4'];
-if(!empty($res['domain5'])) $domains .= '<br/>'.$res['domain5'];
-if(!empty($res['domain6'])) $domains .= '<br/>'.$res['domain6'];
-echo '<tr><td><b>'.$res['zid'].'</b></td><td>'.$res['user'].'</td><td>'.$res['sitename'].'<br/>'.$res['qq'].'</td><td>'.$res['rmb'].'</td><td>'.$res['addtime'].'<br/>'.$res['endtime'].'</td><td>'.$domains.'</td><td><a href="./sitelist.php?my=edit&zid='.$res['zid'].'" class="btn btn-info btn-xs">编辑</a>&nbsp;<a href="./sitelist.php?my=delete&zid='.$res['zid'].'" class="btn btn-xs btn-danger" onclick="return confirm(\'你确实要删除此站点吗？\');">删除</a></td></tr>';
-}
-?>
-          </tbody>
-        </table>
-      </div>
-<?php
-echo'<ul class="pagination" style="margin-left:1em">';
-$first=1;
-$prev=$page-1;
-$next=$page+1;
-$last=$pages;
-if ($page>1)
-{
-echo '<li><a href="sitelist.php?page='.$first.$link.'">首页</a></li>';
-echo '<li><a href="sitelist.php?page='.$prev.$link.'">&laquo;</a></li>';
-} else {
-echo '<li class="disabled"><a>首页</a></li>';
-echo '<li class="disabled"><a>&laquo;</a></li>';
-}
-$start=$page-10>1?$page-10:1;
-$end=$page+10<$pages?$page+10:$pages;
-for ($i=$start;$i<$page;$i++)
-echo '<li><a href="sitelist.php?page='.$i.$link.'">'.$i .'</a></li>';
-echo '<li class="disabled"><a>'.$page.'</a></li>';
-for ($i=$page+1;$i<=$end;$i++)
-echo '<li><a href="sitelist.php?page='.$i.$link.'">'.$i .'</a></li>';
-if ($page<$pages)
-{
-echo '<li><a href="sitelist.php?page='.$next.$link.'">&raquo;</a></li>';
-echo '<li><a href="sitelist.php?page='.$last.$link.'">尾页</a></li>';
-} else {
-echo '<li class="disabled"><a>&raquo;</a></li>';
-echo '<li class="disabled"><a>尾页</a></li>';
-}
-echo'</ul>';
-#分页
-}
-?>
-    </div>
-  </div>
-<?php include './foot.php';?>
+<?php include './foot.php'; ?>
+<script>
+$(document).on('click', '[data-q8-sitelist-href]', function (event) {
+    event.preventDefault();
+    var href = $(this).attr('data-q8-sitelist-href');
+    if (href) {
+        window.location.href = href.replace(/&amp;/g, '&');
+    }
+});
+</script>
 </body>
 </html>

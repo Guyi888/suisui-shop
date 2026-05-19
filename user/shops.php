@@ -23,10 +23,36 @@ while($res = $rs->fetch()){
 }
 if($select_count==0)$hideclass = true;
 ?>
+<link rel="stylesheet" href="./public/css/blue_theme.css?v=q8userclean12">
 <style>
 img.logo{width: 22px;margin: -2px 5px 0 5px;}
 .onclick{cursor: pointer;touch-action: manipulation;}
 #alert_frame img{max-width:100%}
+.q8-batch-buy-btn{
+  width:100%;
+  height:46px;
+  border:0 !important;
+  border-radius:10px !important;
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#1677ff,#20c4c7) !important;
+  color:#fff !important;
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:0;
+  box-shadow:0 12px 26px rgba(22,119,255,.2);
+}
+.q8-batch-buy-btn:hover,
+.q8-batch-buy-btn:focus,
+.q8-batch-buy-btn:active{
+  color:#fff !important;
+  filter:brightness(1.03);
+  outline:none !important;
+}
+@media(max-width:768px){
+  .q8-batch-buy-btn{height:44px;border-radius:9px !important;}
+}
 </style>
 <div class="wrapper">
 	<div class="col-xs-12 center-block" style="float: none;">
@@ -71,7 +97,7 @@ img.logo{width: 22px;margin: -2px 5px 0 5px;}
 				<textarea type="text" name="inputvalues" id="inputvalues" class="form-control" required placeholder="" rows="10"></textarea>
 			</div>
 			<div class="form-group">
-				<input type="submit" id="submit_buy" class="btn btn-primary btn-block" value="立即购买">
+				<input type="submit" id="submit_buy" class="btn btn-primary btn-block q8-batch-buy-btn" value="立即购买">
 			</div>
 		</div>
 			</div>

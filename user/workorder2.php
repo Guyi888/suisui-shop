@@ -7,7 +7,10 @@ $title='我的投诉';
 include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php?back=workorder';</script>");
 ?>
+<link rel="stylesheet" href="./public/css/blue_theme.css">
 <style>
+.q8-workorder-clean{} .q8-workorder-form .panel-body{padding:18px 18px 14px}.q8-workorder-form .form-group{margin-bottom:12px}.q8-workorder-form textarea.form-control{min-height:110px}.q8-workorder-upload-btn{height:34px;min-width:42px;display:inline-flex!important;align-items:center;justify-content:center}.q8-workorder-actions{display:flex;gap:8px;align-items:center;justify-content:flex-start;white-space:nowrap}.q8-workorder-actions .btn{min-width:58px;height:28px;display:inline-flex!important;align-items:center;justify-content:center;border-radius:999px!important;font-weight:800;line-height:1}
+
 .gdan_gout{width:100%;height:auto;background-color:#fff;padding-bottom:1em}
 .gdan_txt{height:3em;line-height:3em;text-indent:1em;font-family:"微软雅黑";font-weight:800;}
 .gdan_txt>span{position:absolute;right:3em;}
@@ -113,7 +116,7 @@ if(isset($_GET['orderid']) && $_GET['orderid'] && md5($_GET['orderid'].SYS_KEY.$
 <br/><a href="./workorder2.php">>>返回投诉列表</a>
 </div>
 <div class="panel-footer">
-<span class="fa fa-info-circle"></span>
+<i class="fa fa-info-circle"></i>
 找不到要提交的订单？<a href="../?chadan=1">点击进入查询订单</a>，在订单详情页面点击【投诉订单】可以直接提交投诉。
 </div>
 </div>
@@ -127,7 +130,7 @@ if(!$rows)
 	showmsg('当前记录不存在！',3);
 $contents = explode('*',$rows['content']);
 $myimg = $userrow['qq']?'//q2.qlogo.cn/headimg_dl?bs=qq&dst_uin='.$userrow['qq'].'&src_uin='.$userrow['qq'].'&fid='.$userrow['qq'].'&spec=100&url_enc=0&referer=bu_interface&term_type=PC':'../assets/img/user.png';
-$kfimg = 'https://imgcache.qq.com/open_proj/proj_qcloud_v2/mc_2014/work-order/css/img/custom-service-avatar.svg';
+$kfimg = '../assets/img/user.png';
 ?>
 <div class="panel panel-default">
 <div class="panel-heading"><div class="pull-right"><a href="./workorder2.php"><i class="fa fa-times"></i></a></div><h3 class="panel-title"><i class="fa fa-sticky-note-o"></i>&nbsp;&nbsp;<b>投诉详情</b></h3></div>
@@ -312,7 +315,7 @@ while($res = $rs->fetch())
 {
 $content=explode('*',$res['content']);
 $content=mb_substr($content[0], 0, 16, 'utf-8');
-echo '<tr><td><b>'.$res['id'].'</b></td><td>'.display_type($res['type']).'</td><td><a href="javascript:showOrder('.$res['orderid'].',\''.md5($res['orderid'].SYS_KEY.$res['orderid']).'\')" title="查询订单详情">'.$res['orderid'].'</a></td><td><a href="./workorder2.php?my=view&id='.$res['id'].'">'.htmlspecialchars($content).'</a></td><td>'.display_status($res['status']).'</td><td>'.$res['addtime'].'</td><td><a href="./workorder2.php?my=view&id='.$res['id'].'" class="btn btn-info btn-xs">查看</a>&nbsp;<a href="./workorder2.php?my=delete&id='.$res['id'].'" class="btn btn-xs btn-danger" onclick="return confirm(\'你确实要删除此投诉吗？\');">删除</a></td></tr>';
+echo '<tr><td><b>'.$res['id'].'</b></td><td>'.display_type($res['type']).'</td><td><a href="javascript:showOrder('.$res['orderid'].',\''.md5($res['orderid'].SYS_KEY.$res['orderid']).'\')" title="查询订单详情">'.$res['orderid'].'</a></td><td><a href="./workorder2.php?my=view&id='.$res['id'].'">'.htmlspecialchars($content).'</a></td><td>'.display_status($res['status']).'</td><td>'.$res['addtime'].'</td><td><div class="q8-workorder-actions"><a href="./workorder2.php?my=view&id='.$res['id'].'" class="btn btn-info btn-xs">&#26597;&#30475;</a><a href="./workorder2.php?my=delete&id='.$res['id'].'" class="btn btn-xs btn-danger" onclick="return confirm(\'你确实要删除此投诉吗？\');">&#21024;&#38500;</a></div></td></tr>';
 }
 ?>
           </tbody>

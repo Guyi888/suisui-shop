@@ -2,12 +2,6 @@
 if(!defined('IN_CRONLITE'))exit();
 $classhide = explode(',',$siterow['class']);
 
-// 模板配置 - 显示/隐藏控制
-$show_marquee = isset($conf['show_marquee']) ? $conf['show_marquee'] : '1';
-$show_warning_div = isset($conf['show_warning_div']) ? $conf['show_warning_div'] : '1';
-$show_guide_link = isset($conf['show_guide_link']) ? $conf['show_guide_link'] : '1';
-$show_order_warning = isset($conf['show_order_warning']) ? $conf['show_order_warning'] : '1';
-
 // 定义空数据提示函数
 function showEmptyMessage($title, $message) {
     echo '<div style="text-align: center; padding: 50px 20px; background-color: #f8f9fa; border-radius: 8px; margin: 20px 0;">
@@ -16,6 +10,22 @@ function showEmptyMessage($title, $message) {
     </div>';
 }
 ?>
+<style>
+.q8-today-recommend{display:none;margin:12px 0 16px;background:rgba(255,255,255,.96);border:1px solid rgba(219,234,254,.95);border-radius:14px;padding:0;box-shadow:0 14px 34px rgba(22,119,255,.16);overflow:hidden;backdrop-filter:blur(6px)}
+.q8-today-recommend__head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;background:linear-gradient(135deg,#eef7ff,#ffffff);border-bottom:1px solid #e3eefc}
+.q8-today-recommend__title{display:flex;align-items:center;gap:8px;font-weight:800;color:#173b68;font-size:16px}
+.q8-today-recommend__title:before{content:"";width:9px;height:24px;border-radius:999px;background:linear-gradient(180deg,#ff6b35,#1677ff);box-shadow:0 4px 10px rgba(22,119,255,.22)}
+.q8-today-recommend__head .text-muted{color:#7d8da1!important;font-size:12px;white-space:nowrap}
+.q8-today-recommend__grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:13px}
+.q8-today-recommend__item{position:relative;width:100%;border:1px solid #e5eef9;border-radius:10px;background:linear-gradient(180deg,#fff,#f8fbff);padding:12px 11px 10px;text-align:left;cursor:pointer;min-height:92px;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;overflow:hidden}
+.q8-today-recommend__item:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#ff6b35,#1677ff,#20c5c8);opacity:.85}
+.q8-today-recommend__item:hover{border-color:#1677ff;background:#fff;box-shadow:0 10px 22px rgba(22,119,255,.16);transform:translateY(-2px)}
+.q8-today-recommend__name{font-size:13px;line-height:1.38;color:#1f2d3d;font-weight:800;min-height:38px;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.q8-today-recommend__meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px;font-size:12px;color:#1677ff}
+.q8-today-recommend__price{color:#f04438;font-weight:900}
+.q8-today-recommend__meta span:last-child{display:inline-flex;align-items:center;justify-content:center;min-width:48px;height:24px;border-radius:999px;background:#edf6ff;color:#1677ff;font-weight:800}
+@media (max-width:768px){.q8-today-recommend__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.q8-today-recommend__head{padding:12px}.q8-today-recommend__item{min-height:88px}}
+</style>
 <?php if($conf['ui_shop']>0){
 //分类图片宫格
 $primary_classes = array();
@@ -34,7 +44,6 @@ while($row = $rs->fetch()){
 }
 ?>
 <!-- 警告信息 -->
-<?php if($show_order_warning == '1'){ ?>
 <div id="orderWarning" style="background-color: #f8d7da; border-radius: 4px; border: 1px solid #f5c6cb; padding: 10px; margin-top: 10px; margin-bottom: 15px; display: block;">
 					<center>
 						<span style="color:#721c24">
@@ -60,9 +69,7 @@ while($row = $rs->fetch()){
 						</span>
 					</center>
 				</div>
-<?php } ?>
 <!-- 购前必看按钮 -->
-<?php if($show_guide_link == '1'){ ?>
 <a class="btn custom-btn" href="/template/XHY-01/content.html" target="_blank" role="button" style="display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px 15px; margin-bottom: 15px; width: 100%;">
 	<img src="/template/XHY-01/gif_lb.jpg" style="width: 24px; height: 24px; margin-right: 10px; object-fit: contain;">
 	<div style="flex: 1; text-align: left;">
@@ -71,7 +78,13 @@ while($row = $rs->fetch()){
 	</div>
 	<i class="fa fa-external-link" style="color: #666;"></i>
 </a>
-<?php } ?>
+<div class="q8-today-recommend" id="q8TodayRecommend">
+	<div class="q8-today-recommend__head">
+		<div class="q8-today-recommend__title">今日商品推荐</div>
+		<span class="text-muted">点击快速下单</span>
+	</div>
+	<div class="q8-today-recommend__grid" id="q8TodayRecommendList"></div>
+</div>
 	<div id="goodType" <?php if(isset($_GET['cid'])){?>style="display: none"<?php }?>>
 <?php if($conf['ui_shop']==1){?>
 	<div class="row">
@@ -232,7 +245,7 @@ $(document).on('click', '.primaryClassChange', function() {
 				<div class="input-group"><div class="input-group-addon">选择商品</div>
 				<select name="tid" id="tid" class="form-control" onchange="getPoint();"><option value="0">请选择商品</option></select>
 		</div></div>
-		<?php if($show_warning_div == '1'){ ?><div class="alert alert-danger" style="border-left: 5px solid #a94442;font-weight: bold;background-color:#f2dede;color:#a94442;"><i class="fa fa-exclamation-triangle"></i> 下单信息：请认真填写，不要填写的过于简单，否则会被不法之人窃取卡密！</div><?php } ?>
+		<div class="alert alert-danger" style="border-left: 5px solid #a94442;font-weight: bold;background-color:#f2dede;color:#a94442;"><i class="fa fa-exclamation-triangle"></i> 下单信息：请认真填写，不要填写的过于简单，否则会被不法之人窃取卡密！</div>
 		<div class="form-group" id="display_price" style="display:none;">
 			<div class="input-group"><div class="input-group-addon">商品价格</div>
 			<input type="text" name="need" id="need" class="form-control" style="center;color:#4169E1;font-weight:bold" disabled/>
@@ -252,11 +265,11 @@ $(document).on('click', '.primaryClassChange', function() {
 		<div id="alert_frame" class="alert alert-success animated rubberBand" style="display:none;background: linear-gradient(to right,#71D7A2,#5ED1D7);font-weight: bold;color:white;"></div>
 		<?php if($conf['shoppingcart']==1){?>
 		<div class="btn-group btn-group-justified form-group">
-			<a type="submit" id="submit_buy" class="btn btn-danger btn-block btn-rounded" style="background: linear-gradient(to right, #FFCCCB, #8B0000); color: #fff; border: none;">立即购买</a>
+			<a type="submit" id="submit_buy" class="btn btn-block q8-user-buy-btn">立即购买</a>
 		</div>
 		<?php }else{?>
 		<div class="form-group">
-			<input type="submit" id="submit_buy" class="btn btn-danger btn-block btn-rounded" style="background: linear-gradient(to right, #FFCCCB, #8B0000); color: #fff; border: none;" value="立即购买">
+			<input type="submit" id="submit_buy" class="btn btn-block q8-user-buy-btn" value="立即购买">
 		</div>
 		<?php }?>
 		<div class="form-group"><button type="button" class="btn btn-default btn-block btn-sm backType">返回重选分类</button></div>
@@ -269,7 +282,6 @@ $(document).on('click', '.primaryClassChange', function() {
 //经典模式
 ?>
 <!-- 警告信息 -->
-<?php if($show_order_warning == '1'){ ?>
 <div id="orderWarning" style="background-color: #f8d7da; border-radius: 4px; border: 1px solid #f5c6cb; padding: 10px; margin-top: 10px; margin-bottom: 15px; display: block;">
 					<center>
 						<span style="color:#721c24">
@@ -295,9 +307,7 @@ $(document).on('click', '.primaryClassChange', function() {
 						</span>
 					</center>
 				</div>
-<?php } ?>
 <!-- 购前必看按钮 -->
-<?php if($show_guide_link == '1'){ ?>
 <a class="btn custom-btn" href="/template/XHY-01/content.html" target="_blank" role="button" style="display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px 15px; margin-bottom: 15px; width: 100%;">
 	<img src="/template/XHY-01/gif_lb.jpg" style="width: 24px; height: 24px; margin-right: 10px; object-fit: contain;">
 	<div style="flex: 1; text-align: left;">
@@ -306,7 +316,13 @@ $(document).on('click', '.primaryClassChange', function() {
 	</div>
 	<i class="fa fa-external-link" style="color: #666;"></i>
 </a>
-<?php } ?>
+<div class="q8-today-recommend" id="q8TodayRecommend">
+	<div class="q8-today-recommend__head">
+		<div class="q8-today-recommend__title">今日商品推荐</div>
+		<span class="text-muted">点击快速下单</span>
+	</div>
+	<div class="q8-today-recommend__grid" id="q8TodayRecommendList"></div>
+</div>
 <?php
 // 查询一级分类
 $rs=$DB->query("SELECT * FROM pre_class WHERE active=1 AND pid=0 order by sort asc");
@@ -325,7 +341,7 @@ if($primary_count==0)$hideclass = true;
 			<div class="form-group" id="display_searchBar">
 				<div class="input-group"><div class="input-group-addon">搜索商品</div>
 				<input type="text" id="searchkw" class="form-control" placeholder="搜索商品" onkeydown="if(event.keyCode==13){$('#doSearch').click()}"/>
-				<div class="input-group-addon"><span class="fa fa-search onclick" title="搜索" id="doSearch"></span></div>
+				<span class="input-group-addon q8-shop-search-btn onclick" title="&#25628;&#32034;" id="doSearch"><i class="fa fa-search"></i></span>
 			</div></div>
 			<?php }?>
 			<?php if($hideclass){?>
@@ -364,11 +380,11 @@ if($primary_count==0)$hideclass = true;
 			<div id="alert_frame" class="alert alert-success animated rubberBand" style="display:none;background: linear-gradient(to right,#71D7A2,#5ED1D7);font-weight: bold;color:white;"></div>
 			<?php if($conf['shoppingcart']==1){?>
 			<div class="btn-group btn-group-justified form-group">
-				<a type="submit" id="submit_buy" class="btn btn-danger btn-block btn-rounded" style="background: linear-gradient(to right, #FFCCCB, #8B0000); color: #fff; border: none;">立即购买</a>
+				<a type="submit" id="submit_buy" class="btn btn-block q8-user-buy-btn">立即购买</a>
 			</div>
 			<?php }else{?>
 			<div class="form-group">
-				<input type="submit" id="submit_buy" class="btn btn-danger btn-block btn-rounded" style="background: linear-gradient(to right, #FFCCCB, #8B0000); color: #fff; border: none;" value="立即购买">
+				<input type="submit" id="submit_buy" class="btn btn-block q8-user-buy-btn" value="立即购买">
 			</div>
 			<?php }?>
 			<div class="panel-body border-t" id="alert_cart" style="display:none;"><i class="fa fa-shopping-cart"></i>&nbsp;当前购物车已添加<b id="cart_count">0</b>个商品<a class="btn btn-xs btn-danger pull-right" href="javascript:openCart()">购物车列表</a></div>

@@ -237,6 +237,8 @@ if (@$_GET['s'] === 'step3') {
                         $sql .= $value;
                         if (substr(trim($value), -1, 1) == ';' and $value != 'COMMIT;') {
                             $sql = str_ireplace("`ZC_", "`{$mysqlPreFix}_", $sql);
+                            $sql = str_ireplace("`shua_", "`{$mysqlPreFix}_", $sql);
+                            $sql = str_ireplace("`pre_", "`{$mysqlPreFix}_", $sql);
                             $sql = str_ireplace('INSERT INTO ', 'INSERT IGNORE INTO ', $sql);
                             try {
                                 $link->query($sql);
@@ -378,4 +380,3 @@ if (@$_GET['s'] === 'step4') {
 }
 
 ?>
-

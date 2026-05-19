@@ -96,7 +96,10 @@ function processOrder($srow, $is_fenzhan = true)
 	if ($srow['tid'] == -1) {
 		$zid = intval($srow['input']);
 		changeUserMoney($zid, $srow['money'], true, "充值", "你在线充值了" . $srow['money'] . "元余额");
-		if ($conf['fenzhan_gift']) {
+		if (function_exists('q8_grant_recharge_rebate')) {
+			q8_grant_recharge_rebate($zid, $srow['money'], 'online');
+		}
+		if (false && $conf['fenzhan_gift']) {
 			$fenzhan_gift = explode('|', $conf['fenzhan_gift']);
 			$fenzhan_gift_arr = array();
 			foreach ($fenzhan_gift as $row) {

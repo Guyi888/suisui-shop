@@ -57,7 +57,7 @@ if(isset($_GET['act']) && $_GET['act']=='qrlogin'){
 		$pass=$row['pwd'];
 		if($islogin2==1){
 			@header('Content-Type: text/html; charset=UTF-8');
-			exit("<script language='javascript'>alert('当前{$typename}已绑定用户:{$user}，请勿重复绑定！');window.location.href='./uset.php?mod=user';</script>");
+exit("<script language='javascript'>alert('当前{$typename}已绑定用户:{$user}，请勿重复绑定！');window.location.href='./usetmoban.php?mod=user';</script>");
 		}
 		$session=md5($user.$pass.$password_hash);
 		$token=authcode("{$row['zid']}\t{$session}", 'ENCODE', SYS_KEY);
@@ -73,7 +73,7 @@ if(isset($_GET['act']) && $_GET['act']=='qrlogin'){
 	}elseif($islogin2==1){
 		$sds=$DB->exec("update `pre_site` set `{$typecolumn}`='$openid' where `zid`='{$userrow['zid']}'");
 		@header('Content-Type: text/html; charset=UTF-8');
-		exit("<script language='javascript'>alert('已成功绑定{$typename}！');window.location.href='./uset.php?mod=user';</script>");
+exit("<script language='javascript'>alert('已成功绑定{$typename}！');window.location.href='./usetmoban.php?mod=user';</script>");
 	}else{
 		$_SESSION['Oauth_qq_type']=$type;
 		$_SESSION['Oauth_qq_openid']=$openid;
@@ -107,7 +107,7 @@ include './head2.php';
 if($_SESSION['Oauth_qq_faceimg']){
 	$faceimg = $_SESSION['Oauth_qq_faceimg'];
 }else{
-	$faceimg = site_contact_avatar($conf['kfqq'], '../assets/img/user.png');
+	$faceimg = '//q4.qlogo.cn/headimg_dl?dst_uin='.$conf['kfqq'].'&spec=100';
 }
 
 if($_GET['act'] == 'new'){

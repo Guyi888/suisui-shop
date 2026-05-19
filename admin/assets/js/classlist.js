@@ -1,549 +1,842 @@
-// 岁岁 @qqfaka博客 t.me/qqfaka TG：@qqfaka
-// 加载分类列表并初始化拖拽功能
-function listTable(query){
-	var url = window.document.location.href.toString();
-	var queryString = url.split("?")[1];
-	query = query || queryString;
-	layer.closeAll();
-	var ii = layer.load(2, {shade:[0.1,'#fff']});
-	$.ajax({
-		type : 'GET',
-		url : 'classlist-table.php?'+query,
-		dataType : 'html',
-		cache : false,
-		success : function(data) {
-			layer.close(ii);
-			// 检查数据是否为空，防止页面空白
-			if(!data || $.trim(data) === '') {
-				$("#listTable").html('<div class="alert alert-warning">暂无分类数据</div>');
-				return;
-			}
-			$("#listTable").html(data);
+(function ($, window, document) {
+  'use strict';
 
-			// 初始化拖拽排序功能 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
-			initDragSort();
-		},
-		error:function(data){
-			layer.close(ii);
-			layer.msg('加载分类列表失败，请刷新页面重试');
-			$("#listTable").html('<div class="alert alert-danger">加载失败，请刷新页面重试</div>');
-			return false;
-		}
-	});
-}
+  var MSG = {
+    loading: '\u6b63\u5728\u52a0\u8f7d\u5206\u7c7b\u5217\u8868',
+    loadFail: '\u5206\u7c7b\u5217\u8868\u52a0\u8f7d\u5931\u8d25\uff0c\u8bf7\u5237\u65b0\u91cd\u8bd5',
+    serverError: '\u670d\u52a1\u5668\u8bf7\u6c42\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5',
+    needName: '\u8bf7\u5148\u586b\u5199\u5206\u7c7b\u540d\u79f0',
+    addSuccess: '\u5206\u7c7b\u5df2\u6dfb\u52a0',
+    saveSuccess: '\u4fdd\u5b58\u6210\u529f',
+    actionSuccess: '\u64cd\u4f5c\u6210\u529f',
+    selectOne: '\u8bf7\u81f3\u5c11\u9009\u62e9\u4e00\u4e2a\u5206\u7c7b',
+    selectAction: '\u8bf7\u5148\u9009\u62e9\u6279\u91cf\u64cd\u4f5c',
+    confirmTitle: '\u8bf7\u786e\u8ba4',
+    confirm: '\u786e\u5b9a',
+    cancel: '\u53d6\u6d88',
+    deleteTitle: '\u5220\u9664\u5206\u7c7b',
+    deleteText: '\u5220\u9664\u540e\u4f1a\u540c\u65f6\u5220\u9664\u8be5\u5206\u7c7b\u4e0b\u7684\u5546\u54c1\uff0c\u6b64\u64cd\u4f5c\u65e0\u6cd5\u64a4\u56de\u3002\u786e\u5b9a\u7ee7\u7eed\u5417\uff1f',
+    batchDeleteText: '\u6279\u91cf\u5220\u9664\u4f1a\u540c\u65f6\u5220\u9664\u9009\u4e2d\u5206\u7c7b\u4e0b\u7684\u5546\u54c1\uff0c\u6b64\u64cd\u4f5c\u65e0\u6cd5\u64a4\u56de\u3002\u786e\u5b9a\u7ee7\u7eed\u5417\uff1f',
+    addSubTitle: '\u65b0\u589e\u5b50\u5206\u7c7b',
+    addSubPlaceholder: '\u8bf7\u8f93\u5165\u5b50\u5206\u7c7b\u540d\u79f0',
+    payTitle: '\u7981\u7528\u652f\u4ed8\u65b9\u5f0f',
+    payIntro: '\u9009\u4e2d\u7684\u652f\u4ed8\u65b9\u5f0f\u5c06\u5728\u8be5\u5206\u7c7b\u5546\u54c1\u4e0b\u5355\u65f6\u88ab\u7981\u7528\u3002',
+    areaTitle: '\u4e0d\u53ef\u552e\u5730\u533a',
+    areaIntro: '\u591a\u4e2a\u5730\u533a\u8bf7\u7528\u9017\u53f7\u5206\u9694\uff0c\u4f8b\u5982\uff1a\u5317\u4eac\u5e02,\u5e7f\u4e1c\u7701\u6df1\u5733\u5e02\u3002',
+    areaPlaceholder: '\u7559\u7a7a\u8868\u793a\u4e0d\u9650\u5236\u5730\u533a',
+    noticeTitle: '\u524d\u53f0\u5206\u7c7b\u63d0\u793a\u8bed',
+    noticeIntro: '\u524d\u53f0\u9009\u4e2d\u8be5\u5206\u7c7b\u65f6\u53ef\u7528\u4e8e\u5f39\u7a97\u6216\u63d0\u793a\u3002\u7559\u7a7a\u5373\u4e0d\u663e\u793a\u3002',
+    noticePlaceholder: '\u8bf7\u8f93\u5165\u63d0\u793a\u8bed',
+    imageTitle: '\u5206\u7c7b\u56fe\u7247',
+    imageIntro: '\u53ef\u624b\u52a8\u586b\u5199 URL\uff0c\u4e5f\u53ef\u4e0a\u4f20\u6216\u4ece\u8be5\u5206\u7c7b\u5546\u54c1\u4e2d\u63d0\u53d6\u4e00\u5f20\u56fe\u3002',
+    imagePlaceholder: '\u586b\u5199\u56fe\u7247 URL',
+    upload: '\u4e0a\u4f20',
+    autoImage: '\u63d0\u53d6\u5546\u54c1\u56fe',
+    preview: '\u9884\u89c8',
+    save: '\u4fdd\u5b58',
+    noImage: '\u8bf7\u5148\u586b\u5199\u6216\u4e0a\u4f20\u56fe\u7247',
+    imageSaved: '\u5206\u7c7b\u56fe\u7247\u5df2\u4fdd\u5b58',
+    imageLoaded: '\u5df2\u63d0\u53d6\u5546\u54c1\u56fe\u7247',
+    imageMissing: '\u8be5\u5206\u7c7b\u4e0b\u6682\u65e0\u53ef\u63d0\u53d6\u7684\u5546\u54c1\u56fe\u7247',
+    uploadSuccess: '\u56fe\u7247\u4e0a\u4f20\u6210\u529f',
+    noFile: '\u8bf7\u5148\u9009\u62e9\u56fe\u7247',
+    payAlipay: '\u652f\u4ed8\u5b9d',
+    payQq: 'QQ\u94b1\u5305',
+    payWx: '\u5fae\u4fe1\u652f\u4ed8',
+    payRmb: '\u4f59\u989d',
+    emptySearch: '\u6ca1\u6709\u5339\u914d\u7684\u5206\u7c7b',
+    allImagesSaved: '\u5168\u90e8\u5206\u7c7b\u56fe\u7247\u5df2\u4fdd\u5b58'
+  };
 
-// 初始化HTML5原生拖拽排序功能 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
-function initDragSort() {
-	try {
-		// 添加拖拽样式 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
-		if (!$('style#dragSortStyle').length) {
-			$('head').append(`
-				<style id="dragSortStyle">
-					.sort_drag {
-						cursor: grab;
-						user-select: none;
-						padding: 6px 10px;
-						border-radius: 4px;
-						background-color: #f8f9fa;
-						transition: background-color 0.2s;
-					}
-					.sort_drag:hover {
-						background-color: #e9ecef;
-					}
-					.sort_drag:active {
-						cursor: grabbing;
-						background-color: #dee2e6;
-					}
-					.dragging {
-						opacity: 0.5;
-						background-color: #e3f2fd !important;
-					}
-					.drag-over {
-						border-top: 2px solid #007bff;
-					}
-					.drag-placeholder {
-						background-color: #e3f2fd;
-						border: 2px dashed #007bff;
-						min-height: 40px;
-					}
-				</style>
-			`);
-		}
+  var payTypes = [
+    { value: 'alipay', label: MSG.payAlipay },
+    { value: 'qqpay', label: MSG.payQq },
+    { value: 'wxpay', label: MSG.payWx },
+    { value: 'rmb', label: MSG.payRmb }
+  ];
 
-		// 检查表格和行是否存在，避免空指针错误
-		if ($("#classlisttbody").length === 0 || $("#classlisttbody tr").length === 0) {
-			console.log('表格不存在或无数据，跳过拖拽初始化');
-			return;
-		}
+  function hasLayer() {
+    return typeof window.layer !== 'undefined';
+  }
 
-		// 为一级分类和子分类添加拖拽功能
-		$(".primary-class, .sub-class").each(function() {
-			var row = $(this);
-			var dragHandle = row.find(".sort_drag");
+  function notify(message, icon) {
+    if (hasLayer()) {
+      window.layer.msg(message, { icon: icon || 1, time: 1500 });
+      return;
+    }
+    window.alert(message);
+  }
 
-			// 设置行可拖拽
-			row.attr('draggable', 'true');
+  function loading() {
+    if (hasLayer()) {
+      return window.layer.load(2, { shade: [0.08, '#fff'] });
+    }
+    return null;
+  }
 
-			// 拖拽开始事件
-			row.on('dragstart', function(e) {
-				// 存储被拖拽元素的ID
-				e.originalEvent.dataTransfer.setData('text/plain', row.attr('data-cid'));
-				// 添加拖拽中样式
-				row.addClass('dragging');
-				// 设置拖拽图像
-				e.originalEvent.dataTransfer.effectAllowed = 'move';
-			});
+  function closeLoading(index) {
+    if (hasLayer() && index !== null && typeof index !== 'undefined') {
+      window.layer.close(index);
+    }
+  }
 
-			// 拖拽结束事件
-			row.on('dragend', function() {
-				// 移除所有拖拽相关样式
-				row.removeClass('dragging');
-				$(".primary-class, .sub-class").removeClass('drag-over');
-				$(".drag-placeholder").remove();
+  function request(options) {
+    return $.ajax($.extend({
+      dataType: 'json',
+      timeout: 18000
+    }, options));
+  }
 
-				// 拖拽完成后更新排序
-				updateSortNumbers();
-			});
+  function escapeHtml(value) {
+    return $('<div>').text(value == null ? '' : String(value)).html();
+  }
 
-			// 拖拽经过事件
-			row.on('dragover', function(e) {
-				e.preventDefault(); // 允许放置
-				// 确定是同一类别的元素之间拖拽
-				var currentClass = row.hasClass('primary-class') ? 'primary-class' : 'sub-class';
-				if (e.originalEvent.dataTransfer.getData('text/plain')) {
-					row.addClass('drag-over');
-				}
-			});
+  function modalArea(width, height) {
+    if ($(window).width() < 640) {
+      return ['92vw', height || 'auto'];
+    }
+    return [width, height || 'auto'];
+  }
 
-			// 拖拽离开事件
-			row.on('dragleave', function() {
-				row.removeClass('drag-over');
-			});
+  function getRow(cid) {
+    return $('[data-class-row][data-cid="' + cid + '"]');
+  }
 
-			// 拖拽放置事件
-			row.on('drop', function(e) {
-				e.preventDefault();
-				row.removeClass('drag-over');
+  function getClassName(cid) {
+    var row = getRow(cid);
+    var value = row.find('input[name="name[' + cid + ']"]').val();
+    return value || row.data('name') || '';
+  }
 
-				var draggedId = e.originalEvent.dataTransfer.getData('text/plain');
-				var draggedRow = $("tr[data-cid='" + draggedId + "']");
+  function getImageValue(cid) {
+    var input = $('[data-class-image-url="' + cid + '"]');
+    if (input.length) {
+      return input.val();
+    }
+    var row = getRow(cid);
+    return row.data('img') || '';
+  }
 
-				// 确保被拖拽元素存在且不是自身
-				if (draggedRow.length > 0 && draggedRow[0] !== row[0]) {
-					// 获取当前行和被拖拽行的类型
-					var currentIsPrimary = row.hasClass('primary-class');
-					var draggedIsPrimary = draggedRow.hasClass('primary-class');
+  function setImageValue(cid, value) {
+    $('[data-class-image-url="' + cid + '"]').val(value);
+    getRow(cid).attr('data-img', value).data('img', value);
+    $('[data-class-card][data-cid="' + cid + '"]').attr('data-img', value).data('img', value);
+    $('#classImageModalUrl').val(value);
+    updateImageCardPreview(cid, value);
+    renderImagePreview(value);
+  }
 
-					// 确保同类型元素之间才能拖拽交换
-					if (currentIsPrimary === draggedIsPrimary) {
-						// 执行行交换
-						if (draggedRow.index() < row.index()) {
-							// 被拖拽行在当前行前面，插入到当前行后面
-							row.after(draggedRow);
-						} else {
-							// 被拖拽行在当前行后面，插入到当前行前面
-							row.before(draggedRow);
-						}
-					}
-				}
-			});
-		});
+  function resolveImageUrl(value) {
+    if (!value) {
+      return '';
+    }
+    if (/^(https?:)?\/\//i.test(value) || /^data:/i.test(value)) {
+      return value;
+    }
+    return '../' + value.replace(/^\.\.\//, '');
+  }
 
-		console.log('HTML5原生拖拽功能初始化完成');
-	} catch (e) {
-		console.error('拖拽初始化失败:', e);
-		layer.msg('拖拽功能初始化失败', {icon: 2});
-	}
-}
+  function updateImageCardPreview(cid, value) {
+    var card = $('[data-class-card][data-cid="' + cid + '"]');
+    if (!card.length) {
+      return;
+    }
+    var holder = card.find('.admin-class-image-card__preview');
+    var src = resolveImageUrl(value);
+    if (src) {
+      holder.html('<img src="' + escapeHtml(src) + '" alt="">');
+    } else {
+      holder.html('<span><i class="fa fa-picture-o"></i></span>');
+    }
+  }
 
-// 更新排序号并保存 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
-function updateSortNumbers() {
-	try {
-		console.log('开始更新排序...');
-		// 获取所有一级分类并按当前DOM顺序排序
-		var primaryClasses = $("#classlisttbody .primary-class");
-		var primarySort = 1;
+  function renderImagePreview(value) {
+    var target = $('#classImageModalPreview');
+    if (!target.length) {
+      return;
+    }
+    var src = resolveImageUrl(value);
+    if (!src) {
+      target.html('<span><i class="fa fa-picture-o"></i></span>');
+      return;
+    }
+    target.html('<img src="' + escapeHtml(src) + '" alt="">');
+  }
 
-		// 遍历一级分类，更新排序号
-		primaryClasses.each(function(index) {
-			var cid = $(this).attr('data-cid');
-			if (cid) {
-				var sortInput = $("input[name='sort["+cid+"]']");
-				if (sortInput.length > 0) {
-					sortInput.val(primarySort);
-					console.log('一级分类排序更新:', cid, '=>', primarySort);
-				}
-			}
+  function listTable(query) {
+    var shell = $('#listTable');
+    if (!shell.length) {
+      return;
+    }
+    var source = shell.data('source') || './classlist-table.php';
+    var url = source + (query ? ('?' + query) : '');
+    var index = loading();
+    shell.html('<div class="admin-class-loading"><i class="fa fa-spinner fa-spin"></i><span>' + MSG.loading + '</span></div>');
+    $.ajax({
+      type: 'GET',
+      url: url,
+      dataType: 'html',
+      cache: false
+    }).done(function (html) {
+      shell.html(html || '<div class="admin-class-empty"><i class="fa fa-folder-open-o"></i><strong>' + MSG.emptySearch + '</strong></div>');
+      applySearchFilter();
+    }).fail(function () {
+      shell.html('<div class="admin-class-empty"><i class="fa fa-exclamation-triangle"></i><strong>' + MSG.loadFail + '</strong></div>');
+      notify(MSG.loadFail, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
 
-			// 为当前一级分类下的子分类排序
-			var subSort = 1;
-			// 获取当前一级分类之后，下一个一级分类之前的所有子分类
-			var nextPrimary = primaryClasses.eq(index + 1);
-			var subClasses;
+  function addClass(pid, name) {
+    var className = $.trim(name || '');
+    if (!className) {
+      notify(MSG.needName, 2);
+      return;
+    }
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=addClass',
+      data: { name: className, pid: pid || 0 }
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        notify(res.msg || MSG.addSuccess, 1);
+        $('#newClassName').val('');
+        listTable();
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
 
-			if (nextPrimary.length > 0) {
-				// 如果有下一个一级分类，获取它们之间的子分类
-				subClasses = $(this).nextUntil(nextPrimary, ".sub-class");
-			} else {
-				// 如果是最后一个一级分类，获取之后所有子分类
-				subClasses = $(this).nextAll(".sub-class");
-			}
+  function saveOne(cid) {
+    var name = $.trim(getRow(cid).find('input[name="name[' + cid + ']"]').val());
+    if (!name) {
+      notify(MSG.needName, 2);
+      return;
+    }
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=editClass&cid=' + encodeURIComponent(cid),
+      data: { name: name }
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        notify(res.msg || MSG.saveSuccess, 1);
+        listTable();
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
 
-			// 更新子分类排序号
-			subClasses.each(function() {
-				var subCid = $(this).attr('data-cid');
-				if (subCid) {
-					var subSortInput = $("input[name='sort["+subCid+"]']");
-					if (subSortInput.length > 0) {
-						// 使用一级分类排序号 * 100 + 子分类排序号，确保层级关系
-						var newSort = (primarySort * 100) + subSort;
-						subSortInput.val(newSort);
-						console.log('子分类排序更新:', subCid, '=>', newSort);
-					}
-				}
-				subSort++;
-			});
+  function saveAll() {
+    var form = $('#classlist');
+    if (!form.length) {
+      return;
+    }
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=editClassAll',
+      data: form.serialize()
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        notify(res.msg || MSG.saveSuccess, 1);
+        listTable();
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
 
-			primarySort++;
-		});
+  function setActive(cid, active) {
+    var index = loading();
+    request({
+      type: 'GET',
+      url: './ajax_class.php?act=setClass',
+      data: { cid: cid, active: active }
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        notify(MSG.actionSuccess, 1);
+        listTable();
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
 
-		// 显示成功提示并保存
-		layer.msg('排序已更新', {icon: 1, time: 1000});
+  function sortClass(cid, sortType) {
+    var index = loading();
+    request({
+      type: 'GET',
+      url: './ajax_class.php?act=setClassSort',
+      data: { cid: cid, sort: sortType }
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        notify(MSG.actionSuccess, 1);
+        listTable();
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
 
-		// 延迟保存，让用户看到提示
-		setTimeout(function() {
-			console.log('保存排序数据...');
-			saveAll();
-		}, 600);
-	} catch (e) {
-		console.error('更新排序失败:', e);
-		layer.msg('排序更新失败，请重试', {icon: 2});
-	}
-}
+  function deleteClass(cid, name) {
+    var message = (name ? escapeHtml(name) + '<br>' : '') + MSG.deleteText;
+    confirmAction(message, function () {
+      var index = loading();
+      request({
+        type: 'GET',
+        url: './ajax_class.php?act=delClass',
+        data: { cid: cid }
+      }).done(function (res) {
+        if (res && res.code === 0) {
+          notify(res.msg || MSG.actionSuccess, 1);
+          listTable();
+        } else {
+          notify(res && res.msg ? res.msg : MSG.serverError, 2);
+        }
+      }).fail(function () {
+        notify(MSG.serverError, 2);
+      }).always(function () {
+        closeLoading(index);
+      });
+    });
+  }
 
-// 显示排序成功提示 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
-function showSortSuccess() {
-	layer.msg('排序已更新', {
-		icon: 1,
-		time: 1000
-	});
-}
-function setActive(cid,active) {
-	$.ajax({
-		type : 'GET',
-		url : 'ajax_class.php?act=setClass&cid='+cid+'&active='+active,
-		dataType : 'json',
-		success : function(data) {
-			listTable();
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	});
-}
-function sort(cid,sort) {
-	$.ajax({
-		type : 'GET',
-		url : 'ajax_class.php?act=setClassSort&cid='+cid+'&sort='+sort,
-		dataType : 'json',
-		success : function(data) {
-			listTable();
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	});
-}
-function getImage(cid) {
-	layer.confirm('是否从该分类下的商品图片获取一张作为分类图片？', {
-		btn: ['确定'] //按钮
-	}, function(){
-	$.ajax({
-		type : 'GET',
-		url : 'ajax_class.php?act=getClassImage&cid='+cid,
-		dataType : 'json',
-		success : function(data) {
-			if(data.code == 0){
-				layer.msg('获取图片成功');
-				$("input[name='img"+cid+"']").val(data.url);
-			}else{
-				layer.alert('该分类下商品都没有图片');
-			}
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	});
-	});
-}
-function addClass() {
-	var name = $("input[name='addname']").val();
-	$.ajax({
-		type : 'POST',
-		url : 'ajax_class.php?act=addClass',
-		data : {name:name},
-		dataType : 'json',
-		success : function(data) {
-			if(data.code == 0){
-				layer.msg('添加成功');
-				listTable();
-			}else{
-				layer.alert(data.msg);
-			}
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	});
-}
-function editClass(cid) {
-	var name = $("input[name='name["+cid+"]']").val();
-	$.ajax({
-		type : 'POST',
-		url : 'ajax_class.php?act=editClass&cid='+cid,
-		data : {name:name},
-		dataType : 'json',
-		success : function(data) {
-			if(data.code == 0){
-				layer.msg('修改成功');
-				listTable();
-			}else{
-				layer.alert(data.msg);
-			}
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	});
-}
-function delClass(cid) {
-	var confirmobj = layer.confirm('你确实要删除此分类和分类下全部商品吗？', {
-	  btn: ['确定','取消']
-	}, function(){
-	  $.ajax({
-		type : 'GET',
-		url : 'ajax_class.php?act=delClass&cid='+cid,
-		dataType : 'json',
-		success : function(data) {
-			if(data.code == 0){
-				layer.msg('删除成功');
-				listTable();
-			}else{
-				layer.alert(data.msg);
-			}
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	  });
-	}, function(){
-	  layer.close(confirmobj);
-	});
-}
-function saveAll() {
-	// 检查表单是否存在
-	if ($('#classlist').length === 0) {
-		console.error('保存失败：表单不存在');
-		return;
-	}
+  function batchOperation() {
+    var form = $('#classlist');
+    var action = form.find('[data-bulk-action]').val();
+    var checked = form.find('[data-class-checkbox]:checked');
+    if (!checked.length) {
+      notify(MSG.selectOne, 2);
+      return;
+    }
+    if (!action) {
+      notify(MSG.selectAction, 2);
+      return;
+    }
+    var run = function () {
+      var index = loading();
+      request({
+        type: 'POST',
+        url: './ajax_class.php?act=batchOperation',
+        data: form.serialize()
+      }).done(function (res) {
+        if (res && res.code === 0) {
+          notify(res.msg || MSG.actionSuccess, 1);
+          listTable();
+        } else {
+          notify(res && res.msg ? res.msg : MSG.serverError, 2);
+        }
+      }).fail(function () {
+        notify(MSG.serverError, 2);
+      }).always(function () {
+        closeLoading(index);
+      });
+    };
+    if (String(action) === '3') {
+      confirmAction(MSG.batchDeleteText, run);
+      return;
+    }
+    run();
+  }
 
-	// 获取表单数据
-	var formData = $('#classlist').serialize();
-	console.log('保存数据:', formData);
+  function confirmAction(message, callback) {
+    if (!hasLayer()) {
+      if (window.confirm($('<div>').html(message).text())) {
+        callback();
+      }
+      return;
+    }
+    window.layer.confirm(message, {
+      title: MSG.confirmTitle,
+      icon: 3,
+      btn: [MSG.confirm, MSG.cancel]
+    }, function (index) {
+      window.layer.close(index);
+      callback();
+    });
+  }
 
-	$.ajax({
-		type : 'POST',
-		url : 'ajax_class.php?act=editClassAll',
-		data : formData,
-		dataType : 'json',
-		timeout: 10000, // 设置超时时间
-		success : function(data) {
-			console.log('保存响应:', data);
-			if (data && data.code == 0) {
-				// 使用layer.msg替代alert，提供更好的用户体验
-				layer.msg('保存成功！', {icon: 1});
-				// 延时刷新列表，让用户有时间看到成功提示
-				setTimeout(function() {
-					listTable();
-				}, 500);
-			} else {
-				layer.msg(data && data.msg ? data.msg : '保存失败', {icon: 2});
-			}
-		},
-		error:function(xhr, status, error){
-			console.error('保存失败:', status, error);
-			layer.msg('服务器错误，请稍后重试', {icon: 2});
-			return false;
-		}
-	});
-}
-function saveAllImages() {
-	$.ajax({
-		type : 'POST',
-		url : 'ajax_class.php?act=editClassImages',
-		data : $('#classlist').serialize(),
-		dataType : 'json',
-		success : function(data) {
-			alert('保存成功！');
-			window.location.reload();
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	});
-}
-function fileSelect(cid){
-	$("#file"+cid).trigger("click");
-}
-function fileView(cid){
-	var shopimg = $("input[name='img["+cid+"]']").val();
-	if(shopimg=='') {
-		layer.alert("请先上传图片，才能预览");
-		return;
-	}
-	if(shopimg.indexOf('http') == -1)shopimg = '../'+shopimg;
-	layer.open({
-		type: 1,
-		area: ['360px', '400px'],
-		title: '分类图片查看',
-		shade: 0.3,
-		anim: 1,
-		shadeClose: true,
-		content: '<center><img width="300px" src="'+shopimg+'"></center>'
-	});
-}
-function fileUpload(cid){
-	var fileObj = $("#file"+cid)[0].files[0];
-	if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
-		return;
-	}
-	var formData = new FormData();
-	formData.append("do","upload");
-	formData.append("type","class");
-	formData.append("file",fileObj);
-	var ii = layer.load(2, {shade:[0.1,'#fff']});
-	$.ajax({
-		url: "ajax.php?act=uploadimg",
-		data: formData,
-		type: "POST",
-		dataType: "json",
-		cache: false,
-		processData: false,
-		contentType: false,
-		success: function (data) {
-			layer.close(ii);
-			if(data.code == 0){
-				layer.msg('上传图片成功');
-				$("input[name='img["+cid+"]']").val(data.url);
-			}else{
-				layer.alert(data.msg);
-			}
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	})
-}
-function setClass(cid) {
-	$.ajax({
-		type : 'POST',
-		url : 'ajax_class.php?act=getBlock',
-		data : {cid:cid},
-		dataType : 'json',
-		success : function(data) {
-			if(data.code == 0){
-				layer.open({
-					area: ['360px'],
-					title: '不可售地区设置（多个城市用,分隔）',
-					content: '<div class="form-group"><textarea class="form-control" name="blockcontent" placeholder="示例：北京市,广东省深圳市" rows="3">'+data.data+'</textarea></div>',
-					yes: function(){
-						var content = $("textarea[name='blockcontent']").val();
-						$.ajax({
-							type : 'POST',
-							url : 'ajax_class.php?act=setBlock',
-							data : {cid:cid,data: content.replace("，",",")},
-							dataType : 'json',
-							success : function(data) {
-								if(data.code == 0){
-									layer.msg(data.msg, {icon:1});
-								}else{
-									layer.alert(data.msg);
-								}
-							},
-							error:function(data){
-								layer.msg('服务器错误');
-								return false;
-							}
-						});
-					}
-				});
-			}else{
-				layer.alert(data.msg);
-			}
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	});
-}
-function setBlockPay(cid) {
-	$.ajax({
-		type : 'POST',
-		url : 'ajax_class.php?act=getBlockPay',
-		data : {cid:cid},
-		dataType : 'json',
-		success : function(data) {
-			if(data.code == 0){
-				layer.open({
-					area: ['360px'],
-					title: '设置此分类商品禁用支付方式',
-					content: '<div class="form-group"><div class="checkbox"><label><input type="checkbox" name="paytype" value="alipay" '+($.inArray('alipay',data.data)>-1?'checked':null)+'> 禁用支付宝</label></div><div class="checkbox"><label><input type="checkbox" name="paytype" value="qqpay" '+($.inArray('qqpay',data.data)>-1?'checked':null)+'> 禁用QQ钱包</label></div><div class="checkbox"><label><input type="checkbox" name="paytype" value="wxpay" '+($.inArray('wxpay',data.data)>-1?'checked':null)+'> 禁用微信支付</label></div><div class="checkbox"><label><input type="checkbox" name="paytype" value="rmb" '+($.inArray('rmb',data.data)>-1?'checked':null)+'> 禁用余额</label></div></div>',
-					yes: function(){
-						var paytype = [];
-						$.each($("input[name='paytype']:checked"),function(){
-							paytype.push($(this).val());
-						});
-						var content = $("textarea[name='blockcontent']").val();
-						$.ajax({
-							type : 'POST',
-							url : 'ajax_class.php?act=setBlockPay',
-							data : {cid:cid,paytype: paytype},
-							dataType : 'json',
-							success : function(data) {
-								if(data.code == 0){
-									layer.msg(data.msg, {icon:1});
-								}else{
-									layer.alert(data.msg);
-								}
-							},
-							error:function(data){
-								layer.msg('服务器错误');
-								return false;
-							}
-						});
-					}
-				});
-			}else{
-				layer.alert(data.msg);
-			}
-		},
-		error:function(data){
-			layer.msg('服务器错误');
-			return false;
-		}
-	});
-}
-$(document).ready(function(){
-	if($("#listTable").length>0){
-		listTable()
-	}
-})
+  function promptSubClass(cid, parentName) {
+    if (!hasLayer()) {
+      var fallback = window.prompt(MSG.addSubPlaceholder);
+      if (fallback) {
+        addClass(cid, fallback);
+      }
+      return;
+    }
+    window.layer.prompt({
+      formType: 0,
+      title: MSG.addSubTitle + ' - ' + parentName,
+      value: '',
+      area: modalArea('420px', '120px')
+    }, function (value, index) {
+      window.layer.close(index);
+      addClass(cid, value);
+    });
+  }
+
+  function openPayModal(cid) {
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=getBlockPay',
+      data: { cid: cid }
+    }).done(function (res) {
+      if (!res || res.code !== 0) {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+        return;
+      }
+      var active = $.isArray(res.data) ? res.data : [];
+      var html = '<div class="admin-class-modal"><p>' + MSG.payIntro + '</p><div class="admin-class-pay-options">';
+      $.each(payTypes, function (_, item) {
+        var checked = $.inArray(item.value, active) > -1 ? ' checked' : '';
+        html += '<label class="admin-class-pay-option"><input type="checkbox" name="class_paytype" value="' + item.value + '"' + checked + '> <span>' + item.label + '</span></label>';
+      });
+      html += '</div></div>';
+      window.layer.open({
+        type: 1,
+        title: MSG.payTitle + ' #' + cid,
+        area: modalArea('460px'),
+        shadeClose: true,
+        btn: [MSG.save, MSG.cancel],
+        content: html,
+        yes: function (modalIndex) {
+          var selected = [];
+          $('input[name="class_paytype"]:checked').each(function () {
+            selected.push($(this).val());
+          });
+          savePayTypes(cid, selected, modalIndex);
+        }
+      });
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
+
+  function savePayTypes(cid, selected, modalIndex) {
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=setBlockPay',
+      traditional: true,
+      data: { cid: cid, paytype: selected }
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        notify(res.msg || MSG.saveSuccess, 1);
+        window.layer.close(modalIndex);
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
+
+  function openAreaModal(cid) {
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=getBlock',
+      data: { cid: cid }
+    }).done(function (res) {
+      if (!res || res.code !== 0) {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+        return;
+      }
+      var html = '<div class="admin-class-modal"><p>' + MSG.areaIntro + '</p><textarea id="classAreaText" class="form-control" placeholder="' + MSG.areaPlaceholder + '"></textarea></div>';
+      window.layer.open({
+        type: 1,
+        title: MSG.areaTitle + ' #' + cid,
+        area: modalArea('520px'),
+        shadeClose: true,
+        btn: [MSG.save, MSG.cancel],
+        content: html,
+        success: function () {
+          $('#classAreaText').val(res.data || '');
+        },
+        yes: function (modalIndex) {
+          saveArea(cid, $('#classAreaText').val(), modalIndex);
+        }
+      });
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
+
+  function saveArea(cid, value, modalIndex) {
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=setBlock',
+      data: { cid: cid, data: value }
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        notify(res.msg || MSG.saveSuccess, 1);
+        window.layer.close(modalIndex);
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
+
+  function openNoticeModal(cid) {
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=getNotice',
+      data: { cid: cid }
+    }).done(function (res) {
+      if (!res || res.code !== 0) {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+        return;
+      }
+      var html = '<div class="admin-class-modal"><p>' + MSG.noticeIntro + '</p><textarea id="classNoticeText" class="form-control" placeholder="' + MSG.noticePlaceholder + '"></textarea></div>';
+      window.layer.open({
+        type: 1,
+        title: MSG.noticeTitle + ' #' + cid,
+        area: modalArea('540px'),
+        shadeClose: true,
+        btn: [MSG.save, MSG.cancel],
+        content: html,
+        success: function () {
+          $('#classNoticeText').val(res.data || '');
+        },
+        yes: function (modalIndex) {
+          saveNotice(cid, $('#classNoticeText').val(), modalIndex);
+        }
+      });
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
+
+  function saveNotice(cid, value, modalIndex) {
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=setNotice',
+      data: { cid: cid, notice: value }
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        notify(res.msg || MSG.saveSuccess, 1);
+        getRow(cid).attr('data-notice', value).data('notice', value);
+        window.layer.close(modalIndex);
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
+
+  function openImageModal(cid) {
+    var current = getImageValue(cid);
+    var name = getClassName(cid);
+    var html = [
+      '<div class="admin-class-modal admin-class-image-modal">',
+      '<p>', MSG.imageIntro, '</p>',
+      '<input type="file" class="admin-class-file-input" data-modal-image-file data-cid="', cid, '" accept="image/*">',
+      '<input type="text" id="classImageModalUrl" class="form-control" value="', escapeHtml(current), '" placeholder="', MSG.imagePlaceholder, '">',
+      '<div class="admin-class-image-card__actions admin-class-image-modal__actions">',
+      '<button type="button" class="btn btn-default" data-class-action="modal-image-upload" data-cid="', cid, '"><i class="fa fa-upload"></i> ', MSG.upload, '</button>',
+      '<button type="button" class="btn btn-default" data-class-action="modal-image-auto" data-cid="', cid, '"><i class="fa fa-magic"></i> ', MSG.autoImage, '</button>',
+      '<button type="button" class="btn btn-default" data-class-action="modal-image-preview"><i class="fa fa-eye"></i> ', MSG.preview, '</button>',
+      '</div>',
+      '<div id="classImageModalPreview" class="admin-class-image-modal__preview"></div>',
+      '</div>'
+    ].join('');
+    window.layer.open({
+      type: 1,
+      title: MSG.imageTitle + ' - ' + name,
+      area: modalArea('560px'),
+      shadeClose: true,
+      btn: [MSG.save, MSG.cancel],
+      content: html,
+      success: function () {
+        renderImagePreview(current);
+      },
+      yes: function (modalIndex) {
+        saveImage(cid, $('#classImageModalUrl').val(), modalIndex);
+      }
+    });
+  }
+
+  function saveImage(cid, value, modalIndex) {
+    var data = {};
+    data['img[' + cid + ']'] = $.trim(value || '');
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=editClassImages',
+      data: data
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        setImageValue(cid, data['img[' + cid + ']']);
+        notify(MSG.imageSaved, 1);
+        if (modalIndex) {
+          window.layer.close(modalIndex);
+        }
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
+
+  function autoImage(cid) {
+    var index = loading();
+    request({
+      type: 'GET',
+      url: './ajax_class.php?act=getClassImage',
+      data: { cid: cid }
+    }).done(function (res) {
+      if (res && res.code === 0 && res.url) {
+        setImageValue(cid, res.url);
+        notify(MSG.imageLoaded, 1);
+      } else {
+        notify(res && res.msg ? res.msg : MSG.imageMissing, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
+
+  function uploadImage(input) {
+    var file = input.files && input.files[0];
+    var cid = $(input).data('cid');
+    if (!file) {
+      notify(MSG.noFile, 2);
+      return;
+    }
+    var formData = new FormData();
+    formData.append('do', 'upload');
+    formData.append('type', 'class');
+    formData.append('file', file);
+    var index = loading();
+    $.ajax({
+      url: 'ajax.php?act=uploadimg',
+      data: formData,
+      type: 'POST',
+      dataType: 'json',
+      cache: false,
+      processData: false,
+      contentType: false
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        setImageValue(cid, res.url);
+        notify(MSG.uploadSuccess, 1);
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+      $(input).val('');
+    });
+  }
+
+  function previewImage(cid) {
+    var value = getImageValue(cid);
+    if (!value) {
+      notify(MSG.noImage, 2);
+      return;
+    }
+    var src = resolveImageUrl(value);
+    window.layer.open({
+      type: 1,
+      title: MSG.preview,
+      area: modalArea('520px'),
+      shadeClose: true,
+      content: '<div class="admin-class-modal"><div class="admin-class-image-modal__preview"><img src="' + escapeHtml(src) + '" alt=""></div></div>'
+    });
+  }
+
+  function saveAllImages() {
+    var form = $('#classImageForm');
+    if (!form.length) {
+      return;
+    }
+    var index = loading();
+    request({
+      type: 'POST',
+      url: './ajax_class.php?act=editClassImages',
+      data: form.serialize()
+    }).done(function (res) {
+      if (res && res.code === 0) {
+        notify(MSG.allImagesSaved, 1);
+      } else {
+        notify(res && res.msg ? res.msg : MSG.serverError, 2);
+      }
+    }).fail(function () {
+      notify(MSG.serverError, 2);
+    }).always(function () {
+      closeLoading(index);
+    });
+  }
+
+  function applySearchFilter() {
+    var keyword = $.trim($('#classSearch').val() || '').toLowerCase();
+    var rows = $('[data-class-row]');
+    rows.removeClass('is-filtered');
+    $('.admin-class-search-empty').remove();
+    if (!keyword) {
+      return;
+    }
+    rows.each(function () {
+      var row = $(this);
+      var haystack = String(row.data('search') || '').toLowerCase();
+      if (haystack.indexOf(keyword) === -1) {
+        row.addClass('is-filtered');
+      }
+    });
+    if (rows.length && rows.not('.is-filtered').length === 0) {
+      $('#classlisttbody').append('<tr class="admin-class-search-empty"><td colspan="6"><div class="admin-class-empty"><i class="fa fa-search"></i><strong>' + MSG.emptySearch + '</strong></div></td></tr>');
+    }
+  }
+
+  function bindEvents() {
+    $(document).on('click', '[data-class-action]', function (event) {
+      var button = $(this);
+      var action = button.data('class-action');
+      var cid = button.data('cid');
+      if (action !== 'modal-image-preview') {
+        event.preventDefault();
+      }
+      switch (action) {
+        case 'refresh':
+          listTable();
+          break;
+        case 'add-parent':
+          addClass(0, $('#newClassName').val());
+          break;
+        case 'add-sub':
+          promptSubClass(cid, button.data('name') || '');
+          break;
+        case 'save-one':
+          saveOne(cid);
+          break;
+        case 'save-all':
+          saveAll();
+          break;
+        case 'toggle':
+          setActive(cid, button.data('active'));
+          break;
+        case 'sort':
+          sortClass(cid, button.data('sort'));
+          break;
+        case 'delete':
+          deleteClass(cid, button.data('name'));
+          break;
+        case 'batch':
+          batchOperation();
+          break;
+        case 'pay':
+          openPayModal(cid);
+          break;
+        case 'area':
+          openAreaModal(cid);
+          break;
+        case 'notice':
+          openNoticeModal(cid);
+          break;
+        case 'image':
+          openImageModal(cid);
+          break;
+        case 'image-upload':
+          $('.admin-class-file-input[data-cid="' + cid + '"]').first().trigger('click');
+          break;
+        case 'modal-image-upload':
+          $('[data-modal-image-file][data-cid="' + cid + '"]').trigger('click');
+          break;
+        case 'image-auto':
+        case 'modal-image-auto':
+          autoImage(cid);
+          break;
+        case 'image-preview':
+          previewImage(cid);
+          break;
+        case 'modal-image-preview':
+          renderImagePreview($('#classImageModalUrl').val());
+          break;
+        case 'save-all-images':
+          saveAllImages();
+          break;
+      }
+    });
+
+    $(document).on('change', '[data-class-check-all]', function () {
+      $('[data-class-checkbox]').prop('checked', $(this).prop('checked'));
+    });
+
+    $(document).on('change', '.admin-class-file-input', function () {
+      uploadImage(this);
+    });
+
+    $(document).on('input', '#classImageModalUrl', function () {
+      renderImagePreview($(this).val());
+    });
+
+    $(document).on('input', '#classSearch', applySearchFilter);
+
+    $(document).on('keydown', '#newClassName', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        addClass(0, $(this).val());
+      }
+    });
+  }
+
+  $(function () {
+    bindEvents();
+    if ($('#listTable').length) {
+      listTable();
+    }
+  });
+
+  window.listTable = listTable;
+})(jQuery, window, document);

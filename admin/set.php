@@ -1289,7 +1289,15 @@ if ($mod == "cleanbom") {
 						</form>
 					</div>
 					<div class="tab-pane fade in" id="fenzhan_recharge">
-						<form onsubmit="return saveSetting(this)" method="post" class="form-horizontal form-bordered" role="form">
+						<div class="alert alert-info" style="margin:15px 0;">
+							<i class="fa fa-info-circle"></i>
+							&#20805;&#20540;&#36820;&#21033;&#12289;&#21152;&#27454;&#21345;&#20805;&#20540;&#21644;&#26368;&#20302;&#20805;&#20540;&#37329;&#39069;&#24050;&#32479;&#19968;&#21512;&#24182;&#21040;&#12300;&#20805;&#20540;&#36820;&#21033;&#35774;&#32622;&#12301;&#65292;&#35831;&#22312;&#35813;&#39029;&#38754;&#32479;&#19968;&#32500;&#25252;&#12290;
+						</div>
+						<p>
+							<a class="btn btn-primary" href="./set.php?mod=rebaterecharge"><i class="fa fa-gift"></i> &#21069;&#24448;&#20805;&#20540;&#36820;&#21033;&#35774;&#32622;</a>
+							<a class="btn btn-default" href="./kmlist.php"><i class="fa fa-credit-card"></i> &#21152;&#27454;&#21345;&#23494;&#21015;&#34920;</a>
+						</p>
+						<div style="display:none;">
 							<div class="form-group">
 								<label class="col-sm-3 control-label">开启加款卡充值</label>
 								<div class="col-sm-9"><select class="form-control" name="fenzhan_jiakuanka" default="<?php echo $conf["fenzhan_jiakuanka"];?>">
@@ -1311,7 +1319,7 @@ if ($mod == "cleanbom") {
 								<div class="col-sm-offset-3 col-sm-9"><input type="submit" name="submit" value="修改" class="btn btn-primary btn-block" />
 								</div>
 							</div>
-						</form>
+						</div>
 					</div>
 
 					<div class="tab-pane fade in" id="fenzhan_workorder">
@@ -3275,6 +3283,46 @@ if($epay_key4){
 			});
 		})
 	</script>
+	<?php
+	$qiandao_rows = $DB->getAll("SELECT q.*,s.user,s.power,s.sitename FROM pre_qiandao q LEFT JOIN pre_site s ON q.zid=s.zid ORDER BY q.id DESC LIMIT 50");
+	?>
+	<div class="block">
+		<div class="block-title">
+			<h3 class="panel-title">&#26368;&#36817;&#31614;&#21040;&#35760;&#24405;</h3>
+		</div>
+		<div class="table-responsive">
+			<table class="table table-striped table-bordered">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>ZID</th>
+						<th>&#29992;&#25143;</th>
+						<th>QQ</th>
+						<th>&#22870;&#21169;</th>
+						<th>&#36830;&#32493;</th>
+						<th>IP</th>
+						<th>&#31614;&#21040;&#26102;&#38388;</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php if(empty($qiandao_rows)){ ?>
+					<tr><td colspan="8" class="text-center text-muted">&#26242;&#26080;&#31614;&#21040;&#35760;&#24405;</td></tr>
+					<?php } else { foreach($qiandao_rows as $qrow) { ?>
+					<tr>
+						<td><?php echo intval($qrow['id']);?></td>
+						<td><a href="./sitelist.php?zid=<?php echo intval($qrow['zid']);?>"><?php echo intval($qrow['zid']);?></a></td>
+						<td><?php echo htmlspecialchars($qrow['user'] ? $qrow['user'] : '-', ENT_QUOTES);?><?php if($qrow['power'] > 0){ ?><span class="label label-info" style="margin-left:6px;">&#20998;&#31449;</span><?php } ?></td>
+						<td><?php echo htmlspecialchars($qrow['qq'], ENT_QUOTES);?></td>
+						<td><span class="text-danger">+<?php echo htmlspecialchars($qrow['reward'], ENT_QUOTES);?></span></td>
+						<td><?php echo intval($qrow['continue']);?>&#22825;</td>
+						<td><?php echo htmlspecialchars($qrow['ip'], ENT_QUOTES);?></td>
+						<td><?php echo htmlspecialchars($qrow['time'], ENT_QUOTES);?></td>
+					</tr>
+					<?php }} ?>
+				</tbody>
+			</table>
+		</div>
+	</div>
 <?php
 } elseif ($mod == "invitegift") {
 	adminpermission("set", 1);
@@ -4456,6 +4504,25 @@ $("select[name='fanghong_api']").change(function(){
 					<div class="form-group">
 						<label class="col-sm-2 control-label">返利比例</label>
 						<div class="col-sm-10"><input type="text" name="recharge_rebate_rate" value="<?php echo isset($conf["recharge_rebate_rate"]) ? $conf["recharge_rebate_rate"] : 3;?>" class="form-control" /> <span class="help-block">单位：%，例如：3 表示3%</span></div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">&#28385;&#22810;&#23569;&#25165;&#36865;</label>
+						<div class="col-sm-10"><input type="text" name="recharge_rebate_min" value="<?php echo isset($conf["recharge_rebate_min"]) ? $conf["recharge_rebate_min"] : 0;?>" class="form-control" /> <span class="help-block">&#30041;&#31354;&#25110;0&#34920;&#31034;&#19981;&#38480;&#21046;&#65292;&#20363;&#22914;100&#34920;&#31034;&#21333;&#27425;&#20805;&#20540;&#28385;100&#20803;&#25165;&#36865;&#12290;</span></div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">&#38454;&#26799;&#36820;&#21033;&#35268;&#21017;</label>
+						<div class="col-sm-10"><input type="text" name="recharge_rebate_rules" value="<?php echo isset($conf["recharge_rebate_rules"]) ? $conf["recharge_rebate_rules"] : (isset($conf["fenzhan_gift"]) ? $conf["fenzhan_gift"] : "");?>" class="form-control" placeholder="100:3|500:5|1000:8" /> <span class="help-block">&#20248;&#20808;&#32423;&#39640;&#20110;&#19978;&#38754;&#30340;&#22266;&#23450;&#27604;&#20363;&#65292;&#34920;&#31034;&#28385;100&#20803;&#36865;3%&#65292;&#28385;500&#20803;&#36865;5%&#12290;</span></div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">&#26368;&#20302;&#20805;&#20540;&#37329;&#39069;</label>
+						<div class="col-sm-10"><input type="text" name="recharge_min" value="<?php echo isset($conf["recharge_min"]) ? $conf["recharge_min"] : 0;?>" class="form-control" /> <span class="help-block">&#29992;&#25143;&#21069;&#31471;&#25552;&#20132;&#22312;&#32447;&#20805;&#20540;&#30340;&#26368;&#20302;&#37329;&#39069;&#12290;</span></div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">&#21152;&#27454;&#21345;&#20805;&#20540;</label>
+						<div class="col-sm-10"><select class="form-control" name="fenzhan_jiakuanka" default="<?php echo isset($conf["fenzhan_jiakuanka"]) ? $conf["fenzhan_jiakuanka"] : 0;?>">
+								<option value="0">&#20851;&#38381;</option>
+								<option value="1">&#24320;&#21551;</option>
+							</select><span class="help-block">&#21152;&#27454;&#21345;&#21644;&#21518;&#21488;&#25163;&#21160;&#21152;&#27454;&#20063;&#25353;&#26412;&#39029;&#35268;&#21017;&#35745;&#31639;&#36820;&#21033;&#12290;</span></div>
 					</div>
 					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-10"><input type="submit" name="submit" value="修改" class="btn btn-primary btn-block" />

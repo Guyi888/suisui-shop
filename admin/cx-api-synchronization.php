@@ -162,50 +162,200 @@ try {
 /**
  * 同步分类信息
  */
+function syncGenericCategoryValue($cat, $keys, $default = '')
+{
+    foreach ($keys as $key) {
+        if (isset($cat[$key]) && $cat[$key] !== '') return $cat[$key];
+    }
+    return $default;
+}
+
+function syncGenericCategoryChildren($cat)
+{
+    foreach (['sub', 'children', 'child', 'sons', 'items', 'list'] as $key) {
+        if (isset($cat[$key]) && is_array($cat[$key])) return $cat[$key];
+    }
+    return [];
+}
+
+function syncFlattenGenericCategories($categories, $parentRemoteId = 0, &$flat = null)
+{
+    if ($flat === null) $flat = [];
+    if (!is_array($categories)) return $flat;
+    foreach ($categories as $cat) {
+        if (!is_array($cat)) continue;
+        $remoteId = intval(syncGenericCategoryValue($cat, ['cid', 'id', 'category_id', 'categoryId', 'groupid', 'group_id'], 0));
+        $name = trim((string)syncGenericCategoryValue($cat, ['name', 'title', 'category_name', 'class_name'], ''));
+        if ($remoteId <= 0 || $name === '') continue;
+        $remotePid = intval(syncGenericCategoryValue($cat, ['upcid', 'pid', 'parent_id', 'parentId', 'pcid'], $parentRemoteId));
+        if ($remotePid <= 0 && $parentRemoteId > 0) $remotePid = intval($parentRemoteId);
+        $flat[] = [
+            'remote_cid' => $remoteId,
+            'remote_pid' => $remotePid,
+            'name' => $name,
+            'sort' => intval(syncGenericCategoryValue($cat, ['sort', 'order', 'rank'], 0)),
+            'active' => isset($cat['active']) ? intval($cat['active']) : 1,
+            'level' => $remotePid > 0 ? 1 : 0
+        ];
+        syncFlattenGenericCategories(syncGenericCategoryChildren($cat), $remoteId, $flat);
+    }
+    return $flat;
+}
+
+function syncSortGenericCategories($flat)
+{
+    $byId = [];
+    $children = [];
+    foreach ($flat as $index => $class) {
+        $remoteCid = intval($class['remote_cid']);
+        $remotePid = intval($class['remote_pid']);
+        $class['_index'] = $index;
+        $byId[$remoteCid] = $class;
+        if (!isset($children[$remotePid])) $children[$remotePid] = [];
+        $children[$remotePid][] = $remoteCid;
+    }
+
+    $sorted = [];
+    $visiting = [];
+    $visited = [];
+    $append = function ($remoteCid) use (&$append, &$byId, &$children, &$sorted, &$visiting, &$visited) {
+        $remoteCid = intval($remoteCid);
+        if (isset($visited[$remoteCid]) || isset($visiting[$remoteCid]) || !isset($byId[$remoteCid])) return;
+        $visiting[$remoteCid] = true;
+        $class = $byId[$remoteCid];
+        unset($class['_index']);
+        $sorted[] = $class;
+        $visited[$remoteCid] = true;
+        unset($visiting[$remoteCid]);
+        if (isset($children[$remoteCid])) {
+            foreach ($children[$remoteCid] as $childRemoteCid) $append($childRemoteCid);
+        }
+    };
+
+    foreach ($flat as $class) {
+        $remoteCid = intval($class['remote_cid']);
+        $remotePid = intval($class['remote_pid']);
+        if ($remotePid <= 0 || !isset($byId[$remotePid])) $append($remoteCid);
+    }
+    foreach ($flat as $class) $append(intval($class['remote_cid']));
+    return $sorted;
+}
+
+function syncApplyGenericCategories($shequId, $categories, $config)
+{
+    global $DB;
+    syncEnsureCategoryMapTable();
+    $flat = syncSortGenericCategories(syncFlattenGenericCategories($categories));
+    $map = [];
+    $added = 0;
+    $updated = 0;
+    foreach ($flat as $class) {
+        $remoteCid = intval($class['remote_cid']);
+        $remotePid = intval($class['remote_pid']);
+        $name = $class['name'];
+        $sort = intval($class['sort']);
+        $active = intval($class['active']);
+        $localPid = $remotePid > 0 && isset($map[$remotePid]) ? intval($map[$remotePid]) : 0;
+
+        $local = null;
+        $mapped = $DB->getRow("SELECT * FROM pre_sync_category_map WHERE shequ_id=:sid AND remote_cid=:rcid LIMIT 1", [':sid' => $shequId, ':rcid' => $remoteCid]);
+        if ($mapped) $local = $DB->getRow("SELECT * FROM pre_class WHERE cid=:cid LIMIT 1", [':cid' => $mapped['local_cid']]);
+        if (!$local) $local = $DB->getRow("SELECT * FROM pre_class WHERE name=:name AND pid=:pid LIMIT 1", [':name' => $name, ':pid' => $localPid]);
+
+        if ($local) {
+            $localCid = intval($local['cid']);
+            $changes = [];
+            $params = [':cid' => $localCid];
+            if (!empty($config['sync_sort']) && intval($local['sort']) !== $sort) {
+                $changes[] = 'sort=:sort';
+                $params[':sort'] = $sort;
+            }
+            if (!empty($config['sync_class']) && intval($local['pid']) !== $localPid) {
+                $changes[] = 'pid=:pid';
+                $params[':pid'] = $localPid;
+            }
+            if (!empty($changes)) {
+                $DB->exec("UPDATE pre_class SET " . implode(',', $changes) . " WHERE cid=:cid", $params);
+                $updated++;
+            }
+        } elseif (!empty($config['add_class'])) {
+            $DB->exec("INSERT INTO pre_class (`zid`,`pid`,`sort`,`name`,`active`) VALUES (0,:pid,:sort,:name,:active)", [
+                ':pid' => $localPid,
+                ':sort' => $sort,
+                ':name' => $name,
+                ':active' => $active
+            ]);
+            $localCid = intval($DB->lastInsertId());
+            $added++;
+        } else {
+            continue;
+        }
+
+        $DB->exec("INSERT INTO pre_sync_category_map (`shequ_id`,`remote_cid`,`remote_pid`,`local_cid`,`name`,`level`,`addtime`,`uptime`) VALUES (:sid,:rcid,:rpid,:lcid,:name,:level,NOW(),NOW())
+            ON DUPLICATE KEY UPDATE remote_pid=VALUES(remote_pid),local_cid=VALUES(local_cid),name=VALUES(name),level=VALUES(level),uptime=VALUES(uptime)", [
+            ':sid' => $shequId,
+            ':rcid' => $remoteCid,
+            ':rpid' => $remotePid,
+            ':lcid' => $localCid,
+            ':name' => $name,
+            ':level' => intval($class['level'])
+        ]);
+        $map[$remoteCid] = $localCid;
+    }
+    return ['added' => $added, 'updated' => $updated, 'map' => $map, 'flat' => $flat];
+}
+
+function syncBuildGenericCategoryLookup($shequId, $categories)
+{
+    global $DB;
+    syncEnsureCategoryMapTable();
+    $flat = syncSortGenericCategories(syncFlattenGenericCategories($categories));
+    $remoteNames = [];
+    $remoteLocal = [];
+    foreach ($flat as $class) {
+        $remoteCid = intval($class['remote_cid']);
+        $remoteNames[$remoteCid] = $class['name'];
+    }
+    if (!empty($remoteNames)) {
+        $ids = array_keys($remoteNames);
+        foreach (array_chunk($ids, 300) as $chunk) {
+            $placeholders = implode(',', array_fill(0, count($chunk), '?'));
+            $params = array_merge([$shequId], $chunk);
+            $rs = $DB->query("SELECT remote_cid,local_cid FROM pre_sync_category_map WHERE shequ_id=? AND remote_cid IN ({$placeholders})", $params);
+            while ($row = $rs->fetch()) $remoteLocal[intval($row['remote_cid'])] = intval($row['local_cid']);
+        }
+    }
+    return ['names' => $remoteNames, 'local' => $remoteLocal];
+}
+
+function syncResolveGenericProductCid($product, $detail, $lookup)
+{
+    foreach ([$product, $detail] as $row) {
+        if (!is_array($row)) continue;
+        $remoteCid = intval(syncGenericCategoryValue($row, ['cid', 'category_id', 'categoryId', 'class_id', 'classid'], 0));
+        if ($remoteCid > 0 && isset($lookup['local'][$remoteCid])) return intval($lookup['local'][$remoteCid]);
+    }
+    return 0;
+}
+
 function syncCategories($shequ, $config, $task) {
     global $DB, $date, $conf;
 
     try {
-        // 使用 third_call 函数调用插件方法
         $categories = third_call($shequ['type'], $shequ, 'class_list');
-
-        // 检查分类列表是否为数组
         if(!is_array($categories)) {
             $task->updateProgress("获取分类列表失败: {$categories}");
             return;
         }
-
         if(empty($categories)) {
             $task->updateProgress("未获取到分类数据");
             return;
         }
 
-        $added = 0;
-        $updated = 0;
-
-        foreach($categories as $cat) {
-            // 检查分类是否已存在
-            $existing_cat = $DB->getRow("SELECT * FROM pre_class WHERE `name`=? LIMIT 1", [$cat['name']]);
-
-            if($existing_cat) {
-                // 更新分类
-                if($config['sync_sort'] && $existing_cat['sort'] != ($cat['sort'] ?? 0)) {
-                    $sort = intval($cat['sort'] ?? 0);
-                    $name = addslashes($cat['name']);
-                    $DB->exec("UPDATE `pre_class` SET `sort`='{$sort}' WHERE `cid`='{$existing_cat['cid']}'");
-                    $updated++;
-                }
-            } elseif($config['add_class']) {
-                // 新增分类
-                $sort = intval($cat['sort'] ?? 0);
-                $name = addslashes($cat['name']);
-                $DB->exec("INSERT INTO `pre_class` (`sort`,`name`,`pid`,`active`) VALUES ('{$sort}','{$name}','0','1')");
-                $added++;
-            }
-        }
-
+        $syncCategoryResult = syncApplyGenericCategories(intval($shequ['id']), $categories, $config);
+        $added = intval($syncCategoryResult['added']);
+        $updated = intval($syncCategoryResult['updated']);
         $task->updateProgress("分类同步完成: 新增{$added}, 更新{$updated}");
-
     } catch(Exception $e) {
         $task->updateProgress("分类同步失败: " . $e->getMessage());
     }
@@ -242,10 +392,10 @@ function syncProducts($shequ, $config, $task) {
         // 预加载分类信息，减少重复查询
         $categories = third_call($shequ['type'], $shequ, 'class_list');
         $category_map = [];
+        $category_lookup = ['names' => [], 'local' => []];
         if(is_array($categories)) {
-            foreach($categories as $cat) {
-                $category_map[$cat['cid']] = $cat['name'];
-            }
+            $category_lookup = syncBuildGenericCategoryLookup(intval($shequ['id']), $categories);
+            $category_map = $category_lookup['names'];
         }
 
         // 预加载加价模板，减少重复查询
@@ -406,10 +556,10 @@ function syncProducts($shequ, $config, $task) {
                         }
 
                         // 查找对应的本地分类
-                        $cid = 0;
+                        $cid = syncResolveGenericProductCid($product, $product_detail, $category_lookup);
                         $class_name = $product_detail['class_name'] ?? $product_detail['category'] ?? '';
 
-                        if(!empty($class_name)) {
+                        if($cid == 0 && !empty($class_name)) {
                             $class_info = $DB->getRow("SELECT * FROM pre_class WHERE `name`=? LIMIT 1", [$class_name]);
                             if($class_info) {
                                 $cid = $class_info['cid'];
@@ -604,6 +754,13 @@ function syncProducts($shequ, $config, $task) {
                 if($config['sync_price']) {
                     $update_data['price'] = $price;
                     $update_data['cost'] = floatval($cost_price);
+                }
+
+                if($config['sync_class']) {
+                    $resolvedCid = syncResolveGenericProductCid($product, $cached_detail, $category_lookup);
+                    if($resolvedCid > 0 && $resolvedCid != intval($existing_product['cid'])) {
+                        $update_data['cid'] = $resolvedCid;
+                    }
                 }
 
                 // 同步商品名称
@@ -873,6 +1030,15 @@ function syncDaishuaFull($shequ, $config, $task) {
 
     syncEnsureLogTables();
     syncEnsureCategoryMapTable();
+    $lockName = 'q8_daishua_sync_' . intval($shequ['id']);
+    $locked = intval($DB->getColumn("SELECT GET_LOCK(:lock_name, 5)", array(':lock_name' => $lockName)));
+    if($locked !== 1) {
+        throw new Exception('another sync task is running for this supplier');
+    }
+    register_shutdown_function(function() use ($DB, $lockName) {
+        $DB->getColumn("SELECT RELEASE_LOCK(:lock_name)", array(':lock_name' => $lockName));
+    });
+    syncDeduplicateDaishuaTools(intval($shequ['id']));
 
     $classes = syncDaishuaApi($shequ, 'classlist');
     $goods = syncDaishuaApi($shequ, 'goodslist');
@@ -885,6 +1051,7 @@ function syncDaishuaFull($shequ, $config, $task) {
 
     $classMap = syncDaishuaCategories($shequ['id'], $classes['data'], $task);
     $goodsResult = syncDaishuaProducts($shequ, $config, $goods['data'], $classMap, $task);
+    $DB->getColumn("SELECT RELEASE_LOCK(:lock_name)", array(':lock_name' => $lockName));
     return $goodsResult;
 }
 
@@ -975,6 +1142,84 @@ function syncEnsureLogTables() {
         KEY `date` (`date`),
         KEY `active` (`active`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function syncDeduplicateDaishuaTools($shequId) {
+    global $DB;
+
+    $shequId = intval($shequId);
+    if($shequId <= 0) return 0;
+
+    $groups = $DB->getAll("SELECT goods_id,COUNT(*) AS total FROM pre_tools WHERE shequ=:shequ AND goods_id>0 GROUP BY goods_id HAVING total>1 LIMIT 5000", array(':shequ' => $shequId));
+    if(empty($groups)) return 0;
+
+    $removed = 0;
+    foreach($groups as $group) {
+        $goodsId = intval($group['goods_id']);
+        if($goodsId <= 0) continue;
+
+        $rows = $DB->getAll("SELECT tid,active,close,addtime,uptime FROM pre_tools WHERE shequ=:shequ AND goods_id=:goods_id ORDER BY tid ASC", array(':shequ' => $shequId, ':goods_id' => $goodsId));
+        if(count($rows) < 2) continue;
+
+        $tids = array();
+        foreach($rows as $row) {
+            $tid = intval($row['tid']);
+            if($tid > 0) $tids[] = $tid;
+        }
+        if(count($tids) < 2) continue;
+
+        $orderCounts = syncDaishuaCountReferences('pre_orders', 'tid', $tids);
+        $priceCounts = syncDaishuaCountReferences('pre_site_price', 'tid', $tids);
+        $keepTid = 0;
+        $keepScore = null;
+
+        foreach($rows as $row) {
+            $tid = intval($row['tid']);
+            $score = intval(isset($orderCounts[$tid]) ? $orderCounts[$tid] : 0) * 100000;
+            $score += intval(isset($priceCounts[$tid]) ? $priceCounts[$tid] : 0) * 1000;
+            if(intval($row['active']) == 1 && intval($row['close']) == 0) $score += 100;
+            $score -= $tid / 1000000;
+            if($keepScore === null || $score > $keepScore) {
+                $keepScore = $score;
+                $keepTid = $tid;
+            }
+        }
+
+        if($keepTid <= 0) continue;
+        $deleteTids = array_values(array_diff($tids, array($keepTid)));
+        if(empty($deleteTids)) continue;
+        $deleteList = implode(',', array_map('intval', $deleteTids));
+
+        $DB->exec("UPDATE pre_orders SET tid=:keep_tid WHERE tid IN ({$deleteList})", array(':keep_tid' => $keepTid));
+        $DB->exec("UPDATE pre_site_price SET tid=:keep_tid WHERE tid IN ({$deleteList})", array(':keep_tid' => $keepTid));
+        $DB->exec("DELETE FROM pre_tools WHERE tid IN ({$deleteList})");
+        $removed += count($deleteTids);
+    }
+
+    return $removed;
+}
+
+function syncDaishuaCountReferences($table, $field, $ids) {
+    global $DB;
+
+    $safeTable = preg_match('/^pre_[a-z0-9_]+$/i', $table) ? $table : '';
+    $safeField = preg_match('/^[a-z0-9_]+$/i', $field) ? $field : '';
+    $ids = array_values(array_unique(array_filter(array_map('intval', (array)$ids))));
+    if($safeTable === '' || $safeField === '' || empty($ids)) return array();
+
+    $result = array();
+    foreach(array_chunk($ids, 800) as $chunk) {
+        $list = implode(',', $chunk);
+        try {
+            $rs = $DB->query("SELECT {$safeField} AS ref_id,COUNT(*) AS total FROM {$safeTable} WHERE {$safeField} IN ({$list}) GROUP BY {$safeField}");
+            while($row = $rs->fetch()) {
+                $result[intval($row['ref_id'])] = intval($row['total']);
+            }
+        } catch (Exception $e) {
+            return array();
+        }
+    }
+    return $result;
 }
 
 function syncNormalizeImage($shequ, $path) {
@@ -1075,12 +1320,21 @@ function syncRepairDaishuaCategoryAssignments($shequ, $config, $remoteGoods, $cl
     return ['fixed' => $fixed, 'to_unclassified' => $toUnclassified, 'samples' => $samples];
 }
 
+function syncDaishuaClassParentId($class) {
+    foreach(['upcid', 'pid', 'parent_id', 'parentId', 'pcid'] as $key) {
+        if(isset($class[$key]) && intval($class[$key]) > 0) {
+            return intval($class[$key]);
+        }
+    }
+    return 0;
+}
+
 function syncDaishuaCategories($shequId, $remoteClasses, $task) {
     global $DB, $date;
 
     usort($remoteClasses, function($a, $b) {
-        $ap = intval(isset($a['upcid']) ? $a['upcid'] : 0);
-        $bp = intval(isset($b['upcid']) ? $b['upcid'] : 0);
+        $ap = syncDaishuaClassParentId($a);
+        $bp = syncDaishuaClassParentId($b);
         if($ap == 0 && $bp != 0) return -1;
         if($ap != 0 && $bp == 0) return 1;
         $as = intval(isset($a['sort']) ? $a['sort'] : 0);
@@ -1099,7 +1353,7 @@ function syncDaishuaCategories($shequId, $remoteClasses, $task) {
         foreach($remoteClasses as $class) {
             $remoteCid = intval($class['cid']);
             if(isset($map[$remoteCid])) continue;
-            $remotePid = intval(isset($class['upcid']) ? $class['upcid'] : 0);
+            $remotePid = syncDaishuaClassParentId($class);
             if($remotePid > 0 && !isset($map[$remotePid])) {
                 $deferred[$remoteCid] = $class;
                 continue;
@@ -1187,8 +1441,12 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
 
     $ids = [];
     foreach($remoteGoods as $g) {
-        if(isset($g['tid'])) $ids[] = intval($g['tid']);
+        if(isset($g['tid'])) {
+            $gid = intval($g['tid']);
+            if($gid > 0) $ids[$gid] = $gid;
+        }
     }
+    $ids = array_values($ids);
     $existing = [];
     if(!empty($ids)) {
         foreach(array_chunk($ids, 800) as $chunk) {
@@ -1211,9 +1469,11 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
 
     foreach($remoteGoods as $g) {
         if(!isset($g['tid'])) continue;
-        $scanned++;
         $gid = intval($g['tid']);
-        $seen[] = $gid;
+        if($gid <= 0) continue;
+        if(isset($seen[$gid])) continue;
+        $seen[$gid] = $gid;
+        $scanned++;
         $old = isset($existing[$gid]) ? $existing[$gid] : null;
         $remoteCid = intval(isset($g['cid']) ? $g['cid'] : 0);
         $categoryTarget = syncResolveDaishuaCategory($config, $classMap, $remoteCid, $old ? intval($old['cid']) : 0);
@@ -1334,7 +1594,14 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
                 ':uptime'=>$date
             ];
             $DB->exec("INSERT INTO pre_tools (`sort`,`cid`,`name`,`price`,`cost`,`cost2`,`prid`,`prices`,`input`,`inputs`,`desc`,`alert`,`shopimg`,`value`,`is_curl`,`curl`,`shequ`,`goods_id`,`goods_type`,`goods_param`,`repeat`,`multi`,`min`,`max`,`validate`,`valiserv`,`close`,`active`,`stock`,`addtime`,`uptime`) VALUES (:sort,:cid,:name,:price,:cost,:cost2,:prid,:prices,:input,:inputs,:desc,:alert,:shopimg,:value,2,'',:shequ,:goods_id,:goods_type,'',:repeat,:multi,:min,:max,:validate,:valiserv,:close,:active,:stock,:addtime,:uptime)", $insert);
-            $newTid = intval($DB->getColumn("SELECT tid FROM pre_tools WHERE shequ=:shequ AND goods_id=:goods_id ORDER BY tid DESC LIMIT 1", [':shequ'=>$shequ, ':goods_id'=>$gid]));
+            $newTid = intval($DB->lastInsertId());
+            if($newTid <= 0) {
+                $newTid = intval($DB->getColumn("SELECT tid FROM pre_tools WHERE shequ=:shequ AND goods_id=:goods_id ORDER BY tid DESC LIMIT 1", [':shequ'=>intval($shequ['id']), ':goods_id'=>$gid]));
+            }
+            if($newTid > 0) {
+                $newRow = $DB->getRow("SELECT * FROM pre_tools WHERE tid=:tid LIMIT 1", [':tid'=>$newTid]);
+                if($newRow) $existing[$gid] = $newRow;
+            }
             if($remoteClose == 0) syncAddPublicToolLog('online', $name, $newTid);
             $synced++;
         }

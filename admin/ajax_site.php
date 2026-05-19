@@ -56,6 +56,7 @@ switch($act){
         if($remark)$addstr = '（'.$remark.'）';
         if($do==0){
             changeUserMoney($zid, $rmb, true, '加款', '后台加款'.$rmb.'元'.$addstr);
+            if(function_exists('q8_grant_recharge_rebate')) q8_grant_recharge_rebate($zid, $rmb, 'admin');
         }else{
             changeUserMoney($zid, $rmb, false, '扣除', '后台扣款'.$rmb.'元'.$addstr);
         }

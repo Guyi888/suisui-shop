@@ -24,7 +24,7 @@ if($admin_cdnpublic==1){
 $isAdminLoginPage = basename($_SERVER['SCRIPT_NAME']) === 'login.php';
 $isAdminIndexPage = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
 $isAdminCustomCssPage = basename($_SERVER['SCRIPT_NAME']) === 'customcss.php';
-$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519suisuiops01';
+$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519suisuiops03';
 $adminCsrfToken = q8_admin_csrf_token();
 $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
 ?>
@@ -60,9 +60,9 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
     <script src="<?php echo $cdnpublic?>respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
   <!-- Google Fonts - 动态加载，仅在需要时加载 -->
-  <?php if($conf['font_beautify'] == 1){ 
+  <?php if($conf['font_beautify'] == 1){
       $font_family = $conf['font_family'] ?? 'default';
-      
+
       // 定义需要Google Fonts的字体映射
       $google_fonts = [
           'playfair' => 'Playfair+Display:wght@400;700',
@@ -73,7 +73,7 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
           'raleway' => 'Raleway:wght@300;400;500;700',
           'oswald' => 'Oswald:wght@300;400;500;700'
       ];
-      
+
       // 如果用户选择了需要Google Fonts的字体，则加载相应字体
       if(isset($google_fonts[$font_family])){
           $font_param = $google_fonts[$font_family];
@@ -161,14 +161,14 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
     a, button, input, select, textarea {
       cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffaaa5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>'), pointer;
     }
-    <?php 
+    <?php
     }
     ?>
   </style>
-  <?php 
+  <?php
   }
   ?>
-  
+
   <!-- 字体美化效果 -->
   <?php if($conf['font_beautify'] == 1){
       $font_family = $conf['font_family'] ?? 'default';
@@ -204,7 +204,7 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
       font-size: <?php echo $font_size; ?>;
       color: <?php echo $font_color; ?>;
     }
-    
+
     /* 确保所有文本元素都继承字体样式 */
     h1, h2, h3, h4, h5, h6, p, a, span, div, input, button, select, textarea, li {
       font-family: inherit;
@@ -214,10 +214,10 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
     <?php }
     ?>
   </style>
-  <?php 
+  <?php
   }
   ?>
-  
+
   <!-- 背景美化效果 -->
   <?php if($conf['background_enable'] == 1){
       $background_type = $conf['background_type'] ?? 'particles';
@@ -239,7 +239,7 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
       height: 100%;
       z-index: -1;
     }
-    
+
     /* 渐变背景样式 */
     .gradient-background {
       position: fixed;
@@ -251,7 +251,7 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
       background: linear-gradient(<?php echo $gradientDirection; ?>, <?php echo $ui_color1; ?> 0%, <?php echo $ui_color2; ?> 100%);
       animation: gradient-animation <?php echo 20 - ($background_speed * 1.5); ?>s ease infinite;
     }
-    
+
     @keyframes gradient-animation {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -268,7 +268,7 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
       const uiColor1 = '<?php echo $ui_color1; ?>';
       const uiColor2 = '<?php echo $ui_color2; ?>';
       const uiColorto = <?php echo $ui_colorto; ?>;
-      
+
       // 创建背景容器
       function createBackground() {
         if (backgroundType === 'gradient') {
@@ -317,11 +317,11 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
           const canvas = document.createElement('canvas');
           canvas.id = 'background-canvas';
           document.body.appendChild(canvas);
-          
+
           const ctx = canvas.getContext('2d');
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
-          
+
           // 根据背景类型绘制不同效果
           if (backgroundType === 'particles') {
             drawParticles(ctx, canvas, backgroundSpeed, backgroundColor);
@@ -333,12 +333,12 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
           }
         }
       }
-      
+
       // 粒子效果
       function drawParticles(ctx, canvas, speed, color) {
         const particles = [];
         const particleCount = 100;
-        
+
         // 初始化粒子
         for (let i = 0; i < particleCount; i++) {
           particles.push({
@@ -350,16 +350,16 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
             speedY: (Math.random() - 0.5) * (speed / 2)
           });
         }
-        
+
         // 动画循环
         function animate() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          
+
           particles.forEach(particle => {
             // 更新位置
             particle.x += particle.speedX;
             particle.y += particle.speedY;
-            
+
             // 边界检测
             if (particle.x < 0 || particle.x > canvas.width) {
               particle.speedX *= -1;
@@ -367,21 +367,21 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
             if (particle.y < 0 || particle.y > canvas.height) {
               particle.speedY *= -1;
             }
-            
+
             // 绘制粒子
             ctx.beginPath();
             ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
             ctx.fillStyle = particle.color;
             ctx.fill();
           });
-          
+
           // 绘制连接线
           for (let i = 0; i < particles.length; i++) {
             for (let j = i + 1; j < particles.length; j++) {
               const dx = particles[i].x - particles[j].x;
               const dy = particles[i].y - particles[j].y;
               const distance = Math.sqrt(dx * dx + dy * dy);
-              
+
               if (distance < 100) {
                 ctx.beginPath();
                 ctx.strokeStyle = `${color}${Math.floor((1 - distance / 100) * 50).toString(16).padStart(2, '0')}`;
@@ -392,60 +392,60 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
               }
             }
           }
-          
+
           requestAnimationFrame(animate);
         }
-        
+
         animate();
       }
-      
+
       // 黑客效果
       function drawMatrix(ctx, canvas, speed) {
         const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
         const fontSize = 14;
         const columns = Math.floor(canvas.width / fontSize);
         const drops = [];
-        
+
         // 初始化雨滴位置
         for (let i = 0; i < columns; i++) {
           drops[i] = 1;
         }
-        
+
         // 动画循环
         function animate() {
           // 半透明黑色背景
           ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          
+
           // 绿色文字
           ctx.fillStyle = '#0f0';
           ctx.font = `${fontSize}px monospace`;
-          
+
           // 绘制字符
           for (let i = 0; i < drops.length; i++) {
             const text = chars[Math.floor(Math.random() * chars.length)];
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            
+
             // 随机重置雨滴位置
             if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
               drops[i] = 0;
             }
-            
+
             // 移动雨滴
             drops[i] += speed / 10;
           }
-          
+
           requestAnimationFrame(animate);
         }
-        
+
         animate();
       }
-      
+
       // 气泡效果
       function drawBubbles(ctx, canvas, speed, color) {
         const bubbles = [];
         const bubbleCount = 50;
-        
+
         // 初始化气泡
         for (let i = 0; i < bubbleCount; i++) {
           bubbles.push({
@@ -458,16 +458,16 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
             opacity: Math.random() * 0.5 + 0.1
           });
         }
-        
+
         // 动画循环
         function animate() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          
+
           bubbles.forEach(bubble => {
             // 更新位置
             bubble.y += bubble.speedY;
             bubble.x += bubble.speedX;
-            
+
             // 边界检测
             if (bubble.y < -bubble.radius) {
               bubble.y = canvas.height + bubble.radius;
@@ -476,26 +476,26 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
             if (bubble.x < -bubble.radius || bubble.x > canvas.width + bubble.radius) {
               bubble.x = Math.random() * canvas.width;
             }
-            
+
             // 绘制气泡
             ctx.beginPath();
             ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
             ctx.fillStyle = `${bubble.color}${Math.floor(bubble.opacity * 255).toString(16).padStart(2, '0')}`;
             ctx.fill();
-            
+
             // 绘制气泡高光
             ctx.beginPath();
             ctx.arc(bubble.x - bubble.radius * 0.3, bubble.y - bubble.radius * 0.3, bubble.radius * 0.2, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(255, 255, 255, ${bubble.opacity * 0.8})`;
             ctx.fill();
           });
-          
+
           requestAnimationFrame(animate);
         }
-        
+
         animate();
       }
-      
+
       // 窗口大小改变时重新调整canvas大小
       window.addEventListener('resize', function() {
         const canvas = document.getElementById('background-canvas');
@@ -504,12 +504,12 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
           canvas.height = window.innerHeight;
         }
       });
-      
+
       // 创建背景
       createBackground();
     });
   </script>
-  <?php 
+  <?php
   }
   ?>
   <?php echo function_exists('q8_render_custom_css') ? q8_render_custom_css('admin') : ''; ?>
@@ -525,7 +525,7 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
 </div>
 <div class="admin-bg-img"></div>
 <!-- BTPanel风格全局应用，保留原有PHP逻辑和内容输出区域 -->
-<?php if($islogin==1){?> 
+<?php if($islogin==1){?>
     <div class="modal fade admin-search-modal" id="searchResultsModal" tabindex="-1" role="dialog" aria-labelledby="searchResultsModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -552,7 +552,7 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
     // 全局变量
     var globalChatLastUnread = 0;
     var globalChatPollingTimer = null;
-    
+
     // 检查新消息
     function checkGlobalChatMessages() {
         $.get('ajax.php?act=chat_session_list', function(res) {
@@ -561,7 +561,7 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
                 res.data.forEach(function(item) {
                     totalUnread += parseInt(item.unread || 0);
                 });
-                
+
                 // 如果有新消息，播放声音
                 if(totalUnread > globalChatLastUnread) {
                     var audio = document.getElementById('global-chat-notification');
@@ -571,19 +571,19 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
                         });
                     }
                 }
-                
+
                 globalChatLastUnread = totalUnread;
             }
         },'json');
     }
-    
+
     // 启动全局轮询
     function startGlobalChatPolling() {
         if(globalChatPollingTimer) clearInterval(globalChatPollingTimer);
         // 每5秒检查一次
         globalChatPollingTimer = setInterval(checkGlobalChatMessages, 5000);
     }
-    
+
     // 页面加载完成后启动轮询
     $(document).ready(function() {
         startGlobalChatPolling();
@@ -1259,6 +1259,17 @@ $renderMenuBadge = function($value) {
 </li>
 
 
+<li>
+	<a class="<?php echo checkIfActive('changelog')?>" href="./changelog.php">
+		<i class="fa fa-list-alt sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">&#26356;&#26032;&#26085;&#24535;</span>
+	</a>
+</li>
+<li>
+	<a class="<?php echo checkIfActive('support')?>" href="./support.php">
+		<i class="fa fa-paper-plane sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">&#32852;&#31995;&#36190;&#21161;</span>
+	</a>
+</li>
+
 <?php echo q8_render_action('admin_sidebar_after_menu', array('script' => basename($_SERVER['SCRIPT_NAME']), 'title' => $title)); ?>
                         </ul>
                     </div>
@@ -1274,9 +1285,9 @@ $renderMenuBadge = function($value) {
             </div>
             <div id="main-container">
                 <header class="navbar navbar-inverse navbar-fixed-top">
- 
+
 <ul class="nav navbar-nav-custom">
- 
+
 <li>
 <a href="javascript:void(0)" onclick="App.sidebar('toggle-sidebar');this.blur();">
 <i class="fa fa-ellipsis-v fa-fw animation-fadeInRight" id="sidebar-toggle-mini"></i>
@@ -1302,10 +1313,10 @@ $renderMenuBadge = function($value) {
 </div>
 </div>
 </li>
- 
+
 </ul>
- 
- 
+
+
 <ul class="nav navbar-nav-custom pull-right">
 <li>
 <a href="javascript:void(0)" onclick="App.sidebar('toggle-sidebar-alt');this.blur();">

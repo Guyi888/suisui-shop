@@ -7,6 +7,7 @@ $title='余额提现';
 include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
+<link rel="stylesheet" href="./public/css/blue_theme.css">
 <div class="wrapper">
 <div class="col-xs-12">
 <?php
@@ -41,7 +42,7 @@ $money=daddslashes(strip_tags($_POST['money']));
 if(!is_numeric($money) || !preg_match('/^[0-9.]+$/', $money))showmsg('提现金额输入不规范',3);
 $realmoney = round($money*$conf['tixian_rate']/100,2);
 if($conf['fenzhan_skimg']==1 && !file_exists(ROOT.'assets/img/skimg/sk_'.$userrow['zid'].'.png')){
-	exit("<script language='javascript'>alert('您还未上传收款图！');window.location.href='uset.php?mod=skimg';</script>");
+exit("<script language='javascript'>alert('您还未上传收款图！');window.location.href='usetmoban.php?mod=skimg';</script>");
 }elseif(empty($userrow['pay_account']) || empty($userrow['pay_name'])){
 	exit("<script language='javascript'>alert('您还未设置收款账号！');history.go(-1);</script>");
 }
@@ -83,13 +84,13 @@ $numrows=$DB->getColumn("SELECT count(*) FROM pre_tixian WHERE zid='{$userrow['z
 		<br>
 		当前收款图：<img onclick="img('<?php echo $userrow['zid'] ?>')"  width="100" src="<?php echo '../assets/img/skimg/sk_'.$userrow['zid'].'.png' ?>">
 		<hr>
-		<a href="uset.php?mod=skimg" class="btn btn-warning btn-sm">修改收款图</a>&nbsp;&nbsp;<a href="uset.php?mod=user" class="btn btn-info btn-sm">修改提现方式</a>
+<a href="usetmoban.php?mod=skimg" class="btn btn-warning btn-sm">修改收款图</a>&nbsp;&nbsp;<a href="usetmoban.php?mod=user" class="btn btn-info btn-sm">修改提现方式</a>
 	<?php }elseif($conf['fenzhan_skimg']==1){?>
-		请先上传收款图！ <a href="uset.php?mod=skimg" class="btn btn-warning btn-sm">点此上传</a>
+请先上传收款图！ <a href="usetmoban.php?mod=skimg" class="btn btn-warning btn-sm">点此上传</a>
 	<?php }elseif(!empty($userrow['pay_account']) && !empty($userrow['pay_name'])){?>
-		已绑定结算账号信息：结算方式：<?php echo display_type($userrow['pay_type']); ?> 账号：<?php echo $userrow['pay_account']; ?> 姓名：<?php echo $userrow['pay_name']; ?> <a href="uset.php?mod=user" class="btn btn-warning btn-sm">修改绑定</a>
+已绑定结算账号信息：结算方式：<?php echo display_type($userrow['pay_type']); ?> 账号：<?php echo $userrow['pay_account']; ?> 姓名：<?php echo $userrow['pay_name']; ?> <a href="usetmoban.php?mod=user" class="btn btn-warning btn-sm">修改绑定</a>
 	<?php }else{?>
-		请先绑定收款账号！ <a href="uset.php?mod=user" class="btn btn-warning btn-sm">点此设置</a>
+请先绑定收款账号！ <a href="usetmoban.php?mod=user" class="btn btn-warning btn-sm">点此设置</a>
 	<?php }?>
 	</div>
 	<div class="list-group-item list-group-item-warning">

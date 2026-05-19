@@ -1,8 +1,8 @@
 <?php
 /**
  * 登录页面 - 美化版
- * 官网：t.me/qqfaka
- * TG：@qqfaka
+ * 博客地址: zhonguo.ren
+ * QQ群: 915043052
 **/
 $is_defend=true;
 include("../includes/common.php");
@@ -18,15 +18,7 @@ if(isset($_GET['logout'])){
 $title='用户登录';
 
 // 设置CDN路径
-if($conf['cdnpublic']==1){
-	$cdnpublic = '//lib.baomitu.com/';
-}elseif($conf['cdnpublic']==2){
-	$cdnpublic = 'https://cdn.bootcdn.net/ajax/libs/';
-}elseif($conf['cdnpublic']==4){
-	$cdnpublic = '//s1.pstatp.com/cdn/expire-1-M/';
-}else{
-	$cdnpublic = '//lib.baomitu.com/';
-}
+$cdnpublic = '../assets/vendor/';
 ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -174,9 +166,9 @@ if($conf['cdnpublic']==1){
         </div>
     </div>
 
-    <script src="<?php echo $cdnpublic?>jquery/1.12.4/jquery.min.js"></script>
-    <script src="<?php echo $cdnpublic?>layer/2.3/layer.js"></script>
-    <script src="../assets/js/login.js?ver=<?php echo VERSION ?>"></script>
-    <script src="../assets/js/login-new.js"></script>
+    <script src="../assets/vendor/jquery/1.12.4/jquery.min.js?v=q8vendor1"></script>
+    <script src="../assets/Agod/layer.js"></script>
+    <script src="../assets/js/login.js?ver=<?php echo VERSION ?>-q8fix4"></script>
+    <script src="../assets/js/login-new.js?ver=q8pw1"></script>
 </body>
 </html>
