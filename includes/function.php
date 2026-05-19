@@ -250,7 +250,7 @@ function q8_template_name_for_save($template)
 
 }
 
-function q8_template_name_resolve($template, $fallback = 'default')
+function q8_template_name_resolve($template, $fallback = 'XHY-01')
 {
 
 	$template = trim((string)$template);

@@ -89,29 +89,29 @@ $toolLogAssetVersion = isset($adminAssetVersion) ? $adminAssetVersion : ((define
     </section>
 
     <section class="admin-toollogs-stats">
-        <article class="admin-toollogs-stat">
-            <span class="admin-toollogs-stat__icon admin-toollogs-stat__icon--primary"><i class="fa fa-history"></i></span>
+        <article class="admin-toollogs-stat admin-ui-stat">
+            <span class="admin-toollogs-stat__icon admin-toollogs-stat__icon--primary admin-ui-stat__icon"><i class="fa fa-history"></i></span>
             <div>
                 <span>动态分组总数</span>
                 <strong><?php echo intval($toolLogStats['total_groups']); ?></strong>
             </div>
         </article>
-        <article class="admin-toollogs-stat">
-            <span class="admin-toollogs-stat__icon admin-toollogs-stat__icon--success"><i class="fa fa-arrow-up"></i></span>
+        <article class="admin-toollogs-stat admin-ui-stat">
+            <span class="admin-toollogs-stat__icon admin-toollogs-stat__icon--success admin-ui-stat__icon"><i class="fa fa-arrow-up"></i></span>
             <div>
                 <span>今日上架记录</span>
                 <strong><?php echo intval($toolLogStats['online_today']); ?></strong>
             </div>
         </article>
-        <article class="admin-toollogs-stat">
-            <span class="admin-toollogs-stat__icon admin-toollogs-stat__icon--warning"><i class="fa fa-arrow-down"></i></span>
+        <article class="admin-toollogs-stat admin-ui-stat">
+            <span class="admin-toollogs-stat__icon admin-toollogs-stat__icon--warning admin-ui-stat__icon"><i class="fa fa-arrow-down"></i></span>
             <div>
                 <span>今日下架记录</span>
                 <strong><?php echo intval($toolLogStats['offline_today']); ?></strong>
             </div>
         </article>
-        <article class="admin-toollogs-stat">
-            <span class="admin-toollogs-stat__icon admin-toollogs-stat__icon--accent"><i class="fa fa-calendar"></i></span>
+        <article class="admin-toollogs-stat admin-ui-stat">
+            <span class="admin-toollogs-stat__icon admin-toollogs-stat__icon--accent admin-ui-stat__icon"><i class="fa fa-calendar"></i></span>
             <div>
                 <span>今日动态分组</span>
                 <strong><?php echo intval($toolLogStats['today_groups']); ?></strong>

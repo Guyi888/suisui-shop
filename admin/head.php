@@ -24,7 +24,7 @@ if($admin_cdnpublic==1){
 $isAdminLoginPage = basename($_SERVER['SCRIPT_NAME']) === 'login.php';
 $isAdminIndexPage = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
 $isAdminCustomCssPage = basename($_SERVER['SCRIPT_NAME']) === 'customcss.php';
-$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519suisuiops03';
+$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519suisuiops04';
 $adminCsrfToken = q8_admin_csrf_token();
 $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
 ?>
@@ -927,7 +927,7 @@ $renderMenuBadge = function($value) {
 	</ul>
 </li>
 
-<li class="<?php echo checkIfActive('record,tixian,profit,kmlist,pay,epay,rebaterecharge')?>">
+<li class="<?php echo checkIfActive('record,tixian,profit,kmlist,pay,epay,rebaterecharge,settlement')?>">
 	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-credit-card sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">财务管理</span></a>
 	<ul>
 	<li>
@@ -1006,7 +1006,7 @@ $renderMenuBadge = function($value) {
 	</ul>
 </li>
 
-<li class="<?php echo checkIfActive('qiandao,invite,invitelog,choujiang,choujiang_list,coupons,coupon_rules,user_coupons')?>">
+<li class="<?php echo checkIfActive('qiandao,invite,invitelog,choujiang,choujiang_list,coupons,coupon_rules,user_coupons,agenttool')?>">
 	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-gift sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">营销工具</span></a>
 	<ul>
 	<li>

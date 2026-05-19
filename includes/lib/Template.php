@@ -3,6 +3,15 @@ namespace lib;
 
 class Template {
 
+	static public function defaultName(){
+		return 'XHY-01';
+	}
+
+	static public function getDisplayName($template){
+		$template = trim((string)$template);
+		return $template === 'XHY-01' ? 'suisui' : $template;
+	}
+
 	static public function getList(){
 		$dir = TEMPLATE_ROOT;
 		$dirArray[] = NULL;
@@ -21,7 +30,7 @@ class Template {
 
 	static public function load($name = 'index'){
 		global $conf;
-		$template = $conf['template']?$conf['template']:'default';
+		$template = $conf['template']?$conf['template']:self::defaultName();
 		if(checkmobile() && $conf['template_m'] && $conf['template_m']!='0')$template = $conf['template_m'];
 		if(!preg_match('/^[a-zA-Z0-9\-]+$/',$name))exit('error');
 		$filename = TEMPLATE_ROOT.$template.'/'.$name.'.php';
@@ -37,7 +46,7 @@ class Template {
 
 	static public function loadConfig(){
 		global $conf;
-		$template = $conf['template']?$conf['template']:'default';
+		$template = $conf['template']?$conf['template']:self::defaultName();
 		if(checkmobile() && $conf['template_m'] && $conf['template_m']!='0')$template = $conf['template_m'];
 		$filename = TEMPLATE_ROOT.$template.'/config.php';
 		if(file_exists($filename)){
@@ -50,7 +59,7 @@ class Template {
 
 	static public function loadSetting(){
 		global $conf;
-		$template = $conf['template']?$conf['template']:'default';
+		$template = $conf['template']?$conf['template']:self::defaultName();
 		if(checkmobile() && $conf['template_m'] && $conf['template_m']!='0')$template = $conf['template_m'];
 		$filename = TEMPLATE_ROOT.$template.'/config.php';
 		if(file_exists($filename)){
@@ -63,7 +72,7 @@ class Template {
 
 	static public function loadRoute(){
 		global $conf;
-		$template = $conf['template']?$conf['template']:'default';
+		$template = $conf['template']?$conf['template']:self::defaultName();
 		if(checkmobile() && $conf['template_m'] && $conf['template_m']!='0')$template = $conf['template_m'];
 		$filename = TEMPLATE_ROOT.$template.'/config.php';
 		if(file_exists($filename)){

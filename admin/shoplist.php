@@ -253,29 +253,29 @@ $shopListAssetVersion = isset($adminAssetVersion) ? $adminAssetVersion : ((defin
     </section>
 
     <section class="admin-shop-stats">
-        <a class="admin-shop-stat" href="./shoplist.php">
-            <span class="admin-shop-stat__icon admin-shop-stat__icon--primary"><i class="fa fa-cubes"></i></span>
+        <a class="admin-shop-stat admin-ui-stat" href="./shoplist.php">
+            <span class="admin-shop-stat__icon admin-shop-stat__icon--primary admin-ui-stat__icon"><i class="fa fa-cubes"></i></span>
             <div>
                 <span>商品总数</span>
                 <strong><?php echo intval($shopListContext['stats']['total']); ?></strong>
             </div>
         </a>
-        <a class="admin-shop-stat" href="./shoplist.php?status=up">
-            <span class="admin-shop-stat__icon admin-shop-stat__icon--success"><i class="fa fa-arrow-circle-up"></i></span>
+        <a class="admin-shop-stat admin-ui-stat" href="./shoplist.php?status=up">
+            <span class="admin-shop-stat__icon admin-shop-stat__icon--success admin-ui-stat__icon"><i class="fa fa-arrow-circle-up"></i></span>
             <div>
                 <span>上架中</span>
                 <strong><?php echo intval($shopListContext['stats']['onsale']); ?></strong>
             </div>
         </a>
-        <a class="admin-shop-stat" href="./shoplist.php?status=down">
-            <span class="admin-shop-stat__icon admin-shop-stat__icon--warning"><i class="fa fa-arrow-circle-down"></i></span>
+        <a class="admin-shop-stat admin-ui-stat" href="./shoplist.php?status=down">
+            <span class="admin-shop-stat__icon admin-shop-stat__icon--warning admin-ui-stat__icon"><i class="fa fa-arrow-circle-down"></i></span>
             <div>
                 <span>已下架</span>
                 <strong><?php echo intval($shopListContext['stats']['down']); ?></strong>
             </div>
         </a>
-        <a class="admin-shop-stat" href="./shoplist.php?status=hide">
-            <span class="admin-shop-stat__icon admin-shop-stat__icon--accent"><i class="fa fa-eye-slash"></i></span>
+        <a class="admin-shop-stat admin-ui-stat" href="./shoplist.php?status=hide">
+            <span class="admin-shop-stat__icon admin-shop-stat__icon--accent admin-ui-stat__icon"><i class="fa fa-eye-slash"></i></span>
             <div>
                 <span>前台隐藏</span>
                 <strong><?php echo intval($shopListContext['stats']['hidden']); ?></strong>

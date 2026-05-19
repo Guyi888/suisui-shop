@@ -79,20 +79,20 @@ $classListAssetVersion = isset($adminAssetVersion) ? $adminAssetVersion : ((defi
     </section>
 
     <section class="admin-class-stats">
-        <article class="admin-class-stat">
-            <span class="admin-class-stat__icon admin-class-stat__icon--primary"><i class="fa fa-sitemap"></i></span>
+        <article class="admin-class-stat admin-ui-stat">
+            <span class="admin-class-stat__icon admin-class-stat__icon--primary admin-ui-stat__icon"><i class="fa fa-sitemap"></i></span>
             <div><span>分类总数</span><strong><?php echo $classStats['total']; ?></strong></div>
         </article>
-        <article class="admin-class-stat">
-            <span class="admin-class-stat__icon admin-class-stat__icon--success"><i class="fa fa-eye"></i></span>
+        <article class="admin-class-stat admin-ui-stat">
+            <span class="admin-class-stat__icon admin-class-stat__icon--success admin-ui-stat__icon"><i class="fa fa-eye"></i></span>
             <div><span>前台可见</span><strong><?php echo $classStats['visible']; ?></strong></div>
         </article>
-        <article class="admin-class-stat">
-            <span class="admin-class-stat__icon admin-class-stat__icon--warning"><i class="fa fa-code-fork"></i></span>
+        <article class="admin-class-stat admin-ui-stat">
+            <span class="admin-class-stat__icon admin-class-stat__icon--warning admin-ui-stat__icon"><i class="fa fa-code-fork"></i></span>
             <div><span>一级 / 二级</span><strong><?php echo $classStats['parents']; ?> / <?php echo $classStats['children']; ?></strong></div>
         </article>
-        <article class="admin-class-stat">
-            <span class="admin-class-stat__icon admin-class-stat__icon--accent"><i class="fa fa-cubes"></i></span>
+        <article class="admin-class-stat admin-ui-stat">
+            <span class="admin-class-stat__icon admin-class-stat__icon--accent admin-ui-stat__icon"><i class="fa fa-cubes"></i></span>
             <div><span>上架商品 / 全部</span><strong><?php echo $classStats['onsale_goods']; ?> / <?php echo $classStats['goods']; ?></strong></div>
         </article>
     </section>

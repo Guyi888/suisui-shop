@@ -291,6 +291,10 @@
   pointer-events: none;
 }
 
+.admin-order-monitor-select__icon.is-off {
+  color: #9aa8bb;
+}
+
 .admin-order-monitor-select .form-control,
 .admin-order-monitor-interval__input .form-control,
 .admin-order-monitor-interval__unit {

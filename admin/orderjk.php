@@ -123,22 +123,22 @@ if (!is_array($monitorTips)) {
     <?php } ?>
 
     <section class="admin-order-monitor-stats">
-        <article class="admin-order-monitor-stat">
-            <span class="admin-order-monitor-stat__icon admin-order-monitor-stat__icon--primary"><i class="fa fa-power-off"></i></span>
+        <article class="admin-order-monitor-stat admin-ui-stat">
+            <span class="admin-order-monitor-stat__icon admin-order-monitor-stat__icon--primary admin-ui-stat__icon"><i class="fa fa-power-off"></i></span>
             <div>
                 <span>运行状态</span>
                 <strong><?php echo $monitorEnabled ? '开启' : '关闭'; ?></strong>
             </div>
         </article>
-        <article class="admin-order-monitor-stat">
-            <span class="admin-order-monitor-stat__icon admin-order-monitor-stat__icon--accent"><i class="fa fa-repeat"></i></span>
+        <article class="admin-order-monitor-stat admin-ui-stat">
+            <span class="admin-order-monitor-stat__icon admin-order-monitor-stat__icon--accent admin-ui-stat__icon"><i class="fa fa-repeat"></i></span>
             <div>
                 <span>检测间隔</span>
                 <strong><?php echo htmlspecialchars($monitorIntervalLabel, ENT_QUOTES, 'UTF-8'); ?></strong>
             </div>
         </article>
-        <article class="admin-order-monitor-stat">
-            <span class="admin-order-monitor-stat__icon admin-order-monitor-stat__icon--warm"><i class="fa fa-history"></i></span>
+        <article class="admin-order-monitor-stat admin-ui-stat">
+            <span class="admin-order-monitor-stat__icon admin-order-monitor-stat__icon--warm admin-ui-stat__icon"><i class="fa fa-history"></i></span>
             <div>
                 <span>上次运行</span>
                 <strong><?php echo htmlspecialchars($lastRunTime, ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -165,8 +165,8 @@ if (!is_array($monitorTips)) {
                 <label class="admin-order-monitor-field">
                     <span class="admin-order-monitor-field__label">是否开启订单状态监控</span>
                     <span class="admin-order-monitor-select">
-                        <i class="fa fa-toggle-on"></i>
-                        <select class="form-control" name="updatestatus">
+                        <i class="fa <?php echo $monitorEnabled ? 'fa-toggle-on' : 'fa-toggle-off'; ?> admin-order-monitor-select__icon<?php echo $monitorEnabled ? ' is-on' : ' is-off'; ?>"></i>
+                        <select class="form-control" name="updatestatus" id="orderMonitorStatus">
                             <option value="0" <?php echo !$monitorEnabled ? 'selected' : ''; ?>>关闭</option>
                             <option value="1" <?php echo $monitorEnabled ? 'selected' : ''; ?>>开启</option>
                         </select>

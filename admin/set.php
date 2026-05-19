@@ -2665,7 +2665,7 @@ if($epay_key4){
 					<img class="img-responsive img-thumbnail img-rounded" src="../template/<?php echo $conf["template"];?>/preview.png" loading="lazy" onerror="this.src='../assets/img/NoImg.png'" style="min-height: 150px; background: #f5f5f5; display: block;">
 				</div>
 				<div class="col-xs-6 col-sm-4">
-					<p>模板名称：<?php echo $conf["template"];?></p>
+					<p>模板名称：<?php echo \lib\Template::getDisplayName($conf["template"]);?></p>
 					<p><a href="./set.php?mod=template2">进入模板设置</a></p>
 				</div>
 			</div>
@@ -2674,8 +2674,9 @@ if($epay_key4){
 			<div class="row text-center">
 				<?php
 	foreach ($mblist as $row) {
+		$templateDisplayName = \lib\Template::getDisplayName($row);
 		?>					<div class="col-xs-6 col-sm-4 mblist">
-						<a href="javascript:changeTemplate('<?php echo $row;?>')"><img class="img-responsive img-thumbnail img-rounded" src="../template/<?php echo $row;?>/preview.png" loading="lazy" onerror="this.src='../assets/img/NoImg.png'" title="点击更换到该模板" style="min-height: 150px; background: #f5f5f5; display: block;"><br /><strong><?php echo $row;?></strong></a>
+						<a href="javascript:changeTemplate('<?php echo $row;?>')"><img class="img-responsive img-thumbnail img-rounded" src="../template/<?php echo $row;?>/preview.png" loading="lazy" onerror="this.src='../assets/img/NoImg.png'" title="点击更换到该模板" style="min-height: 150px; background: #f5f5f5; display: block;"><br /><strong><?php echo $templateDisplayName;?></strong></a>
 					</div>
 				<?php
 	}
@@ -2727,7 +2728,7 @@ if($epay_key4){
 							<option value="0">与电脑版相同（默认）</option>
 							<?php
 	foreach ($mblist as $row) {
-		?>								<option value="<?php echo $row;?>"><?php echo $row;?></option>
+		?>								<option value="<?php echo $row;?>"><?php echo \lib\Template::getDisplayName($row);?></option>
 							<?php
 	}
 	?>						</select></div>

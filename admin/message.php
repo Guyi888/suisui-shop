@@ -326,32 +326,32 @@ $messageAssetVersion = isset($adminAssetVersion) ? $adminAssetVersion : ((define
     <?php } ?>
 
     <section class="admin-message-stats">
-        <article class="admin-message-stat">
-            <span class="admin-message-stat__icon admin-message-stat__icon--primary"><i class="fa fa-at"></i></span>
+        <article class="admin-message-stat admin-ui-stat">
+            <span class="admin-message-stat__icon admin-message-stat__icon--primary admin-ui-stat__icon"><i class="fa fa-at"></i></span>
             <div>
                 <span>可用 QQ 邮箱收件人</span>
                 <strong><?php echo intval($messageStats['valid_total']); ?></strong>
                 <small>主站普通用户 <?php echo intval(isset($scopeCounts[5]) ? $scopeCounts[5] : 0); ?> · 分站下级普通用户 <?php echo intval(isset($scopeCounts[6]) ? $scopeCounts[6] : 0); ?></small>
             </div>
         </article>
-        <article class="admin-message-stat">
-            <span class="admin-message-stat__icon admin-message-stat__icon--success"><i class="fa fa-paper-plane"></i></span>
+        <article class="admin-message-stat admin-ui-stat">
+            <span class="admin-message-stat__icon admin-message-stat__icon--success admin-ui-stat__icon"><i class="fa fa-paper-plane"></i></span>
             <div>
                 <span>今日发送成功</span>
                 <strong><?php echo intval($messageStats['success_today']); ?></strong>
                 <small>今日新建任务 <?php echo intval($messageStats['task_today']); ?> 个</small>
             </div>
         </article>
-        <article class="admin-message-stat">
-            <span class="admin-message-stat__icon admin-message-stat__icon--warning"><i class="fa fa-hourglass-half"></i></span>
+        <article class="admin-message-stat admin-ui-stat">
+            <span class="admin-message-stat__icon admin-message-stat__icon--warning admin-ui-stat__icon"><i class="fa fa-hourglass-half"></i></span>
             <div>
                 <span>待发送队列</span>
                 <strong><?php echo intval($messageStats['pending_total']); ?></strong>
                 <small>失败项支持重试，不影响已成功部分</small>
             </div>
         </article>
-        <article class="admin-message-stat">
-            <span class="admin-message-stat__icon admin-message-stat__icon--danger"><i class="fa fa-bell-o"></i></span>
+        <article class="admin-message-stat admin-ui-stat">
+            <span class="admin-message-stat__icon admin-message-stat__icon--danger admin-ui-stat__icon"><i class="fa fa-bell-o"></i></span>
             <div>
                 <span>站内通知</span>
                 <strong><?php echo intval($messageStats['notice_total']); ?></strong>

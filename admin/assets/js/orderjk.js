@@ -57,7 +57,23 @@
     return true;
   }
 
+  function syncMonitorStatusIcon() {
+    var $select = $('#orderMonitorStatus');
+    var $icon = $('.admin-order-monitor-select__icon');
+    var isOn = $select.val() === '1';
+
+    $icon
+      .toggleClass('fa-toggle-on is-on', isOn)
+      .toggleClass('fa-toggle-off is-off', !isOn);
+  }
+
   $(function () {
+    syncMonitorStatusIcon();
+
+    $(document).on('change', '#orderMonitorStatus', function () {
+      syncMonitorStatusIcon();
+    });
+
     $(document).on('click', '#runOrderMonitor', function () {
       openOrderMonitorResult();
     });

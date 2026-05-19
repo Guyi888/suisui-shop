@@ -679,20 +679,20 @@ $syncAssetVersion = isset($adminAssetVersion) ? $adminAssetVersion : ((defined('
     <?php echo q8_render_action('admin_sync_hero_after', $pageContext); ?>
 
     <section class="admin-sync-stats">
-        <article class="admin-sync-stat">
-            <span class="admin-sync-stat__icon admin-sync-stat__icon--primary"><i class="fa fa-plug"></i></span>
+        <article class="admin-sync-stat admin-ui-stat">
+            <span class="admin-sync-stat__icon admin-sync-stat__icon--primary admin-ui-stat__icon"><i class="fa fa-plug"></i></span>
             <div><span>已接入站点</span><strong><?php echo intval($syncStats['total_sites']); ?></strong></div>
         </article>
-        <article class="admin-sync-stat">
-            <span class="admin-sync-stat__icon admin-sync-stat__icon--success"><i class="fa fa-refresh"></i></span>
+        <article class="admin-sync-stat admin-ui-stat">
+            <span class="admin-sync-stat__icon admin-sync-stat__icon--success admin-ui-stat__icon"><i class="fa fa-refresh"></i></span>
             <div><span>已启用同步</span><strong id="syncEnabledCount"><?php echo intval($syncStats['enabled_sites']); ?></strong></div>
         </article>
-        <article class="admin-sync-stat">
-            <span class="admin-sync-stat__icon admin-sync-stat__icon--warning"><i class="fa fa-bolt"></i></span>
+        <article class="admin-sync-stat admin-ui-stat">
+            <span class="admin-sync-stat__icon admin-sync-stat__icon--warning admin-ui-stat__icon"><i class="fa fa-bolt"></i></span>
             <div><span>自动更新开启</span><strong><?php echo intval($syncStats['auto_update']); ?></strong></div>
         </article>
-        <article class="admin-sync-stat">
-            <span class="admin-sync-stat__icon admin-sync-stat__icon--accent"><i class="fa fa-clock-o"></i></span>
+        <article class="admin-sync-stat admin-ui-stat">
+            <span class="admin-sync-stat__icon admin-sync-stat__icon--accent admin-ui-stat__icon"><i class="fa fa-clock-o"></i></span>
             <div><span>最近运行</span><strong class="admin-sync-stat__time"><?php echo q8_admin_sync_escape($syncStats['last_run_time']); ?></strong></div>
         </article>
     </section>

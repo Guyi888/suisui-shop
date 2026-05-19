@@ -194,7 +194,7 @@ insert  into `shua_config`(`k`,`v`) values
 ('style','1'),
 ('sup_bond','0'),
 ('syskey',''),
-('template','CX-NEW1'),
+('template','XHY-01'),
 ('tixian_limit','1'),
 ('tixian_min','10'),
 ('tixian_rate','98'),

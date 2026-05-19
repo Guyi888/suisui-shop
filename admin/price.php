@@ -173,29 +173,29 @@ $priceAssetVersion = isset($adminAssetVersion) ? $adminAssetVersion : ((defined(
     </section>
 
     <section class="admin-price-stats">
-        <article class="admin-price-stat">
-            <span class="admin-price-stat__icon admin-price-stat__icon--primary"><i class="fa fa-sliders"></i></span>
+        <article class="admin-price-stat admin-ui-stat">
+            <span class="admin-price-stat__icon admin-price-stat__icon--primary admin-ui-stat__icon"><i class="fa fa-sliders"></i></span>
             <div>
                 <span>模板总数</span>
                 <strong><?php echo intval($totalRules); ?></strong>
             </div>
         </article>
-        <article class="admin-price-stat">
-            <span class="admin-price-stat__icon admin-price-stat__icon--success"><i class="fa fa-link"></i></span>
+        <article class="admin-price-stat admin-ui-stat">
+            <span class="admin-price-stat__icon admin-price-stat__icon--success admin-ui-stat__icon"><i class="fa fa-link"></i></span>
             <div>
                 <span>使用中模板</span>
                 <strong><?php echo intval($usedRuleCount); ?></strong>
             </div>
         </article>
-        <article class="admin-price-stat">
-            <span class="admin-price-stat__icon admin-price-stat__icon--accent"><i class="fa fa-cube"></i></span>
+        <article class="admin-price-stat admin-ui-stat">
+            <span class="admin-price-stat__icon admin-price-stat__icon--accent admin-ui-stat__icon"><i class="fa fa-cube"></i></span>
             <div>
                 <span>已绑定商品</span>
                 <strong><?php echo intval($boundGoodsTotal); ?></strong>
             </div>
         </article>
-        <article class="admin-price-stat">
-            <span class="admin-price-stat__icon admin-price-stat__icon--warning"><i class="fa fa-folder-open"></i></span>
+        <article class="admin-price-stat admin-ui-stat">
+            <span class="admin-price-stat__icon admin-price-stat__icon--warning admin-ui-stat__icon"><i class="fa fa-folder-open"></i></span>
             <div>
                 <span>未使用模板</span>
                 <strong><?php echo intval($unusedRuleCount); ?></strong>

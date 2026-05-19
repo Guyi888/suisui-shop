@@ -43,7 +43,9 @@ if ($userrow['power'] > 0 && !empty($userrow['site_prid'])) {
         $q8_current_site_price_rule_legacy = intval($q8_current_site_price_rule_row['zid']) !== intval($userrow['zid']);
     }
 }
-$q8_default_template_name = q8_template_name_resolve(isset($conf['template']) ? $conf['template'] : '', 'default');
+$q8_default_template_name = q8_template_name_resolve(isset($conf['template']) ? $conf['template'] : '', 'XHY-01');
+$q8_default_template_label = \lib\Template::getDisplayName($q8_default_template_name);
+$q8_user_template_label = \lib\Template::getDisplayName(isset($userrow['template']) ? $userrow['template'] : '');
 $q8_template_uses_default = !q8_template_name_is_valid(isset($userrow['template']) ? $userrow['template'] : '');
 $q8_admin_notice_modes = function_exists('q8_site_admin_notice_mode_labels')
     ? q8_site_admin_notice_mode_labels()
@@ -326,7 +328,7 @@ if ($mod === 'site_n') {
             <div class="panel-body">
                 <div class="alert alert-info">
                     当前前台模板：
-                    <strong><?php echo $q8_template_uses_default ? '默认模板（' . htmlspecialchars($q8_default_template_name, ENT_QUOTES, 'UTF-8') . '）' : htmlspecialchars($userrow['template'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                    <strong><?php echo $q8_template_uses_default ? '默认模板（' . htmlspecialchars($q8_default_template_label, ENT_QUOTES, 'UTF-8') . '）' : htmlspecialchars($q8_user_template_label, ENT_QUOTES, 'UTF-8'); ?></strong>
                     <?php if ($conf['fenzhan_template'] == 1) { ?>
                     <a href="./usetmoban.php?mod=site2" class="btn btn-xs btn-primary pull-right">前台模板设置</a>
                     <?php } ?>
@@ -476,7 +478,7 @@ if ($mod === 'site_n') {
             <div class="panel-heading font-bold">前台模板设置</div>
             <div class="panel-body">
                 <?php if ($conf['fenzhan_template'] != 1) { ?>
-                <div class="alert alert-warning">主站当前未开启分站自定义模板功能，分站将继续继承主站模板：<?php echo htmlspecialchars($q8_default_template_name, ENT_QUOTES, 'UTF-8'); ?></div>
+                <div class="alert alert-warning">主站当前未开启分站自定义模板功能，分站将继续继承主站模板：<?php echo htmlspecialchars($q8_default_template_label, ENT_QUOTES, 'UTF-8'); ?></div>
                 <?php } ?>
                 <form action="./usetmoban.php?mod=site_n" method="post" role="form">
                     <?php
@@ -500,17 +502,17 @@ if ($mod === 'site_n') {
                     echo q8_user_setting_hidden('appurl', isset($userrow['appurl']) ? $userrow['appurl'] : '');
                     ?>
                     <div class="alert alert-info">
-                        分站默认会继承主站模板：<strong><?php echo htmlspecialchars($q8_default_template_name, ENT_QUOTES, 'UTF-8'); ?></strong>
+                        分站默认会继承主站模板：<strong><?php echo htmlspecialchars($q8_default_template_label, ENT_QUOTES, 'UTF-8'); ?></strong>
                         <?php if (!$q8_template_uses_default && !empty($userrow['template'])) { ?>
-                        <br>你当前正在使用：<strong><?php echo htmlspecialchars($userrow['template'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                        <br>你当前正在使用：<strong><?php echo htmlspecialchars($q8_user_template_label, ENT_QUOTES, 'UTF-8'); ?></strong>
                         <?php } ?>
                     </div>
                     <div class="form-group">
                         <label>首页模板</label>
                         <select class="form-control" name="template" <?php echo $conf['fenzhan_template'] == 1 ? '' : 'disabled'; ?>>
-                            <option value=""<?php echo $q8_template_uses_default ? ' selected' : ''; ?>>默认模板（<?php echo htmlspecialchars($q8_default_template_name, ENT_QUOTES, 'UTF-8'); ?>）</option>
+                            <option value=""<?php echo $q8_template_uses_default ? ' selected' : ''; ?>>默认模板（<?php echo htmlspecialchars($q8_default_template_label, ENT_QUOTES, 'UTF-8'); ?>）</option>
                             <?php foreach ($mblist as $row) { ?>
-                            <option value="<?php echo htmlspecialchars($row, ENT_QUOTES, 'UTF-8'); ?>"<?php echo isset($userrow['template']) && $userrow['template'] === $row ? ' selected' : ''; ?>><?php echo htmlspecialchars($row, ENT_QUOTES, 'UTF-8'); ?></option>
+                            <option value="<?php echo htmlspecialchars($row, ENT_QUOTES, 'UTF-8'); ?>"<?php echo isset($userrow['template']) && $userrow['template'] === $row ? ' selected' : ''; ?>><?php echo htmlspecialchars(\lib\Template::getDisplayName($row), ENT_QUOTES, 'UTF-8'); ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -968,7 +970,7 @@ if ($mod === 'site_n') {
             var firstOption = templateSelect.find('option').first();
             var currentText = firstOption.text();
             var match = currentText.match(/([A-Za-z0-9_-]+)$/);
-            var templateName = match ? match[1] : '<?php echo addslashes($q8_default_template_name); ?>';
+            var templateName = match ? match[1] : '<?php echo addslashes($q8_default_template_label); ?>';
             firstOption.text('\u9ed8\u8ba4\u6a21\u677f\uff08' + templateName + '\uff09');
         }
     }
