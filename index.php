@@ -1,12 +1,11 @@
 <?php
 /*
 首页
-QQ群qqfaka
 岁岁 @qqfaka
 */
 $is_defend=true;
 if (version_compare(PHP_VERSION, '7.4.0', '<')) {
-    die('require PHP > Ҫ��PHP7.4');
+    die('require PHP >= 7.4');
 }
 if (isset($_SERVER) && $_SERVER['REQUEST_URI'] == '/favicon.ico')exit;
 

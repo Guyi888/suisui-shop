@@ -47,13 +47,15 @@ if($newuserhead){
 }
 
 @header('Content-Type: text/html; charset=UTF-8');
+$q8FaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : '/assets/img/favicon/favicon.ico';
 ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <title><?php echo $title ?></title>
-  <?php if(!empty($conf['favicon'])){echo '<link rel="icon" href="'.htmlspecialchars($conf['favicon']).'" type="image/x-icon" />';}?>
+  <link rel="icon" href="<?php echo htmlspecialchars($q8FaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
+  <link rel="shortcut icon" href="<?php echo htmlspecialchars($q8FaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <link href="../assets/vendor/bootstrap341/css/bootstrap.min.css?v=q8vendor2" rel="stylesheet"/>
@@ -401,9 +403,9 @@ if($newuserhead){
 <body>
 <?php if($islogin2==1){
 if($userrow['status']==0){
-	sysmsg('����˺��ѱ������',true);exit;
+	sysmsg('&#24403;&#21069;&#36134;&#21495;&#24050;&#34987;&#31105;&#29992;', true);exit;
 }elseif($userrow['power']>0 && $conf['fenzhan_expiry']>0 && $userrow['endtime']<$date){
-	sysmsg('����˺��ѵ��ڣ�����ϵ����Ա���ѣ�',true);exit;
+	sysmsg('&#24403;&#21069;&#36134;&#21495;&#24050;&#21040;&#26399;&#65292;&#35831;&#32852;&#31995;&#31649;&#29702;&#21592;&#32493;&#36153;', true);exit;
 }
 ?>
 <div class="app app-header-fixed  ">

@@ -128,9 +128,9 @@ if(!$rows)
 	showmsg('&#24403;&#21069;&#35760;&#24405;&#19981;&#23384;&#22312;&#65281;',3);
 $price_obj->setToolInfo($tid,$rows);
 $price=round(daddslashes($_POST['price']),2);
-$mainprice = $price_obj->getMainPrice();//涓荤珯鍟嗗搧鍞环
-$maincost = $price_obj->getMainCost();//涓荤珯鍟嗗搧鎴愭湰浠?
-$maincost2 = $price_obj->getMainCost2();//涓荤珯涓撲笟鐗堟垚鏈价
+$mainprice = $price_obj->getMainPrice();// 主站商品售价
+$maincost = $price_obj->getMainCost();// 主站商品成本价
+$maincost2 = $price_obj->getMainCost2();// 主站专业版成本价
 $del=intval($_POST['del']);
 if(!is_numeric($price) || !preg_match('/^[0-9.]+$/', $price))showmsg('&#20215;&#26684;&#36755;&#20837;&#19981;&#35268;&#33539;',3);
 if($userrow['power']==2){
@@ -200,10 +200,10 @@ if(!empty($kw)) {
 	$where .= " AND name LIKE '%$kw%'";
 }
 
-// 璁＄畻鍟嗗搧鏁伴噺
+// 计算商品数量
 $numrows=$DB->getColumn("SELECT count(*) FROM pre_tools WHERE{$where}");
 
-// 鏋勫缓閾炬帴鍙傛暟
+// 构建链接参数
 $link = '';
 if($cid > 0) {
 	$link .= '&cid='.$cid;
@@ -212,7 +212,7 @@ if(!empty($kw)) {
 	$link .= '&kw='.urlencode($kw);
 }
 
-// 鏋勫缓椤甸潰鍐呭
+// 构建页面内容
 if($cid > 0 || !empty($kw)) {
 	$title_text = '';
 	if($cid > 0) {
@@ -234,7 +234,7 @@ if($cid > 0 || !empty($kw)) {
     <a href="#" data-toggle="modal" data-target="#search2" id="search2" class="btn btn-primary"><i class="fa fa-navicon"></i>&nbsp;&#21830;&#21697;&#26597;&#25214;</a>&nbsp;<a class="btn btn-success" href="#" data-toggle="modal" data-target="#resetPriceModal"><i class="fa fa-refresh"></i>&nbsp;&#24674;&#22797;&#20215;&#26684;</a>&nbsp;<a class="btn btn-warning" href="#" data-toggle="modal" data-target="#batchPriceModal"><i class="fa fa-calculator"></i>&nbsp;&#25209;&#37327;&#20462;&#25913;</a>&nbsp;<a class="btn btn-info" href="javascript:void(0)" onclick="restoreLastPrice()"><i class="fa fa-undo"></i>&nbsp;&#24674;&#22797;&#21040;&#19978;&#19968;&#27425;&#20462;&#25913;</a>&nbsp;<a class="btn btn-danger" href="javascript:void(0)" onclick="showPriceHistory()"><i class="fa fa-history"></i>&nbsp;&#21382;&#21490;&#35760;&#24405;</a></div>';
 }
 
-// 璁剧疆鏈€缁堢殑SQL鏉′欢
+// 设置最终 SQL 条件
 $sql = $where;
 
 echo $con;

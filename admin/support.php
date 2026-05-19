@@ -8,26 +8,70 @@ if ($islogin != 1) {
 
 include "./head.php";
 ?>
-<div class="col-xs-12 col-sm-10 col-lg-8 center-block" style="float: none;">
-    <div class="block">
-        <div class="block-title">
-            <h3 class="panel-title"><i class="fa fa-paper-plane"></i> 联系与赞助</h3>
+<div class="col-xs-12 admin-ops-page admin-support-page">
+    <section class="admin-ops-hero">
+        <div>
+            <p class="admin-ops-hero__eyebrow">维护信息</p>
+            <h2>联系与赞助</h2>
+            <p>本页仅展示程序维护方信息，不影响前台站长自行配置的客服联系方式。</p>
         </div>
-        <div class="panel-body">
-            <div class="alert alert-info">
-                <p><strong>官方维护：</strong><?php echo OWNER_NAME; ?> <?php echo OWNER_HANDLE; ?></p>
-                <p><strong>官网：</strong><a href="<?php echo OWNER_SITE_URL; ?>" target="_blank"><?php echo OWNER_SITE_URL; ?></a></p>
-                <p><strong>客服/群组：</strong><?php echo OWNER_CONTACT; ?></p>
+        <div class="admin-ops-hero__actions">
+            <a href="<?php echo htmlspecialchars(OWNER_SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="admin-ops-chip"><i class="fa fa-paper-plane"></i> 官方入口</a>
+            <a href="./changelog.php" class="admin-ops-chip"><i class="fa fa-list-alt"></i> 更新日志</a>
+        </div>
+    </section>
+
+    <section class="admin-ops-stats">
+        <article class="admin-ops-stat admin-ui-stat">
+            <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--primary"><i class="fa fa-user-circle"></i></span>
+            <div><span>维护方</span><strong><?php echo htmlspecialchars(OWNER_NAME, ENT_QUOTES, 'UTF-8'); ?></strong></div>
+        </article>
+        <article class="admin-ops-stat admin-ui-stat">
+            <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--success"><i class="fa fa-at"></i></span>
+            <div><span>账号</span><strong><?php echo htmlspecialchars(OWNER_HANDLE, ENT_QUOTES, 'UTF-8'); ?></strong></div>
+        </article>
+        <article class="admin-ops-stat admin-ui-stat">
+            <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--warning"><i class="fa fa-comments"></i></span>
+            <div><span>客服/群组</span><strong><?php echo htmlspecialchars(OWNER_CONTACT, ENT_QUOTES, 'UTF-8'); ?></strong></div>
+        </article>
+        <article class="admin-ops-stat admin-ui-stat">
+            <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--accent"><i class="fa fa-shield"></i></span>
+            <div><span>页面用途</span><strong>维护信息</strong></div>
+        </article>
+    </section>
+
+    <div class="block admin-ops-panel">
+        <div class="block-title">
+            <div>
+                <h3>官方维护信息</h3>
+                <p>用于后台维护、问题反馈和版本支持。</p>
             </div>
-            <div class="panel panel-default">
-                <div class="panel-heading"><i class="fa fa-usd"></i> 赞助地址</div>
-                <div class="panel-body">
-                    <p>如需支持维护版本，可通过 USDT TRC20 地址赞助：</p>
-                    <input class="form-control" readonly value="<?php echo OWNER_USDT_TRC20; ?>">
-                </div>
+        </div>
+        <div class="block-content">
+            <div class="table-responsive">
+                <table class="table table-striped admin-ops-table">
+                    <tbody>
+                    <tr>
+                        <th>官方维护</th>
+                        <td><?php echo htmlspecialchars(OWNER_NAME . ' ' . OWNER_HANDLE, ENT_QUOTES, 'UTF-8'); ?></td>
+                    </tr>
+                    <tr>
+                        <th>官网</th>
+                        <td><a href="<?php echo htmlspecialchars(OWNER_SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank"><?php echo htmlspecialchars(OWNER_SITE_URL, ENT_QUOTES, 'UTF-8'); ?></a></td>
+                    </tr>
+                    <tr>
+                        <th>客服/群组</th>
+                        <td><?php echo htmlspecialchars(OWNER_CONTACT, ENT_QUOTES, 'UTF-8'); ?></td>
+                    </tr>
+                    <tr>
+                        <th>USDT TRC20 赞助地址</th>
+                        <td><input class="form-control" readonly value="<?php echo htmlspecialchars(OWNER_USDT_TRC20, ENT_QUOTES, 'UTF-8'); ?>"></td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <p class="text-muted">本页仅展示程序维护方信息，不影响前台站长自行配置的客服联系方式。</p>
         </div>
     </div>
 </div>
-<?php include "./foot.php"; ?>
+</body>
+</html>

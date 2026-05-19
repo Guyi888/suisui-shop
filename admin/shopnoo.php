@@ -1,222 +1,229 @@
 <?php
-//请勿删除版权信息，否则出现问题将不再保持售后修复！
 include "../includes/common.php";
-$title = "商品介绍批量替换";
-include "./head.php";
 
-if($islogin != 1){
+$title = "商品介绍批量替换";
+if ($islogin != 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
-
-//权限验证
 adminpermission("shop", 1);
 
-$my = isset($_GET["my"]) ? $_GET["my"] : "index";
-
-//核心替换功能
-function performReplace($search, $replace, $preview = true){
-    global $DB;
-
-    if(empty($search)){
-        return ["status"=>0, "msg"=>"查找内容不能为空"];
+if (!function_exists('q8_shopnoo_escape')) {
+    function q8_shopnoo_escape($value)
+    {
+        return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
     }
+}
 
-    //查找匹配记录
-    $rows = $DB->getAll("SELECT tid, name, `desc` FROM pre_tools WHERE `desc` LIKE :pattern",
-        [':pattern' => "%{$search}%"]
-    );
+if (!function_exists('q8_shopnoo_replace')) {
+    function q8_shopnoo_replace($search, $replace, $preview = true)
+    {
+        global $DB;
 
-    if(!$rows){
-        return ["status"=>0, "msg"=>"未找到匹配的商品介绍"];
-    }
-
-    $results = [];
-    $affected = 0;
-
-    foreach($rows as $row){
-        $newDesc = str_replace($search, $replace, $row['desc']);
-        $isChanged = ($newDesc !== $row['desc']);
-
-        $results[] = [
-            "tid" => $row['tid'],
-            "name" => $row['name'],
-            "old_desc" => $row['desc'],
-            "new_desc" => $newDesc,
-            "changed" => $isChanged
-        ];
-
-        if($isChanged && !$preview){
-            //执行更新
-            $DB->exec("UPDATE pre_tools SET `desc`=:newDesc, `uptime`=NOW() WHERE tid=:tid",
-                [':newDesc'=>$newDesc, ':tid'=>$row['tid']]
-            );
-            $affected++;
+        if ($search === '') {
+            return array("status" => 0, "msg" => "查找内容不能为空");
         }
-    }
 
-    return [
-        "status" => 1,
-        "msg" => $preview ? "找到 ".count($rows)." 条匹配记录" : "成功替换 {$affected} 条记录",
-        "data" => $results,
-        "affected" => $affected
-    ];
-}
+        $rows = $DB->getAll("SELECT tid,name,`desc` FROM pre_tools WHERE `desc` LIKE :pattern", array(':pattern' => "%{$search}%"));
+        if (!$rows) {
+            return array("status" => 0, "msg" => "未找到匹配的商品介绍");
+        }
 
-//显示操作结果
-function showResult($result){
-    if($result['status']){
-        showmsg($result['msg'] . "<br/><br/><a href='./shopnoo.php'>>>返回继续操作</a><br/><a href='./shoplist.php'>>>返回商品列表</a>", 1);
-    }else{
-        showmsg($result['msg'], 3);
-    }
-}
+        $results = array();
+        $affected = 0;
+        foreach ($rows as $row) {
+            $newDesc = str_replace($search, $replace, $row['desc']);
+            $changed = $newDesc !== $row['desc'];
+            $results[] = array(
+                "tid" => intval($row['tid']),
+                "name" => $row['name'],
+                "old_desc" => $row['desc'],
+                "new_desc" => $newDesc,
+                "changed" => $changed
+            );
 
-if($my == "index"){
-    ?>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="block">
-                <div class="block-title">
-                    <h3 class="panel-title">插件贡献者：小杰云商城</h3>
-                </div>
+            if ($changed && !$preview) {
+                $DB->exec("UPDATE pre_tools SET `desc`=:newDesc,`uptime`=NOW() WHERE tid=:tid", array(':newDesc' => $newDesc, ':tid' => intval($row['tid'])));
+                $affected++;
+            }
+        }
 
-                <form action="./shopnoo.php?my=preview" method="POST">
-                    <div class="form-group">
-                        <label for="search"><font color="red">*</font> 查找内容（替换前）:</label>
-                        <textarea class="form-control" id="search" name="search" rows="5"
-                            placeholder="请输入要查找的文本内容，支持任意字符"><?php echo htmlspecialchars($_POST['search'] ?? '');?></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="replace">替换为（替换后）:</label>
-                        <textarea class="form-control" id="replace" name="replace" rows="5"
-                            placeholder="请输入替换后的内容，留空则删除查找的内容"><?php echo htmlspecialchars($_POST['replace'] ?? '');?></textarea>
-                    </div>
-
-                    <div class="alert alert-info">
-                        <strong>提示：</strong><br>
-                        1. 请先使用"预览替换"查看匹配结果<br>
-                        2. 支持替换HTML代码和文本内容<br>
-                        3. 操作不可撤销，请谨慎操作
-                    </div>
-
-                    <button type="submit" class="btn btn-info btn-block">
-                        <i class="fa fa-search"></i> 预览替换结果
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-    <?php
-
-}elseif($my == "preview"){
-    $search = $_POST['search'] ?? '';
-    $replace = $_POST['replace'] ?? '';
-
-    if(empty($search)){
-        showmsg('查找内容不能为空！', 3);
-        exit;
-    }
-
-    $result = performReplace($search, $replace, true);
-
-    if(!$result['status']){
-        showmsg($result['msg'], 3);
-        exit;
-    }
-
-    $changedItems = array_filter($result['data'], function($item){
-        return $item['changed'];
-    });
-    ?>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="block">
-                <div class="block-title">
-                    <h3 class="panel-title">替换预览确认</h3>
-                </div>
-
-                <div class="alert alert-info">
-                    共找到 <?php echo count($result['data']); ?> 条记录，其中 <?php echo count($changedItems); ?> 条将被修改
-                </div>
-
-                <?php if(!empty($changedItems)): ?>
-                    <form action="./shopnoo.php?my=execute" method="POST" onsubmit="return confirmReplace()">
-                        <input type="hidden" name="search" value="<?php echo htmlspecialchars($search);?>" />
-                        <input type="hidden" name="replace" value="<?php echo htmlspecialchars($replace);?>" />
-
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th width="60">商品ID</th>
-                                        <th width="150">商品名称</th>
-                                        <th>替换前内容</th>
-                                        <th>替换后预览</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach($changedItems as $item): ?>
-                                        <tr>
-                                            <td><?php echo $item['tid'];?></td>
-                                            <td><?php echo htmlspecialchars($item['name']);?></td>
-                                            <td><div style="max-height:80px;overflow:auto;"><?php echo htmlspecialchars($item['old_desc']);?></div></td>
-                                            <td><div style="max-height:80px;overflow:auto;"><?php echo htmlspecialchars($item['new_desc']);?></div></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block">
-                            <i class="fa fa-check"></i> 确认执行替换
-                        </button>
-
-                        <br/><a href="./shopnoo.php" class="btn btn-default btn-block">
-                            <i class="fa fa-chevron-left"></i> 返回重新编辑
-                        </a>
-                    </form>
-
-                    <script>
-                    function confirmReplace(){
-                        return confirm("确定要执行批量替换操作吗？此操作将直接修改数据库中的数据，不可撤销！");
-                    }
-                    </script>
-                <?php else: ?>
-                    <div class="alert alert-warning">
-                        没有找到需要替换的内容，请检查查找条件是否正确
-                    </div>
-                    <a href="./shopnoo.php" class="btn btn-default btn-block">
-                        <i class="fa fa-chevron-left"></i> 返回重新编辑
-                    </a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-    <?php
-
-}elseif($my == "execute"){
-    $search = $_POST['search'] ?? '';
-    $replace = $_POST['replace'] ?? '';
-
-    if(empty($search)){
-        showmsg('查找内容不能为空！', 3);
-        exit;
-    }
-
-    //执行替换
-    $result = performReplace($search, $replace, false);
-
-    //记录操作日志
-    if($result['affected'] > 0){
-        $content = "批量替换商品介绍：{$search} → {$replace}，影响 {$result['affected']} 条记录";
-        $DB->exec("INSERT INTO `pre_toollogs` (`content`, `date`, `addtime`, `active`) VALUES (:content, CURDATE(), NOW(), 1)",
-            [':content'=>$content]
+        return array(
+            "status" => 1,
+            "msg" => $preview ? "找到 " . count($rows) . " 条匹配记录" : "成功替换 {$affected} 条记录",
+            "data" => $results,
+            "affected" => $affected
         );
     }
-
-    showResult($result);
 }
 
-include "foot.php";
+$my = isset($_GET["my"]) ? trim((string)$_GET["my"]) : "index";
+$search = isset($_POST['search']) ? (string)$_POST['search'] : '';
+$replace = isset($_POST['replace']) ? (string)$_POST['replace'] : '';
+
+if ($my === "execute") {
+    adminpermission("shop", 2);
+    if ($search === '') {
+        showmsg("查找内容不能为空", 3);
+        exit;
+    }
+    $result = q8_shopnoo_replace($search, $replace, false);
+    if (isset($result['affected']) && intval($result['affected']) > 0) {
+        $content = "批量替换商品介绍，影响 {$result['affected']} 条记录";
+        $DB->exec("INSERT INTO `pre_toollogs` (`content`,`date`,`addtime`,`active`) VALUES (:content,CURDATE(),NOW(),1)", array(':content' => $content));
+    }
+    showmsg(q8_shopnoo_escape($result['msg']) . "<br/><br/><a href='./shopnoo.php'>&gt;&gt;继续操作</a><br/><a href='./shoplist.php'>&gt;&gt;返回商品列表</a>", $result['status'] ? 1 : 3);
+    exit;
+}
+
+$result = null;
+$changedItems = array();
+if ($my === "preview") {
+    if ($search === '') {
+        showmsg("查找内容不能为空", 3);
+        exit;
+    }
+    $result = q8_shopnoo_replace($search, $replace, true);
+    if (!$result['status']) {
+        showmsg(q8_shopnoo_escape($result['msg']), 3);
+        exit;
+    }
+    foreach ($result['data'] as $item) {
+        if ($item['changed']) {
+            $changedItems[] = $item;
+        }
+    }
+}
+
+include "./head.php";
 ?>
+<div class="col-xs-12 admin-ops-page admin-shopnoo-page">
+    <section class="admin-ops-hero">
+        <div>
+            <p class="admin-ops-hero__eyebrow">批量工具</p>
+            <h2>商品介绍批量替换</h2>
+            <p>用于批量替换商品介绍里的固定文案、链接或 HTML 片段。先预览、再执行，避免误改线上商品详情。</p>
+        </div>
+        <div class="admin-ops-hero__actions">
+            <a href="./shoplist.php" class="admin-ops-chip"><i class="fa fa-cubes"></i> 商品列表</a>
+            <a href="./batch_tool.php" class="admin-ops-chip"><i class="fa fa-magic"></i> 批量工具</a>
+            <a href="./toollogs.php" class="admin-ops-chip"><i class="fa fa-history"></i> 商品动态</a>
+        </div>
+    </section>
+
+    <section class="admin-ops-stats">
+        <article class="admin-ops-stat admin-ui-stat">
+            <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--primary"><i class="fa fa-search"></i></span>
+            <div><span>匹配记录</span><strong><?php echo $result ? count($result['data']) : 0; ?></strong></div>
+        </article>
+        <article class="admin-ops-stat admin-ui-stat">
+            <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--warning"><i class="fa fa-pencil-square-o"></i></span>
+            <div><span>将修改</span><strong><?php echo count($changedItems); ?></strong></div>
+        </article>
+        <article class="admin-ops-stat admin-ui-stat">
+            <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--success"><i class="fa fa-check"></i></span>
+            <div><span>执行方式</span><strong>预览确认</strong></div>
+        </article>
+        <article class="admin-ops-stat admin-ui-stat">
+            <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--accent"><i class="fa fa-database"></i></span>
+            <div><span>影响范围</span><strong>商品介绍</strong></div>
+        </article>
+    </section>
+
+    <?php if ($my === "preview") { ?>
+    <div class="block admin-ops-panel">
+        <div class="block-title">
+            <div>
+                <h3>替换预览确认</h3>
+                <p>共找到 <?php echo count($result['data']); ?> 条记录，其中 <?php echo count($changedItems); ?> 条将被修改。</p>
+            </div>
+            <div class="block-options">
+                <a href="./shopnoo.php" class="btn btn-default"><i class="fa fa-arrow-left"></i> 重新编辑</a>
+            </div>
+        </div>
+        <?php if ($changedItems) { ?>
+        <form action="./shopnoo.php?my=execute" method="post" id="shopnooExecuteForm">
+            <input type="hidden" name="search" value="<?php echo q8_shopnoo_escape($search); ?>">
+            <input type="hidden" name="replace" value="<?php echo q8_shopnoo_escape($replace); ?>">
+            <div class="table-responsive">
+                <table class="table table-striped admin-ops-table">
+                    <thead>
+                    <tr>
+                        <th>商品 ID</th>
+                        <th>商品名称</th>
+                        <th>替换前内容</th>
+                        <th>替换后预览</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($changedItems as $item) { ?>
+                    <tr>
+                        <td><b><?php echo intval($item['tid']); ?></b></td>
+                        <td><?php echo q8_shopnoo_escape($item['name']); ?></td>
+                        <td><div class="admin-ops-desc-preview"><?php echo q8_shopnoo_escape($item['old_desc']); ?></div></td>
+                        <td><div class="admin-ops-desc-preview"><?php echo q8_shopnoo_escape($item['new_desc']); ?></div></td>
+                    </tr>
+                    <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="block-content admin-ops-form-actions">
+                <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> 确认执行替换</button>
+                <a href="./shopnoo.php" class="btn btn-default"><i class="fa fa-chevron-left"></i> 返回重新编辑</a>
+            </div>
+        </form>
+        <?php } else { ?>
+        <div class="block-content">
+            <div class="alert alert-warning"><i class="fa fa-info-circle"></i> 没有找到需要替换的内容，请检查查找条件是否正确。</div>
+            <a href="./shopnoo.php" class="btn btn-default"><i class="fa fa-chevron-left"></i> 返回重新编辑</a>
+        </div>
+        <?php } ?>
+    </div>
+    <?php } else { ?>
+    <div class="block admin-ops-panel">
+        <div class="block-title">
+            <div>
+                <h3>替换内容</h3>
+                <p>建议先复制一段精确文本进行预览，再执行正式替换。</p>
+            </div>
+        </div>
+        <form action="./shopnoo.php?my=preview" method="post" class="form-horizontal form-bordered">
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="search"><span class="text-danger">*</span> 查找内容</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="search" name="search" rows="5" placeholder="请输入要查找的文本内容，支持 HTML 片段"><?php echo q8_shopnoo_escape($search); ?></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="replace">替换为</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="replace" name="replace" rows="5" placeholder="请输入替换后的内容，留空则删除查找到的内容"><?php echo q8_shopnoo_escape($replace); ?></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                    <div class="alert alert-info">
+                        <i class="fa fa-lightbulb-o"></i>
+                        先预览匹配结果再执行。正式执行会直接修改数据库中的商品介绍，操作前请确认查找内容足够精确。
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> 预览替换结果</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <?php } ?>
+</div>
+
+<script>
+(function () {
+    var form = document.getElementById('shopnooExecuteForm');
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            if (!confirm('\u786e\u5b9a\u6267\u884c\u6279\u91cf\u66ff\u6362\u5417\uff1f\u6b64\u64cd\u4f5c\u4f1a\u76f4\u63a5\u4fee\u6539\u6570\u636e\u5e93\u4e2d\u7684\u5546\u54c1\u4ecb\u7ecd\u3002')) {
+                event.preventDefault();
+            }
+        });
+    }
+})();
+</script>
+</body>
+</html>

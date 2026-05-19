@@ -9,6 +9,7 @@ $q8XhyFenzhanPricing = q8_get_fenzhan_price_context($conf, !empty($is_fenzhan), 
 $q8XhyFenzhanNormalPriceText = q8_format_currency_amount($q8XhyFenzhanPricing['normal_price']);
 $q8XhyFenzhanProfessionalPriceText = q8_format_currency_amount($q8XhyFenzhanPricing['professional_price']);
 $q8XhyWithdrawMinText = q8_format_currency_amount(isset($conf['tixian_min']) ? $conf['tixian_min'] : 0);
+$q8XhyFaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : '/assets/img/favicon/favicon.ico';
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -18,13 +19,8 @@ $q8XhyWithdrawMinText = q8_format_currency_amount(isset($conf['tixian_min']) ? $
     	<title><?php echo $conf['sitename'] ?> - <?php echo $conf['title'] ?></title>
     	<meta name="keywords" content="<?php echo $conf['keywords'] ?>">
     	<meta name="description" content="<?php echo $conf['description'] ?>">
-		<?php if(!empty($conf['favicon'])) { ?>
-		<link rel="icon" href="<?php echo $conf['favicon'] ?>" type="image/x-icon" />
-		<link rel="shortcut icon" href="<?php echo $conf['favicon'] ?>" type="image/x-icon" />
-		<?php } else { ?>
-		<link rel="icon" href="assets/img/favicon/favicon.ico" type="image/x-icon" />
-		<link rel="shortcut icon" href="assets/img/favicon/favicon.ico" type="image/x-icon" />
-		<?php } ?>
+		<link rel="icon" href="<?php echo htmlspecialchars($q8XhyFaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
+		<link rel="shortcut icon" href="<?php echo htmlspecialchars($q8XhyFaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
 		<link href="<?php echo $cdnpublic?>twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
     	<link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
     	<link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">

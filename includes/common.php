@@ -5,7 +5,7 @@ if (defined('IN_CRONLITE')) {
 	return;
 }
 define('CACHE_FILE', 0);
-define('VERSION', '2026051905');
+define('VERSION', '2026051907');
 define('IN_CRONLITE', true);
 define('tingdong', '3530793519');
 define('SYSTEM_ROOT', dirname(__FILE__) . '/');
@@ -271,6 +271,10 @@ include_once SYSTEM_ROOT . "q8_runtime_helpers.php";
 include_once SYSTEM_ROOT . "core.func.php";
 include_once SYSTEM_ROOT . "ajax.func.php";
 include_once SYSTEM_ROOT . "member.php";
+
+if (function_exists('q8_brand_favicon_href')) {
+	$conf['favicon'] = q8_brand_favicon_href();
+}
 
 if (function_exists('q8_site_markup_template_ensure_fields')) {
 	q8_site_markup_template_ensure_fields();

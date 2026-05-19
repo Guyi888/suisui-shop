@@ -24,6 +24,7 @@ if($template_route){
 }
 
 @header('Content-Type: text/html; charset=UTF-8');
+$q8FaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : '/assets/img/favicon/favicon.ico';
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -31,6 +32,8 @@ if($template_route){
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title><?php echo $title ?></title>
+  <link rel="icon" href="<?php echo htmlspecialchars($q8FaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
+  <link rel="shortcut icon" href="<?php echo htmlspecialchars($q8FaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
   <link href="../assets/vendor/twitter-bootstrap/3.3.7/css/bootstrap.min.css?v=q8vendor1" rel="stylesheet"/>
   <link href="../assets/vendor/font-awesome/4.7.0/css/font-awesome.min.css?v=q8vendor1" rel="stylesheet"/>
   <link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/plugins.css">

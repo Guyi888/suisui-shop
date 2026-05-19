@@ -268,6 +268,21 @@ function q8_template_name_resolve($template, $fallback = 'XHY-01')
 
 }
 
+function q8_brand_asset_version()
+{
+	return defined('VERSION') ? VERSION : date('YmdHis');
+}
+
+function q8_brand_favicon_href()
+{
+	return '/assets/img/favicon/favicon.ico?v=' . rawurlencode(q8_brand_asset_version());
+}
+
+function q8_brand_logo_href()
+{
+	return '/assets/img/logo.png?r=74129';
+}
+
 function q8_get_fenzhan_price_context($conf, $isFenzhan = false, $siteRow = array())
 {
 
@@ -1162,7 +1177,7 @@ function q8_mail_center_wrap_html($subject, $content)
 
 	$timeText = date('Y-m-d H:i:s');
 
-	return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>' . $subjectText . '</title></head><body style="margin:0;padding:24px;background:#f3f6fb;font-family:Arial,Microsoft YaHei,sans-serif;color:#1f2937;"><div style="max-width:720px;margin:0 auto;background:#ffffff;border-radius:18px;border:1px solid #dbe4f0;overflow:hidden;"><div style="padding:28px 32px;background:linear-gradient(135deg,#0f4c81,#16a1c5);color:#ffffff;"><div style="font-size:13px;letter-spacing:0.12em;opacity:0.82;">MESSAGE CENTER</div><h1 style="margin:12px 0 8px;font-size:28px;line-height:1.25;">' . $subjectText . '</h1><div style="font-size:13px;opacity:0.9;">' . htmlspecialchars($timeText, ENT_QUOTES, 'UTF-8') . ' 闂?' . $sender . '</div></div><div style="padding:32px;font-size:15px;line-height:1.8;">' . $body . '</div><div style="padding:0 32px 28px;font-size:12px;line-height:1.7;color:#6b7280;">婵犵數濮烽弫鍛婃叏閻㈠壊鏁婇柡宥庡幖缁愭淇婇妶鍛殶缂佹唻绠撻弻娑滎槼妞ゃ劌鎳愭竟鏇犳喆閸曨厾鐦堥梻鍌氱墛娓氭宕曡箛鏇犳／闁诡垎宀€鍚嬮梺鍝勫閳ь剚鍓氶崥瀣煕閹扳晛濡兼い顒€顑呴—鍐Χ閸屾稒鐝栭梺绋跨箲閿曘垹顕ｇ拠娴嬫闁靛繒濮烽鎺楁⒑閼测斁鎷￠柛鎾寸懄娣囧﹥绂掔€ｎ偀鎷?' . $sender . ' 闂傚倸鍊搁崐鎼佸磹閻戣姤鍤勯柛顐ｆ礀閸屻劎鎲搁弮鍫澪ラ柛鎰ㄦ櫆閸庣喖鏌曡箛瀣労婵炶尙顭堥埞鎴︽偐鐠囇冧紣闁诲孩鍑归崣鍐ㄧ暦閿濆牏鐤€婵炴垶鐟ч崢鎾绘⒑閸涘﹦绠撻悗姘煎弮瀹曞疇銇愰幒鎾跺幗濡炪倖鎸鹃崳銉モ枔濠婂牊鐓涚€光偓閳ь剟宕伴幇顒夌劷闊洦绋戠粻鏌ユ煙闁箑澧柛濠冩礋濮婄粯鎷呮笟顖滃姼濡炪倖鍨靛Λ婵嬬嵁閹邦厾绡€婵﹩鍓涢鍡涙⒑閸涘﹣绶遍柛銊ゅ嵆瀵悂宕奸悢鍓佺畾濡炪倖鐗楃换鍐Υ閸愵煈鐔?/div></div></body></html>';
+	return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>' . $subjectText . '</title></head><body style="margin:0;padding:24px;background:#f3f6fb;font-family:Arial,Microsoft YaHei,sans-serif;color:#1f2937;"><div style="max-width:720px;margin:0 auto;background:#ffffff;border-radius:18px;border:1px solid #dbe4f0;overflow:hidden;"><div style="padding:28px 32px;background:linear-gradient(135deg,#0f4c81,#16a1c5);color:#ffffff;"><div style="font-size:13px;letter-spacing:0.12em;opacity:0.82;">MESSAGE CENTER</div><h1 style="margin:12px 0 8px;font-size:28px;line-height:1.25;">' . $subjectText . '</h1><div style="font-size:13px;opacity:0.9;">' . htmlspecialchars($timeText, ENT_QUOTES, 'UTF-8') . ' - ' . $sender . '</div></div><div style="padding:32px;font-size:15px;line-height:1.8;">' . $body . '</div><div style="padding:0 32px 28px;font-size:12px;line-height:1.7;color:#6b7280;">' . $sender . ' message center. This email was sent automatically by the site notification system.</div></div></body></html>';
 
 }
 
@@ -1826,7 +1841,6 @@ function changeUserMoney($zid, $money, $add=true, $action=null, $bz=null, $order
 
 	if($money<=0)return;
 
-	// 濠电姷鏁告慨鐑藉极閹间礁纾婚柣妯款嚙缁犲灚銇勮箛鎾搭棤缂佲偓婵犲洦鐓冪憸婊堝礈濮樿鲸宕叉繛鎴炵懃缁剁偤鎮楅敐搴′簽妞わ缚鍗抽幃妤€鈻撻崹顔界彯闂佺顑呴敃銉︾┍婵犲洦鍤嬮梻鍫熺〒缁愮偞绻濋悽闈浶㈤悗姘煎櫍瀹曘垽顢楅崟顑芥嫽婵炶揪绲肩拃锕傛倿妤ｅ啯鐓涢柛顐亜婢ф壆绱掗鐣屾噰妤犵偞甯￠獮瀣籍閳ь剟鎮樻笟鈧娲礈閹绘帊绨煎┑鐐插级閿曘垽骞冮敓鐘插嵆闁靛骏绱曢崢鎼佹倵楠炲灝鍔氶柛鐕佸亝娣囧﹪宕归鍛數閻熸粍绮撳畷婊堟偄閻撳氦鎽曢梺鎸庣箓椤︻垳绮绘總鍛婄厱闁哄洢鍔岄獮姗€鏌ㄥ☉姘灈婵﹪缂氶妵鎰板箳濠靛浂妫栧┑鐘垫暩閸嬫劙宕戦幘瀵哥瘈婵炲牆鐏濋弸鎾绘煕鐎ｎ偅宕屾慨濠冩そ楠炴劖鎯旈敐鍥╂殼闂備胶顢婂▍鏇㈠礉濞嗘挶鈧礁鈻庨幘鍐茶€垮┑鐐村灦閻熴垽骞忓ú顏呪拺闁告稑锕﹂埥澶愭煥閺囶亞鐣垫鐐诧躬瀹曠喖顢涘☉姘箺婵犲痉鏉库偓鎾舵閳ユ枼鏋旈柡鍐ㄧ墛閹虫岸鏌ｉ幇顓犳殬濞存粍绮撻弻鐔煎级閸噮鏆㈢紓浣割儓椤曆囧煘閹达富鏁嶆慨妯块哺閹茶偐绱撴担铏瑰笡闁烩晩鍨伴悾鐑藉础閻愬秶鍠撶槐鎺懳熼崫鍕棆闂?- 濠电姷鏁告慨鐑藉极閹间礁纾块柟瀵稿Т缁躲倝鏌﹀Ο渚＆鐟滅増甯掔壕濂告煟閹邦垰鐨洪柣娑栧劦濮婃椽宕崟顓涙瀱闂佸憡蓱濡啫鐣烽崼鏇ㄦ晢濞达絿顭堟竟宥囩磽閸屾瑧鍔嶉柛鏃€顨婇幆渚€宕￠悙鈺傛杸闂佺粯锚閻忔岸寮抽埡鍛厱閻庯綆鍋嗗ú鎾寠濠靛洢浜滈柟鎯у船閻忊晝绱掗埀顒佸緞鐏炵浜鹃柛蹇擃槸娴滈箖姊洪崨濠冨闁稿妫濋幃锟犲箣閿旇В鎷虹紓渚囧灡濞叉牗鏅堕崣澶堜簻闁靛鍎崇粻濠氭煙椤曞棛绡€鐎规洖銈稿鎾偐閹绘帞瀵奸梻鍌欑劍閹爼宕曢鐐茬鐎广儱顦悡鏇㈡煙閻戞ɑ灏ù?
 	$oldmoney = $DB->getColumn("SELECT rmb FROM pre_site WHERE zid=:zid LIMIT 1", [':zid' => $zid]);
 
 	if($add == true){
@@ -1847,7 +1861,6 @@ function changeUserMoney($zid, $money, $add=true, $action=null, $bz=null, $order
 
 	$bz = addslashes($bz);
 
-	// 濠电姷鏁告慨鐑藉极閹间礁纾婚柣妯款嚙缁犲灚銇勮箛鎾搭棤缂佲偓婵犲洦鐓冪憸婊堝礈濮樿鲸宕叉繛鎴炵懃缁剁偤鎮楅敐搴′簽妞わ缚鍗抽幃妤€鈻撻崹顔界彯闂佺顑呴敃銉︾┍婵犲洦鍤嬮梻鍫熺〒缁愮偞绻濋悽闈浶㈤悗姘煎櫍瀹曘垽顢楅崟顑芥嫽婵炶揪绲肩拃锕傛倿妤ｅ啯鐓涢柛顐亜婢ф壆绱掗鐣屾噰妤犵偞甯￠獮瀣籍閳ь剟鎮樻笟鈧娲礈閹绘帊绨煎┑鐐插级閿曘垽骞冮敓鐘插嵆闁靛骏绱曢崢鎼佹倵楠炲灝鍔氶柛鐕佸亝娣囧﹪宕归鍛數閻熸粍绮撳畷婊堟偄閻撳氦鎽曢梺鎸庣箓椤︻垳绮绘總鍛婄厱闁哄洢鍔岄獮姗€鏌ㄥ☉姘灈婵﹪缂氶妵鎰板箳濠靛浂妫栧┑鐘垫暩閸嬫劙宕戦幘瀵哥瘈婵炲牆鐏濋弸鎾绘煕鐎ｎ偅宕屾慨濠冩そ瀵剟濡烽敂鐣屽絽闂備礁鎽滈崰宥夊础閸愯尙鏆︽繛鍡樺姉椤╃兘鎮楅敐搴′簮闁归攱妞藉娲川婵犲嫮鐣甸柣搴㈠嚬閸撶喖宕洪埀顒併亜閹哄棗浜惧┑鐐点€嬬换婵囦繆閹绢喖纾奸柣鎰摠濞呭棝姊洪崨濠冨瘷闁告粈鐒︾瑧闂傚倸鍊烽懗鍫曞箠閹炬椿鏁嬫い鎾卞灩绾惧潡鏌熺€电校妞?- 濠电姷鏁告慨鐑藉极閹间礁纾块柟瀵稿Т缁躲倝鏌﹀Ο渚＆鐟滅増甯掔壕濂告煟閹邦垰鐨洪柣娑栧劦濮婃椽宕崟顓涙瀱闂佸憡蓱濡啫鐣烽崼鏇ㄦ晢濞达絿顭堟竟宥囩磽閸屾瑧鍔嶉柛鏃€顨婇幆渚€宕￠悙鈺傛杸闂佺粯锚閻忔岸寮抽埡鍛厱閻庯綆鍋嗗ú鎾寠濠靛洢浜滈柟鎯у船閻忊晝绱掗埀顒佸緞鐏炵浜鹃柛蹇擃槸娴滈箖姊洪崨濠冨闁稿妫濋幃锟犲箣閿旇В鎷虹紓渚囧灡濞叉牗鏅堕崣澶堜簻闁靛鍎崇粻濠氭煙椤曞棛绡€鐎规洖銈稿鎾偐閹绘帞瀵奸梻鍌欑劍閹爼宕曢鐐茬鐎广儱顦悡鏇㈡煙閻戞ɑ灏ù?
 	$res = $DB->exec("UPDATE pre_site SET rmb=:newmoney WHERE zid=:zid", [':newmoney' => $newmoney, ':zid' => $zid]);
 
 	if ($orderid) {
@@ -1896,7 +1909,6 @@ function changeSupMoney($sid, $money, $add=true, $action=null, $bz=null)
 
     if($money<=0)return;
 
-    // 濠电姷鏁告慨鐑藉极閹间礁纾婚柣妯款嚙缁犲灚銇勮箛鎾搭棤缂佲偓婵犲洦鐓冪憸婊堝礈濮樿鲸宕叉繛鎴炵懃缁剁偤鎮楅敐搴′簽妞わ缚鍗抽幃妤€鈻撻崹顔界彯闂佺顑呴敃銉︾┍婵犲洦鍤嬮梻鍫熺〒缁愮偞绻濋悽闈浶㈤悗姘煎櫍瀹曘垽顢楅崟顑芥嫽婵炶揪绲肩拃锕傛倿妤ｅ啯鐓涢柛顐亜婢ф壆绱掗鐣屾噰妤犵偞甯￠獮瀣籍閳ь剟鎮樻笟鈧娲礈閹绘帊绨煎┑鐐插级閿曘垽骞冮敓鐘插嵆闁靛骏绱曢崢鎼佹倵楠炲灝鍔氶柛鐕佸亝娣囧﹪宕归鍛數閻熸粍绮撳畷婊堟偄閻撳氦鎽曢梺鎸庣箓椤︻垳绮绘總鍛婄厱闁哄洢鍔岄獮姗€鏌ㄥ☉姘灈婵﹪缂氶妵鎰板箳濠靛浂妫栧┑鐘垫暩閸嬫劙宕戦幘瀵哥瘈婵炲牆鐏濋弸鎾绘煕鐎ｎ偅宕屾慨濠冩そ楠炴劖鎯旈敐鍥╂殼闂備胶顢婂▍鏇㈠礉濞嗘挶鈧礁鈻庨幘鍐茶€垮┑鐐村灦閻熴垽骞忓ú顏呪拺闁告稑锕﹂埥澶愭煥閺囶亞鐣垫鐐诧躬瀹曠喖顢涘☉姘箺婵犲痉鏉库偓鎾舵閳ユ枼鏋旈柡鍐ㄧ墛閹虫岸鏌ｉ幇顓犳殬濞存粍绮撻弻鐔煎级閸噮鏆㈢紓浣割儓椤曆囧煘閹达富鏁嶆慨妯块哺閹茶偐绱撴担铏瑰笡闁烩晩鍨伴悾鐑藉础閻愬秶鍠撶槐鎺懳熼崫鍕棆闂?- 濠电姷鏁告慨鐑藉极閹间礁纾块柟瀵稿Т缁躲倝鏌﹀Ο渚＆鐟滅増甯掔壕濂告煟閹邦垰鐨洪柣娑栧劦濮婃椽宕崟顓涙瀱闂佸憡蓱濡啫鐣烽崼鏇ㄦ晢濞达絿顭堟竟宥囩磽閸屾瑧鍔嶉柛鏃€顨婇幆渚€宕￠悙鈺傛杸闂佺粯锚閻忔岸寮抽埡鍛厱閻庯綆鍋嗗ú鎾寠濠靛洢浜滈柟鎯у船閻忊晝绱掗埀顒佸緞鐏炵浜鹃柛蹇擃槸娴滈箖姊洪崨濠冨闁稿妫濋幃锟犲箣閿旇В鎷虹紓渚囧灡濞叉牗鏅堕崣澶堜簻闁靛鍎崇粻濠氭煙椤曞棛绡€鐎规洖銈稿鎾偐閹绘帞瀵奸梻鍌欑劍閹爼宕曢鐐茬鐎广儱顦悡鏇㈡煙閻戞ɑ灏ù?
     $oldmoney = $DB->getColumn("SELECT rmb FROM pre_supplier WHERE sid=:sid LIMIT 1", [':sid' => $sid]);
 
     if($add == true){
@@ -1917,7 +1929,6 @@ function changeSupMoney($sid, $money, $add=true, $action=null, $bz=null)
 
     $bz = addslashes($bz);
 
-    // 濠电姷鏁告慨鐑藉极閹间礁纾婚柣妯款嚙缁犲灚銇勮箛鎾搭棤缂佲偓婵犲洦鐓冪憸婊堝礈濮樿鲸宕叉繛鎴炵懃缁剁偤鎮楅敐搴′簽妞わ缚鍗抽幃妤€鈻撻崹顔界彯闂佺顑呴敃銉︾┍婵犲洦鍤嬮梻鍫熺〒缁愮偞绻濋悽闈浶㈤悗姘煎櫍瀹曘垽顢楅崟顑芥嫽婵炶揪绲肩拃锕傛倿妤ｅ啯鐓涢柛顐亜婢ф壆绱掗鐣屾噰妤犵偞甯￠獮瀣籍閳ь剟鎮樻笟鈧娲礈閹绘帊绨煎┑鐐插级閿曘垽骞冮敓鐘插嵆闁靛骏绱曢崢鎼佹倵楠炲灝鍔氶柛鐕佸亝娣囧﹪宕归鍛數閻熸粍绮撳畷婊堟偄閻撳氦鎽曢梺鎸庣箓椤︻垳绮绘總鍛婄厱闁哄洢鍔岄獮姗€鏌ㄥ☉姘灈婵﹪缂氶妵鎰板箳濠靛浂妫栧┑鐘垫暩閸嬫劙宕戦幘瀵哥瘈婵炲牆鐏濋弸鎾绘煕鐎ｎ偅宕屾慨濠冩そ瀵剟濡烽敂鐣屽絽闂備礁鎽滈崰宥夊础閸愯尙鏆︽繛鍡樺姉椤╃兘鎮楅敐搴′簮闁归攱妞藉娲川婵犲嫮鐣甸柣搴㈠嚬閸撶喖宕洪埀顒併亜閹哄棗浜惧┑鐐点€嬬换婵囦繆閹绢喖纾奸柣鎰摠濞呭棝姊洪崨濠冨瘷闁告粈鐒︾瑧闂傚倸鍊烽懗鍫曞箠閹炬椿鏁嬫い鎾卞灩绾惧潡鏌熺€电校妞?- 濠电姷鏁告慨鐑藉极閹间礁纾块柟瀵稿Т缁躲倝鏌﹀Ο渚＆鐟滅増甯掔壕濂告煟閹邦垰鐨洪柣娑栧劦濮婃椽宕崟顓涙瀱闂佸憡蓱濡啫鐣烽崼鏇ㄦ晢濞达絿顭堟竟宥囩磽閸屾瑧鍔嶉柛鏃€顨婇幆渚€宕￠悙鈺傛杸闂佺粯锚閻忔岸寮抽埡鍛厱閻庯綆鍋嗗ú鎾寠濠靛洢浜滈柟鎯у船閻忊晝绱掗埀顒佸緞鐏炵浜鹃柛蹇擃槸娴滈箖姊洪崨濠冨闁稿妫濋幃锟犲箣閿旇В鎷虹紓渚囧灡濞叉牗鏅堕崣澶堜簻闁靛鍎崇粻濠氭煙椤曞棛绡€鐎规洖銈稿鎾偐閹绘帞瀵奸梻鍌欑劍閹爼宕曢鐐茬鐎广儱顦悡鏇㈡煙閻戞ɑ灏ù?
     $res = $DB->exec("UPDATE pre_supplier SET rmb=:newmoney WHERE sid=:sid", [':newmoney' => $newmoney, ':sid' => $sid]);
 
     $DB->exec("INSERT INTO `pre_suppoints` (`sid`, `action`, `point`, `bz`, `addtime`) VALUES (:sid, :action, :point, :bz, NOW())", [':sid'=>$sid, ':action'=>$action, ':point'=>$money, ':bz'=>$bz]);
@@ -1998,17 +2009,16 @@ function getServerIp(){
 
 
 
-/**
- * 闂傚倸鍊搁崐鎼佸磹閻戣姤鍊块柨鏇炲€归崕鎴犳喐閻楀牆绗掗柛銊ュ€搁埞鎴︽偐鐎圭姴顥濈紓浣瑰姈椤ㄥ﹪寮婚悢鍏煎亱闁割偆鍠撻崙锟犳⒑閹肩偛濡奸柛濠傜秺楠炲牓濡搁妷搴ｅ枛楠炴劖鎯旈敐鍐ｅ亾閹邦喚纾藉ù锝嗗絻娴滈箖姊虹化鏇炲⒉缂佸甯￠幃锟犲即閵忥紕鍘撻梺瀹犳〃缁€渚€寮抽悢鍏肩厵闁告劕寮堕ˉ鐐烘煏閸パ冾伃妞ゃ垺娲熼、妤呭磼濠婂嫭顔撳┑鐘愁問閸犳牠鏁冮妷銉富濞寸姴顑冮埀顑跨窔瀵挳濮€閻欌偓濞煎﹪姊洪崘鍙夋儓闁稿﹦鏁诲鎼佸川鐎涙ǚ鎷绘繛鎾村焹閸嬫挻绻涙担鍐插悩濞戞鏃堝礃椤忓棛鍘犻梻浣藉吹閸犳劖绔熼崱娑樻辈闁挎棁濮ら崣蹇旀叏濡も偓濡宕濋敃鍌涚厸闁告劑鍔庢晶鏇犵磼閳ь剛鈧綆鍠楅悡鍐偡濞嗗繐顏╅柛鏂诲€曢湁婵犲﹤鐗忛悾娲煛鐏炲墽娲存鐐叉喘濡啫鈽夊▎鎴滄喚闂傚倷绀侀幖顐﹀箯鐎ｎ喖绀堥柣鏃傚帶缁犳牗鎱ㄥ璇蹭壕闂佽鍠楅悷鈺佄涢崘銊㈡婵°倐鍋撴い銉﹀哺濮婄粯鎷呴崨濠冨創濠碘槅鍋呴悷褔宕氶幒妤€绠婚悹鍥蔼閹芥洟姊虹紒妯荤叆闁告艾顑夐崺娑㈠箛閻楀牏鍘甸梻渚囧弿缁犳垿寮稿☉妯锋斀闁炽儴灏欓惌娆撴煙椤旂厧妲绘い顓滃姂瀹曞ジ顢曢敐鍡╁悑闂傚倷鑳堕崢褔宕幐搴㈡珷閹兼番鍔岀粈鍡涙煙閻戞﹩娈旈梺鍗炴喘閺屾洘寰勫☉姘辨殸闂侀€炲苯澧扮紒顕呭灡缁岃鲸绻濋崶鑸垫櫖濠殿喗锕╅崜姘昂婵犵數鍋涢悺銊у垝鐏炵偓娅犲ù鐘差儏缁犵喓绱掔€ｎ偒鍎ラ柛姘儏椤法鎹勯悮鏉戜紣闂佽瀵掗崣鍐蓟閻斿吋鍤岄柣妤€鐗嗗☉褏绱撴担钘夎敿婵炲娲樼粋? */
 function getClassOptionList($selected = 0) {
     global $DB;
     $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 ORDER BY sort ASC");
     $select = '';
     while($res = $rs->fetch()) {
+        $name = htmlspecialchars($res['name'], ENT_QUOTES, 'UTF-8');
         if($res['is_disabled'] == 1) {
-            // 闂傚倸鍊搁崐鎼佸磹妞嬪海鐭嗗ù锝夋交閼板潡寮堕崼姘珔闁搞劍绻冮妵鍕冀椤愵澀绮剁紓浣插亾濠㈣泛顑勭换鍡涙煏閸繃鍣洪柛锝囨嚀椤╁ジ宕ㄩ娑欐杸濡炪倖姊婚悺鏃堟倿閻愵剛绠惧璺侯儑閵嗘帞绱掗纰辩吋妤犵偛顑夐幃鈺呭礃閸欏鈧箖鏌ｆ惔锛勭暛闁稿酣浜惰棟妞ゆ牜鍋涢崹鍌炴煕瀹€鈧崑娑氱不瑜版帒绾ч柛顐ｇ箓閳锋棃鏌熼绗哄仮闁诡喗顭堢粻娑樷槈濞嗘劙鏁梻鍌氭搐椤︾敻寮诲☉婊呯杸婵﹩鍏涘Ч妤呮⒑閻熸澘鏆遍柟铏姉濡叉劙骞掑Δ鈧悞鍨亜閹哄秶顦︾紒鍓佸仜閳规垿鎮欓弶鎴犵懆缂傚倸绉撮敃顏勵嚕椤愶箑绠涢柡澶婃健閸炲爼姊虹紒妯烩拹濞存粈绮欓崺鈧い鎺嗗亾闁挎洦浜滈～蹇涙倻濡顫￠梺瑙勵問閸犳稓绮ｅΔ鈧埞鎴﹀焺閸愩劎绁烽梺鐐藉劜鐎氬¨bled闂傚倸鍊搁崐宄懊归崶顒夋晪鐟滃繘骞戦姀銈呯婵°倐鍋撶痪鎯ь煼閺岋綁寮崒姘粯缂佺偓鍎抽…鐑藉蓟閿濆绠涙い鎺嶇劍閸庢捇姊?            $select .= '<option disabled style="color: blue;">-闂?.$res['name'].'闂?</option>';
+            $select .= '<option disabled style="color: blue;">-' . $name . '-</option>';
         } else {
-            // 闂傚倸鍊搁崐鎼佸磹妞嬪海鐭嗗〒姘ｅ亾妤犵偞鐗犻、鏇㈡晝閳ь剛绮婚鐐村€甸柨婵嗛閺嬫盯姊婚崒銈呯仸闁哄被鍔岄埞鎴﹀幢閳哄倐锕傛⒑缂佹ê绗掗柣蹇斿哺婵＄敻宕熼姘鳖唺閻庡箍鍎卞Λ娑㈠Χ閻楀牏绡€闁靛骏缍嗗鎰版煥閺囨ê鐏茬€殿喛顕ч埥澶愬閻樻牑鏅犻弻鏇熷緞濞戙垺顎嶉悗瑙勬礃婵炲﹤顫?            $select .= '<option value="'.$res['cid'].'"'.($selected == $res['cid'] ? ' selected' : '').'>'.$res['name'].'</option>';
+            $select .= '<option value="' . intval($res['cid']) . '"' . ($selected == $res['cid'] ? ' selected' : '') . '>' . $name . '</option>';
         }
     }
     return $select;

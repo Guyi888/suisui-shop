@@ -512,6 +512,8 @@ if ($mod == "cleanbom") {
 	<?php
 } elseif ($mod == "site") {
 	adminpermission("set", 1);
+	$q8DefaultFaviconValue = '/assets/img/favicon/favicon.ico';
+	$q8FaviconPreview = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : $q8DefaultFaviconValue;
 	?>		<link rel="stylesheet" href="<?php echo $cdnpublic;?>bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.min.css">
 		<script src="<?php echo $cdnpublic;?>bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.min.js"></script>
 		<style>
@@ -540,12 +542,10 @@ if ($mod == "cleanbom") {
 					<div class="form-group">
 						<label class="col-sm-2 control-label">网站图标</label>
 						<div class="col-sm-10">
-							<input type="text" id="favicon_url" name="favicon" value="<?php echo $conf["favicon"];?>" class="form-control" placeholder="输入图标的URL地址，留空则使用默认图标" />
-							<span class="help-block">可使用 <a href="https://www.favicon.cc/" target="_blank">favicon.cc</a> 免费生成.ico格式图标，支持.ico、png、jpg、jpeg、gif格式，建议尺寸16x16或32x32像素</span>
+							<input type="text" id="favicon_url" name="favicon" value="<?php echo htmlspecialchars(!empty($conf["favicon"]) ? $conf["favicon"] : $q8DefaultFaviconValue, ENT_QUOTES, 'UTF-8');?>" class="form-control" placeholder="/assets/img/favicon/favicon.ico" />
+							<span class="help-block">默认使用本地 Q8 图标：/assets/img/favicon/favicon.ico，前台和后台会自动追加缓存版本号。</span>
 							<div id="favicon_preview" style="margin-top:10px;">
-							<?php if(!empty($conf['favicon'])){
-								echo '<img src="'.htmlspecialchars($conf['favicon']).'" style="max-width:64px;max-height:64px;">';
-							}?>
+							<img src="<?php echo htmlspecialchars(!empty($conf['favicon']) ? $conf['favicon'] : $q8FaviconPreview, ENT_QUOTES, 'UTF-8');?>" style="max-width:64px;max-height:64px;" alt="favicon">
 							</div>
 							<script type="text/javascript">
 							$(document).ready(function(){
@@ -3051,6 +3051,7 @@ if($epay_key4){
 <?php
 } elseif ($mod == "upimg") {
 	adminpermission("set", 1);
+	$q8DefaultLogoHref = function_exists('q8_brand_logo_href') ? q8_brand_logo_href() : '/assets/img/logo.png?r=74129';
 	if ($_POST["s"] == 1) {
 		// 检查文件类型
 		$allowed_types = array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
@@ -3094,7 +3095,7 @@ if($epay_key4){
 				<input type="submit" class="btn btn-primary btn-block" value="确认上传" />
 			</form>
 			<br>现在的图片：<br>
-			<img src="../assets/img/logo.png?r=<?php echo rand(10000, 99999);?>" style="max-width:100%">
+			<img src="<?php echo htmlspecialchars($q8DefaultLogoHref, ENT_QUOTES, 'UTF-8');?>" style="max-width:100%" alt="默认Logo">
 		</div>
 	</div>
 <?php

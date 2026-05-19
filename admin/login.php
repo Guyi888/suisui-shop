@@ -105,6 +105,7 @@ if(isset($_POST['user']) && isset($_POST['pass'])){
 $title='用户登录';
 // [战神] 优化头部引入
 include './head.php';
+$adminLoginLogoHref = function_exists('q8_brand_logo_href') ? q8_brand_logo_href() : '/assets/img/logo.png?r=74129';
 ?>
 
 <!-- 补充引入必要的库 -->
@@ -490,11 +491,31 @@ if($conf['thirdlogin_open'] == 1 && $conf['thirdlogin_closepwd'] == 1){
     z-index: 0;
 }
 .bg-overlay.loaded {
-    background: url(https://cdn.pixabay.com/photo/2021/05/24/11/56/lake-6278825_1280.jpg) no-repeat center center;
+    background:
+        radial-gradient(circle at 24% 20%, rgba(32, 197, 200, .24), transparent 30%),
+        radial-gradient(circle at 82% 18%, rgba(139, 92, 246, .20), transparent 34%),
+        linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
     opacity: 1;
 }
 .col-xl-7.bglogo:hover .bg-overlay {
     transform: scale(1.05);
+}
+.admin-login-visual {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 520px;
+    padding: 42px;
+}
+.admin-login-visual img {
+    display: block;
+    width: min(88%, 640px);
+    height: auto;
+    border-radius: 22px;
+    box-shadow: 0 24px 52px rgba(22, 119, 255, .14);
 }
 .auth-full-bg .d-flex {
     padding: 3rem;
@@ -565,7 +586,7 @@ if($conf['thirdlogin_open'] == 1 && $conf['thirdlogin_closepwd'] == 1){
 }
 
 /* 按钮样式 */
-button {
+#loginButton {
   background: #fff;
   border: none;
   padding: 10px 20px;
@@ -578,12 +599,12 @@ button {
   transform: skew(-21deg);
 }
 
-span {
+#loginButton span {
   display: inline-block;
   transform: skew(21deg);
 }
 
-button::before {
+#loginButton::before {
   content: '';
   position: absolute;
   top: 0;
@@ -596,11 +617,11 @@ button::before {
   transition: all 0.5s;
 }
 
-button:hover {
+#loginButton:hover {
   color: #fff;
 }
 
-button:hover::before {
+#loginButton:hover::before {
   left: 0;
   right: 0;
   opacity: 1;
@@ -677,24 +698,8 @@ button:hover::before {
             <div class="auth-full-bg pt-lg-5 p-4">
                 <div class="w-100">
                     <div class="bg-overlay"></div>
-                    <div class="d-flex h-100 flex-column justify-content-center">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-7">
-                                <div class="text-center">
-                                    <div dir="ltr">
-                                        <div class="owl-carousel owl-theme auth-review-carousel" id="auth-review-carousel">
-                                            <div>
-                                            <div>
-                                                    <p class="text-white-50 text-left">
-                                                        系统为岁岁云商城后台独家后台模板，可在csdn博客找到</p>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="admin-login-visual">
+                        <img src="<?php echo htmlspecialchars($adminLoginLogoHref, ENT_QUOTES, 'UTF-8'); ?>" alt="后台登录展示图">
                     </div>
                 </div>
             </div>
@@ -707,7 +712,7 @@ button:hover::before {
                     <div class="d-flex flex-column h-100">
                         <div class="my-auto">
                             <div  class="logo text-center" >
-                                <a href="#"><img  src="/assets/img/logo.png" alt="系统管理平台" class="cursor"></a>
+                                <a href="#"><img src="<?php echo htmlspecialchars($adminLoginLogoHref, ENT_QUOTES, 'UTF-8'); ?>" alt="系统管理平台" class="cursor"></a>
                             </div>
                             <ul class="affs-nav nav nav-tabs nav-tabs-custom nav-justified" role="tablist">
                                 <!-- 账号密码登录 -->
@@ -829,7 +834,7 @@ button:hover::before {
             const password = document.querySelector('input[name="pass"]').value;
 
             if (!username || !password) {
-                alert('请输入用户名和密码');
+                alert('\u8bf7\u8f93\u5165\u7528\u6237\u540d\u548c\u5bc6\u7801');
                 return;
             }
 

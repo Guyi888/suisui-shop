@@ -419,14 +419,14 @@ if ($mod === 'site_n') {
                     </div>
 
                     <div class="form-group">
-                        <label>鍒嗙珯鍔犱环妯℃澘</label>
+                        <label>分站加价模板</label>
                         <select class="form-control" name="site_prid" data-default="<?php echo isset($userrow['site_prid']) ? intval($userrow['site_prid']) : 0; ?>">
-                            <option value="0">涓嶄娇鐢紝榛樿缁ф壙涓婄骇浠锋牸</option>
+                            <option value="0">不使用，默认继承上级价格</option>
                             <?php foreach ((array)$q8_price_rule_rows as $priceRuleRow) { ?>
                             <option value="<?php echo intval($priceRuleRow['id']); ?>"><?php echo htmlspecialchars($priceRuleRow['name'], ENT_QUOTES, 'UTF-8'); ?></option>
                             <?php } ?>
                         </select>
-                        <pre>鏈崟鐙敼浠风殑鍟嗗搧灏嗘寜鍒嗙珯鑷繁鐨勮繘璐т环鍙犲姞姝ゆā鏉匡紝涓婄骇璋冧环鍜屾柊鍟嗗搧涔熶細缁х画璧拌繖濂楄鍒欍€?/pre>
+                        <pre>未单独改价的商品将按分站自己的进货价叠加此模板，上级调价和新商品也会继续使用这套规则。</pre>
                     </div>
                     <?php if ($userrow['power'] == 2) { ?>
                     <div class="form-group">

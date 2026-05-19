@@ -13,6 +13,7 @@ if(!$row) {
 $downResult = $DB->getRow("SELECT * FROM " . DBQZ . "article WHERE id<'$id' AND active=1 ORDER BY id DESC LIMIT 1");
 $upResult = $DB->getRow("SELECT * FROM " . DBQZ . "article WHERE id>'$id' AND active=1 ORDER BY id DESC LIMIT 1");
 $DB->exec("UPDATE `" . DBQZ . "article` SET `count`=`count`+1 WHERE id='$id'");
+$q8XhyArticleFaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : '/assets/img/favicon/favicon.ico';
 
 // 调试信息
 echo "<!-- 调试: 数据库前缀=" . DBQZ . ", 文章ID=" . $id . ", 文章标题=" . $row['title'] . " -->";
@@ -25,10 +26,8 @@ echo "<!-- 调试: 数据库前缀=" . DBQZ . ", 文章ID=" . $id . ", 文章标
     <title><?php echo $row['title']?> - <?php echo $conf['sitename']?></title>
 	<meta name="description" content="<?php echo $row['description']?>"/>
     <meta name="keywords" content="<?php echo $row['keywords']?>"/>
-    <?php if(!empty($conf['favicon'])){?>
-    <link rel="icon" href="<?php echo $conf['favicon']?>" type="image/x-icon" />
-    <link rel="shortcut icon" href="<?php echo $conf['favicon']?>" type="image/x-icon" />
-    <?php }?>
+    <link rel="icon" href="<?php echo htmlspecialchars($q8XhyArticleFaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
+    <link rel="shortcut icon" href="<?php echo htmlspecialchars($q8XhyArticleFaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
     <link href="<?php echo $cdnpublic?>twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">

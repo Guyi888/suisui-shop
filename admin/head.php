@@ -24,9 +24,100 @@ if($admin_cdnpublic==1){
 $isAdminLoginPage = basename($_SERVER['SCRIPT_NAME']) === 'login.php';
 $isAdminIndexPage = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
 $isAdminCustomCssPage = basename($_SERVER['SCRIPT_NAME']) === 'customcss.php';
-$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519suisuiops04';
+$adminScriptBase = basename($_SERVER['SCRIPT_NAME'], '.php');
+$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519suisuiops06';
 $adminCsrfToken = q8_admin_csrf_token();
+$adminFaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : '/assets/img/favicon/favicon.ico';
+
+if (!function_exists('q8_admin_page_meta')) {
+	function q8_admin_page_meta($script, $title, $mod = '')
+	{
+		$setGroups = array(
+			'用户与分站' => array('fenzhan','proxy'),
+			'财务管理' => array('pay','epay','epay_settle','epay_order','codepay','rebaterecharge'),
+			'供货管理' => array('sup'),
+			'营销工具' => array('qiandao','invite','invitegift'),
+			'对接与同步' => array('cloneset'),
+			'内容与外观' => array('site','template','template2','gonggao','copygg','upimg','upbgimg','rewrite','beautify','beautify_admin','beautify_sidebar','beautify_font','beautify_background'),
+			'系统与安全' => array('mail','mailcon','captcha','defend','oauth','cron','cleanbom','dwz','map','chat'),
+			'员工管理' => array('account')
+		);
+		$groups = array(
+			'商品与发卡' => array('shoprank','region_price','shopnoo','seckill','fakalist','fakakms','cardlist','stock_notice','pricecontrol','classlist','shoplist','shopedit','price'),
+			'用户与分站' => array('sitelist','userlist','siteprice','rank','sitetask','sitetaskedit','mj'),
+			'财务管理' => array('record','profit','settlement','kmlist','payorder','tixian','pay','epay','rebaterecharge','list','export','orderjk','set_autoreorder'),
+			'供货管理' => array('suplist','supshoplist','supshoplist2','suprecord','suptixian'),
+			'营销工具' => array('agenttool','qiandao','invite','invitelog','choujiang','choujiang_list','coupons','coupon_rules','user_coupons'),
+			'对接与同步' => array('shequlist','pricejk','sitelogs','toollogs','cx-synchronization','cx-api-synchronization','batchgoods','batch_tool','batch_docking','ajax_batch_docking','clone','cloneset'),
+			'内容与外观' => array('article','recommend','faq'),
+			'工单处理' => array('workorder','workorder2','message'),
+			'系统与安全' => array('cc_protect','cf_ip_whitelist','cf_ip_blocklist','cron','clean','datamove','update','set_domain_landing','set_wall_guide'),
+			'员工管理' => array('account'),
+			'项目信息' => array('changelog','support')
+		);
+		$icons = array(
+			'商品与发卡' => 'fa-cubes',
+			'用户与分站' => 'fa-users',
+			'财务管理' => 'fa-credit-card',
+			'供货管理' => 'fa-truck',
+			'营销工具' => 'fa-gift',
+			'对接与同步' => 'fa-plug',
+			'内容与外观' => 'fa-paint-brush',
+			'工单处理' => 'fa-ticket',
+			'系统与安全' => 'fa-shield',
+			'员工管理' => 'fa-user-circle-o',
+			'项目信息' => 'fa-info-circle'
+		);
+		$subtitles = array(
+			'商品与发卡' => '商品、卡密、库存、控价、排行与活动入口统一整理。',
+			'用户与分站' => '分站、用户、密价、排行与任务数据集中运营。',
+			'财务管理' => '资金流水、利润统计、结算、接口与返利配置集中查看。',
+			'供货管理' => '供货商、供货商品、结算与记录保持同一操作风格。',
+			'营销工具' => '代理工具、签到、邀请、抽奖、优惠券等运营功能集中处理。',
+			'对接与同步' => '对接站点、价格监控、同步日志、初始化与克隆工具统一管理。',
+			'内容与外观' => '公告、文章、推荐、模板、背景与外观配置统一维护。',
+			'工单处理' => '用户咨询、站内信与工单处理保持统一工作台体验。',
+			'系统与安全' => '计划任务、清理、安全策略、版本与运行配置集中维护。',
+			'员工管理' => '后台员工账号、权限与操作范围统一管理。',
+			'项目信息' => '更新日志、赞助联系与项目说明。'
+		);
+
+		if ($script === 'set') {
+			foreach ($setGroups as $group => $mods) {
+				if (in_array($mod, $mods, true)) {
+					return array(
+						'group' => $group,
+						'icon' => isset($icons[$group]) ? $icons[$group] : 'fa-th-large',
+						'subtitle' => isset($subtitles[$group]) ? $subtitles[$group] : '',
+					);
+				}
+			}
+		}
+
+		foreach ($groups as $group => $pages) {
+			if (in_array($script, $pages, true)) {
+				return array(
+					'group' => $group,
+					'icon' => isset($icons[$group]) ? $icons[$group] : 'fa-th-large',
+					'subtitle' => isset($subtitles[$group]) ? $subtitles[$group] : '',
+				);
+			}
+		}
+
+		return array(
+			'group' => '后台管理',
+			'icon' => 'fa-th-large',
+			'subtitle' => $title ? $title . ' 的常用操作与数据管理入口。' : '后台常用操作与数据管理入口。',
+		);
+	}
+}
+
+$adminPageMeta = q8_admin_page_meta($adminScriptBase, $title, isset($_GET['mod']) ? trim((string)$_GET['mod']) : '');
 $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
+$bodyClass .= ' admin-page-' . preg_replace('/[^a-z0-9_-]+/i', '-', $adminScriptBase);
+if ($adminScriptBase === 'set' && isset($_GET['mod'])) {
+	$bodyClass .= ' admin-mod-' . preg_replace('/[^a-z0-9_-]+/i', '-', trim((string)$_GET['mod']));
+}
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -36,7 +127,8 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
   <meta name="force-rendering" content="webkit"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title><?php echo $title ?></title>
-  <?php if(!empty($conf['favicon'])){echo '<link rel="icon" href="'.htmlspecialchars($conf['favicon']).'" type="image/x-icon" />';}?>
+  <link rel="icon" href="<?php echo htmlspecialchars($adminFaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
+  <link rel="shortcut icon" href="<?php echo htmlspecialchars($adminFaviconHref, ENT_QUOTES, 'UTF-8'); ?>" type="image/x-icon" />
   <link href="<?php echo $cdnpublic?>twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="../assets/appui/css/main.css">
@@ -1363,14 +1455,21 @@ $renderMenuBadge = function($value) {
 <div id="page-content">
 <div class="main-bg-img"></div>
 			<div class="main pjaxmain">
-				<div class="content-header">
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <div class="header-section">
-                                    <h1><?php echo $title ?></h1>
-                                </div>
-                            </div>
-                        </div>
+				<div class="content-header admin-modern-header">
+					<div class="admin-modern-header__main">
+						<span class="admin-modern-header__icon"><i class="fa <?php echo htmlspecialchars($adminPageMeta['icon'], ENT_QUOTES, 'UTF-8'); ?>"></i></span>
+						<div>
+							<div class="admin-modern-header__eyebrow"><?php echo htmlspecialchars($adminPageMeta['group'], ENT_QUOTES, 'UTF-8'); ?></div>
+							<h1><?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?></h1>
+							<?php if (!empty($adminPageMeta['subtitle'])) { ?>
+							<p><?php echo htmlspecialchars($adminPageMeta['subtitle'], ENT_QUOTES, 'UTF-8'); ?></p>
+							<?php } ?>
+						</div>
+					</div>
+					<div class="admin-modern-header__actions">
+						<a href="javascript:window.location.reload();" class="btn btn-default"><i class="fa fa-refresh"></i> 刷新</a>
+						<a href="../" target="_blank" rel="noopener" class="btn btn-primary"><i class="fa fa-external-link"></i> 前台</a>
+					</div>
 				</div>
 <div class="row">
 <?php }?>

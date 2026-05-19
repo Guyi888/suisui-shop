@@ -159,6 +159,7 @@ insert  into `shua_config`(`k`,`v`) values
 ('datepoint','a:7:{i:0;a:3:{s:4:\"date\";s:4:\"0527\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:1;a:3:{s:4:\"date\";s:4:\"0526\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:2;a:3:{s:4:\"date\";s:4:\"0525\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:3;a:3:{s:4:\"date\";s:4:\"0524\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:4;a:3:{s:4:\"date\";s:4:\"0523\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:5;a:3:{s:4:\"date\";s:4:\"0522\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:6;a:3:{s:4:\"date\";s:4:\"0521\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}}'),
 ('description','岁岁云商城，专注数字商品、自助下单、发卡交付与分站运营服务。'),
 ('faka_mail','<b>商品名称：</b> [name]<br/><b>购买时间：</b>[date]<br/><b>以下是你的卡密信息：</b><br/>[kmdata]<br/>----------<br/><b>使用说明：</b><br/>[alert]<br/>----------<br/>岁岁云商城自助下单平台<br/>[domain]'),
+('favicon','/assets/img/favicon/favicon.ico'),
 ('fenzhan_buy','1'),
 ('fenzhan_edithtml','1'),
 ('fenzhan_expiry','12'),
