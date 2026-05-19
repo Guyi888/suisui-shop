@@ -1,5 +1,15 @@
 # 更新日志
 
+## v1.0.1.1 - 文档联系方式更新
+
+发布日期：2026-05-20
+
+### 文档更新
+
+- README 联系入口更新为 Telegram 交流群组：[https://t.me/suisuishop](https://t.me/suisuishop)。
+- README 通知频道更新为：[https://t.me/suisuifaka](https://t.me/suisuifaka)。
+- 移除 README 中旧的单一 Telegram 联系入口，后续对外沟通统一使用群组与通知频道。
+
 ## v1.0.1.0 - 后台运营界面细节修复与加款卡增强
 
 发布日期：2026-05-20
