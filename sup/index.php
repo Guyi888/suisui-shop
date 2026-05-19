@@ -1,7 +1,7 @@
 <?php
 /*
-QQ群qqfaka
-岁岁 @qqfaka
+岁岁云商城
+维护：岁岁 @qqfaka
 */
 $is_defend=true;
 require '../includes/common.php';

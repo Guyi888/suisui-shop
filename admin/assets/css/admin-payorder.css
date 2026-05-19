@@ -1,0 +1,743 @@
+:root {
+  --payorder-primary: #0f6fb8;
+  --payorder-primary-dark: #0a4b80;
+  --payorder-accent: #00a6a6;
+  --payorder-warn: #e28b00;
+  --payorder-danger: #e04444;
+  --payorder-text: #17243a;
+  --payorder-muted: #6d7b91;
+  --payorder-border: rgba(15, 111, 184, 0.12);
+  --payorder-panel: rgba(255, 255, 255, 0.94);
+  --payorder-soft: #f2f8fc;
+}
+
+.admin-payorder-page {
+  color: var(--payorder-text);
+}
+
+.admin-payorder-hero,
+.admin-payorder-panel,
+.admin-payorder-summary,
+.admin-payorder-table-wrap,
+.admin-payorder-card,
+.admin-payorder-bulkbar {
+  border: 1px solid var(--payorder-border);
+  background: var(--payorder-panel);
+  box-shadow: 0 18px 45px rgba(18, 45, 82, 0.08);
+}
+
+.admin-payorder-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 28px 30px;
+  margin-bottom: 20px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(0, 166, 166, 0.16), transparent 26%),
+    linear-gradient(135deg, rgba(15, 111, 184, 0.12), rgba(255, 255, 255, 0.95));
+}
+
+.admin-payorder-hero__content {
+  max-width: 760px;
+}
+
+.admin-payorder-hero__eyebrow {
+  display: inline-flex;
+  margin: 0 0 12px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(15, 111, 184, 0.1);
+  color: var(--payorder-primary);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-payorder-hero h2 {
+  margin: 0 0 12px;
+  color: var(--payorder-text);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.admin-payorder-hero p {
+  margin: 0;
+  color: var(--payorder-muted);
+  line-height: 1.8;
+}
+
+.admin-payorder-hero__aside {
+  display: grid;
+  min-width: 230px;
+  gap: 10px;
+}
+
+.admin-payorder-hero__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--payorder-text);
+  font-weight: 800;
+}
+
+.admin-payorder-hero__chip i {
+  color: var(--payorder-primary);
+}
+
+.admin-payorder-panel {
+  overflow: hidden;
+  margin-bottom: 20px;
+  border-radius: 24px;
+}
+
+.admin-payorder-panel__title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 24px 0;
+  border-bottom: 0;
+}
+
+.admin-payorder-panel__title h3 {
+  margin: 0 0 8px;
+  color: var(--payorder-text);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.admin-payorder-panel__title p {
+  margin: 0;
+  color: var(--payorder-muted);
+}
+
+.admin-payorder-filter-form {
+  padding: 22px 24px 24px;
+}
+
+.admin-payorder-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-payorder-field {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.admin-payorder-field--wide {
+  grid-column: span 2;
+}
+
+.admin-payorder-field__label {
+  color: var(--payorder-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-payorder-field__control {
+  display: block;
+}
+
+.admin-payorder-field__control--icon {
+  position: relative;
+}
+
+.admin-payorder-field__control--icon i {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: var(--payorder-primary);
+  pointer-events: none;
+}
+
+.admin-payorder-field .form-control {
+  height: 44px;
+  border-radius: 14px;
+  border-color: rgba(15, 111, 184, 0.16);
+  box-shadow: none;
+}
+
+.admin-payorder-field__control--icon .form-control {
+  padding-left: 40px;
+}
+
+.admin-payorder-field .form-control:focus {
+  border-color: rgba(15, 111, 184, 0.42);
+  box-shadow: 0 0 0 4px rgba(15, 111, 184, 0.08);
+}
+
+.admin-payorder-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.admin-payorder-toolbar__group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-payorder-toolbar .btn,
+.admin-payorder-actions .btn,
+.admin-payorder-card__footer .btn {
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.admin-payorder-loading-state,
+.admin-payorder-empty-state {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  min-height: 160px;
+  color: var(--payorder-muted);
+  text-align: center;
+}
+
+.admin-payorder-loading-state i,
+.admin-payorder-empty-state i {
+  color: var(--payorder-primary);
+  font-size: 28px;
+}
+
+.admin-payorder-summary {
+  padding: 20px;
+  margin-bottom: 18px;
+  border-radius: 24px;
+}
+
+.admin-payorder-summary__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-payorder-stat {
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff, var(--payorder-soft));
+  border: 1px solid rgba(15, 111, 184, 0.08);
+}
+
+.admin-payorder-stat__label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--payorder-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-payorder-stat__value {
+  display: block;
+  color: var(--payorder-text);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.admin-payorder-summary__filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.admin-payorder-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(15, 111, 184, 0.08);
+  color: var(--payorder-text);
+}
+
+.admin-payorder-filter-chip strong {
+  color: var(--payorder-primary);
+}
+
+.admin-payorder-filter-chip em {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.admin-payorder-status-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.admin-payorder-status-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(15, 111, 184, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--payorder-text);
+  font-weight: 800;
+}
+
+.admin-payorder-status-tab strong {
+  color: var(--payorder-primary);
+}
+
+.admin-payorder-status-tab.is-active {
+  border-color: var(--payorder-primary);
+  background: var(--payorder-primary);
+  color: #fff;
+}
+
+.admin-payorder-status-tab.is-active strong {
+  color: #fff;
+}
+
+.admin-payorder-table-wrap {
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+.admin-payorder-table {
+  min-width: 1320px;
+  table-layout: fixed;
+  margin-bottom: 0;
+}
+
+.admin-payorder-table thead th:nth-child(1) {
+  width: 150px;
+}
+
+.admin-payorder-table thead th:nth-child(2) {
+  width: 130px;
+}
+
+.admin-payorder-table thead th:nth-child(3) {
+  width: 300px;
+}
+
+.admin-payorder-table thead th:nth-child(4) {
+  width: 190px;
+}
+
+.admin-payorder-table thead th:nth-child(5) {
+  width: 135px;
+}
+
+.admin-payorder-table thead th:nth-child(6) {
+  width: 80px;
+}
+
+.admin-payorder-table thead th:nth-child(7) {
+  width: 155px;
+}
+
+.admin-payorder-table thead th:nth-child(8) {
+  width: 80px;
+}
+
+.admin-payorder-table thead th:nth-child(9) {
+  width: 120px;
+}
+
+.admin-payorder-table thead th {
+  border-bottom-width: 1px;
+  background: #f5fafd;
+  color: var(--payorder-text);
+  font-weight: 800;
+  text-align: center;
+  vertical-align: middle !important;
+}
+
+.admin-payorder-table tbody td {
+  padding: 14px 12px !important;
+  height: auto;
+  line-height: 1.65;
+  text-align: center;
+  vertical-align: middle !important;
+}
+
+.admin-payorder-main,
+.admin-payorder-text,
+.admin-payorder-time {
+  line-height: 1.65;
+}
+
+.admin-payorder-main strong,
+.admin-payorder-text strong {
+  display: block;
+  color: var(--payorder-text);
+  font-weight: 800;
+  word-break: break-all;
+}
+
+.admin-payorder-main span,
+.admin-payorder-text span,
+.admin-payorder-text a,
+.admin-payorder-time span {
+  display: block;
+  margin-top: 4px;
+  color: var(--payorder-muted);
+  word-break: break-all;
+}
+
+.admin-payorder-text--party {
+  text-align: left !important;
+}
+
+.admin-payorder-text--party > a,
+.admin-payorder-text--party > span {
+  display: none;
+}
+
+.admin-payorder-party,
+.admin-payorder-card__party {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-payorder-party__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  margin-top: 0 !important;
+  border: 1px solid rgba(15, 111, 184, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--payorder-text);
+  text-decoration: none;
+}
+
+.admin-payorder-party__link:hover,
+.admin-payorder-party__link:focus {
+  color: var(--payorder-primary-dark);
+  text-decoration: none;
+  border-color: rgba(15, 111, 184, 0.24);
+}
+
+.admin-payorder-party__link.is-static {
+  cursor: default;
+}
+
+.admin-payorder-party__label {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  margin: 0 !important;
+  color: var(--payorder-muted) !important;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-payorder-party__link strong {
+  margin: 0;
+  color: var(--payorder-text);
+  font-weight: 800;
+  word-break: break-all;
+  text-align: right;
+}
+
+.admin-payorder-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-payorder-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-payorder-badge--paid {
+  background: rgba(0, 166, 126, 0.12);
+  color: #008662;
+}
+
+.admin-payorder-badge--unpaid {
+  background: rgba(224, 68, 68, 0.12);
+  color: var(--payorder-danger);
+}
+
+.admin-payorder-card-list,
+.admin-payorder-card {
+  display: none;
+}
+
+.admin-payorder-card {
+  padding: 18px;
+  border-radius: 20px;
+}
+
+.admin-payorder-card + .admin-payorder-card {
+  margin-top: 14px;
+}
+
+.admin-payorder-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-payorder-card__top strong {
+  word-break: break-all;
+}
+
+.admin-payorder-card__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.admin-payorder-card__grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--payorder-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-payorder-card__grid strong {
+  color: var(--payorder-text);
+  word-break: break-all;
+}
+
+.admin-payorder-card__footer {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.admin-payorder-pagination-wrap {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.admin-payorder-pagination > li > a,
+.admin-payorder-pagination > li > span {
+  margin: 0 4px;
+  border-radius: 999px !important;
+  color: var(--payorder-text);
+}
+
+.admin-payorder-pagination > .active > span,
+.admin-payorder-pagination > .active > a {
+  border-color: var(--payorder-primary);
+  background: var(--payorder-primary);
+  color: #fff;
+}
+
+.admin-payorder-layer.layui-layer {
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 28px 70px rgba(17, 38, 74, 0.18) !important;
+}
+
+.admin-payorder-layer .layui-layer-title {
+  height: 58px;
+  line-height: 58px;
+  padding: 0 58px 0 22px;
+  border: 0;
+  background: linear-gradient(135deg, rgba(15, 111, 184, 0.14), rgba(15, 111, 184, 0.04));
+  color: var(--payorder-text);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.admin-payorder-layer .layui-layer-content {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.admin-payorder-modal-shell {
+  padding: 22px;
+}
+
+.admin-payorder-dialog {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-payorder-dialog__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  margin: 0;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(15, 111, 184, 0.1);
+  color: var(--payorder-primary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-payorder-dialog__title {
+  margin: 0;
+  color: var(--payorder-text);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.admin-payorder-dialog__desc {
+  margin: -8px 0 0;
+  color: var(--payorder-muted);
+  line-height: 1.8;
+}
+
+.admin-payorder-dialog__meta {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-payorder-dialog__meta-item {
+  padding: 14px 16px;
+  border: 1px solid rgba(15, 111, 184, 0.1);
+  border-radius: 18px;
+  background: var(--payorder-soft);
+}
+
+.admin-payorder-dialog__meta-item span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--payorder-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-payorder-dialog__meta-item strong {
+  display: block;
+  color: var(--payorder-text);
+  word-break: break-all;
+}
+
+.admin-payorder-dialog__footer {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.admin-payorder-dialog__footer .btn {
+  min-width: 140px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+@media (max-width: 1199px) {
+  .admin-payorder-filter-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .admin-payorder-field--wide {
+    grid-column: span 2;
+  }
+
+  .admin-payorder-summary__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 991px) {
+  .admin-payorder-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-payorder-hero__aside {
+    min-width: 0;
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .admin-payorder-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .admin-payorder-hero,
+  .admin-payorder-panel,
+  .admin-payorder-summary,
+  .admin-payorder-table-wrap,
+  .admin-payorder-card {
+    border-radius: 18px;
+  }
+
+  .admin-payorder-hero {
+    padding: 22px 18px;
+  }
+
+  .admin-payorder-hero h2 {
+    font-size: 22px;
+  }
+
+  .admin-payorder-hero__aside,
+  .admin-payorder-filter-grid,
+  .admin-payorder-card__grid,
+  .admin-payorder-summary__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-payorder-field--wide {
+    grid-column: span 1;
+  }
+
+  .admin-payorder-filter-form {
+    padding: 20px 18px 22px;
+  }
+
+  .admin-payorder-toolbar,
+  .admin-payorder-toolbar__group,
+  .admin-payorder-toolbar .btn,
+  .admin-payorder-card__footer .btn,
+  .admin-payorder-dialog__footer .btn {
+    width: 100%;
+  }
+
+  .admin-payorder-toolbar {
+    flex-direction: column;
+  }
+
+  .admin-payorder-table-wrap--desktop {
+    display: none;
+  }
+
+  .admin-payorder-card-list,
+  .admin-payorder-card {
+    display: block;
+  }
+
+  .admin-payorder-dialog__footer {
+    justify-content: stretch;
+  }
+}

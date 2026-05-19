@@ -1,0 +1,461 @@
+:root {
+  --bg-primary: #0f67b1;
+  --bg-primary-dark: #0a416f;
+  --bg-accent: #00a884;
+  --bg-warm: #e79a22;
+  --bg-danger: #df4a4a;
+  --bg-ink: #14243c;
+  --bg-muted: #65778d;
+  --bg-border: rgba(15, 103, 177, 0.14);
+  --bg-panel: rgba(255, 255, 255, 0.96);
+  --bg-soft: #eef7ff;
+  --bg-shadow: 0 20px 46px rgba(18, 48, 86, 0.08);
+  --bg-shadow-soft: 0 12px 28px rgba(18, 48, 86, 0.06);
+}
+
+.admin-batchgoods-page {
+  color: var(--bg-ink);
+  padding-bottom: 34px;
+}
+
+.admin-batchgoods-hero,
+.admin-batchgoods-panel,
+.admin-batchgoods-empty,
+.admin-batchgoods-table-shell {
+  border: 1px solid var(--bg-border);
+  background: var(--bg-panel);
+  box-shadow: var(--bg-shadow);
+}
+
+.admin-batchgoods-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 30px;
+  margin-bottom: 18px;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(0, 168, 132, 0.18), transparent 28%),
+    radial-gradient(circle at 84% 18%, rgba(231, 154, 34, 0.14), transparent 30%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(238, 247, 255, 0.96));
+}
+
+.admin-batchgoods-hero__content {
+  max-width: 860px;
+}
+
+.admin-batchgoods-hero__eyebrow {
+  display: inline-flex;
+  margin: 0 0 12px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(15, 103, 177, 0.1);
+  color: var(--bg-primary);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-batchgoods-hero h2 {
+  margin: 0 0 10px;
+  color: var(--bg-ink);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.32;
+}
+
+.admin-batchgoods-hero p {
+  margin: 0;
+  color: var(--bg-muted);
+  line-height: 1.8;
+}
+
+.admin-batchgoods-hero__aside {
+  display: grid;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.admin-batchgoods-hero__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 15px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--bg-ink);
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.admin-batchgoods-hero__chip:hover,
+.admin-batchgoods-hero__chip:focus {
+  color: var(--bg-primary-dark);
+  background: #fff;
+  box-shadow: var(--bg-shadow-soft);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.admin-batchgoods-panel {
+  padding: 20px 22px 26px;
+  margin-bottom: 18px;
+  border-radius: 24px;
+}
+
+.admin-batchgoods-panel__title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 0 0 18px;
+  border-bottom: 1px dashed var(--bg-border);
+  margin: 0 0 20px;
+}
+
+.admin-batchgoods-panel__title h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--bg-ink);
+}
+
+.admin-batchgoods-panel__title p {
+  margin: 0;
+  color: var(--bg-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.admin-batchgoods-panel__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-batchgoods-form {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-batchgoods-field {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 12px 16px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fafdff;
+  border: 1px solid rgba(15, 103, 177, 0.08);
+}
+
+.admin-batchgoods-field--stack {
+  align-items: flex-start;
+}
+
+.admin-batchgoods-field[hidden] {
+  display: none;
+}
+
+.admin-batchgoods-field__label {
+  color: var(--bg-ink);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.admin-batchgoods-field__control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.admin-batchgoods-field__control .form-control {
+  flex: 1 1 240px;
+  min-width: 0;
+  border-radius: 10px;
+}
+
+.admin-batchgoods-field__control select[multiple].form-control,
+.admin-batchgoods-field__control .admin-batchgoods-multi {
+  flex: 1 1 100%;
+  height: auto;
+  min-height: 180px;
+  padding: 6px;
+  border-radius: 12px;
+}
+
+.admin-batchgoods-field__control .btn {
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.admin-batchgoods-field--with-action .admin-batchgoods-field__control .form-control {
+  flex: 1 1 220px;
+}
+
+.admin-batchgoods-field__hint {
+  grid-column: 1 / -1;
+  color: var(--bg-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.admin-batchgoods-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-batchgoods-form-actions--primary {
+  padding-top: 8px;
+  border-top: 1px dashed var(--bg-border);
+  margin-top: 4px;
+}
+
+.admin-batchgoods-submit {
+  min-height: 44px;
+  padding: 0 28px;
+  border-radius: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.admin-batchgoods-submit i {
+  margin-right: 6px;
+}
+
+.admin-batchgoods-empty {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 24px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(243, 249, 255, 0.94));
+}
+
+.admin-batchgoods-empty i {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  background: linear-gradient(135deg, #0f67b1, #41a8ff);
+  border-radius: 14px;
+}
+
+.admin-batchgoods-empty strong {
+  display: block;
+  font-size: 15px;
+  color: var(--bg-ink);
+  margin-bottom: 4px;
+}
+
+.admin-batchgoods-empty p {
+  margin: 0;
+  color: var(--bg-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.admin-batchgoods-table-shell {
+  border-radius: 18px;
+  padding: 14px;
+  background: #fff;
+}
+
+.admin-batchgoods-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.admin-batchgoods-table-title {
+  font-weight: 800;
+  color: var(--bg-ink);
+  font-size: 14px;
+}
+
+.admin-batchgoods-table-title i {
+  color: var(--bg-primary);
+  margin-right: 6px;
+}
+
+.admin-batchgoods-table-meta {
+  color: var(--bg-muted);
+  font-size: 12px;
+}
+
+.admin-batchgoods-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-batchgoods-table {
+  width: 100%;
+  margin-bottom: 0;
+  background: #fff;
+}
+
+.admin-batchgoods-table thead th {
+  background: #f3f8ff;
+  color: var(--bg-ink);
+  font-weight: 800;
+  border-bottom: 1px solid var(--bg-border);
+  white-space: nowrap;
+}
+
+.admin-batchgoods-table tbody td {
+  vertical-align: middle;
+}
+
+.admin-batchgoods-col-check {
+  width: 120px;
+}
+
+.admin-batchgoods-placeholder td {
+  text-align: center;
+  color: var(--bg-muted);
+  padding: 26px 12px;
+  background: #fafdff;
+}
+
+.admin-batchgoods-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--bg-ink);
+}
+
+.admin-batchgoods-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--bg-primary);
+  cursor: pointer;
+}
+
+.admin-batchgoods-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.admin-batchgoods-status--online {
+  background: rgba(0, 168, 132, 0.14);
+  color: #0c7a5c;
+}
+
+.admin-batchgoods-status--offline {
+  background: rgba(231, 154, 34, 0.18);
+  color: #a46716;
+}
+
+.admin-batchgoods-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(15, 103, 177, 0.1);
+  color: var(--bg-primary);
+  margin-right: 4px;
+}
+
+.admin-batchgoods-numinput {
+  width: 90px;
+  display: inline-block;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.admin-batchgoods-price {
+  color: var(--bg-ink);
+  font-weight: 700;
+}
+
+.admin-batchgoods-price--cost {
+  color: var(--bg-danger);
+}
+
+@media (max-width: 992px) {
+  .admin-batchgoods-hero {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 22px;
+  }
+  .admin-batchgoods-hero__aside {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    min-width: 0;
+  }
+  .admin-batchgoods-field {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .admin-batchgoods-field__label {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-batchgoods-page {
+    padding-bottom: 20px;
+  }
+  .admin-batchgoods-hero {
+    padding: 18px;
+    border-radius: 20px;
+  }
+  .admin-batchgoods-hero h2 {
+    font-size: 20px;
+  }
+  .admin-batchgoods-hero__aside {
+    grid-template-columns: 1fr;
+  }
+  .admin-batchgoods-panel {
+    padding: 16px 14px 20px;
+    border-radius: 18px;
+  }
+  .admin-batchgoods-panel__title {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .admin-batchgoods-panel__actions {
+    justify-content: flex-start;
+  }
+  .admin-batchgoods-form-actions {
+    justify-content: stretch;
+  }
+  .admin-batchgoods-form-actions .btn,
+  .admin-batchgoods-submit {
+    width: 100%;
+  }
+  .admin-batchgoods-col-check {
+    width: 90px;
+  }
+}

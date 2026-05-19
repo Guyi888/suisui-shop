@@ -31,7 +31,7 @@ $(function() {
     // 添加分类样式
     $("head").append('<style type="text/css">\n        .category-container { border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }\n        .primary-category-box { background-color: #fff; padding: 10px; margin-bottom: 10px; }\n        .secondary-category-box { background-color: #fff; padding: 10px; }\n        .shop_active { color: #ff6600 !important; font-weight: bold; }\n        .sub-category.shop_active { background-color: #ff6600 !important; color: white !important; }\n        .primary-category:hover { opacity: 0.8; }\n        .sub-category:hover { background-color: #e8e8e8 !important; }\n        .sub-category.shop_active:hover { background-color: #ff6600 !important; }\n        /* 二级分类横向滑动样式 */\n        .sub-categories { display: flex; overflow-x: auto; flex-wrap: nowrap; white-space: nowrap; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }\n        \n        /* 默认样式（手机端）：隐藏滚动条但保留滑动功能 */\n        .sub-categories::-webkit-scrollbar { display: none; /* Chrome, Safari, Edge */ }\n        .sub-categories { -ms-overflow-style: none; /* IE and Edge */ scrollbar-width: none; /* Firefox */ }\n        \n        /* 媒体查询：电脑端显示滚动条 */\n        @media (min-width: 768px) {\n            .sub-categories::-webkit-scrollbar { display: block; height: 4px; }\n            .sub-categories::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 2px; }\n            .sub-categories::-webkit-scrollbar-thumb { background: #888; border-radius: 2px; }\n            .sub-categories::-webkit-scrollbar-thumb:hover { background: #555; }\n            .sub-categories { -ms-overflow-style: auto; scrollbar-width: thin; }\n        }\n    </style>');
 
-    // 为一级分类添加点击事件，点击后显示该一级分类下所有二级分类的商品 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
+    // 为一级分类添加点击事件，点击后显示该一级分类下所有二级分类的商品。
     $("a.primary-category").on("click", function() {
         var primary_cid = $(this).data("cid");
         var primary_name = $(this).data("name");
@@ -275,7 +275,7 @@ function get_goods(){
         var kw = $("input[name=kw]").val();
         var sort_type = $("input[name=_sort_type]").val();
         var sort = $("input[name=_sort]").val();
-        // 检查是否是一级分类点击 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
+        // 检查是否是一级分类点击。
         var is_primary_cat = 0;
         var active_primary = $("a.primary-category.shop_active");
         var cid_val = $("input[name=_cid]").val();
@@ -306,15 +306,15 @@ function get_goods(){
         //写入数据
         $("div.show_class").show();
 
-        // 先清空列表容器内容，确保每次切换分类都能重新开始 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
+        // 先清空列表容器内容，确保每次切换分类都能重新开始。
         $("#goods_list").html('');
 
-        // 重置flow的加载状态 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
+        // 重置 flow 的加载状态。
         if (window.flowInstance) {
             window.flowInstance.destroy ? window.flowInstance.destroy() : $("#goods_list").data('flow-status', null);
         }
 
-        // 重新初始化flow - 作者：岁岁 @qqfaka 博客：zhonguo.ren
+        // 重新初始化 flow。
         window.flowInstance = flow.load({
                 elem: '#goods_list' //流加载容器
                 ,isAuto:true

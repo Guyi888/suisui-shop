@@ -2,8 +2,7 @@
 /**
  * CX-NEW1 模板配置文件
  * 作者：岁岁 @qqfaka
- * 博客地址：qqfaka
- * TG：@qqfaka
+ * 官网：https://t.me/qqfaka
  */
 
 $template_info = [

@@ -5,7 +5,7 @@
 ## 当前版本
 
 - 数据库版本：1013
-- 缓存版本：20260519
+- 缓存版本：2026051902
 - 运行环境：PHP 7.4+，MySQL/MariaDB，Nginx 或 Apache
 - 维护标识：岁岁 @qqfaka
 - 官网：<https://t.me/qqfaka>

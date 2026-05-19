@@ -36,7 +36,6 @@ $show_top_banner = isset($conf['show_top_banner']) ? $conf['show_top_banner'] : 
 
   <!-- 预加载关键资源 - 来自CX-NEW1 -->
   <link rel="preload" href="//lib.baomitu.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="//lib.baomitu.com/twitter-bootstrap/3.3.7/fonts/glyphicons-halflings-regular.woff2" as="font" type="font/woff2" crossorigin>
 
   <!-- 关键CSS优先加载 - 结合CX-NEW1和XHY-00 -->
   <link href="//lib.baomitu.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>

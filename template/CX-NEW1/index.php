@@ -29,7 +29,6 @@ if (empty($site_info['appurl'])) {
 
   <!-- 预加载字体资源 -->
   <link rel="preload" href="//lib.baomitu.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="//lib.baomitu.com/twitter-bootstrap/3.3.7/fonts/glyphicons-halflings-regular.woff2" as="font" type="font/woff2" crossorigin>
 
   <!-- 关键CSS优先加载 - 使用最快的CDN -->
   <link href="//lib.baomitu.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
@@ -1186,4 +1185,3 @@ $(function(){
   }
 });
 </script>
-

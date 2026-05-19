@@ -1,25 +1,14 @@
 <?php
 /*
- * 自动同步API处理文件
- * 官网：t.me/qqfaka
- * TG：@qqfaka
- * 开发者：岁岁 @qqfaka
- * 功能：处理商品自动同步的核心逻辑，包括分类同步、商品同步、数据更新等
+ * 岁岁云商城自动同步 API
+ * 功能：处理商品自动同步的核心逻辑，包括分类同步、商品同步、数据更新等。
  */
-// 设置脚本执行时间和内存限制 - 岁岁 @qqfaka优化，确保同步任务能完成
-ini_set('max_execution_time', 0); // 设置执行时间为无限
-ini_set('memory_limit', '1024M'); // 设置内存限制为1G
-ini_set('default_socket_timeout', 60); // 设置socket超时为1分钟
-ignore_user_abort(true); // 忽略用户中止请求，后台继续执行
+// 设置脚本执行时间和内存限制
+ini_set('max_execution_time', 3600); // 设置执行时间为1小时
+ini_set('memory_limit', '512M'); // 设置内存限制为512M
+ini_set('default_socket_timeout', 300); // 设置socket超时为5分钟
 
 header("Content-Type: text/html;charset=utf-8");
-set_time_limit(0); // 再次设置时间限制为无限
-
-// 关闭输出缓冲，让输出立即显示
-while(ob_get_level() > 0) {
-    ob_end_flush();
-}
-flush();
 include("../includes/common.php");
 
 // 检查监控密钥
@@ -32,7 +21,7 @@ if($monitor_key && $_GET['key'] != $monitor_key) {
 $DB->exec("REPLACE INTO pre_config SET k='last_sync_time',v='{$date}'");
 echo "同步任务开始时间：{$date}<br/>";
 
-// 模拟任务管理器功能 - 岁岁 @qqfaka优化，提高性能
+// 模拟任务管理器功能
 class SimpleTask {
     private $name;
     private $outputBuffer = [];
@@ -50,8 +39,8 @@ class SimpleTask {
     }
 
     public function updateProgress($message) {
-        // 记录关键信息，包括位置更新
-        if(strpos($message, '处理第') !== false || strpos($message, '开始') !== false || strpos($message, '完成') !== false || strpos($message, '同步位置') !== false || strpos($message, '获取到') !== false) {
+        // 只记录关键信息，减少输出量
+        if(strpos($message, '处理第') !== false || strpos($message, '开始') !== false || strpos($message, '完成') !== false || strpos($message, '异常') !== false || strpos($message, '失败') !== false || strpos($message, '调试') !== false || strpos($message, '调试') !== false || strpos($message, '异常') !== false || strpos($message, '失败') !== false) {
             $this->outputBuffer[] = $message . "<br/>";
             $this->checkFlush();
         }
@@ -99,7 +88,9 @@ try {
     $total_synced = 0;
     $total_updated = 0;
     $total_deleted = 0;
-    $start_time = time();
+    $total_scanned = 0;
+    $total_field_counts = [];
+    $total_update_samples = [];
 
     while($row = $configs->fetch()) {
         $task->updateProgress("开始处理站点配置: ID=" . $row['shequ_id']);
@@ -118,6 +109,26 @@ try {
             continue;
         }
 
+        if($shequ['type'] == 'daishua') {
+            $task->updateProgress("开始同系统完整同步");
+            $synced_count = syncDaishuaFull($shequ, $row, $task);
+            $total_synced += $synced_count['synced'];
+            $total_updated += $synced_count['updated'];
+            $total_deleted += $synced_count['deleted'];
+            $total_scanned += intval($synced_count['scanned'] ?? 0);
+            if(!empty($synced_count['field_counts']) && is_array($synced_count['field_counts'])) {
+                foreach($synced_count['field_counts'] as $field => $count) {
+                    if(!isset($total_field_counts[$field])) $total_field_counts[$field] = 0;
+                    $total_field_counts[$field] += intval($count);
+                }
+            }
+            if(!empty($synced_count['samples']) && is_array($synced_count['samples'])) {
+                $total_update_samples = array_slice(array_merge($total_update_samples, $synced_count['samples']), 0, 20);
+            }
+            $task->updateProgress("站点同步完成：已检索 {$synced_count['scanned']} 条，实际新增 {$synced_count['synced']} 条，实际更新 {$synced_count['updated']} 条，实际删除 {$synced_count['deleted']} 条");
+            continue;
+        }
+
         // 同步分类
         if($row['sync_class'] || $row['add_class']) {
             $task->updateProgress("开始同步分类信息");
@@ -130,10 +141,12 @@ try {
         $total_updated += $synced_count['updated'];
         $total_deleted += $synced_count['deleted'];
 
-        $task->updateProgress("站点同步完成: 新增{$synced_count['synced']}, 更新{$synced_count['updated']}, 删除{$synced_count['deleted']}");
+        $task->updateProgress("站点同步完成：实际新增 {$synced_count['synced']} 条，实际更新 {$synced_count['updated']} 条，实际删除 {$synced_count['deleted']} 条");
     }
 
-    $task->updateProgress("同步任务完成: 总计新增{$total_synced}, 更新{$total_updated}, 删除{$total_deleted}");
+    $task->updateProgress("同步任务完成：已检索 {$total_scanned} 条，实际新增 {$total_synced} 条，实际更新 {$total_updated} 条，实际删除 {$total_deleted} 条");
+    $syncLogDetail = json_encode(['scanned'=>$total_scanned,'added'=>$total_synced,'updated'=>$total_updated,'deleted'=>$total_deleted,'field_counts'=>$total_field_counts,'samples'=>$total_update_samples], JSON_UNESCAPED_UNICODE);
+    q8_add_site_log('sync', 'sync_full', 'all', "自动同步完成：已检索 {$total_scanned} 条，实际新增 {$total_synced} 条，实际更新 {$total_updated} 条，实际删除 {$total_deleted} 条", $syncLogDetail);
     echo "同步任务结束时间: " . date('Y-m-d H:i:s') . "<br/>";
 
 } catch(Exception $e) {
@@ -171,11 +184,11 @@ function syncCategories($shequ, $config, $task) {
         $updated = 0;
 
         foreach($categories as $cat) {
-            // 检查分类是否已存在 - 岁岁 @qqfaka修改，岁岁 @qqfaka
+            // 检查分类是否已存在
             $existing_cat = $DB->getRow("SELECT * FROM pre_class WHERE `name`=? LIMIT 1", [$cat['name']]);
 
             if($existing_cat) {
-                // 更新分类 - 岁岁 @qqfaka修改，岁岁 @qqfaka
+                // 更新分类
                 if($config['sync_sort'] && $existing_cat['sort'] != ($cat['sort'] ?? 0)) {
                     $sort = intval($cat['sort'] ?? 0);
                     $name = addslashes($cat['name']);
@@ -183,7 +196,7 @@ function syncCategories($shequ, $config, $task) {
                     $updated++;
                 }
             } elseif($config['add_class']) {
-                // 新增分类 - 岁岁 @qqfaka修改，岁岁 @qqfaka
+                // 新增分类
                 $sort = intval($cat['sort'] ?? 0);
                 $name = addslashes($cat['name']);
                 $DB->exec("INSERT INTO `pre_class` (`sort`,`name`,`pid`,`active`) VALUES ('{$sort}','{$name}','0','1')");
@@ -199,32 +212,7 @@ function syncCategories($shequ, $config, $task) {
 }
 
 /**
- * 获取同步位置记录
- */
-function getSyncPosition($shequ_id) {
-    global $DB;
-    $pos = $DB->getColumn("SELECT v FROM pre_config WHERE k='sync_pos_".$shequ_id."'");
-    return $pos ? intval($pos) : 0;
-}
-
-/**
- * 设置同步位置记录
- */
-function setSyncPosition($shequ_id, $position) {
-    global $DB;
-    $DB->exec("REPLACE INTO pre_config SET k='sync_pos_".$shequ_id."',v='".$position."'");
-}
-
-/**
- * 重置同步位置记录
- */
-function resetSyncPosition($shequ_id) {
-    global $DB;
-    $DB->exec("REPLACE INTO pre_config SET k='sync_pos_".$shequ_id."',v='0'");
-}
-
-/**
- * 同步商品信息（支持分页同步）
+ * 同步商品信息
  */
 function syncProducts($shequ, $config, $task) {
     global $DB, $date, $conf;
@@ -234,24 +222,12 @@ function syncProducts($shequ, $config, $task) {
     $deleted = 0;
 
     try {
-        // 获取配置的同步数量，默认为50
-        $sync_limit = intval($config['sync_limit'] ?? 50);
-        if($sync_limit <= 0) $sync_limit = 50;
-
-        // 获取当前同步位置
-        $current_pos = getSyncPosition($shequ['id']);
-
         // 使用 third_call 函数调用插件方法获取商品列表
-        try {
-            $products = third_call($shequ['type'], $shequ, 'goods_list');
-        } catch(Exception $e) {
-            $task->updateProgress("获取商品列表异常: " . $e->getMessage());
-            return ['synced' => 0, 'updated' => 0, 'deleted' => 0];
-        }
+        $products = third_call($shequ['type'], $shequ, 'goods_list');
 
         // 检查商品列表是否为数组
         if(!is_array($products)) {
-            $task->updateProgress("获取商品列表失败");
+            $task->updateProgress("获取商品列表失败: {$products}");
             return ['synced' => 0, 'updated' => 0, 'deleted' => 0];
         }
 
@@ -261,24 +237,7 @@ function syncProducts($shequ, $config, $task) {
         }
 
         $total_products = count($products);
-
-        // 计算本次需要处理的商品范围
-        $start_pos = $current_pos;
-        $end_pos = min($current_pos + $sync_limit, $total_products);
-
-        // 截取本次需要处理的商品
-        $current_batch_products = array_slice($products, $start_pos, $sync_limit);
-
-        // 如果已经处理完所有商品，标记完成并重置位置
-        if($start_pos >= $total_products) {
-            $current_batch_products = $products;
-            $start_pos = 0;
-            $end_pos = $total_products;
-            resetSyncPosition($shequ['id']);
-        }
-
-        // 输出同步进度日志
-        $task->updateProgress("获取到 {$total_products} 个商品，本次处理范围: {$start_pos} - {$end_pos}");
+        $task->updateProgress("获取到 {$total_products} 个商品，开始分批处理");
 
         // 预加载分类信息，减少重复查询
         $categories = third_call($shequ['type'], $shequ, 'class_list');
@@ -292,29 +251,19 @@ function syncProducts($shequ, $config, $task) {
         // 预加载加价模板，减少重复查询
         $markup_template = null;
         if($config['markup_template']) {
-            $markup_template = $DB->getRow("SELECT * FROM pre_price WHERE id=?", [$config['markup_template']]);
+    $markup_template = $DB->getRow("SELECT * FROM pre_price WHERE id=? AND zid=0", [$config['markup_template']]);
         }
 
         // 预加载默认分类，减少重复查询
         $default_class = $DB->getRow("SELECT * FROM pre_class WHERE `name`=? LIMIT 1", ['默认分类']);
         $default_cid = $default_class ? $default_class['cid'] : 0;
 
-        // 收集本次处理的商品ID（用于后续删除检查）
-        $current_batch_ids = [];
-        foreach($current_batch_products as $product) {
-            $current_batch_ids[] = $product['id'];
-        }
-
-        // 分批处理商品，每批20个（内部处理批次，减少内存占用）
-        $internal_batch_size = 20;
-        $batches = array_chunk($current_batch_products, $internal_batch_size);
+        // 分批处理商品，每批50个
+        $batch_size = 50;
+        $batches = array_chunk($products, $batch_size);
         $total_batches = count($batches);
 
-        // 收集所有对接站商品ID（用于删除检查）
         $all_shequ_product_ids = [];
-        foreach($products as $product) {
-            $all_shequ_product_ids[] = $product['id'];
-        }
 
         foreach($batches as $batch_index => $batch_products) {
             $batch_number = $batch_index + 1;
@@ -327,7 +276,7 @@ function syncProducts($shequ, $config, $task) {
             $update_products = []; // 用于批量更新的商品数据
             $update_site_prices = []; // 用于批量更新的站点价格数据
 
-            // 收集需要获取详情的商品ID - 岁岁 @qqfaka优化，实现批量API调用
+            // 收集需要获取详情的商品ID
             $need_detail_ids = [];
             $need_price_ids = [];
             $need_desc_ids = [];
@@ -357,44 +306,57 @@ function syncProducts($shequ, $config, $task) {
             $all_need_detail_ids = array_unique(array_merge($need_detail_ids, $need_price_ids, $need_desc_ids));
             $product_details_cache = [];
 
-            // 只有当sync_details开启时才获取商品详情
-            if(isset($config['sync_details']) && $config['sync_details'] == 1 && !empty($all_need_detail_ids)) {
+            // 批量获取商品详情
+            if(!empty($all_need_detail_ids)) {
                 $task->updateProgress("开始批量获取商品详情，共 " . count($all_need_detail_ids) . " 个商品");
 
-                $api_batch_size = 2;
-                $api_batches = array_chunk($all_need_detail_ids, $api_batch_size);
-                $total_api_batches = count($api_batches);
-                $success_count = 0;
-                $fail_count = 0;
-
-                foreach($api_batches as $api_batch_index => $api_batch_ids) {
-                    $task->updateProgress("处理第 " . ($api_batch_index + 1) . "/" . $total_api_batches . " 批API请求");
-
-                    foreach($api_batch_ids as $product_id) {
-                        try {
-                            set_time_limit(15);
-
-                            $detail = third_call($shequ['type'], $shequ, 'goods_info', [$product_id]);
-
-                            if(is_array($detail)) {
-                                $product_details_cache[$product_id] = $detail;
-                                $success_count++;
-                            } else {
-                                $fail_count++;
+                // 检查插件是否支持批量goods_info调用
+                $batch_supported = false;
+                try {
+                    // 尝试批量调用
+                    $batch_result = third_call($shequ['type'], $shequ, 'goods_info_batch', [$all_need_detail_ids]);
+                    if(is_array($batch_result) && !empty($batch_result)) {
+                        $batch_supported = true;
+                        foreach($batch_result as $goodsSN => $detail) {
+                            if(isset($detail['goodsSN'])) {
+                                $product_details_cache[$detail['goodsSN']] = $detail;
                             }
-                        } catch(Exception $e) {
-                            $fail_count++;
-                            continue;
+                        }
+                        $task->updateProgress("批量获取商品详情成功，共 " . count($product_details_cache) . " 个商品");
+                    }
+                } catch(Exception $e) {
+                    // 批量调用失败，使用单个调用
+                    $batch_supported = false;
+                }
+
+                // 如果不支持批量调用，使用单个调用但优化为批量处理
+                if(!$batch_supported) {
+                    $api_batch_size = 10; // 每批处理10个商品
+                    $api_batches = array_chunk($all_need_detail_ids, $api_batch_size);
+                    $total_api_batches = count($api_batches);
+
+                    foreach($api_batches as $api_batch_index => $api_batch_ids) {
+                        $task->updateProgress("处理第 " . ($api_batch_index + 1) . "/" . $total_api_batches . " 批API请求");
+
+                        foreach($api_batch_ids as $product_id) {
+                            try {
+                                $detail = third_call($shequ['type'], $shequ, 'goods_info', [$product_id]);
+                                if(is_array($detail)) {
+                                    $product_details_cache[$product_id] = $detail;
+                                }
+                            } catch(Exception $e) {
+                                // 获取商品详情失败，继续处理
+                            }
                         }
                     }
 
-                    usleep(100000);
+                    $task->updateProgress("单个获取商品详情完成，共 " . count($product_details_cache) . " 个商品");
                 }
 
-                $task->updateProgress("获取商品详情完成！成功: " . $success_count . " 个，失败: " . $fail_count . " 个");
+
             }
 
-            // 批量查询现有商品 - 岁岁 @qqfaka优化，提高性能
+            // 批量查询现有商品
             $existing_products = [];
             if(!empty($product_ids)) {
                 $placeholders = implode(',', array_fill(0, count($product_ids), '?'));
@@ -413,7 +375,7 @@ function syncProducts($shequ, $config, $task) {
                 // 检查商品是否已存在 - 使用批量查询的结果
                 $existing_product = isset($existing_products[$product['id']]) ? $existing_products[$product['id']] : null;
 
-                // 新增商品逻辑 - 岁岁 @qqfaka修改，岁岁 @qqfaka
+                // 新增商品逻辑
                 if(!$existing_product) {
                     // 检查是否允许新增商品
                     if($config['add_goods']) {
@@ -436,14 +398,11 @@ function syncProducts($shequ, $config, $task) {
                             $product_detail['category'] = $category_map[$product['cid']];
                         }
 
-                        // 从缓存中获取商品详情 - 岁岁 @qqfaka优化，使用缓存数据，没有则使用列表数据
+                        // 从缓存中获取商品详情
                         $cache_key = $product['id'];
                         if(isset($product_details_cache[$cache_key])) {
                             $cached_detail = $product_details_cache[$cache_key];
                             $product_detail = array_merge($product_detail, $cached_detail);
-                        } else {
-                            // 使用商品列表中的数据
-                            $product_detail = array_merge($product_detail, $product);
                         }
 
                         // 查找对应的本地分类
@@ -519,6 +478,7 @@ function syncProducts($shequ, $config, $task) {
                         }
 
                         // 处理图片
+                        $wholesale_prices = syncExtractWholesalePrices($product_detail, $product);
                         $shopimg = '';
                         if(isset($product_detail['shopimg']) && !empty($product_detail['shopimg'])) {
                             $shopimg = $product_detail['shopimg'];
@@ -535,7 +495,7 @@ function syncProducts($shequ, $config, $task) {
                             'cost' => floatval($cost_price),
                             'cost2' => 0,
                             'prid' => intval($config['markup_template'] ?? 0),
-                            'prices' => '',
+                            'prices' => $wholesale_prices !== null ? $wholesale_prices : '',
                             'input' => $product_detail['input'] ?? '',
                             'inputs' => $product_detail['inputs'] ?? '',
                             'desc' => $product_detail['desc'] ?? $product_detail['content'] ?? $product_detail['info'] ?? '',
@@ -572,13 +532,13 @@ function syncProducts($shequ, $config, $task) {
                 // 构建商品数据
                 $cost_price = $product['price'];
 
-                // 从缓存中获取商品详情 - 岁岁 @qqfaka优化，使用缓存数据，没有则使用列表数据
+                // 从缓存中获取商品详情
                 $cache_key = $product['id'];
-                $cached_detail = isset($product_details_cache[$cache_key]) ? $product_details_cache[$cache_key] : $product;
+                $cached_detail = isset($product_details_cache[$cache_key]) ? $product_details_cache[$cache_key] : [];
 
-                // 如果需要同步价格，使用缓存的价格信息或列表价格
-                if($config['sync_price']) {
-                    $cost_price = $cached_detail['price'] ?? $product['price'];
+                // 如果需要同步价格，使用缓存的价格信息
+                if($config['sync_price'] && isset($cached_detail['price'])) {
+                    $cost_price = $cached_detail['price'];
                 }
 
                 // 处理加价模板
@@ -594,7 +554,7 @@ function syncProducts($shequ, $config, $task) {
                 }
                 // 对于价格非常小的商品，使用最小下单数量作为默认数量
                 if($default_num == 1 && floatval($cached_detail['price'] ?? 0) < 0.01) {
-                    $default_num = intval($cached_detail['min'] ?? $cached_detail['limit_min'] ?? $cached_detail['buy_min_limit'] ?? $cached_detail['min_buy'] ?? $cached_detail['buy_min'] ?? 100);
+                    $default_num = intval($cached_detail['min'] ?? $cached_detail['limit_min'] ?? $cached_detail['buy_min_limit'] ?? 100);
                     if($default_num < 1) {
                         $default_num = 100;
                     }
@@ -635,6 +595,10 @@ function syncProducts($shequ, $config, $task) {
                 if(isset($cached_detail['goods_param'])) {
                     $update_data['goods_param'] = $cached_detail['goods_param'];
                 }
+                $wholesale_prices = syncExtractWholesalePrices($cached_detail, $product);
+                if($wholesale_prices !== null) {
+                    $update_data['prices'] = $wholesale_prices;
+                }
 
                 // 只有当勾选了价格同步选项时才同步价格
                 if($config['sync_price']) {
@@ -648,19 +612,8 @@ function syncProducts($shequ, $config, $task) {
                 }
 
                 // 同步商品图片
-                if($config['sync_image']) {
-                    // 优先使用商品详情中的图片，如果没有则使用列表数据
-                    $shopimg = '';
-                    if(isset($cached_detail['shopimg']) && !empty($cached_detail['shopimg'])) {
-                        $shopimg = $cached_detail['shopimg'];
-                    } elseif(isset($cached_detail['image']) && !empty($cached_detail['image'])) {
-                        $shopimg = $cached_detail['image'];
-                    } elseif(isset($product['shopimg']) && !empty($product['shopimg'])) {
-                        $shopimg = $product['shopimg'];
-                    }
-                    if(!empty($shopimg)) {
-                        $update_data['shopimg'] = $shopimg;
-                    }
+                if($config['sync_image'] && isset($product['shopimg']) && !empty($product['shopimg'])) {
+                    $update_data['shopimg'] = $product['shopimg'];
                 }
 
                 // 同步商品简介
@@ -680,14 +633,6 @@ function syncProducts($shequ, $config, $task) {
                     if(!empty($desc_content)) {
                         $update_data['desc'] = $desc_content;
                     }
-                }
-
-                // 同步输入框标题（input字段）
-                if(isset($cached_detail['input']) && !empty($cached_detail['input'])) {
-                    $update_data['input'] = $cached_detail['input'];
-                }
-                if(isset($cached_detail['inputs']) && !empty($cached_detail['inputs'])) {
-                    $update_data['inputs'] = $cached_detail['inputs'];
                 }
 
                 // 同步默认数量信息
@@ -713,7 +658,7 @@ function syncProducts($shequ, $config, $task) {
                 $task->updateProgress("收集更新商品: {$product['name']}");
             }
 
-            // 批量插入新商品 - 岁岁 @qqfaka优化，提高性能
+            // 批量插入新商品
                 if(!empty($new_products)) {
                     $task->updateProgress("开始批量插入新商品，共 " . count($new_products) . " 个");
 
@@ -754,7 +699,7 @@ function syncProducts($shequ, $config, $task) {
                 }
             }
 
-            // 批量更新商品 - 岁岁 @qqfaka优化，提高性能
+            // 批量更新商品
             if(!empty($update_products)) {
                 $task->updateProgress("开始批量更新商品，共 " . count($update_products) . " 个");
 
@@ -804,7 +749,7 @@ function syncProducts($shequ, $config, $task) {
                 }
             }
 
-            // 批量更新站点价格 - 岁岁 @qqfaka优化，提高性能
+            // 批量更新站点价格
             if(!empty($update_site_prices)) {
                 $task->updateProgress("开始批量更新站点价格，共 " . count($update_site_prices) . " 个");
 
@@ -834,23 +779,13 @@ function syncProducts($shequ, $config, $task) {
             $task->updateProgress("第 {$batch_number}/{$total_batches} 批处理完成");
         }
 
-        // 更新同步位置（仅在未处理完所有商品时）
-        if($end_pos < $total_products) {
-            setSyncPosition($shequ['id'], $end_pos);
-        } else {
-            // 已处理完所有商品，重置位置并进行完整的删除检查
-            resetSyncPosition($shequ['id']);
-        }
+        // 使用去重后的所有商品ID处理下架商品
+        $all_shequ_product_ids = array_unique($all_shequ_product_ids);
 
-        // 使用去重后的所有商品ID处理下架商品（仅在完整同步时）
-        if($current_pos == 0 || $end_pos >= $total_products) {
-            $all_shequ_product_ids = array_unique($all_shequ_product_ids);
-
-            // 处理下架商品
-            if($config['delete_rule'] > 0) {
-                $deleted_count = handleDeletedProducts($shequ['id'], $all_shequ_product_ids, $config['delete_rule'], $task);
-                $deleted += $deleted_count;
-            }
+        // 处理下架商品
+        if($config['delete_rule'] > 0) {
+            $deleted_count = handleDeletedProducts($shequ['id'], $all_shequ_product_ids, $config['delete_rule'], $task);
+            $deleted += $deleted_count;
         }
 
     } catch(Exception $e) {
@@ -868,8 +803,8 @@ function handleDeletedProducts($shequ_id, $active_product_ids, $delete_rule, $ta
     global $DB, $date;
 
     $count = 0;
-    // 使用 pre_tools 表而非 pre_goods 表 - 岁岁 @qqfaka修改，岁岁 @qqfaka
-    $query = "SELECT tid, name FROM pre_tools WHERE is_curl=2 AND shequ=? AND active=1";
+    // 使用 pre_tools 表而非 pre_goods 表
+    $query = "SELECT tid, name, close FROM pre_tools WHERE is_curl=2 AND shequ=? AND active=1";
     $params = [$shequ_id];
 
     if(!empty($active_product_ids)) {
@@ -883,20 +818,604 @@ function handleDeletedProducts($shequ_id, $active_product_ids, $delete_rule, $ta
 
     while($product = $products->fetch()) {
         if($delete_rule == 1) {
-            // 下架商品 - 岁岁 @qqfaka修改，岁岁 @qqfaka
-            $DB->update('pre_tools', ['close' =>1, 'uptime' => $date], ['tid' => $product['tid']]);
-            $task->updateProgress("下架商品: {$product['name']}");
+            // 下架商品
+            if(intval($product['close']) == 0) {
+                syncAddPublicToolLog('offline', $product['name'], $product['tid']);
+                $DB->update('pre_tools', ['close' => 1, 'uptime' => $date], ['tid' => $product['tid']]);
+                $task->updateProgress("下架商品: {$product['name']}");
+                $count++;
+            }
         } elseif($delete_rule == 2) {
-            // 删除商品 - 岁岁 @qqfaka修改，岁岁 @qqfaka
+            // 删除商品
+            syncAddPublicToolLog('offline', $product['name'], $product['tid']);
             $DB->delete('pre_tools', ['tid' => $product['tid']]);
             $task->updateProgress("删除商品: {$product['name']}");
+            $count++;
         }
-        $count++;
     }
 
     return $count;
 }
 
+
+
+if (!function_exists('q8_add_site_log')) {
+function q8_add_site_log($type, $action, $object_id, $summary, $detail = '', $operator = 'system') {
+    global $DB, $clientip;
+    try {
+        $DB->exec("CREATE TABLE IF NOT EXISTS `pre_site_logs` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,`type` varchar(32) NOT NULL DEFAULT '',`action` varchar(64) NOT NULL DEFAULT '',`object_id` varchar(64) DEFAULT '',`summary` varchar(255) NOT NULL DEFAULT '',`detail` text,`operator` varchar(64) DEFAULT 'system',`ip` varchar(45) DEFAULT '',`addtime` datetime DEFAULT NULL,PRIMARY KEY (`id`),KEY `type` (`type`),KEY `addtime` (`addtime`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $DB->exec("INSERT INTO pre_site_logs (`type`,`action`,`object_id`,`summary`,`detail`,`operator`,`ip`,`addtime`) VALUES (:type,:action,:object_id,:summary,:detail,:operator,:ip,NOW())", [
+            ':type'=>$type, ':action'=>$action, ':object_id'=>$object_id, ':summary'=>$summary, ':detail'=>$detail, ':operator'=>$operator, ':ip'=>$clientip
+        ]);
+    } catch (Exception $e) {}
+}
+}
+
+function syncExtractWholesalePrices() {
+    $sources = func_get_args();
+    $keys = ['prices', 'wholesale_prices', 'wholesale_price', 'wholesale', 'price_list', 'pricelist', 'price_arr', 'pricearr'];
+    foreach($sources as $source) {
+        if(!is_array($source)) continue;
+        foreach($keys as $key) {
+            if(!array_key_exists($key, $source)) continue;
+            $value = $source[$key];
+            if(is_array($value) || is_object($value)) {
+                return json_encode($value, JSON_UNESCAPED_UNICODE);
+            }
+            return trim((string)$value);
+        }
+    }
+    return null;
+}
+
+function syncDaishuaFull($shequ, $config, $task) {
+    global $DB, $date;
+
+    syncEnsureLogTables();
+    syncEnsureCategoryMapTable();
+
+    $classes = syncDaishuaApi($shequ, 'classlist');
+    $goods = syncDaishuaApi($shequ, 'goodslist');
+    if(!is_array($classes) || !isset($classes['data']) || !is_array($classes['data'])) {
+        throw new Exception('获取分类列表失败');
+    }
+    if(!is_array($goods) || !isset($goods['data']) || !is_array($goods['data'])) {
+        throw new Exception('获取商品列表失败');
+    }
+
+    $classMap = syncDaishuaCategories($shequ['id'], $classes['data'], $task);
+    $goodsResult = syncDaishuaProducts($shequ, $config, $goods['data'], $classMap, $task);
+    return $goodsResult;
+}
+
+function syncDaishuaApi($shequ, $act) {
+    $base = preg_replace('/^https?:\/\//i', '', $shequ['url']);
+    $url = ($shequ['protocol'] == 1 ? 'https://' : 'http://') . $base . '/api.php?act=' . $act;
+    $post = '';
+    if($act == 'goodslist') {
+        $post = 'user=' . urlencode($shequ['username']) . '&pass=' . urlencode($shequ['password']);
+    }
+
+    $last = '';
+    $cacheFile = '/tmp/sync_daishua_' . intval($shequ['id']) . '_' . $act . '.json';
+    if($act == 'goodslist' && is_file($cacheFile) && filemtime($cacheFile) >= time() - 600) {
+        $cached = file_get_contents($cacheFile);
+        $json = json_decode($cached, true);
+        if(is_array($json)) return $json;
+    }
+    for($try = 1; $try <= 3; $try++) {
+        $cmd = 'curl -ks --connect-timeout 30 --max-time 240';
+        if($post !== '') {
+            $cmd .= ' -X POST -d ' . escapeshellarg($post);
+        }
+        $cmd .= ' ' . escapeshellarg($url);
+        $ret = shell_exec($cmd);
+        if(is_string($ret) && $ret !== '') {
+            $json = json_decode($ret, true);
+            if(is_array($json)) {
+                @file_put_contents($cacheFile, $ret);
+                if(isset($json['code']) && intval($json['code']) != 0 && intval($json['code']) != 1) {
+                    throw new Exception(isset($json['message']) ? $json['message'] : (isset($json['msg']) ? $json['msg'] : 'supplier api error'));
+                }
+                return $json;
+            }
+            $last = mb_substr(strip_tags($ret), 0, 120);
+        }
+        sleep(2);
+    }
+
+    $ret = get_curl($url, $post);
+    if(is_string($ret) && $ret !== '') {
+        $json = json_decode($ret, true);
+        if(is_array($json)) {
+            if(isset($json['code']) && intval($json['code']) != 0 && intval($json['code']) != 1) {
+                throw new Exception(isset($json['message']) ? $json['message'] : (isset($json['msg']) ? $json['msg'] : 'supplier api error'));
+            }
+            return $json;
+        }
+        $last = mb_substr(strip_tags($ret), 0, 120);
+    }
+
+    if(is_file($cacheFile) && filemtime($cacheFile) >= time() - 21600) {
+        $cached = file_get_contents($cacheFile);
+        $json = json_decode($cached, true);
+        if(is_array($json)) return $json;
+    }
+
+    throw new Exception('supplier api empty or invalid: ' . $act . ' ' . $last);
+}
+
+function syncEnsureCategoryMapTable() {
+    global $DB;
+    $DB->exec("CREATE TABLE IF NOT EXISTS `pre_sync_category_map` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `shequ_id` int(11) NOT NULL,
+        `remote_cid` int(11) NOT NULL,
+        `remote_pid` int(11) NOT NULL DEFAULT 0,
+        `local_cid` int(11) NOT NULL,
+        `name` varchar(255) NOT NULL,
+        `level` tinyint(1) NOT NULL DEFAULT 1,
+        `addtime` datetime DEFAULT NULL,
+        `uptime` datetime DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `shequ_remote` (`shequ_id`,`remote_cid`),
+        KEY `local_cid` (`local_cid`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function syncEnsureLogTables() {
+    global $DB;
+    $DB->exec("CREATE TABLE IF NOT EXISTS `pre_toollogs_offline` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `content` longtext NOT NULL,
+        `date` date DEFAULT NULL,
+        `addtime` datetime DEFAULT NULL,
+        `active` tinyint(1) NOT NULL DEFAULT 0,
+        PRIMARY KEY (`id`),
+        KEY `date` (`date`),
+        KEY `active` (`active`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function syncNormalizeImage($shequ, $path) {
+    if(empty($path)) return '';
+    if(substr($path, 0, 4) == 'http' || substr($path, 0, 2) == '//') return $path;
+    $base = preg_replace('/^https?:\/\//i', '', $shequ['url']);
+    return ($shequ['protocol'] == 1 ? 'https://' : 'http://') . $base . '/' . ltrim($path, '/');
+}
+
+function syncResolveDaishuaCategory($config, $classMap, $remoteCid, $currentCid = 0) {
+    $remoteCid = intval($remoteCid);
+    $currentCid = intval($currentCid);
+    $syncClass = !empty($config['sync_class']);
+
+    if($remoteCid > 0 && isset($classMap[$remoteCid])) {
+        return ['cid' => intval($classMap[$remoteCid]), 'missing' => false];
+    }
+
+    if($syncClass) {
+        return ['cid' => 0, 'missing' => $remoteCid > 0];
+    }
+
+    return ['cid' => $currentCid, 'missing' => false];
+}
+
+function syncRepairDaishuaCategoryAssignments($shequ, $config, $remoteGoods, $classMap, $task) {
+    global $DB, $date;
+
+    if(empty($config['sync_class'])) {
+        return ['fixed' => 0, 'to_unclassified' => 0, 'samples' => []];
+    }
+
+    $targets = [];
+    foreach($remoteGoods as $g) {
+        if(!isset($g['tid'])) continue;
+        $gid = intval($g['tid']);
+        if($gid < 1) continue;
+        $target = syncResolveDaishuaCategory($config, $classMap, isset($g['cid']) ? $g['cid'] : 0, 0);
+        $targets[$gid] = [
+            'cid' => intval($target['cid']),
+            'missing' => !empty($target['missing'])
+        ];
+    }
+
+    if(empty($targets)) {
+        return ['fixed' => 0, 'to_unclassified' => 0, 'samples' => []];
+    }
+
+    $fixed = 0;
+    $toUnclassified = 0;
+    $samples = [];
+    $pendingByTarget = [];
+
+    foreach(array_chunk(array_keys($targets), 800) as $chunk) {
+        $placeholders = implode(',', array_fill(0, count($chunk), '?'));
+        $params = array_merge([intval($shequ['id'])], $chunk);
+        $rs = $DB->query("SELECT tid,goods_id,cid,name FROM pre_tools WHERE shequ=? AND goods_id IN ({$placeholders})", $params);
+        while($row = $rs->fetch()) {
+            $gid = intval($row['goods_id']);
+            if(!isset($targets[$gid])) continue;
+            $targetCid = intval($targets[$gid]['cid']);
+            $currentCid = intval($row['cid']);
+            if($currentCid === $targetCid) continue;
+
+            $fixed++;
+            if($targetCid === 0) $toUnclassified++;
+            if(!isset($pendingByTarget[$targetCid])) {
+                $pendingByTarget[$targetCid] = [];
+            }
+            $pendingByTarget[$targetCid][$gid] = $gid;
+
+            if(count($samples) < 20) {
+                $samples[] = [
+                    'tid' => intval($row['tid']),
+                    'goods_id' => $gid,
+                    'name' => function_exists('mb_substr') ? mb_substr((string)$row['name'], 0, 80, 'UTF-8') : substr((string)$row['name'], 0, 80),
+                    'fields' => ['cid']
+                ];
+            }
+        }
+    }
+
+    foreach($pendingByTarget as $targetCid => $goodsIds) {
+        if(empty($goodsIds)) continue;
+        foreach(array_chunk(array_values($goodsIds), 500) as $goodsChunk) {
+            $goodsChunk = array_values(array_filter(array_map('intval', $goodsChunk)));
+            if(empty($goodsChunk)) continue;
+            $goodsList = implode(',', $goodsChunk);
+            $DB->exec("UPDATE pre_tools SET cid=:targetCid,uptime=:uptime WHERE shequ=:shequId AND goods_id IN ({$goodsList}) AND cid<>:compareCid", [
+                ':targetCid' => intval($targetCid),
+                ':uptime' => $date,
+                ':shequId' => intval($shequ['id']),
+                ':compareCid' => intval($targetCid)
+            ]);
+        }
+    }
+
+    return ['fixed' => $fixed, 'to_unclassified' => $toUnclassified, 'samples' => $samples];
+}
+
+function syncDaishuaCategories($shequId, $remoteClasses, $task) {
+    global $DB, $date;
+
+    usort($remoteClasses, function($a, $b) {
+        $ap = intval(isset($a['upcid']) ? $a['upcid'] : 0);
+        $bp = intval(isset($b['upcid']) ? $b['upcid'] : 0);
+        if($ap == 0 && $bp != 0) return -1;
+        if($ap != 0 && $bp == 0) return 1;
+        $as = intval(isset($a['sort']) ? $a['sort'] : 0);
+        $bs = intval(isset($b['sort']) ? $b['sort'] : 0);
+        if($as == $bs) return intval($a['cid']) - intval($b['cid']);
+        return $as - $bs;
+    });
+
+    $map = [];
+    $remoteIds = [];
+    $added = 0;
+    $updated = 0;
+    $deferred = [];
+
+    for($pass = 0; $pass < 3; $pass++) {
+        foreach($remoteClasses as $class) {
+            $remoteCid = intval($class['cid']);
+            if(isset($map[$remoteCid])) continue;
+            $remotePid = intval(isset($class['upcid']) ? $class['upcid'] : 0);
+            if($remotePid > 0 && !isset($map[$remotePid])) {
+                $deferred[$remoteCid] = $class;
+                continue;
+            }
+            $remoteIds[] = $remoteCid;
+            $localPid = $remotePid > 0 ? intval($map[$remotePid]) : 0;
+            $name = trim($class['name']);
+            $sort = intval(isset($class['sort']) ? $class['sort'] : 0);
+            $active = isset($class['active']) ? intval($class['active']) : 1;
+            $mapped = $DB->getRow("SELECT * FROM pre_sync_category_map WHERE shequ_id=:sid AND remote_cid=:rcid LIMIT 1", [':sid'=>$shequId, ':rcid'=>$remoteCid]);
+            $local = null;
+            if($mapped) {
+                $local = $DB->getRow("SELECT * FROM pre_class WHERE cid=:cid LIMIT 1", [':cid'=>$mapped['local_cid']]);
+            }
+            if(!$local) {
+                $local = $DB->getRow("SELECT * FROM pre_class WHERE name=:name AND pid=:pid LIMIT 1", [':name'=>$name, ':pid'=>$localPid]);
+            }
+            if($local) {
+                $localCid = intval($local['cid']);
+                $classChanged = (string)$local['name'] !== (string)$name
+                    || intval($local['pid']) !== intval($localPid)
+                    || intval($local['sort']) !== intval($sort)
+                    || intval($local['active']) !== intval($active);
+                if($classChanged) {
+                    $DB->exec("UPDATE pre_class SET name=:name,pid=:pid,sort=:sort,active=:active WHERE cid=:cid", [
+                        ':name'=>$name, ':pid'=>$localPid, ':sort'=>$sort, ':active'=>$active, ':cid'=>$localCid
+                    ]);
+                    $updated++;
+                }
+            } else {
+                $DB->exec("INSERT INTO pre_class (`zid`,`pid`,`sort`,`name`,`active`) VALUES (1,:pid,:sort,:name,:active)", [
+                    ':pid'=>$localPid, ':sort'=>$sort, ':name'=>$name, ':active'=>$active
+                ]);
+                $localCid = $DB->lastInsertId();
+                $added++;
+            }
+            $DB->exec("INSERT INTO pre_sync_category_map (`shequ_id`,`remote_cid`,`remote_pid`,`local_cid`,`name`,`level`,`addtime`,`uptime`) VALUES (:sid,:rcid,:rpid,:lcid,:name,:level,:now,:now)
+                ON DUPLICATE KEY UPDATE remote_pid=VALUES(remote_pid),local_cid=VALUES(local_cid),name=VALUES(name),level=VALUES(level),uptime=VALUES(uptime)", [
+                ':sid'=>$shequId, ':rcid'=>$remoteCid, ':rpid'=>$remotePid, ':lcid'=>$localCid, ':name'=>$name,
+                ':level'=>$remotePid > 0 ? 2 : 1, ':now'=>$date
+            ]);
+            $map[$remoteCid] = $localCid;
+        }
+    }
+
+    if(!empty($remoteIds)) {
+        $currentLocalIds = array_values(array_unique(array_map('intval', array_values($map))));
+        $placeholders = implode(',', array_fill(0, count($remoteIds), '?'));
+        $params = array_merge([$shequId], $remoteIds);
+        $rs = $DB->query("SELECT remote_cid,local_cid FROM pre_sync_category_map WHERE shequ_id=? AND remote_cid NOT IN ({$placeholders})", $params);
+        $staleRemoteIds = [];
+        while($row = $rs->fetch()) {
+            $localCid = intval($row['local_cid']);
+            $staleRemoteIds[] = intval($row['remote_cid']);
+            if(!in_array($localCid, $currentLocalIds, true)) {
+                $DB->exec("UPDATE pre_class SET active=0 WHERE cid=:cid", [':cid'=>$localCid]);
+            }
+        }
+        if(!empty($staleRemoteIds)) {
+            $stalePlaceholders = implode(',', array_fill(0, count($staleRemoteIds), '?'));
+            $DB->query("DELETE FROM pre_sync_category_map WHERE shequ_id=? AND remote_cid IN ({$stalePlaceholders})", array_merge([$shequId], $staleRemoteIds));
+        }
+    }
+
+    $task->updateProgress("分类同步完成: 新增{$added}, 更新{$updated}");
+    return $map;
+}
+
+function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
+    global $DB, $date;
+
+    $synced = 0;
+    $updated = 0;
+    $deleted = 0;
+    $categoryFixed = 0;
+    $categoryToUnclassified = 0;
+    $scanned = 0;
+    $fieldCounts = [];
+    $updateSamples = [];
+    $seen = [];
+    $priceTemplate = null;
+    if(!empty($config['markup_template'])) {
+        $priceTemplate = $DB->getRow("SELECT * FROM pre_price WHERE id=:id AND zid=0 LIMIT 1", [':id'=>$config['markup_template']]);
+    }
+
+    $ids = [];
+    foreach($remoteGoods as $g) {
+        if(isset($g['tid'])) $ids[] = intval($g['tid']);
+    }
+    $existing = [];
+    if(!empty($ids)) {
+        foreach(array_chunk($ids, 800) as $chunk) {
+            $placeholders = implode(',', array_fill(0, count($chunk), '?'));
+            $params = array_merge([intval($shequ['id'])], $chunk);
+            $rs = $DB->query("SELECT * FROM pre_tools WHERE shequ=? AND goods_id IN ({$placeholders})", $params);
+            while($row = $rs->fetch()) $existing[intval($row['goods_id'])] = $row;
+        }
+    }
+
+    usort($remoteGoods, function($a, $b) {
+        $ac = intval(isset($a['cid']) ? $a['cid'] : 0);
+        $bc = intval(isset($b['cid']) ? $b['cid'] : 0);
+        if($ac != $bc) return $ac - $bc;
+        $as = intval(isset($a['sort']) ? $a['sort'] : 0);
+        $bs = intval(isset($b['sort']) ? $b['sort'] : 0);
+        if($as == $bs) return intval($a['tid']) - intval($b['tid']);
+        return $as - $bs;
+    });
+
+    foreach($remoteGoods as $g) {
+        if(!isset($g['tid'])) continue;
+        $scanned++;
+        $gid = intval($g['tid']);
+        $seen[] = $gid;
+        $old = isset($existing[$gid]) ? $existing[$gid] : null;
+        $remoteCid = intval(isset($g['cid']) ? $g['cid'] : 0);
+        $categoryTarget = syncResolveDaishuaCategory($config, $classMap, $remoteCid, $old ? intval($old['cid']) : 0);
+        $localCid = intval($categoryTarget['cid']);
+        $remoteClose = intval(isset($g['close']) ? $g['close'] : 0);
+        $remoteActive = intval(isset($g['active']) ? $g['active'] : 1);
+        if($remoteActive != 1) $remoteClose = 1;
+        $remotePrice = floatval(isset($g['price']) ? $g['price'] : 0);
+        $templateId = intval(isset($config['markup_template']) ? $config['markup_template'] : 0);
+        // Keep the upstream base price in pre_tools; the template is applied later by the pricing layer.
+        $priceSet = syncBuildStoredPriceSet($remotePrice, $templateId);
+        $name = isset($g['name']) ? $g['name'] : '';
+        $shopimg = syncNormalizeImage($shequ, isset($g['shopimg']) ? $g['shopimg'] : '');
+        $remotePrices = syncExtractWholesalePrices($g);
+        $isFakaGoods = !empty($g['isfaka']) || ($old && intval($old['goods_type']) == 1);
+        $remoteMulti = $isFakaGoods ? 1 : intval(isset($g['multi']) ? $g['multi'] : 0);
+        $value = intval(isset($g['value']) ? $g['value'] : 1);
+        if($value < 1) $value = intval(isset($g['min']) ? $g['min'] : 1);
+        if($value < 1) $value = 1;
+
+        if($old) {
+            $fields = ['uptime=:uptime','stock=:stock','close=:close','active=1'];
+            $params = [
+                ':uptime'=>$date,
+                ':stock'=>isset($g['stock']) && $g['stock'] !== '' ? intval($g['stock']) : 9999,
+                ':close'=>$remoteClose,
+                ':tid'=>$old['tid']
+            ];
+            if(!empty($config['sync_goods_sort']) && isset($g['sort'])) { $fields[] = 'sort=:sort'; $params[':sort'] = intval($g['sort']); }
+            if(!empty($config['sync_class'])) { $fields[] = 'cid=:cid'; $params[':cid'] = $localCid; }
+            if(!empty($config['sync_name'])) { $fields[] = 'name=:name'; $params[':name'] = $name; }
+            if(!empty($config['sync_price'])) { $fields[] = 'price=:price'; $params[':price'] = $priceSet['price']; }
+            if($remotePrices !== null) { $fields[] = 'prices=:prices'; $params[':prices'] = $remotePrices; }
+            if(!empty($config['sync_cost'])) { $fields[] = 'cost=:cost'; $fields[] = 'cost2=:cost2'; $params[':cost'] = $priceSet['cost']; $params[':cost2'] = $priceSet['cost2']; }
+            if(!empty($config['sync_desc'])) { $fields[] = '`desc`=:desc'; $params[':desc'] = isset($g['desc']) ? $g['desc'] : ''; }
+            if(!empty($config['sync_image'])) { $fields[] = 'shopimg=:shopimg'; $params[':shopimg'] = $shopimg; }
+            if(!empty($config['sync_workorder'])) {
+                $fields[] = 'input=:input'; $fields[] = 'inputs=:inputs'; $fields[] = 'alert=:alert';
+                $params[':input'] = isset($g['input']) ? $g['input'] : '';
+                $params[':inputs'] = isset($g['inputs']) ? $g['inputs'] : '';
+                $params[':alert'] = isset($g['alert']) ? $g['alert'] : '';
+            }
+            $fields[] = 'value=:value'; $fields[] = 'min=:min'; $fields[] = 'max=:max';
+            $fields[] = '`repeat`=:repeat'; $fields[] = 'multi=:multi'; $fields[] = 'validate=:validate'; $fields[] = 'valiserv=:valiserv';
+            $params[':value'] = $value;
+            $params[':min'] = intval(isset($g['min']) ? $g['min'] : 1);
+            if($params[':min'] < 1) $params[':min'] = 1;
+            $params[':max'] = intval(isset($g['max']) ? $g['max'] : 0);
+            $params[':repeat'] = intval(isset($g['repeat']) ? $g['repeat'] : 0);
+            $params[':multi'] = $remoteMulti;
+            $params[':validate'] = intval(isset($g['validate']) ? $g['validate'] : 0);
+            $params[':valiserv'] = isset($g['valiserv']) ? $g['valiserv'] : '';
+            $changedFields = [];
+            if(intval($old['active']) != 1) $changedFields[] = 'active';
+            $compareMap = [
+                ':stock'=>'stock', ':close'=>'close', ':sort'=>'sort', ':cid'=>'cid', ':name'=>'name',
+                ':price'=>'price', ':cost'=>'cost', ':cost2'=>'cost2', ':desc'=>'desc', ':shopimg'=>'shopimg',
+                ':prices'=>'prices', ':input'=>'input', ':inputs'=>'inputs', ':alert'=>'alert', ':value'=>'value', ':min'=>'min',
+                ':max'=>'max', ':repeat'=>'repeat', ':multi'=>'multi', ':validate'=>'validate', ':valiserv'=>'valiserv'
+            ];
+            foreach($compareMap as $paramKey => $fieldName) {
+                if(!array_key_exists($paramKey, $params)) continue;
+                $oldValue = isset($old[$fieldName]) ? (string)$old[$fieldName] : '';
+                $newValue = (string)$params[$paramKey];
+                if(in_array($fieldName, ['price','cost','cost2'], true)) {
+                    if(abs(floatval($oldValue) - floatval($newValue)) > 0.00001) $changedFields[] = $fieldName;
+                } else {
+                    if($oldValue !== $newValue) $changedFields[] = $fieldName;
+                }
+            }
+            if(!empty($changedFields)) {
+                $DB->exec("UPDATE pre_tools SET " . implode(',', $fields) . " WHERE tid=:tid", $params);
+                if(intval($old['close']) == 1 && $remoteClose == 0) syncAddPublicToolLog('online', $name, $old['tid']);
+                if(intval($old['close']) == 0 && $remoteClose == 1) syncAddPublicToolLog('offline', $name, $old['tid']);
+                $updated++;
+                $changedFields = array_values(array_unique($changedFields));
+                foreach($changedFields as $fieldName) {
+                    if(!isset($fieldCounts[$fieldName])) $fieldCounts[$fieldName] = 0;
+                    $fieldCounts[$fieldName]++;
+                }
+                if(count($updateSamples) < 20) {
+                    $updateSamples[] = ['tid'=>intval($old['tid']), 'goods_id'=>$gid, 'name'=>mb_substr($name, 0, 80, 'UTF-8'), 'fields'=>$changedFields];
+                }
+            }
+        } else {
+            if(empty($config['add_goods'])) continue;
+            if($localCid <= 0 && empty($config['sync_class'])) {
+                $localCid = intval($DB->getColumn("SELECT cid FROM pre_class WHERE active=1 ORDER BY pid ASC,sort ASC,cid ASC LIMIT 1"));
+            }
+            $insert = [
+                ':sort'=>intval(isset($g['sort']) ? $g['sort'] : 0),
+                ':cid'=>$localCid,
+                ':name'=>$name,
+                ':price'=>$priceSet['price'],
+                ':cost'=>$priceSet['cost'],
+                ':cost2'=>$priceSet['cost2'],
+                ':prid'=>$templateId,
+                ':prices'=>$remotePrices !== null ? $remotePrices : '',
+                ':input'=>isset($g['input']) ? $g['input'] : '',
+                ':inputs'=>isset($g['inputs']) ? $g['inputs'] : '',
+                ':desc'=>isset($g['desc']) ? $g['desc'] : '',
+                ':alert'=>isset($g['alert']) ? $g['alert'] : '',
+                ':shopimg'=>$shopimg,
+                ':value'=>$value,
+                ':shequ'=>intval($shequ['id']),
+                ':goods_id'=>$gid,
+                ':goods_type'=>!empty($g['isfaka']) ? 1 : 0,
+                ':repeat'=>intval(isset($g['repeat']) ? $g['repeat'] : 0),
+                ':multi'=>$remoteMulti,
+                ':min'=>max(1, intval(isset($g['min']) ? $g['min'] : 1)),
+                ':max'=>intval(isset($g['max']) ? $g['max'] : 0),
+                ':validate'=>intval(isset($g['validate']) ? $g['validate'] : 0),
+                ':valiserv'=>isset($g['valiserv']) ? $g['valiserv'] : '',
+                ':close'=>$remoteClose,
+                ':active'=>1,
+                ':stock'=>isset($g['stock']) && $g['stock'] !== '' ? intval($g['stock']) : 9999,
+                ':addtime'=>$date,
+                ':uptime'=>$date
+            ];
+            $DB->exec("INSERT INTO pre_tools (`sort`,`cid`,`name`,`price`,`cost`,`cost2`,`prid`,`prices`,`input`,`inputs`,`desc`,`alert`,`shopimg`,`value`,`is_curl`,`curl`,`shequ`,`goods_id`,`goods_type`,`goods_param`,`repeat`,`multi`,`min`,`max`,`validate`,`valiserv`,`close`,`active`,`stock`,`addtime`,`uptime`) VALUES (:sort,:cid,:name,:price,:cost,:cost2,:prid,:prices,:input,:inputs,:desc,:alert,:shopimg,:value,2,'',:shequ,:goods_id,:goods_type,'',:repeat,:multi,:min,:max,:validate,:valiserv,:close,:active,:stock,:addtime,:uptime)", $insert);
+            $newTid = intval($DB->getColumn("SELECT tid FROM pre_tools WHERE shequ=:shequ AND goods_id=:goods_id ORDER BY tid DESC LIMIT 1", [':shequ'=>$shequ, ':goods_id'=>$gid]));
+            if($remoteClose == 0) syncAddPublicToolLog('online', $name, $newTid);
+            $synced++;
+        }
+    }
+
+    $categoryRepair = syncRepairDaishuaCategoryAssignments($shequ, $config, $remoteGoods, $classMap, $task);
+    $categoryFixed = intval($categoryRepair['fixed']);
+    $categoryToUnclassified = intval($categoryRepair['to_unclassified']);
+    if($categoryFixed > 0) {
+        if(!isset($fieldCounts['cid'])) $fieldCounts['cid'] = 0;
+        $fieldCounts['cid'] += $categoryFixed;
+        if(!empty($categoryRepair['samples'])) {
+            foreach($categoryRepair['samples'] as $sample) {
+                if(count($updateSamples) >= 20) break;
+                $updateSamples[] = $sample;
+            }
+        }
+    }
+
+    if(!empty($seen) && intval($config['delete_rule']) > 0) {
+        foreach(array_chunk($seen, 800) as $i => $chunk) {
+            if($i == 0) {
+                $placeholders = implode(',', array_fill(0, count($seen), '?'));
+                $params = array_merge([intval($shequ['id'])], $seen);
+                $rs = $DB->query("SELECT tid,name,close FROM pre_tools WHERE shequ=? AND goods_id NOT IN ({$placeholders})", $params);
+                while($row = $rs->fetch()) {
+                    if(intval($config['delete_rule']) == 2) {
+                        syncAddPublicToolLog('offline', $row['name'], $row['tid']);
+                        $DB->exec("DELETE FROM pre_tools WHERE tid=:tid", [':tid'=>$row['tid']]);
+                        $deleted++;
+                    } else {
+                        if(intval($row['close']) == 0) {
+                            syncAddPublicToolLog('offline', $row['name'], $row['tid']);
+                            $DB->exec("UPDATE pre_tools SET close=1,uptime=:uptime WHERE tid=:tid", [':uptime'=>$date, ':tid'=>$row['tid']]);
+                            $deleted++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    $task->updateProgress("商品同步完成：已检索 {$scanned} 条，实际新增 {$synced} 条，实际更新 {$updated} 条，分类修正 {$categoryFixed} 条，转未分类 {$categoryToUnclassified} 条，实际删除 {$deleted} 条");
+    return ['scanned'=>$scanned, 'synced'=>$synced, 'updated'=>$updated, 'deleted'=>$deleted, 'field_counts'=>$fieldCounts, 'samples'=>$updateSamples];
+}
+
+function syncApplyPriceTemplate($remotePrice, $template) {
+    $price = round($remotePrice, 2);
+    $cost = round($remotePrice, 2);
+    $cost2 = 0;
+    if($template) {
+        if(intval($template['kind']) == 1) {
+            $price = round($remotePrice + floatval($template['p_0']), 2);
+            $cost = round($remotePrice + floatval($template['p_1']), 2);
+            $cost2 = round($remotePrice + floatval($template['p_2']), 2);
+        } elseif(floatval($template['p_0']) > 0) {
+            $price = round($remotePrice * floatval($template['p_0']), 2);
+            $cost = round($remotePrice * floatval($template['p_1']), 2);
+            $cost2 = round($remotePrice * floatval($template['p_2']), 2);
+        }
+    }
+    return ['price'=>$price, 'cost'=>$cost, 'cost2'=>$cost2];
+}
+
+function syncBuildStoredPriceSet($remotePrice, $templateId = 0) {
+    $basePrice = round(floatval($remotePrice), 2);
+    if($basePrice < 0) {
+        $basePrice = 0;
+    }
+    if(intval($templateId) > 0) {
+        return ['price'=>$basePrice, 'cost'=>0, 'cost2'=>0];
+    }
+    return ['price'=>$basePrice, 'cost'=>$basePrice, 'cost2'=>0];
+}
+
+function syncAddPublicToolLog($type, $name, $tid = 0) {
+    if(function_exists('q8_toollog_append_group')) {
+        q8_toollog_append_group($type, $name, $tid);
+        return;
+    }
+}
 /**
  * 根据加价模板计算价格
  */

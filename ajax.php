@@ -1,7 +1,7 @@
 <?php
 /*
-QQ群qqfaka
-岁岁 @qqfaka
+岁岁云商城
+维护：岁岁 @qqfaka
 */
 include("./includes/common.php");
 $act = isset($_GET['act']) ? daddslashes($_GET['act']) : null;

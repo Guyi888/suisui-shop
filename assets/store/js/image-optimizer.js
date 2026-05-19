@@ -1,8 +1,7 @@
 /**
  * Store模板图片优化脚本
  * 作者：岁岁 @qqfaka
- * 博客：zhonguo.ren
- * Q群：qqfaka
+ * 官网：https://t.me/qqfaka
  */
 
 /**

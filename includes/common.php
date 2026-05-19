@@ -5,7 +5,7 @@ if (defined('IN_CRONLITE')) {
 	return;
 }
 define('CACHE_FILE', 0);
-define('VERSION', '20260519');
+define('VERSION', '2026051902');
 define('IN_CRONLITE', true);
 define('tingdong', '3530793519');
 define('SYSTEM_ROOT', dirname(__FILE__) . '/');
@@ -263,7 +263,9 @@ if ($conf['qqjump'] == 1 && (!strpos($_SERVER['HTTP_USER_AGENT'], 'QQ/') === fal
 	exit(0);
 }
 $password_hash = $conf['syskey'];
+include_once SYSTEM_ROOT . "hooks.php";
 include_once SYSTEM_ROOT . "function.php";
+include_once SYSTEM_ROOT . "custom_css.php";
 include_once SYSTEM_ROOT . "core.func.php";
 include_once SYSTEM_ROOT . "ajax.func.php";
 include_once SYSTEM_ROOT . "member.php";

@@ -24,7 +24,7 @@ if($admin_cdnpublic==1){
 $isAdminLoginPage = basename($_SERVER['SCRIPT_NAME']) === 'login.php';
 $isAdminIndexPage = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
 $isAdminCustomCssPage = basename($_SERVER['SCRIPT_NAME']) === 'customcss.php';
-$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8shell01';
+$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519suisuiops01';
 $adminCsrfToken = q8_admin_csrf_token();
 $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
 ?>

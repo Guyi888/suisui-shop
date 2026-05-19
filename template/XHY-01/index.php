@@ -1,7 +1,7 @@
 <?php
 /*
- 岁岁云商�?XHY-01 模板
- 维护：岁�?@qqfaka
+ 岁岁云商城 XHY-01 模板
+ 维护：岁岁 @qqfaka
 */
 if(!defined('IN_CRONLITE'))exit();
 $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'/template/XHY-01/bg-fallback.jpg';
@@ -29,18 +29,18 @@ $q8XhyWithdrawMinText = q8_format_currency_amount(isset($conf['tixian_min']) ? $
     	<link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
     	<link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">
 		<link rel="stylesheet" href="<?php echo $cdnserver?>assets/css/common.css?ver=<?php echo VERSION ?>">
-		<script src="/assets/vendor/jquery/3.5.1/jquery.min.js?v=q8vendor1"></script>
-		<script src="/assets/vendor/jquery-cookie/1.4.1/jquery.cookie.min.js?v=q8vendor1"></script>
+		<script src="/assets/vendor/jquery/3.5.1/jquery.min.js?v=suisuivendor1"></script>
+		<script src="/assets/vendor/jquery-cookie/1.4.1/jquery.cookie.min.js?v=suisuivendor1"></script>
 		<script src="<?php echo $cdnpublic?>twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 		<script src="<?php echo $cdnpublic?>modernizr/2.8.3/modernizr.min.js"></script>
-		<script src="/assets/Agod/layer.js?v=q8local1"></script>
+		<script src="/assets/Agod/layer.js?v=suisuilocal1"></script>
 		<script>
 		var isModal = <?php echo empty($conf['anounce']) ? 'false' : 'true'; ?> ;
 		var modalShowType = <?php echo isset($conf['modal_show_type']) ? intval($conf['modal_show_type']) : 0; ?>;
 		var homepage = true;
 		var hashsalt = <?php echo $addsalt_js ?> ;
 		</script>
-		<script src="<?php echo $cdnserver ?>assets/js/main.js?ver=<?php echo VERSION ?>-q8order33-tooljump02"></script>
+		<script src="<?php echo $cdnserver ?>assets/js/main.js?ver=<?php echo VERSION ?>-suisuiorder02"></script>
 		<!--[if lt IE 9]>
 	    <script src="<?php echo $cdnpublic?>html5shiv/3.7.3/html5shiv.min.js"></script>
 	    <script src="<?php echo $cdnpublic?>respond.js/1.4.2/respond.min.js"></script>
@@ -69,7 +69,7 @@ $q8XhyWithdrawMinText = q8_format_currency_amount(isset($conf['tixian_min']) ? $
 	.bg-image {background-color: #ffffff;background-position: center center;background-repeat: no-repeat;-webkit-background-size: cover;background-size: cover;}
 .nav-btn {color: #8B0000;background: linear-gradient(to right, #ffffff, #ffcccc);border: 2px solid #8B0000;border-radius: 25px !important;font-weight: 600;-webkit-transition: all 0.15s ease-out;transition: all 0.15s ease-out;margin: 0 2px;padding: 8px 16px;display: block !important;float: none !important;width: 100% !important;text-align: center;}
 .nav-btn:hover {background: linear-gradient(to right, #fff8f8, #ffb3b3);border-color: #8B0000;}
-/* 修复btn-group-justified导致的圆角问�?*/
+/* 修复btn-group-justified导致的圆角问题 */
 .btn-group-justified > .btn-group .nav-btn {
     border-radius: 25px !important;
     margin: 0 4px;
@@ -97,7 +97,7 @@ html, body {
     width: 100%; height: 100%;
     background: rgba(0,0,0,0.35);
 }
-/* 内容区域加半透明白底，保证可读�?*/
+/* 内容区域加半透明白底，保证可读性 */
 .col-xs-12.col-sm-10.col-md-8.col-lg-4.center-block {
     position: relative;
     z-index: 1;
@@ -127,7 +127,7 @@ html, body {
 .q8-query-list{display:grid;gap:10px}.q8-query-card{background:#fff;border:1px solid #e4eefc;border-radius:12px;padding:13px 14px;box-shadow:0 8px 20px rgba(31,88,150,.08)}
 
 
-/* Q8 XHY order detail modal */
+/* XHY order detail modal */
 .layui-layer.q8-order-layer{
     position:fixed!important;
     top:50%!important;
@@ -343,7 +343,7 @@ html, body {
 }
 
 
-/* Q8 XHY more module */
+/* XHY more module */
 .xhy-more-panel{
   overflow:hidden;
   border:1px solid rgba(255,255,255,.36);
@@ -486,7 +486,7 @@ html, body {
     padding:13px;
   }
 }
-/* Q8 XHY gift module */
+/* XHY gift module */
 .xhy-gift-panel{
   overflow:hidden;
   border:1px solid rgba(255,255,255,.36);
@@ -688,7 +688,7 @@ html, body {
     font-size:16px;
   }
 }
-/* Q8 XHY button interaction tune */
+/* XHY button interaction tune */
 .xhy-earn-btn,
 .xhy-site-modal-btn,
 #submit_query{
@@ -744,7 +744,7 @@ html, body {
   filter:brightness(1.03);
   box-shadow:0 12px 24px rgba(22,119,255,.22)!important;
 }
-/* Q8 XHY earn module */
+/* XHY earn module */
 .xhy-earn-panel{
   position:relative;
   overflow:hidden;
@@ -1111,7 +1111,7 @@ html, body {
   }
 }
 
-/* Q8 XHY polished lists */
+/* XHY polished lists */
 
 .q8-query-card #result2{width:100%!important;display:none}
 .q8-query-card #list{width:100%!important;display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
@@ -1125,7 +1125,7 @@ html, body {
 
 
 
-/* Q8 XHY button polish */
+/* XHY button polish */
 .nav-btn{
     background:rgba(255,255,255,.94)!important;
     border:1px solid #dbeafe!important;
@@ -1188,7 +1188,7 @@ html, body {
 
 
 
-/* Q8 XHY nav-tabs fixed polish */
+/* XHY nav-tabs fixed polish */
 .block > ul.nav.nav-tabs.btn.btn-block {
   display: flex !important;
   align-items: center !important;
@@ -1273,7 +1273,7 @@ html, body {
 
 
 
-/* Q8 XHY top quick buttons fixed grid */
+/* XHY top quick buttons fixed grid */
 .btn-group-justified {
   display: grid !important;
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -1324,7 +1324,7 @@ html, body {
 
 
 
-/* Q8 XHY quick button inner fix */
+/* XHY quick button inner fix */
 .widget-content.text-center > .btn-group-justified {
   max-width: 620px !important;
   margin-left: auto !important;
@@ -1382,7 +1382,7 @@ html, body {
 
 
 
-/* Q8 XHY mobile and buy button polish */
+/* XHY mobile and buy button polish */
 #submit_buy,
 .q8-submit-buy {
   position: relative !important;
@@ -1509,7 +1509,7 @@ html, body {
 
 
 
-/* Q8 XHY submit buy full CTA */
+/* XHY submit buy full CTA */
 #submit_buy,
 input#submit_buy,
 button#submit_buy,
@@ -1562,7 +1562,7 @@ button#submit_buy,
 
 
 
-/* Q8 XHY mobile alignment fix */
+/* XHY mobile alignment fix */
 @media (max-width: 768px) {
   .widget-content.text-center > .btn-group-justified {
     display: grid !important;
@@ -1633,7 +1633,7 @@ button#submit_buy,
     font-size: 11px !important;
   }
 }
-/* Q8 XHY mobile detail pass */
+/* XHY mobile detail pass */
 @media (max-width: 640px) {
   html, body {
     width: 100%;
@@ -1892,7 +1892,7 @@ button#submit_buy,
   }
 }
 
-/* Q8 XHY query help */
+/* XHY query help */
 .xhy-query-help{background:rgba(255,255,255,.96);border:1px solid #dbeafe;border-radius:14px;padding:13px 14px;margin-bottom:12px;box-shadow:0 10px 24px rgba(22,119,255,.10)}
 .xhy-query-help-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .xhy-query-help-title{display:flex;align-items:center;gap:8px;margin:0;color:#163b70;font-size:16px;font-weight:800}
@@ -2252,7 +2252,8 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 			<span aria-hidden="true">×</span>
 		</button>
 		<h4 style="color: #fff; letter-spacing: 2px; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.2); margin: 0;">
-			<i class="fa fa-headphones fa-fw"></i> 客服与帮�?		</h4>
+			<i class="fa fa-headphones fa-fw"></i> 客服与帮助
+		</h4>
 	</div>
 
 	<!-- 内容区域 -->
@@ -2272,11 +2273,11 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 					<div style="color: #8B0000; line-height: 1.6;">
 						<div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
 							<i class="fa fa-info-circle fa-fw" style="color: #8B0000; min-width: 20px; margin-top: 2px;"></i>
-							<span>本站所有项目均源自互联网收�?/span>
+							<span>本站所有项目均由供货商提供，请按商品说明确认适用范围。</span>
 						</div>
 						<div style="display: flex; align-items: flex-start;">
 							<i class="fa fa-exclamation-triangle fa-fw" style="color: #8B0000; min-width: 20px; margin-top: 2px;"></i>
-							<span>下单前已明确标注封号无售后说�?/span>
+							<span>下单前请确认商品规则，风险提示类商品请谨慎购买。</span>
 						</div>
 					</div>
 				</div>
@@ -2298,7 +2299,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 					<div style="color: #8B0000; line-height: 1.6;">
 						<div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
 							<i class="fa fa-info-circle fa-fw" style="color: #8B0000; min-width: 20px; margin-top: 2px;"></i>
-							<span>确认下载地址可正常访�?/span>
+							<span>确认下载地址可正常访问。</span>
 						</div>
 						<div style="display: flex; align-items: flex-start;">
 							<i class="fa fa-exclamation-triangle fa-fw" style="color: #8B0000; min-width: 20px; margin-top: 2px;"></i>
@@ -2323,7 +2324,8 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 				<div style="background: #FFF; border-radius: 0 0 10px 10px; padding: 20px;">
 					<div style="color: #8B0000; line-height: 1.6;">
 						<i class="fa fa-check-circle" style="color: #8B0000; margin-right: 8px;"></i>
-						处理项目无效果问题，处理下载地址失效问题，负责树立平台担保责�?					</div>
+						处理项目无效果、下载地址失效等售后问题，并协助核对订单处理进度。
+					</div>
 				</div>
 			</div>
 		</div>
@@ -2331,8 +2333,9 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 		<!-- 提示信息 -->
 		<div style="background: #FFF0F0; border: 1px solid #D8A0A0; border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #8B0000; font-weight: 500;">
 			<i class="fa fa-exclamation-circle" style="margin-right: 8px;"></i>
-			站长没有办法处理？点击下方联系平台人工客服解�?		</div>
-		
+			如遇到站长无法处理的问题，请点击下方联系平台人工客服解决。
+		</div>
+
 		<!-- 客服联系区域 -->
 		<div style="background: #FFF0F0; border: 1px solid #D8A0A0; border-radius: 10px; padding: 20px; box-shadow: 0 2px 6px rgba(139,0,0,0.1);">
 			<div style="display: flex; align-items: center;">
@@ -2340,17 +2343,19 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 				<div style="margin-right: 15px;">
 					<img src="/template/XHY-01/gif_lb.jpg" alt="客服头像" class="img-circle" style="width: 70px; height: 70px; border: 2px solid #D8A0A0;">
 				</div>
-				
+
 				<!-- 客服信息 -->
 				<div style="flex: 1;">
 					<div style="color: #8B0000; font-size: 18px; font-weight: 600; margin-bottom: 5px;">
-						平台无引流人工客�?					</div>
+						岁岁云商城人工客服
+					</div>
 					<div style="color: #8B0000; margin-bottom: 10px;">
 						<i class="fa fa-clock-o" style="margin-right: 5px;"></i>
-						<b>在线时间：早10�?0 - �?2�?0</b>
+						<b>在线时间：10:00 - 22:00</b>
 					</div>
 					<a href="/template/XHY-01/content.html" target="_blank" style="color: #8B0000; text-decoration: none;">
-						<i class="fa fa-commenting"></i> 点击可查看自助解决教�?					</a>
+						<i class="fa fa-commenting"></i> 点击查看自助教程
+					</a>
 					<div class="xhy-service-actions">
 						<a class="xhy-service-btn xhy-service-btn-online" href="javascript:void(0);" onclick="return openXhyOnlineChat(event);">
 							<i class="fa fa-comments"></i> &#22312;&#32447;&#23458;&#26381;
@@ -2358,7 +2363,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 					</div>
 				</div>
 
-				
+
 			</div>
 		</div>
 	</div>
@@ -2366,11 +2371,12 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 	<!-- 底部 -->
 	<div style="border-top: 1px solid #D8A0A0; padding: 15px 30px; background: #FFF0F0; text-align: right;">
 		<button type="button" onclick="closeModal()" style="background: linear-gradient(45deg, #8B0000, #B22222); color: #fff; border: none; border-radius: 20px; padding: 8px 25px; transition: all 0.3s ease;">
-			<i class="fa fa-check-circle"></i> 知道�?		</button>
+			<i class="fa fa-check-circle"></i> 知道了
+		</button>
 	</div>
 </div>
 
-<!-- 遮罩�?-->
+<!-- 遮罩层 -->
 <div id="modalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;"></div>
 
 <!-- JavaScript -->
@@ -2387,7 +2393,8 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 		document.getElementById('modalOverlay').style.display = 'none';
 	}
 
-	// 点击遮罩层关闭弹�?	document.getElementById('modalOverlay').onclick = closeModal;
+	// 点击遮罩层关闭弹窗
+	document.getElementById('modalOverlay').onclick = closeModal;
 
 	function openXhyOnlineChat(e) {
 		if (e) e.preventDefault();
@@ -2410,7 +2417,8 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 		return false;
 	}
 
-	// 修改a标签的点击事�?	document.addEventListener('DOMContentLoaded', function() {
+	// 修改客服链接的点击事件
+	document.addEventListener('DOMContentLoaded', function() {
 		var links = document.querySelectorAll('a[href="#lxkf"]');
 		links.forEach(function(link) {
 			link.removeAttribute('data-toggle');
@@ -2435,35 +2443,9 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 			</div>
 			<div class="panel-body text-center">
 				<h3 style="margin: 10px 0;">
-					<a href="javascript:void(alert('<?php echo $conf['sitename']?>，建议收藏链接地址到浏览器书签防止丢失哦！'));">
-						<b>
-							<span style="color:#8B0000"><?php echo $conf['sitename']?></span>
-						</b>
-					</a>
+					<a href="javascript:void(alert('<?php echo $conf['sitename']?>，建议收藏本站，避免丢失访问地址。'));"><b><span style="color:#8B0000"><?php echo $conf['sitename']?></span></b></a>
 				</h3>
-				<div style="margin-bottom: 15px;">
-					<span style="font-weight:bold">
-						<span style="color:#FF8000">�?/span>
-						<span style="color:#EC6D13">�?/span>
-						<span style="color:#D95A26">�?/span>
-						<span style="color:#C64739">�?/span>
-						<span style="color:#A0215F"> - </span>
-						<span style="color:#8D0E72">�?/span>
-						<span style="color:#5400AB">�?/span>
-						<span style="color:#4100BE">最</span>
-						<span style="color:#2E00D1">�?/span>
-						<span style="color:#1B00E4"> - </span>
-						<span style="color:#1B00E4">�?/span>
-						<span style="color:#2E00D1">�?/span>
-						<span style="color:#4100BE">�?/span>
-						<span style="color:#5400AB">�?/span>
-						<span style="color:#8D0E72"> - </span>
-						<span style="color:#A0215F">�?/span>
-						<span style="color:#C64739">�?/span>
-						<span style="color:#D95A26">最</span>
-						<span style="color:#EC6D13">�?/span>
-					</span>
-				</div>
+				<div class="xhy-site-slogan" style="margin-bottom:15px;font-weight:700;color:#0f5fd7;line-height:1.7;">正品服务 · 稳定处理 · 售后无忧</div>
 			</div>
 		</div>
 		<aside id="php_text-8" class="widget php_text wow fadelnUp" data-wow-delay="3.0s">
@@ -2481,7 +2463,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 								</a>
 							</div>
 
-						<!-- 供货商入�?-->
+						<!-- 供货商入口 -->
 						<div class="btn-group">
 							<a href="./sup" target="_blank" class="btn nav-btn">
 								<i class="fa fa-shopping-cart"></i>
@@ -2503,7 +2485,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 						<div class="btn-group">
 							<a class="btn nav-btn" href="/toollogs.php" target="_blank">
 								<i class="fa fa-comment"></i>
-								<span style="font-weight:600">今日新上架目�?/span>
+								<span style="font-weight:600">今日新上架项目</span>
 							</a>
 						</div>
 						<div class="btn-group">
@@ -2520,10 +2502,9 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 
 <!--TAB标签-->
 
-<!--TAB标签-->	
-		
-				<!--查单说明开�?->
-									<!--鏌ュ崟璇存槑寮€�?->
+<!--TAB标签-->
+
+				<!-- 查单说明开始 -->
 										<div class="modal fade" align="left" id="cxsm" tabindex="-1" role="dialog"
 				aria-labelledby="myModalLabel" aria-hidden="true">
 					<div class="modal-dialog">
@@ -2550,11 +2531,13 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 								例如您购买的是QQ名片赞，输入下单的QQ账号即可查询订单
 							</li>
 							<li class="list-group-item">
-								例如您购买的是邮箱类商品，需要输入您的邮箱号，输入QQ号是查询不到�?							</li>
+								例如您购买的是邮箱类商品，需要输入您的邮箱号，输入 QQ 号通常查询不到。
+							</li>
 							<li class="list-group-item">
-								例如您购买的是快手商品，需要输入作品链接里“userid=”后面的数字，输入快手号是一般是查询不到�?							</li>
+								例如您购买的是快手商品，需要输入作品链接里“userid=”后面的数字，输入快手号通常查询不到。
+							</li>
 							<li class="list-group-item">
-								例如您购买的是全民K歌商品，需要输入歌曲链接里“shareuid=”后面的�?amp;前面的一串英文数字，输入歌曲链接是查询不到的
+								例如您购买的是全民 K 歌商品，需要输入歌曲链接里“shareuid=”后面、“&amp;”前面的一串英文数字，直接输入歌曲链接通常查询不到。
 							</li>
 							<li class="list-group-item">
 								<span style="color:red">
@@ -2588,8 +2571,8 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 							<a href="#more" data-toggle="tab"><i class="fa fa-folder-open"></i>&#26356;&#22810;</a>
 						</li>
 					</ul>
-				<!-- 添加警告信息和下单步�?-->
-				
+				<!-- 添加警告信息和下单步骤 -->
+
 					<!--TAB-->
 					<div class="block-content tab-content">
 						<!--在线下单-->
@@ -2599,7 +2582,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 						<!--在线下单-->
 						<!--查询订单-->
 					<div class="tab-pane fade fade-up" id="search">
-						<!-- 注文释意标题和按�?-->
+						<!-- 注文释意标题和按钮 -->
 						<div class="xhy-query-help">
 								<div class="xhy-query-help-head">
 									<h4 class="xhy-query-help-title"><i class="fa fa-newspaper-o"></i><span>&#27880;&#25991;&#37322;&#20041;</span></h4>
@@ -2610,8 +2593,8 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 									<a class="xhy-query-help-btn refund" href="javascript:void(alert('&#22914;&#26524;&#20184;&#27454;&#20102;&#25214;&#19981;&#21040;&#35746;&#21333;&#35831;&#22312;&#19979;&#36793;&#25163;&#21160;&#26597;&#21333;&#65292;&#22914;&#26524;&#36824;&#26159;&#27809;&#26377;&#24102;&#19978;&#20184;&#27454;&#25130;&#22270;&#32852;&#31995;&#23458;&#26381;&#65281;'));"><i class="fa fa-search-minus"></i><span>&#26597;&#19981;&#21040;</span></a>
 								</div>
 							</div>
-							
-							<!-- 瀹㈡湇淇℃伅鍗＄�?-->
+
+							<!-- 客服信息卡片 -->
 							<div style="background: white;
 						          border: 1px solid #D8A0A0;
 					          border-radius: 8px;
@@ -2625,7 +2608,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 										<img src="/template/XHY-01/gif_lb.jpg" alt="客服头像" style="width:80px; height:80px; border-radius:50%;">
 									</a>
 								</div>
-								
+
 								<!-- 客服信息 -->
 								<div style="flex: 1;">
 								<h4 style="color: #8B0000; margin: 0 0 8px 0;">
@@ -2638,24 +2621,24 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 									<span>
 										<span style="font-weight: 600;">人工客服</span>
 										<span style="color: #8B0000;"> - 24H在线随时咨询</span>
-										<small style="display: block; color: #8B0000;">点击头像有教�?/small>
+										<small style="display: block; color: #8B0000;">点击头像查看教程</small>
 									</span>
 								</div>
 									</div>
 								</div>
 							</div>
 						</div>
-						
+
 						<!-- 查询订单教程 -->
 						<div class="q8-query-card">
 <h5 style="margin:0 0 10px;color:#1677ff;font-weight:800">订单查询</h5>
-<div class="input-group" style="margin-bottom:10px"><div class="input-group-btn"><select class="form-control" id="searchtype" style="padding:6px 4px;width:90px"><option value="0">下单账号</option><option value="1">订单�?/option></select></div><input type="text" name="qq" id="qq3" value="" class="form-control" placeholder="输入下单信息" onkeydown="if(event.keyCode==13){submit_query.click()}" required><span class="input-group-btn"><a tabindex="0" class="btn btn-default" role="button" data-container="body" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="输入下单时填写的信息，不记得可留空查缓存�?><i class="fa fa-info-circle"></i></a></span></div>
+<div class="input-group" style="margin-bottom:10px"><div class="input-group-btn"><select class="form-control" id="searchtype" style="padding:6px 4px;width:90px"><option value="0">下单账号</option><option value="1">订单号</option></select></div><input type="text" name="qq" id="qq3" value="" class="form-control" placeholder="输入下单信息" onkeydown="if(event.keyCode==13){submit_query.click()}" required><span class="input-group-btn"><a tabindex="0" class="btn btn-default" role="button" data-container="body" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="输入下单时填写的信息；不记得可留空查询浏览器缓存。"><i class="fa fa-info-circle"></i></a></span></div>
 <input type="submit" id="submit_query" class="btn btn-primary btn-block btn-rounded" style="background:linear-gradient(135deg,#1677ff,#22c7c9);border:0;font-weight:800" value="立即查询">
 <div id="result2" class="q8-query-list" style="display:none;margin-top:12px"><div id="list" class="q8-query-list"></div></div>
 </div>
 </div>
 					<!--查询订单-->
-						<!--开通分�?->
+						<!-- 开通分站 -->
 				<div class="tab-pane fade fade-up" id="ktfz">
 						<section class="xhy-earn-panel">
 							<div class="xhy-earn-hero">
@@ -2725,7 +2708,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 								</section>
 							</div>
 
-													<!--鏇村�?->
+							<!-- 更多服务 -->
 							<div class="tab-pane fade fade-right" id="more">
 								<section class="xhy-more-panel">
 									<div class="xhy-more-head">
@@ -2825,16 +2808,16 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 									<center>
 										<strong>
 											<span style="font-size:larger">
-												站长ＱＱ�?												<a href="https://wpa.qq.com/msgrd?v=3&uin=<?php echo $conf['kfqq']?>&site=qq&menu=yes"
-												target="_blank">
-													<?php echo $conf['kfqq']?>
+												客服 TG：
+												<a href="<?php echo site_contact_url($conf['kfqq'])?>" target="_blank">
+													@qqfaka
 												</a>
 											</span>
 										</strong>
 										<br />
 										<strong>
 											<span style="font-size:small">
-												本站域名�??php echo $_SERVER['HTTP_HOST']; ?>
+												本站域名：<?php echo $_SERVER['HTTP_HOST']; ?>
 											</span>
 										</strong>
 									</center>
@@ -2847,33 +2830,43 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 												</a>
 												<div id="demo-acc-faq1" class="mar-ver collapse" aria-expanded="false"
 												style="height: 0px;">
-													由于本站采用全自动订单处理，有几率出现漏单，部分单子处理时间可能会稍长一点，不过都会完成，最终解释权归本站所有。超�?4小时没处理请联系客服�?												</div>
+													本站采用自动订单处理，部分商品会因供货接口或库存波动延迟处理。超过 24 小时未处理请联系客服核查。
+												</div>
 											</div>
 											<div class="panel panel-trans pad-top">
 												<a href="#demo-acc-faq2" class="text-semibold text-lg text-main collapsed"
 												data-toggle="collapse" data-parent="#demo-acc-faq" aria-expanded="false">
-													ＱＱ空间业务类下单方法讲�?												</a>
+													空间类业务下单方法说明
+												</a>
 												<div id="demo-acc-faq2" class="mar-ver collapse" aria-expanded="false">
-													1.下单前：空间必须是所有人可访�?必须自带1~4条原创说�?
+													1.下单前：空间必须允许访问，并按商品说明准备内容。
 													<br>
-													2.代刷期间，禁止关闭访问权限，或者删除说说，删除说说的一律由自行负责，不给予补偿�?												</div>
+													2.处理期间请勿关闭访问权限或删除内容，否则可能影响订单处理。
+												</div>
 											</div>
 											<div class="panel panel-trans pad-top">
 												<a href="#demo-acc-faq3" class="text-semibold text-lg text-main collapsed"
 												data-toggle="collapse" data-parent="#demo-acc-faq" aria-expanded="false">
-													空间说说赞相关下单方法讲�?												</a>
+													空间说说赞相关下单方法说明
+												</a>
 												<div id="demo-acc-faq3" class="mar-ver collapse" aria-expanded="false">
-													1.下单前：空间必须是所有人可访�?必须自带1条原创说�?转发的说说不能刷�?													<br>
-													2.在“QQ号码”栏目输入QQ号码，点击下面的获取说说ID并选择你需要刷的说说的ID，下单即可�?													<br>
-													3.代刷期间，禁止关闭访问权限，或者删除说说，删除说说的一律由自行负责，不给予补偿�?												</div>
+													1.下单前：空间必须允许访问，并按商品说明准备内容。
+													<br>
+													2.在指定栏目填写下单账号或内容 ID，按页面提示提交即可。
+													<br>
+													3.处理期间请勿关闭访问权限或删除内容，否则可能影响订单处理。
+												</div>
 											</div>
 											<div class="panel panel-trans pad-top">
 												<a href="#demo-acc-faq4" class="text-semibold text-lg text-main collapsed"
 												data-toggle="collapse" data-parent="#demo-acc-faq" aria-expanded="false">
-													全民Ｋ歌业务类下单方法讲�?												</a>
+													全民 K 歌业务类下单方法说明
+												</a>
 												<div id="demo-acc-faq4" class="mar-ver collapse" aria-expanded="false">
-													1.打开你的全名k�?													<br>
-													2.复制你全名k歌里面的需要刷的歌曲链�?													<br>
+													1.打开全民 K 歌。
+													<br>
+													2.复制需要提交的歌曲链接。
+													<br>
 													3.例如：你歌曲链接是：
 													<span style="color:#ff0000">
 														https://kg.qq.com/node/play?s=
@@ -2883,34 +2876,38 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 														&amp;g_f=personal
 													</span>
 													<br>
-													4.然后把s=后面�?													<span style="color:green">
+													4.然后把 s= 后面的
+													<span style="color:green">
 														881Zbk8aCfIwA8U3
 													</span>
-													链接填入到歌曲ID里面，然后提交购买�?												</div>
+													链接填入到歌曲 ID 里面，然后提交购买。
+												</div>
 											</div>
 											<div class="panel panel-trans pad-top">
 												<a href="#demo-acc-faq5" class="text-semibold text-lg text-main collapsed"
 												data-toggle="collapse" data-parent="#demo-acc-faq" aria-expanded="false">
-													快手业务类代刷下单方法讲�?												</a>
+													快手业务类下单方法说明
+												</a>
 												<div id="demo-acc-faq5" class="mar-ver collapse" aria-expanded="false">
-													1.需要填写用户ID和作品ID，比�?													<span style=”color:#ff0000�?
+													1.需要填写用户 ID 和作品 ID，例如：
+													<span style="color:#ff0000">
 														http://www.kuaishou.com/i/photo/lwx?userId=
-														<span style=”color:green�?
+														<span style="color:green">
 															294200023
 														</span>
 														&amp;photoId=
-														<span style=”color:green�?
+														<span style="color:green">
 															1071823418
 														</span>
 													</span>
 													(分享作品就可以看到”复制链接”了)
 													<br>
 													2.用户ID就是
-													<span style=”color:green�?
+													<span style="color:green">
 														294200023
 													</span>
 													作品ID就是
-													<span style=”color:green�?
+													<span style="color:green">
 														1071823418
 													</span>
 													，然后在分别把用户ID和作品ID填上，请勿把两个选项填反了，不给予补单！
@@ -2919,7 +2916,8 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 											<div class="panel panel-trans pad-top">
 												<a href="#demo-acc-faq6" class="text-semibold text-lg text-main collapsed"
 												data-toggle="collapse" data-parent="#demo-acc-faq" aria-expanded="false">
-													永久ＱＱ会员/钻下单方法讲�?												</a>
+													会员类商品下单方法说明
+												</a>
 												<div id="demo-acc-faq6" class="mar-ver collapse" aria-expanded="false">
 													1.下单之前，先确认输的信息是不是正确的!
 													<br>
@@ -2936,7 +2934,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 
 
 
-				<?php 
+				<?php
 			// 确保文章列表总是显示
 			$limit = intval($conf['articlenum']) > 0 ? intval($conf['articlenum']) : 5;
 			$rs=$DB->query("SELECT id,title FROM " . DBQZ . "article WHERE active=1 ORDER BY top DESC,id DESC LIMIT {$limit}");
@@ -2946,7 +2944,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 			}
 			$class_arr = ['danger','warning','primary','success','info'];
 			$i=0;
-			// 如果没有文章，添加一个默认文�?		
+			// 如果没有文章，添加一个默认文章
 	if(empty($msgrow)){
 				$msgrow[] = array(
 					'id' => 1,
@@ -2987,7 +2985,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 				<div class="text-center" style="color:#fff;margin-bottom:10px;"><?php echo $conf['footer']?></div>
 			</div>
 		</div>
-	<script src="/assets/vendor/jquery.lazyload/1.9.1/jquery.lazyload.min.js?v=q8vendor1"></script>
+	<script src="/assets/vendor/jquery.lazyload/1.9.1/jquery.lazyload.min.js?v=suisuivendor1"></script>
 <!-- remove invalid music player script -->
 	<script>
     function AddFavorite(title, url) {
@@ -2999,7 +2997,7 @@ catch (e) {
        window.sidebar.addPanel(title, url, "");
     }
      catch (e) {
-         alert("手机用户：点击底�?“≡�?添加书签/收藏网址!\n\n电脑用户：请您按 Ctrl+D 手动收藏本网址! ");
+         alert("手机用户：点击底部菜单添加书签/收藏网址！\n\n电脑用户：请按 Ctrl+D 手动收藏本网址！");
      }
   }
 }
@@ -3030,10 +3028,13 @@ catch (e) {
 		// 弹出公告控制
 		$(document).ready(function() {
 			if (isModal) {
-				// 检查是否需要显示公�?				if (modalShowType == 0) {
-					// 每次进网站都�?					$('#anounce').modal('show');
+				// 检查是否需要显示公告
+				if (modalShowType == 0) {
+					// 每次进网站都弹
+					$('#anounce').modal('show');
 				} else if (modalShowType == 1) {
-					// 只弹一�?					var modalShown = localStorage.getItem('modal_shown');
+					// 只弹一次
+					var modalShown = localStorage.getItem('modal_shown');
 					if (!modalShown) {
 						$('#anounce').modal('show');
 						localStorage.setItem('modal_shown', '1');
@@ -3050,14 +3051,15 @@ catch (e) {
        			console.log('Lazyload functionality not available');
     		}
 		});
-		// 移除无效的计时脚�?		var stimeElement = document.createElement('div');
+		// 移除无效的计时脚本依赖
+		var stimeElement = document.createElement('div');
 		stimeElement.id = 'stime';
 		stimeElement.style.display = 'none';
 		document.body.appendChild(stimeElement);
 		var ss = 0,
 		    mm = 0,
 		    hh = 0;
-		
+
 		function TimeGo() {
 		    ss++;
 		    if (ss >= 60) {
@@ -3070,7 +3072,7 @@ catch (e) {
 		    }
 		    ss_str = (ss < 10 ? "0" + ss : ss);
 		    mm_str = (mm < 10 ? "0" + mm : mm);
-		    tMsg = "" + hh + "小时" + mm_str + "�? + ss_str + "�?;
+		    tMsg = "" + hh + "小时" + mm_str + "分" + ss_str + "秒";
 		    var stimeElement = document.getElementById("stime");
 		    if (stimeElement) {
 		        stimeElement.innerHTML = tMsg;
@@ -3081,7 +3083,8 @@ catch (e) {
 $("#submit_buy").attr({'class':'btn btn-primary btn-block btn-rounded q8-submit-buy','style':'background: linear-gradient(135deg,#1677ff,#20c5c8); color: #fff; border: none;'});
 	</script>
 	<script>
-	// 购买成功后自动显示订单详情弹�?	$(document).ready(function(){
+	// 购买成功后自动显示订单详情弹窗
+	$(document).ready(function(){
 		// 使用纯JavaScript获取URL参数，避免混合PHP
 		function getUrlParam(name) {
 			var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -3089,22 +3092,24 @@ $("#submit_buy").attr({'class':'btn btn-primary btn-block btn-rounded q8-submit-
 			if (r != null) return decodeURIComponent(r[2]);
 			return '';
 		}
-		
+
 		if(getUrlParam('buyok') == '1'){
 			// 直接从URL获取订单ID和skey参数
 			var orderid = getUrlParam('orderid');
 			var skey = getUrlParam('skey');
-			
-			// 如果有订单ID和skey参数，直接显示订单详�?			if(orderid && skey){
+
+			// 如果有订单ID和skey参数，直接显示订单详情
+			if(orderid && skey){
 				showOrder(orderid, skey);
 			}
-			// 否则，为了保持兼容性，仍然通过查询获取最新订�?			else {
+			// 否则，为了保持兼容性，仍然通过查询获取最新订单
+			else {
 				var searchtype = getUrlParam('searchtype') || 1;
 				var qq = getUrlParam('qq') || '';
-				
-				// 先检�?_GET变量的类型，确保正确处理
+
+				// 先检查 $_GET 变量的类型，确保正确处理
 				if (typeof window.$_GET === 'function') {
-					// 保存原始�?_GET函数
+					// 保存原始 $_GET 函数
 					var original_GET = window.$_GET;
 					// 创建一个临时的$_GET函数，移除buyok参数
 					window.$_GET = function() {
@@ -3117,7 +3122,7 @@ $("#submit_buy").attr({'class':'btn btn-primary btn-block btn-rounded q8-submit-
 								var j = u[i].split("=");
 								get[j[0]] = j[1];
 							}
-							// 关键修改：将buyok设置�?，禁用showOrder调用
+							// 关键修改：将 buyok 设置为 0，禁用 showOrder 调用
 							get['buyok'] = 0;
 							return get;
 						} else {
@@ -3125,13 +3130,14 @@ $("#submit_buy").attr({'class':'btn btn-primary btn-block btn-rounded q8-submit-
 						}
 					};
 				}
-				
-				// 临时设置querymode，禁用查询弹窗显�?				var tempQuerymode = window.querymode;
+
+				// 临时设置 querymode，禁用查询弹窗显示
+				var tempQuerymode = window.querymode;
 				window.querymode = 'noPopup';
-				
+
 				// 执行订单查询
 				queryOrder(searchtype, qq, 1);
-				
+
 				// 恢复原始设置
 				setTimeout(function() {
 					window.querymode = tempQuerymode;
@@ -3205,7 +3211,7 @@ $(function(){
 					var pcid = parseInt(res.pcid, 10) || cid;
 					html += '<button type="button" class="q8-today-recommend__item" data-cid="'+cid+'" data-tid="'+tid+'" data-pcid="'+pcid+'">' +
 						'<div class="q8-today-recommend__name">'+q8EscapeHtml(res.name)+'</div>' +
-						'<div class="q8-today-recommend__meta"><span class="q8-today-recommend__price">&yen;'+q8EscapeHtml(res.price)+'</span><span class="q8-today-recommend__action">去下�?/span></div>' +
+						'<div class="q8-today-recommend__meta"><span class="q8-today-recommend__price">&yen;'+q8EscapeHtml(res.price)+'</span><span class="q8-today-recommend__action">去下单</span></div>' +
 					'</button>';
 				});
 				$('#q8TodayRecommendList').html(html);
