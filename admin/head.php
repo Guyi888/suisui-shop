@@ -1501,6 +1501,12 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 </li>
 
 <li>
+	<a class="<?php echo checkIfActive('support')?>" href="./support.php">
+		<i class="fa fa-paper-plane sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">联系与赞助</span>
+	</a>
+</li>
+
+<li>
 	<a class="" href="./changelog.php">
 		<i class="fa fa-list-alt sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">更新日志</span>
 	</a>
@@ -1560,7 +1566,7 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 </li>
 <li class="dropdown">
 <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
-<img src="<?php echo ($conf['kfqq'])?'//q2.qlogo.cn/headimg_dl?bs=qq&dst_uin='.$conf['kfqq'].'&src_uin='.$conf['kfqq'].'&fid='.$conf['kfqq'].'&spec=100&url_enc=0&referer=bu_interface&term_type=PC':'../assets/img/user.png'?>" alt="avatar">
+<img src="<?php echo site_contact_avatar($conf['kfqq'], '../assets/img/user.png'); ?>" alt="avatar">
 </a>
 <ul class="dropdown-menu dropdown-menu-right">
 <li class="dropdown-header text-center">

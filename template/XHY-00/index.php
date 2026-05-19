@@ -2,7 +2,7 @@
 /*
  本代码由 岁岁 @qqfaka 创建
  创建时间 2025-1-1
- 技术支持 QQ:1410505990
+ 技术支持：岁岁 @qqfaka
  模板版本 v1.0
 */
 if(!defined('IN_CRONLITE'))exit();
@@ -132,7 +132,7 @@ $show_article_list = isset($conf['show_article_list']) ? $conf['show_article_lis
 				<div>
 					<div>
 						<img class="img-avatar img-avatar80 img-avatar-thumb animated zoomInDown"
-						src="//q4.qlogo.cn/headimg_dl?dst_uin=<?php echo $conf['kfqq']?>&spec=100">
+						src="<?php echo site_contact_avatar($conf['kfqq']); ?>">
 					</div>
 				</div>
 			</div>
@@ -294,7 +294,7 @@ $show_article_list = isset($conf['show_article_list']) ? $conf['show_article_lis
 								<tbody>
 									<tr class="shuaibi-tip animation-fadeInQuick2">
 										<td class="text-center" style="width: 100px;">
-											<img src="//q4.qlogo.cn/headimg_dl?dst_uin=<?php echo $conf['kfqq']?>&spec=100" alt="avatar"
+											<img src="<?php echo site_contact_avatar($conf['kfqq']); ?>" alt="avatar"
 											class="img-circle img-thumbnail img-thumbnail-avatar">
 										</td>
 										<td>
@@ -305,10 +305,10 @@ $show_article_list = isset($conf['show_article_list']) ? $conf['show_article_lis
 											</h5>
 											<i class="fa fa-comment-o text-success">
 											</i>
-											客服QQ:<?php echo $conf['kfqq']?>
+											在线客服：<?php echo site_contact_label($conf['kfqq']); ?>
 										</td>
 										<td class="text-right" style="width: 20%;">
-											<a styel="letter-spacing: 3px;" href="http://wpa.qq.com/msgrd?v=3&uin=<?php echo $conf['kfqq']?>&site=qq&menu=yes"
+											<a styel="letter-spacing: 3px;" href="<?php echo site_contact_url($conf['kfqq']); ?>"
 											target="_blank" class="btn btn-sm btn-info">
 												<i class="fa fa-qq">
 												</i>
@@ -547,7 +547,7 @@ $show_article_list = isset($conf['show_article_list']) ? $conf['show_article_lis
 								</a>
 							</div>
 							<div class="col-xs-6 col-sm-4 col-lg-4">
-								<a class="block block-link-hover2 text-center" href="http://wpa.qq.com/msgrd?v=3&uin=<?php echo $conf['kfqq']?>&site=qq&menu=yes">
+								<a class="block block-link-hover2 text-center" href="<?php echo site_contact_url($conf['kfqq']); ?>">
 									<div class="block-content block-content-full bg-amethyst">
 										<i class="fa fa-credit-card fa-3x text-white">
 										</i>
@@ -795,9 +795,9 @@ $show_article_list = isset($conf['show_article_list']) ? $conf['show_article_lis
 										<strong>
 											<font size="3">
 												站长ＱＱ：
-												<a href="http://wpa.qq.com/msgrd?v=3&uin=<?php echo $conf['kfqq']?>&site=qq&menu=yes"
+												<a href="<?php echo site_contact_url($conf['kfqq']); ?>"
 												target="_blank">
-													<?php echo $conf['kfqq']?>
+													<?php echo site_contact_label($conf['kfqq']); ?>
 												</a>
 											</font>
 										</strong>

@@ -1,6 +1,6 @@
 <?php
 /*
-QQ群qqfaka
+TG：@qqfaka
 岁岁 @qqfaka
 */
 /**

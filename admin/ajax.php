@@ -810,8 +810,8 @@ case 'transfer_config':
 break;
 case 'create_chat_session':
     // 创建聊天会话（无需管理员权限，用户端调用）
-    // 博客地址：zhonguo.ren
-    // Q群：qqfaka
+    // 官网：t.me/qqfaka
+    // TG：@qqfaka
     $user_ip = isset($_POST['user_ip']) ? daddslashes($_POST['user_ip']) : '';
     if(empty($user_ip)) $user_ip = real_ip(1);
 
@@ -1079,7 +1079,7 @@ case 'upload_favicon':
 	}
 break;
 case 'system_info':
-	// 获取系统资源使用情况 - 岁岁 @qqfaka zhonguo.ren
+	// 获取系统资源使用情况 - 岁岁 @qqfaka t.me/qqfaka
 	// 修复版本：使用更可靠的方法生成系统资源数据，并确保平滑波动
 
 	// 获取数据库大小
@@ -1098,7 +1098,7 @@ case 'system_info':
 		}
 	}
 
-	// 获取系统运行时间 - 岁岁 @qqfaka zhonguo.ren
+	// 获取系统运行时间 - 岁岁 @qqfaka t.me/qqfaka
 	function uptime() {
 		try {
 			// 使用静态变量保存基础运行天数
@@ -1126,7 +1126,7 @@ case 'system_info':
 		}
 	}
 
-	// 获取内存使用情况 - 岁岁 @qqfaka zhonguo.ren
+	// 获取内存使用情况 - 岁岁 @qqfaka t.me/qqfaka
 	function get_memory_usage() {
 		// 静态变量保存内存使用百分比，确保波动平滑
 		static $last_memory_percent = null;
@@ -1165,7 +1165,7 @@ case 'system_info':
 		);
 	}
 
-	// 获取CPU使用率 - 岁岁 @qqfaka zhonguo.ren
+	// 获取CPU使用率 - 岁岁 @qqfaka t.me/qqfaka
 	function get_cpu_usage() {
 		// 静态变量保存CPU使用率，确保波动平滑
 		static $last_cpu_usage = null;

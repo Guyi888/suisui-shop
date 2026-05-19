@@ -171,7 +171,7 @@ float: left !important;
                         }
                 </style>
 
-                <!-- 动态显示商品设置的输入框 - 博客地址：zhonguo.ren QQ群：qqfaka -->
+                <!-- 动态显示商品设置的输入框 - 官网：t.me/qqfaka TG：@qqfaka -->
                 <div v-for="(input, index) in inputs" :key="index" class="info_box">
                     <div class="info_left">
                         <span>*</span>

@@ -2,8 +2,8 @@
 /*
  * 长时间任务管理类
  * 用于处理自动同步等长时间运行的任务
- * 博客：zhonguo.ren
- * QQ群：qqfaka
+ * 官网：t.me/qqfaka
+ * TG：@qqfaka
  * 开发者：岁岁 @qqfaka
  */
 

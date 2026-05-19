@@ -3,8 +3,8 @@
  * 系统概况模块
  * 功能：展示系统核心数据统计、资源使用情况、健康状态等
  * 作者：岁岁 @qqfaka
- * 博客：zhonguo.ren
- * QQ群：qqfaka
+ * 官网：t.me/qqfaka
+ * TG：@qqfaka
  */
 
 // 启动会话以支持$_SESSION变量

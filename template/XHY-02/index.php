@@ -319,7 +319,7 @@ $show_top_banner = isset($conf['show_top_banner']) ? $conf['show_top_banner'] : 
     <div>
       <div>
         <img class="img-avatar img-avatar80 img-avatar-thumb animated zoomInDown"
-        src="//q4.qlogo.cn/headimg_dl?dst_uin=<?php echo $conf['kfqq']?>&spec=100">
+        src="<?php echo site_contact_avatar($conf['kfqq']); ?>">
       </div>
     </div>
   </div>
@@ -435,9 +435,9 @@ $show_top_banner = isset($conf['show_top_banner']) ? $conf['show_top_banner'] : 
 						<ul class="list-group animated bounceIn">
       <li class="list-group-item">
         <div class="media">
-							<span class="pull-left thumb-sm"><img src="//q4.qlogo.cn/headimg_dl?dst_uin=<?php echo $conf['kfqq']?>&spec=100" class="img-circle img-thumbnail img-avatar"></span>
+							<span class="pull-left thumb-sm"><img src="<?php echo site_contact_avatar($conf['kfqq']); ?>" class="img-circle img-thumbnail img-avatar"></span>
 								<div class="pull-left push-10-t">
-							<div class="font-w600 push-5">🚀运营站长 QQ:<?php echo $conf['kfqq']?></div>
+							<div class="font-w600 push-5">🚀运营站长：<?php echo site_contact_label($conf['kfqq']); ?></div>
 							 <div class="text-muted">
               <script>var online = new Array();</script>
 							<div class="text-muted"><h8><b>️售后问题请联系网站客服解决！️</b></h8></div>

@@ -58,7 +58,7 @@ $classname = $DB->getColumn("select name from pre_class where cid=:cid limit 1",
 <div id="bar">
 <div class="bar_top">客户服务</div>
 <div class="from_wz_41">
-<div class="kefu"><a target="blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=<?php echo $conf['kfqq']?>&amp;Site=qq&amp;Menu=yes">QQ:<?php echo $conf['kfqq']?></a></div>
+<div class="kefu"><a target="blank" href="<?php echo site_contact_url($conf['kfqq']); ?>">客服：<?php echo site_contact_label($conf['kfqq']); ?></a></div>
 <?php if(!empty($conf['kfwx'])){?><div class="kefu">微信：<?php echo $conf['kfwx']?></div><?php }?>
 </div>
 

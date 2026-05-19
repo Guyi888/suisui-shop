@@ -1,8 +1,8 @@
 <?php
 /**
  * 找回密码 - 美化版
- * 博客地址: zhonguo.ren
- * QQ群: qqfaka
+ * 官网：t.me/qqfaka
+ * TG：@qqfaka
 **/
 $is_defend=true;
 include("../includes/common.php");

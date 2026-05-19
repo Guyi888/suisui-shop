@@ -77,7 +77,7 @@ if (strlen($kmdata) > 2) $kmdata = substr($kmdata, 0, -2);
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <p class="text-left"><b>订单号</b><br>{{_ID}}</p>
-                                                <p class="text-left"><b>售后卖家QQ：</b><a class="text-primary" href="tencent://message/?uin=<?php echo $conf['kfqq'];?>&amp;Site=<?php echo $conf['kfqq'];?>&amp;Menu=yes" title="联系商家,请先加好友" target="_blank"><?php echo $conf['kfqq'];?></a></p>
+                                                <p class="text-left"><b>售后卖家：</b><a class="text-primary" href="<?php echo site_contact_url($conf['kfqq']); ?>" title="联系商家,请先加好友" target="_blank"><?php echo site_contact_label($conf['kfqq']); ?></a></p>
                                                 <p class="text-left"><b>付款时间</b><br>{{info.date}}</p>
                                                 <p class="text-left"> <b>商品名称</b><br>{{info.name}}</p>
                                                 <p class="tips0 text-left"></p>

@@ -107,7 +107,7 @@ include './head2.php';
 if($_SESSION['Oauth_qq_faceimg']){
 	$faceimg = $_SESSION['Oauth_qq_faceimg'];
 }else{
-	$faceimg = '//q4.qlogo.cn/headimg_dl?dst_uin='.$conf['kfqq'].'&spec=100';
+	$faceimg = site_contact_avatar($conf['kfqq'], '../assets/img/user.png');
 }
 
 if($_GET['act'] == 'new'){

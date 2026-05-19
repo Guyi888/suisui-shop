@@ -14,7 +14,7 @@ include_once TEMPLATE_ROOT.'faka/inc/waphead.php';
                 <span style="color: #cccccc">-------------------------------------------------------------</span>
                 <br>
                 <br>
-                <img src="assets/faka/images/qq_s.png" width="22" title="">&ensp;QQ客服：<a target="blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=<?php echo $conf['kfqq']?>&amp;Site=qq&amp;Menu=yes"><?php echo $conf['kfqq']?></a>
+                <img src="assets/faka/images/qq_s.png" width="22" title="">&ensp;在线客服：<a target="blank" href="<?php echo site_contact_url($conf['kfqq']); ?>"><?php echo site_contact_label($conf['kfqq']); ?></a>
 				<br><br>
                 <span style="color: #cccccc">-------------------------------------------------------------</span>
 				<?php if(!empty($conf['kfwx'])){?><br>

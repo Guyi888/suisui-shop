@@ -624,8 +624,8 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                         </div>
 
 
-<!--本模板由启程修改，留版权必爆单，感谢支持-->
-<!--启程QQ：3882252696-->
+<!--模板维护：岁岁 @qqfaka-->
+<!--维护 TG：@qqfaka-->
 
 
                      <style>
@@ -680,10 +680,10 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
 
                             <a href="/" target="_blank" class="urlbox3">
                                 <span class=" icon icon-share"></span>
-                                <p>平台Q群</p>
+                                <p>官方群组</p>
                             </a>
-                            <!--本模板由启程修改，留版权必爆单，感谢支持--> <!--启程QQ：3882252696--> <!--定制模板等可以联系--> <!--启程QQ：3882252696-->
-<!--启程QQ：3882252696-->
+                            <!--模板维护：岁岁 @qqfaka--> <!--维护 TG：@qqfaka--> <!--定制模板等可以联系--> <!--维护 TG：@qqfaka-->
+<!--维护 TG：@qqfaka-->
 
 
 

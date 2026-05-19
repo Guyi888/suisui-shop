@@ -72,7 +72,7 @@ include 'head.php';
                                 <div id="collapseFive" class="panel-collapse collapse" style="height: 0px;">
                                     <div class="panel-body">
 										下单前不管是你还是你的用户，必须的提醒他，看清楚商品说明，避免刷单不到账的情况！<br>
-                                        订单有什么问题直接发给客服QQ，让客服处理！
+                                        订单有什么问题直接发给在线客服，让客服处理！
 									</div>
                                 </div>
                             </div>

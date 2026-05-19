@@ -1,7 +1,7 @@
 <?php
 // 客服工作台
-// 博客地址：zhonguo.ren
-// Q群：qqfaka
+// 官网：t.me/qqfaka
+// TG：@qqfaka
 include "../includes/common.php";
 $title = "客服工作台";
 include "./head.php";

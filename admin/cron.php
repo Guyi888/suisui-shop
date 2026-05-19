@@ -1,8 +1,8 @@
 <?php
 /*
  * 计划任务处理文件
- * 博客：zhonguo.ren
- * QQ群：qqfaka
+ * 官网：t.me/qqfaka
+ * TG：@qqfaka
  * 开发者：岁岁 @qqfaka
  * 功能：处理各种自动任务，包括自动补单、数据清理等
  */

@@ -582,7 +582,7 @@ if ($mod == "cleanbom") {
 							</select></div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-2 control-label">客服ＱＱ</label>
+						<label class="col-sm-2 control-label">客服联系方式</label>
 						<div class="col-sm-10"><input type="text" name="kfqq" value="<?php echo $conf["kfqq"];?>" class="form-control" /></div>
 					</div>
 					<div class="form-group">
@@ -1192,7 +1192,7 @@ if ($mod == "cleanbom") {
 									</select></div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label">允许分站设置自己客服QQ</label>
+								<label class="col-sm-3 control-label">允许分站设置自己客服联系方式</label>
 								<div class="col-sm-9"><select class="form-control" name="fenzhan_kfqq" default="<?php echo $conf["fenzhan_kfqq"];?>">
 										<option value="0">关闭</option>
 										<option value="1">开启</option>

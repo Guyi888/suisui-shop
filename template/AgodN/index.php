@@ -496,7 +496,7 @@ if(empty($_GET['cid'])){
                     </div>
                     <div>
                         <h4><?php echo $conf['sitename']?></h4>
-                        <div>客服QQ：<?php echo $conf['kfqq']?></div>
+                        <div>在线客服：<?php echo site_contact_label($conf['kfqq']); ?></div>
                     </div>
                 </div>
                 <div class="shop-status">

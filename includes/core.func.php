@@ -232,7 +232,7 @@ function processOrder($srow, $is_fenzhan = true)
 	} else {
 		$cost = $tools['price'] * $srow['num'];
 	}
-	// 地区加价日志记录 - 博客地址：zhonguo.ren QQ群：qqfaka
+	// 地区加价日志记录 - 官网：t.me/qqfaka TG：@qqfaka
 	$address = isset($srow['address']) ? $srow['address'] : '';
 	if (!empty($address)) {
 		$regionPrice = new \lib\RegionPrice();

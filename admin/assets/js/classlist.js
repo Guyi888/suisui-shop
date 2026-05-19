@@ -1,4 +1,4 @@
-// 岁岁 @qqfaka博客 zhonguo.ren QQ群qqfaka
+// 岁岁 @qqfaka博客 t.me/qqfaka TG：@qqfaka
 // 加载分类列表并初始化拖拽功能
 function listTable(query){
 	var url = window.document.location.href.toString();
@@ -20,7 +20,7 @@ function listTable(query){
 			}
 			$("#listTable").html(data);
 
-			// 初始化拖拽排序功能 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
+			// 初始化拖拽排序功能 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
 			initDragSort();
 		},
 		error:function(data){
@@ -32,10 +32,10 @@ function listTable(query){
 	});
 }
 
-// 初始化HTML5原生拖拽排序功能 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
+// 初始化HTML5原生拖拽排序功能 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
 function initDragSort() {
 	try {
-		// 添加拖拽样式 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
+		// 添加拖拽样式 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
 		if (!$('style#dragSortStyle').length) {
 			$('head').append(`
 				<style id="dragSortStyle">
@@ -156,7 +156,7 @@ function initDragSort() {
 	}
 }
 
-// 更新排序号并保存 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
+// 更新排序号并保存 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
 function updateSortNumbers() {
 	try {
 		console.log('开始更新排序...');
@@ -221,7 +221,7 @@ function updateSortNumbers() {
 	}
 }
 
-// 显示排序成功提示 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
+// 显示排序成功提示 - 岁岁 @qqfaka博客 t.me/qqfaka qqfaka
 function showSortSuccess() {
 	layer.msg('排序已更新', {
 		icon: 1,

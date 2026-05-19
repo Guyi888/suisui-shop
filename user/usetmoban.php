@@ -188,8 +188,8 @@ if ($conf['fenzhan_cost2'] <= 0) $conf['fenzhan_cost2'] = $conf['fenzhan_price2'
 						</div>
 						<?php if ($conf['fenzhan_kfqq'] == 1) { ?>
 							<div class="form-group">
-								<label>客服ＱＱ</label><br>
-								<input type="text" name="kfqq" value="<?php echo $userrow['kfqq']; ?>" class="form-control" placeholder="留空自动同步主站客服ＱＱ（推荐）" />
+								<label>客服联系方式</label><br>
+								<input type="text" name="kfqq" value="<?php echo $userrow['kfqq']; ?>" class="form-control" placeholder="留空自动同步主站客服联系方式（推荐）" />
 							</div>
 							<?php if ($newuserhead) { ?>
 								<div class="form-group">
@@ -299,8 +299,8 @@ if ($conf['fenzhan_cost2'] <= 0) $conf['fenzhan_cost2'] = $conf['fenzhan_price2'
 						</div>
 						<?php if ($conf['fenzhan_kfqq'] == 1) { ?>
 							<div class="form-group" style="display: none;">
-								<label>客服ＱＱ</label><br>
-								<input type="text" name="kfqq" value="<?php echo $userrow['kfqq']; ?>" class="form-control" placeholder="留空自动同步主站客服ＱＱ（推荐）" />
+								<label>客服联系方式</label><br>
+								<input type="text" name="kfqq" value="<?php echo $userrow['kfqq']; ?>" class="form-control" placeholder="留空自动同步主站客服联系方式（推荐）" />
 							</div>
 							<?php if ($newuserhead) { ?>
 								<div class="form-group" style="display: none;">
@@ -484,7 +484,7 @@ if ($conf['fenzhan_cost2'] <= 0) $conf['fenzhan_cost2'] = $conf['fenzhan_price2'
 			if (file_exists(ROOT . 'assets/img/qrcode/wxqrcode_' . $userrow['zid'] . '.png')) {
 				$wxqrcode = '<br><img src="../assets/img/qrcode/wxqrcode_' . $userrow['zid'] . '.png" style="max-width:30%">';
 			} elseif (!empty($userrow['kfqq'])) {
-				$wxqrcode = '<b>根据客服QQ自动生成QQ二维码</b>';
+				$wxqrcode = '<b>根据客服联系方式自动生成二维码</b>';
 			} else {
 				$wxqrcode = '<b>自动同步主站</b>';
 			}

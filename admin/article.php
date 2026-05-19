@@ -1,5 +1,5 @@
 <?php
-// 文章管理页面 - 岁岁 @qqfaka zhonguo.ren
+// 文章管理页面 - 岁岁 @qqfaka t.me/qqfaka
 // 功能：文章的添加、编辑、删除和列表展示
 // 安全措施：使用PDO预处理语句防止SQL注入，使用daddslashes函数过滤用户输入
 

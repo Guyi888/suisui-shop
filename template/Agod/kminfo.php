@@ -98,7 +98,7 @@ if (strlen($kmdata) > 2) $kmdata = substr($kmdata, 0, -2);
         <div class="flex justify-between">
           <div v-if="info.name">
             <p class="text-lg font-bold text-gray-500">订单号: <span class="text-base font-light text-gray-400"></span>{{_ID}}</p>
-            <p class="text-lg font-bold text-gray-500">售后卖家QQ： <span class="text-base font-light text-gray-400"><?php echo $conf['kfqq'];?></span></p>
+            <p class="text-lg font-bold text-gray-500">售后卖家： <span class="text-base font-light text-gray-400"><?php echo site_contact_label($conf['kfqq']); ?></span></p>
             <p class="text-lg font-bold text-gray-500">付款时间： <span class="text-base font-light text-gray-400">{{info.date}}</span></p>
             <p class="text-lg font-bold text-gray-500">商品名称： <span class="text-base font-light text-gray-400">{{info.name}}</span></p>
             <p class="text-lg font-bold text-gray-500">已发卡密： <span class="text-base font-light text-gray-400">{{_VAL}}张</span></p>
@@ -114,7 +114,7 @@ if (strlen($kmdata) > 2) $kmdata = substr($kmdata, 0, -2);
         <div class="px-10 text-sm text-gray-400">
           <p class="text-center">平台免责提示：假卡/欺诈/延迟发货等情况必须在当天24点前在网站投诉订单和联系平台客服处理隔天商户体现资金难以追回</p>
           <p class="text-center">（本平台仅提供自助服务，并非销售商，不清楚卡密真实用途！虚拟物品售出后无法二次售卖，非卡密问题本站有权驳回一切投诉）</p>
-          <p class="text-center">有疑问请及时联系卖家QQ：<?php echo $conf['kfqq'];?> 联系不上卖家请在当天24点前在网站上方投诉订单</p>
+          <p class="text-center">有疑问请及时联系卖家：<?php echo site_contact_label($conf['kfqq']); ?> 联系不上卖家请在当天24点前在网站上方投诉订单</p>
         </div>
       </div>
     </div>

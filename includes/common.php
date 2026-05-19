@@ -12,6 +12,38 @@ define('SYSTEM_ROOT', dirname(__FILE__) . '/');
 define('ROOT', dirname(SYSTEM_ROOT) . '/');
 define('TEMPLATE_ROOT', ROOT . 'template/');
 define('PLUGIN_ROOT', ROOT . 'includes/plugins/');
+define('OWNER_NAME', '岁岁');
+define('OWNER_HANDLE', '@qqfaka');
+define('OWNER_CONTACT', 'qqfaka');
+define('OWNER_SITE_URL', 'https://t.me/qqfaka');
+define('OWNER_USDT_TRC20', 'TLzcw5ydRjHCM6KKAprjD8yzf2Dddddddd');
+
+function site_contact_label($contact = null)
+{
+	$contact = trim((string)$contact);
+	return $contact === '' ? OWNER_HANDLE : $contact;
+}
+
+function site_contact_url($contact = null)
+{
+	$contact = trim((string)$contact);
+	if ($contact === '') {
+		return OWNER_SITE_URL;
+	}
+	if (preg_match('/^\d{5,12}$/', $contact)) {
+		return 'http://wpa.qq.com/msgrd?v=3&uin=' . rawurlencode($contact) . '&site=qq&menu=yes';
+	}
+	return 'https://t.me/' . rawurlencode(ltrim($contact, '@'));
+}
+
+function site_contact_avatar($contact = null, $fallback = '/assets/img/user.png')
+{
+	$contact = trim((string)$contact);
+	if (preg_match('/^\d{5,12}$/', $contact)) {
+		return '//q4.qlogo.cn/headimg_dl?dst_uin=' . rawurlencode($contact) . '&spec=100';
+	}
+	return $fallback;
+}
 
 date_default_timezone_set('Asia/Shanghai');
 $date = date("Y-m-d H:i:s");
@@ -471,7 +503,7 @@ if($conf['wall_guide_open'] == 1) {
 /**
  * 域名落地页跳转功能
  * 岁岁 @qqfaka
- * Q群：qqfaka
+ * TG：@qqfaka
  * 作者：岁岁 @qqfaka
  * 功能说明：根据配置的域名跳转规则，自动将旧域名跳转到新域名
  * 支持通配符匹配，如 *.old.com -> *.new.com

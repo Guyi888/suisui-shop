@@ -81,7 +81,6 @@
 <!--  </div>-->
 <!--  <div class="item">-->
 <!--    <a-->
-<!--      href="//wpa.qq.com/msgrd?v=1&amp;uin=<?php echo $conf['kfqq'];?>&amp;site=&amp;menu=yes"-->
 <!--      target="_blank"-->
 <!--    >-->
 <!--      <span>卖家客服</span>-->

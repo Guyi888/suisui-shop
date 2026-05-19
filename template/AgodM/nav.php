@@ -8,7 +8,7 @@
 
     <div class="header_title">
       <span><?php echo $hometitle?></span>
-      <span>卖家售后：<?php echo $conf['kfqq']?></span>
+      <span>卖家售后：<?php echo site_contact_label($conf['kfqq']); ?></span>
     </div>
     <div class="header_right">
      <!--<a class="queryorder" href="./user" style="margin-right:10px">用户中心</a>-->

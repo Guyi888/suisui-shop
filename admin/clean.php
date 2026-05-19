@@ -2,7 +2,7 @@
 /**
  * 系统数据清理
  * 岁岁 @qqfaka
- * Q群：qqfaka
+ * TG：@qqfaka
 **/
 include("../includes/common.php");
 $title='系统数据清理';

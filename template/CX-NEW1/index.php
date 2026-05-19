@@ -221,7 +221,7 @@ if (preg_match('/^(https?:\/\/|ftp:\/\/|\/\/)/i', $top_image)) {
 <div class="block-content block-content-full text-center bg-image" style="background-image: url('<?php echo $top_image ?: 'assets/img/above.png'; ?>');background-size: 100% 100%;">
             <div>
                 <div>
-                    <img class="img-avatar img-avatar80" src="//q4.qlogo.cn/headimg_dl?dst_uin=<?php echo $conf['kfqq']?>&spec=100">
+                    <img class="img-avatar img-avatar80" src="<?php echo site_contact_avatar($conf['kfqq']); ?>">
                     </div>
                 </div>
             </div>
@@ -282,7 +282,7 @@ h5 {
                  <a class="btn btn-default" data-toggle="modal" href="user/login.php"><img src="https://z3.ax1x.com/2021/06/19/RCRNOe.gif">&nbsp;<b><font color="#0000CD">注册/登录</font></b></a></div>
 				</div>
              <center>
-                   <a class="btn btn-default" href="http://wpa.qq.com/msgrd?v=3&uin=<?php echo $conf['kfqq'] ?>&site=qq&menu=yes" target="_blank"><font color="#FF0000"><span style="font-weight:bold">♛《售后问题》 9:00-23:00  </span></font><font color="#006400"><span style="font-weight:bold">♛人工客服中心♛</span></font></a>
+                   <a class="btn btn-default" href="<?php echo site_contact_url($conf['kfqq']); ?>" target="_blank"><font color="#FF0000"><span style="font-weight:bold">♛《售后问题》 9:00-23:00  </span></font><font color="#006400"><span style="font-weight:bold">♛人工客服中心♛</span></font></a>
 
                  <center>
                                                     <!--勉强运行-->
@@ -418,9 +418,9 @@ h5 {
 							<ul class="list-group animated bounceIn">
       <li class="list-group-item">
         <div class="media">
-									<span class="pull-left thumb-sm"><img src="//q4.qlogo.cn/headimg_dl?dst_uin=<?php echo $conf['kfqq']?>&spec=100" class="img-circle img-thumbnail img-avatar"></span>
+									<span class="pull-left thumb-sm"><img src="<?php echo site_contact_avatar($conf['kfqq']); ?>" class="img-circle img-thumbnail img-avatar"></span>
 											<div class="pull-left push-10-t">
-									<div class="font-w600 push-5">🚀运营站长 QQ:<?php echo $conf['kfqq']?></div>
+									<div class="font-w600 push-5">🚀运营站长：<?php echo site_contact_label($conf['kfqq']); ?></div>
 									 <div class="text-muted">
               <script>var online = new Array();</script>
 									<div class="text-muted"><h8><b>️售后问题请联系网站客服解决！️</b></h8></div>
@@ -728,13 +728,13 @@ h5 {
 			<ul class="list-group" style="margin-bottom: 0px;">
 			<li class="list-group-item">
 			   <div class="media">
-					<span class="pull-left thumb-sm"><img src="//q4.qlogo.cn/headimg_dl?dst_uin=<?php echo $conf['kfqq'] ?>&spec=100" alt="..." class="img-circle img-thumbnail img-avatar"></span>
+					<span class="pull-left thumb-sm"><img src="<?php echo site_contact_avatar($conf['kfqq']); ?>" alt="..." class="img-circle img-thumbnail img-avatar"></span>
 			   <div class="pull-right push-15-t">
-					<a href="http://wpa.qq.com/msgrd?v=3&uin=<?php echo $conf['kfqq'] ?>&site=qq&menu=yes" target="_blank"  class="btn btn-sm btn-info">联系</a>
+					<a href="<?php echo site_contact_url($conf['kfqq']); ?>" target="_blank"  class="btn btn-sm btn-info">联系</a>
 			   </div>
 			   <div class="pull-left push-10-t">
 					<div class="font-w600 push-5">售.后.客.服</div>
-					<div class="text-muted"><b>QQ：<?php echo $conf['kfqq'] ?></b>
+					<div class="text-muted"><b>联系方式：<?php echo site_contact_label($conf['kfqq']); ?></b>
 					</div>
 			   </div>
 			   </div>

@@ -1,8 +1,8 @@
 <?php
 /**
  * 批量对接商品处理文件
- * 博客地址：zhonguo.ren
- * QQ群：qqfaka
+ * 官网：t.me/qqfaka
+ * TG：@qqfaka
  * 开发者：岁岁 @qqfaka
  *
  * 功能说明：

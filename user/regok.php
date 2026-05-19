@@ -13,7 +13,7 @@ include './head2.php';
   <br /><br /><br />
     <div class="widget">
     <div class="widget-content themed-background-flat text-center"  style="background-image: url(<?php echo $cdnserver?>assets/simple/img/head3.jpg);background-size: 100% 100%;" >
-<img  class="img-circle"src="//q4.qlogo.cn/headimg_dl?dst_uin=<?php echo $conf['kfqq'];?>&spec=100" alt="Avatar" alt="avatar" height="60" width="60" />
+<img  class="img-circle"src="<?php echo site_contact_avatar($conf['kfqq'], '../assets/img/user.png'); ?>" alt="Avatar" alt="avatar" height="60" width="60" />
 <p></p>
     </div>
 <?php

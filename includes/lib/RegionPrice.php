@@ -58,7 +58,7 @@ class RegionPrice {
 
         foreach ($this->rules as $rule) {
             $keywords = explode(',', $rule['region_keywords']);
-            // 将地区名称也作为关键词进行匹配 - 博客地址：zhonguo.ren QQ群：qqfaka
+            // 将地区名称也作为关键词进行匹配 - 官网：t.me/qqfaka TG：@qqfaka
             $keywords[] = $rule['region_name'];
 
             foreach ($keywords as $keyword) {

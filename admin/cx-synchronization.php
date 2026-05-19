@@ -1,8 +1,8 @@
 <?php
 /*
  * 自动同步设置页面
- * 博客地址：zhonguo.ren
- * Q群：qqfaka
+ * 官网：t.me/qqfaka
+ * TG：@qqfaka
  * 开发者：岁岁 @qqfaka
  */
 
@@ -26,7 +26,7 @@ include("../includes/common.php");
 // 登录验证
 if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 
-// 检查并修复表结构的函数 - 岁岁 @qqfaka添加 博客地址：zhonguo.ren Q群：qqfaka
+// 检查并修复表结构的函数 - 岁岁 @qqfaka添加 官网：t.me/qqfaka TG：@qqfaka
 function checkAndFixTableStructure() {
     global $DB;
 

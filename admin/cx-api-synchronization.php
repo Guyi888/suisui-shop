@@ -1,8 +1,8 @@
 <?php
 /*
  * 自动同步API处理文件
- * 博客：zhonguo.ren
- * QQ群：qqfaka
+ * 官网：t.me/qqfaka
+ * TG：@qqfaka
  * 开发者：岁岁 @qqfaka
  * 功能：处理商品自动同步的核心逻辑，包括分类同步、商品同步、数据更新等
  */

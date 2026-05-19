@@ -90,7 +90,7 @@ include_once TEMPLATE_ROOT.'faka/inc/head.php';
 <div class="from_wz_xx">
 <div class="kefucss ziti"><b>商家联系方式</b></div>
 
-<div class="kefu"><a target="blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=<?php echo $conf['kfqq']?>&amp;Site=qq&amp;Menu=yes">QQ:<?php echo $conf['kfqq']?></a> </div>
+<div class="kefu"><a target="blank" href="<?php echo site_contact_url($conf['kfqq']); ?>">客服：<?php echo site_contact_label($conf['kfqq']); ?></a> </div>
 
 <div align="center">
 <br>

@@ -1,8 +1,8 @@
 <?php
 /*
  * 自动补单设置页面
- * 博客：zhonguo.ren
- * QQ群：qqfaka
+ * 官网：t.me/qqfaka
+ * TG：@qqfaka
  * 开发者：岁岁 @qqfaka
  * 功能：管理自动补单功能，设置补单参数、补单规则等
  */

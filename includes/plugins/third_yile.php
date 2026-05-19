@@ -1,8 +1,8 @@
 <?php
 /**
  * 亿乐社区对接插件
- * 博客地址：zhonguo.ren
- * QQ群：qqfaka
+ * 官网：t.me/qqfaka
+ * TG：@qqfaka
  * 开发者：岁岁 @qqfaka
  *
  * 功能说明：
@@ -59,7 +59,7 @@ class third_yile{
 	 * @param string $inputsname 商品其他输入框标题
      * @return array 返回信息（code=0成功，-1失败，message是提示信息）
      */
-	public function do_goods($goods_id, $goods_type, $goods_param, $num = 1, $input = array(), $money, $tradeno, $inputsname)
+	public function do_goods($goods_id, $goods_type, $goods_param, $num = 1, $input = array(), $money = null, $tradeno = null, $inputsname = null)
 	{
 		$result['code'] = -1;
 		$url = '/openapi/customer/Goods/Buy';

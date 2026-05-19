@@ -91,7 +91,7 @@ adminpermission("article", 1);
                     <div class="card-body">
                         <h3 class="card-title">常见问题解答</h3>
                         <p class="card-text">本页面汇总了系统使用和开发过程中的常见问题及解决方案，帮助您快速解决遇到的困难。</p>
-                        <p class="text-muted">作者：岁岁 @qqfaka - <a href="http://zhonguo.ren" target="_blank">zhonguo.ren</a> | QQ群：qqfaka</p>
+                        <p class="text-muted">作者：岁岁 @qqfaka - <a href="https://t.me/qqfaka" target="_blank">https://t.me/qqfaka</a></p>
                     </div>
                 </div>
 
