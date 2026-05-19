@@ -4,6 +4,7 @@
 
 - 统一前台、后台 favicon 使用本地 Q8 图标资源，补齐 `favicon.ico` 与 `assets/img/favicon/favicon.ico`，避免继续热链远程域名。
 - 补齐本地 Q8 logo 资源，后台登录页右侧改为图片展示并移除旧文字说明；站点 logo 与背景设置默认指向本地 logo。
+- 清理后台登录页遗留的远程背景图片外链和旧模板注释，登录页视觉资源统一走本地 logo 与 CSS 渐变。
 - 后台公共头部接入新的 admin shell 资源版本，统一品牌、favicon helper 与页面基础视觉结构。
 - 清理自动转账接口的旧硬编码远程地址，改为后台配置项 `transfer_api_url`，并增加 URL 基础校验。
 - 修复 `admin/ajax.php` 中上传文章图片、favicon 上传、卡密详情和首页统计附近的乱码注释、断裂输出与潜在转义问题。

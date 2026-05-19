@@ -103,7 +103,6 @@ if(isset($_POST['user']) && isset($_POST['pass'])){
 	exit("<script language='javascript'>alert('您已登陆！');window.location.href='./';</script>");
 }
 $title='用户登录';
-// [战神] 优化头部引入
 include './head.php';
 $adminLoginLogoHref = function_exists('q8_brand_logo_href') ? q8_brand_logo_href() : '/assets/img/logo.png?r=74129';
 ?>
@@ -266,13 +265,19 @@ $adminLoginLogoHref = function_exists('q8_brand_logo_href') ? q8_brand_logo_href
   }
 
   .bg-layer.clouds {
-    background-image: url('https://assets.codepen.io/605876/clouds.svg');
-    filter: brightness(1.2) saturate(1.1);
+    background:
+      radial-gradient(circle at 18% 22%, rgba(56, 189, 248, .24), transparent 28%),
+      radial-gradient(circle at 78% 14%, rgba(34, 197, 94, .18), transparent 26%),
+      linear-gradient(135deg, rgba(248, 251, 255, .92), rgba(232, 242, 255, .86));
+    filter: brightness(1.03) saturate(1.05);
   }
 
   .bg-layer.stars {
-    background-image: url('https://assets.codepen.io/605876/stars.svg');
-    filter: brightness(1.5) saturate(1.2);
+    background:
+      radial-gradient(circle at 24% 28%, rgba(255, 255, 255, .78) 0 2px, transparent 3px),
+      radial-gradient(circle at 72% 36%, rgba(37, 99, 235, .16) 0 3px, transparent 4px),
+      radial-gradient(circle at 48% 76%, rgba(14, 165, 233, .14) 0 4px, transparent 5px);
+    filter: brightness(1.08) saturate(1.08);
   }
 
   /* 背景浮动动画 */
@@ -419,7 +424,7 @@ if($conf['thirdlogin_open'] == 1 && $conf['thirdlogin_closepwd'] == 1){
 <!-- 移除不存在的JS文件引用 -->
 <!-- 后续可以根据实际需要添加正确路径的JS文件 -->
 
-<style>/* [战神] 优化整合样式 */
+<style>
 /* 基础样式优化 */
 .logo.text-center img{
     height: 65px;
@@ -746,7 +751,6 @@ if($conf['thirdlogin_open'] == 1 && $conf['thirdlogin_closepwd'] == 1){
                                                 <input type="password" class="form-control" id="emailPwdInp" name="pass" placeholder="请输入密码" onpaste="return false;">
                                             </div>
                                             <?php if($verifycode==1){
-                                            // [战神] 图片验证码
                                             ?>
                                             <div class="form-group" style="overflow:visible;">
                                                 <label for="code">验证码</label>
@@ -793,7 +797,6 @@ if($conf['thirdlogin_open'] == 1 && $conf['thirdlogin_closepwd'] == 1){
 
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
-        // [战神] 整合脚本
         // 页面加载完成后执行
         if(document.getElementById('qrimg')){
             getqrpic();
@@ -941,9 +944,6 @@ if($conf['thirdlogin_open'] == 1 && $conf['thirdlogin_closepwd'] == 1){
                     </footer>
 
 <!-- 从模板中提取的样式 -->
-<!-- [战神] 已移除重复样式定义 -->
-
-<!-- [战神] 已移除重复脚本 -->
 <?php if($mode>1){?>
 <script>var isbind = false;</script>
 <script src="//lib.baomitu.com/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
