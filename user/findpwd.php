@@ -2,7 +2,7 @@
 /**
  * 找回密码 - 美化版
  * 博客地址: zhonguo.ren
- * QQ群: 915043052
+ * QQ群: qqfaka
 **/
 $is_defend=true;
 include("../includes/common.php");
@@ -97,7 +97,7 @@ if($conf['cdnpublic']==1){
             <div class="blob1"></div>
             <div class="blob2"></div>
         </div>
-        
+
         <div class="right">
             <div class="form-box">
                 <div class="header">
@@ -121,13 +121,13 @@ if($conf['cdnpublic']==1){
                             </div>
                         </button>
                     </div>
-                    
+
                     <?php if($conf['login_qq']==1){?>
                     <div style="margin: 20px 0; padding: 16px; background-color: #f0f9ff; border-radius: 8px; font-size: 13px; color: #6b7280; line-height: 1.6;">
                         提示：只能找回注册时填写了QQ号码的帐号密码，QQ快捷登录的暂不支持该方式找回密码。
                     </div>
                     <?php }?>
-                    
+
                     <div class="divider">
                         <a href="login.php">返回登录</a>
                         <span style="margin:0 8px;">|</span>
@@ -137,7 +137,7 @@ if($conf['cdnpublic']==1){
             </div>
         </div>
     </div>
-    
+
     <script src="<?php echo $cdnpublic?>jquery/1.12.4/jquery.min.js"></script>
     <script src="../assets/js/qrlogin.js?ver=<?php echo VERSION ?>"></script>
     <script src="../assets/js/login-new.js"></script>

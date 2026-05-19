@@ -7,7 +7,6 @@ $title='我的工单';
 include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php?back=workorder';</script>");
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <style>
 .gdan_gout{width:100%;height:auto;background-color:#fff;padding-bottom:1em}
 .gdan_txt{height:3em;line-height:3em;text-indent:1em;font-family:"微软雅黑";font-weight:800;}
@@ -67,13 +66,13 @@ if(isset($_GET['orderid']) && $_GET['orderid'] && md5($_GET['orderid'].SYS_KEY.$
 	$orderid = intval($_GET['orderid']);
 	$res=$DB->getRow("SELECT id,tid,input FROM pre_orders WHERE id='{$orderid}' LIMIT 1");
 	$toolname=$DB->getColumn("SELECT name FROM pre_tools WHERE tid='{$res['tid']}' LIMIT 1");
-	echo '<input type="text" name="orderid" value="'.$orderid.'_'.$toolname.'_'.$res['input'].'" class="form-control" disabled/><input type="hidden" name="orderid" value="'.$orderid.'"/><input type="hidden" name="skey" value="'.$_GET['skey'].'"/>';
+	echo '<input type="text" name="orderid" value="'.htmlspecialchars($orderid.'_'.$toolname.'_'.$res['input']).'" class="form-control" disabled/><input type="hidden" name="orderid" value="'.htmlspecialchars($orderid).'"/><input type="hidden" name="skey" value="'.htmlspecialchars($_GET['skey']).'"/>';
 }else{
 	echo '<select name="orderid" class="form-control"><option value="0">选择异常的订单（非订单问题不用选）</option>';
 	$rs=$DB->query("SELECT id,tid,input FROM pre_orders WHERE userid='{$userrow['zid']}' ORDER BY id DESC LIMIT 20");
 	while($res = $rs->fetch()){
 		$toolname=$DB->getColumn("SELECT name FROM pre_tools WHERE tid='{$res['tid']}' LIMIT 1");
-		echo '<option value="'.$res['id'].'">'.$res['id'].'_'.$toolname.'_'.$res['input'].'</option>';
+		echo '<option value="'.htmlspecialchars($res['id']).'">'.htmlspecialchars($res['id'].'_'.$toolname.'_'.$res['input']).'</option>';
 	}
 	echo '</select>';
 }
@@ -96,7 +95,7 @@ if(isset($_GET['orderid']) && $_GET['orderid'] && md5($_GET['orderid'].SYS_KEY.$
 <div class="form-group">
 <div class="input-group"><div class="input-group-addon">问题图片</div>
 <input type="file" id="file" onchange="fileUpload()" style="display:none;"/>
-<input type="text" class="form-control" id="picurl" name="picurl" value="" readonly onclick="fileView()" style="height: 34px;"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片" style="height: 34px;"><i class="glyphicon glyphicon-upload"></i></a></span>
+<input type="text" class="form-control" id="picurl" name="picurl" value="" readonly onclick="fileView()" style="height: 34px;"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片" style="height: 34px;"><i class="fa fa-upload"></i></a></span>
 </div>
 </div>
 <div class="form-group">
@@ -111,7 +110,7 @@ if(isset($_GET['orderid']) && $_GET['orderid'] && md5($_GET['orderid'].SYS_KEY.$
 <br/><a href="./workorder.php">>>返回工单列表</a>
 </div>
 <div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span>
+<span class="fa fa-info-circle"></span>
 找不到要提交的订单？<a href="../?chadan=1">点击进入查询订单</a>，在订单详情页面点击【投诉订单】可以直接提交工单。
 </div>
 </div>

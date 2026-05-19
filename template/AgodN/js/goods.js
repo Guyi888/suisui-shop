@@ -31,7 +31,7 @@ const GoodsHandler = {
     // 批量获取发卡商品库存
     getCardProductsStock: function(tids) {
         if (!tids || tids.length === 0) return Promise.resolve({});
-        const promises = tids.map(tid => 
+        const promises = tids.map(tid =>
             this.getGoodsStock(tid).catch(err => {
                 console.error(`获取商品 ${tid} 库存失败:`, err);
                 return undefined; // 获取失败返回undefined
@@ -74,11 +74,11 @@ const GoodsHandler = {
                         // 收集所有发卡商品ID
                         const cardProducts = data.data.filter(item => item.isfaka == 1);
                         const cardProductIds = cardProducts.map(item => item.tid);
-                        
+
                         try {
                             // 获取所有发卡商品的库存
                             const stockMap = await GoodsHandler.getCardProductsStock(cardProductIds);
-                            
+
                             // 处理商品数据
                             const html = data.data.map(item => {
                                 let stockText;
@@ -130,20 +130,20 @@ const GoodsHandler = {
                                         stockText = item.stock === null ? '无限' : '库存' + item.stock + '张';
                                     }
                                 }
-                                
+
                                 return GoodsHandler.renderGoodsCard(item, stockText);
                             }).join('');
 
                             // 创建新内容的容器
                             const $newContent = $(html);
-                            
+
                             // 一次性替换内容
                             $('#goodslist').html($newContent);
-                            
+
                             if(!isSearch) {
                                 history.replaceState({}, null, './?cid='+cid);
                             }
-                            
+
                             // 移除加载提示
                             $loading.remove();
                             resolve();
@@ -151,17 +151,17 @@ const GoodsHandler = {
                             console.error('获取库存失败:', err);
                             // 即使获取库存失败，也继续显示商品列表
                             const html = data.data.map(item => {
-                                let stockText = item.isfaka == 1 ? '库存获取失败' : 
+                                let stockText = item.isfaka == 1 ? '库存获取失败' :
                                               (item.stock === null ? '无限' : '库存' + item.stock + '张');
                                 return GoodsHandler.renderGoodsCard(item, stockText);
                             }).join('');
-                            
+
                             // 创建新内容的容器
                             const $newContent = $(html);
-                            
+
                             // 一次性替换内容
                             $('#goodslist').html($newContent);
-                            
+
                             // 移除加载提示
                             $loading.remove();
                             resolve();
@@ -190,42 +190,42 @@ const GoodsHandler = {
             var $this = $(this);
             var tid = $this.data('tid');
             var price = $this.data('price');
-            
+
             if($this.hasClass('active')) {
                 return;
             }
-            
+
             $('.product-card').removeClass('active');
             $this.addClass('active');
             $('.product-desc').hide();
-            
+
             GoodsHandler.getGoodsDetail(tid).then(function(item) {
                 if(item.desc){
                     var tempDiv = document.createElement('div');
                     tempDiv.innerHTML = item.desc;
-                    
+
                     var scripts = tempDiv.getElementsByTagName('script');
                     while(scripts[0]) {
                         scripts[0].parentNode.removeChild(scripts[0]);
                     }
-                    
+
                     var elements = tempDiv.getElementsByTagName('*');
                     for(var i = 0; i < elements.length; i++) {
                         elements[i].removeAttribute('onclick');
                         elements[i].removeAttribute('onload');
                         elements[i].removeAttribute('onerror');
                     }
-                    
+
                     $this.find('.product-desc-content').html(tempDiv.innerHTML);
                     $this.find('.product-desc').show();
                 }
             }).catch(function(err) {
                 console.error('获取商品详情失败:', err);
             });
-            
+
             $('.pay-btn').html('立即购买 ¥' + price);
             $('.bottom-bar').show();
-            
+
             $('.pay-btn').off('click').on('click', function(){
                 var skey = hex_md5(tid+sys_key+tid);
                 window.location.href = './?mod=shop&tid='+tid+'&skey='+skey;
@@ -235,10 +235,15 @@ const GoodsHandler = {
 
     // 渲染商品卡片
     renderGoodsCard: function(item, stockText) {
+        let salesInfo = '';
+        if(typeof agodn_show_sales !== 'undefined' && agodn_show_sales == 1) {
+            salesInfo = `<div class="product-sales">已售${item.sales || 0}件</div>`;
+        }
         return `<div class="product-card" data-tid="${item.tid}" data-price="${item.price}">
             <div class="product-title">${item.name}</div>
             <div class="product-info">
                 <div class="product-price">¥${item.price}</div>
+                ${salesInfo}
                 <div class="product-stock">${stockText}</div>
             </div>
             <div class="product-desc" style="display:none;">
@@ -269,4 +274,4 @@ const GoodsHandler = {
             });
         });
     }
-}; 
+};

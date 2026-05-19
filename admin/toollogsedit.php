@@ -27,7 +27,7 @@ if ($my == 'add') {
 		<input type="date" name="date" value="' . date('Y-m-d') . '" class="form-control" placeholder="留空则为当天时间"/>
 	</div>
   </div>
-<input type="submit" class="btn btn-primary btn-block" value="确定添加"></form>';?><br/><a href="./toollogs.php">>>返回列表</a></div></div><?php 
+<input type="submit" class="btn btn-primary btn-block" value="确定添加"></form>';?><br/><a href="./toollogs.php">>>返回列表</a></div></div><?php
 } elseif ($my == 'edit') {
 	$id = $_GET['id'];
 	$row = $DB->getRow("select * from pre_toollogs where id='" . $id . "' limit 1");
@@ -49,7 +49,7 @@ if ($my == 'add') {
 		<input type="date" name="date" value="' . $row['date'] . '" class="form-control" placeholder="留空获取当天时间"/>
 	</div>
   </div>
-<input type="submit" class="btn btn-primary btn-block" value="确定修改"></form>';?><br/><a href="./toollogs.php">>>返回列表</a><?php 
+<input type="submit" class="btn btn-primary btn-block" value="确定修改"></form>';?><br/><a href="./toollogs.php">>>返回列表</a><?php
 } elseif ($my == 'add_submit') {
 	$date = trim($_POST['date']);
 	$content = trim($_POST['content']);

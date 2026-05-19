@@ -116,7 +116,7 @@ class third_shangmeng{
 			return $return;
 		}
 	}
-	
+
 	public function query_order($orderid, $goodsid, $value = []){
 		$order_state = array(0=>'等待中',2=>'等待发货，等待处理',3=>'已发货，物流派送中',4=>'已完成',5=>'异常',6=>'正在处理');
 		$param = array('orderNo'=>$orderid);

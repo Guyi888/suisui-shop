@@ -36,7 +36,7 @@ if($_GET['act']=='submit'){
 ?>
 <div class="col-sm-6">
 	<div class="panel panel-default">
-    <div class="panel-heading font-bold" style="background-color: #9999CC;color: white;">专业版介绍</div>	  
+    <div class="panel-heading font-bold" style="background-color: #9999CC;color: white;">专业版介绍</div>
 			<ul class="list-group no-radius">
               <li class="list-group-item">
                 旗下分站管理功能,赚取下级分站提成

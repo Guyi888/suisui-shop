@@ -4,11 +4,11 @@
     padding: 0;
 }
 body{
-    font-size: 12px; 
+    font-size: 12px;
     top: 0px;
 }
 a,a:hover,a:visited{
-    text-decoration:none; 
+    text-decoration:none;
 }
 .header{
     background-image: url(./img/mobile_header.png);
@@ -331,7 +331,7 @@ section{
 .order_info  .info_box .count_right{
     float: right;
     display: inline-block;
-    margin-right: .213333rem;  
+    margin-right: .213333rem;
 }
 
 .order_info  .info_box .info_left span:first-child {
@@ -441,7 +441,7 @@ section{
     line-height: .5rem;
     margin-top: .2rem;
     clear: both;
-} 
+}
 .order_info  .info_box  .input_coupon input {
     width: 100%;
     height: .666667rem;
@@ -592,7 +592,7 @@ input[type="checkbox"] {
     border-radius: 0 0 .133333rem 0;
     position: absolute;
     bottom: -.01rem;
-    right: -.01rem; 
+    right: -.01rem;
     display: none;
 }
 .pay .pay_list .pay_box.active .icon{

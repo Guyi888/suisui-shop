@@ -26,13 +26,13 @@ class PayNotifyCallBack extends WxPayNotify
 		}
 		return false;
 	}
-	
+
 	//重写回调处理函数
 	public function NotifyProcess($data, &$msg)
 	{
 		//file_put_contents('log.txt',"call back:" . json_encode($data));
 		$notfiyOutput = array();
-		
+
 		if(!is_array($data) || !array_key_exists("transaction_id", $data)){
 			$msg = "输入参数不正确";
 			return false;

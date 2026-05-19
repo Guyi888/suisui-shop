@@ -293,7 +293,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
 <body>
     <div class="container">
         <a href="./" class="back-btn"><i class="fa fa-angle-left"></i> 返回列表</a>
-        
+
         <div class="product-header">
             <div class="product-title"><?php echo $tool['name']?></div>
             <div class="product-info">
@@ -322,7 +322,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                     </div>
                 </div>
                 <?php
-                // 处理更多输入框 - 博客地址：zhonguo.ren QQ群：915043052
+                // 处理更多输入框 - 博客地址：zhonguo.ren QQ群：qqfaka
                 if (!empty($tool['inputs'])) {
                     $inputs = explode('|', $tool['inputs']);
                     $input_index = 2;
@@ -332,8 +332,8 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                             // 判断是否为收货地址字段，如果是则添加oninput事件
                             $is_address = (strpos($input_name, '收货地址') !== false || strpos($input_name, '地址') !== false);
                             $oninput_event = $is_address ? 'oninput="calculateRegionPrice()"' : '';
-                            
-                            // 根据输入框标题选择合适的图标 - 博客地址：zhonguo.ren QQ群：915043052
+
+                            // 根据输入框标题选择合适的图标 - 博客地址：zhonguo.ren QQ群：qqfaka
                             $icon_class = 'fa-pencil-square-o';
                             if (strpos($input_name, '收货地址') !== false || strpos($input_name, '地址') !== false) {
                                 $icon_class = 'fa-map-marker';
@@ -413,7 +413,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
     function calculateRegionPrice() {
         if (isCalculating) return;
 
-        // 动态查找收货地址字段 - 博客地址：zhonguo.ren QQ群：915043052
+        // 动态查找收货地址字段 - 博客地址：zhonguo.ren QQ群：qqfaka
         var addressInput = $('input[placeholder*="收货地址"], input[placeholder*="地址"]');
         var address = addressInput.length > 0 ? addressInput.val() : '';
         var num = parseInt($('#num').val()) || 1;
@@ -476,7 +476,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
             var tid = $("#tid").val();
             var inputvalue = $("#inputvalue").val();
             var num = $("#num").val();
-            // 动态查找收货地址字段 - 博客地址：zhonguo.ren QQ群：915043052
+            // 动态查找收货地址字段 - 博客地址：zhonguo.ren QQ群：qqfaka
             var addressInput = $('input[placeholder*="收货地址"], input[placeholder*="地址"]');
             var address = addressInput.length > 0 ? addressInput.val() : '';
             <?php if($conf['captcha_open']==1){?>
@@ -485,8 +485,8 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
             <?php }?>
             if(inputvalue=='' || tid=='' || num==''){layer.alert('请确保每项不能为空！');return false;}
             if(num>1000){layer.alert('每次只能下单1000个！');return false;}
-            
-            // 验证手机号码输入框 - 博客地址：zhonguo.ren QQ群：915043052
+
+            // 验证手机号码输入框 - 博客地址：zhonguo.ren QQ群：qqfaka
             var mainInputLabel = $('.form-group:eq(0) label').text().trim();
             if(mainInputLabel.indexOf('手机号码') !== -1 || mainInputLabel.indexOf('手机号') !== -1 || mainInputLabel.indexOf('手机') !== -1){
                 if(!/^1\d{10}$/.test(inputvalue)){
@@ -494,8 +494,8 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                     return false;
                 }
             }
-            
-            // 验证更多输入框中的手机号码 - 博客地址：zhonguo.ren QQ群：915043052
+
+            // 验证更多输入框中的手机号码 - 博客地址：zhonguo.ren QQ群：qqfaka
             $('.form-group').each(function(){
                 var label = $(this).find('label').text().trim();
                 var input = $(this).find('input[type="text"]');
@@ -507,8 +507,8 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                     }
                 }
             });
-            
-            // 收集所有输入框数据 - 博客地址：zhonguo.ren QQ群：915043052
+
+            // 收集所有输入框数据 - 博客地址：zhonguo.ren QQ群：qqfaka
             var data = {
                 type: "buy",
                 tid: tid,
@@ -516,16 +516,16 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                 num: num,
                 hashsalt: hashsalt
             };
-            
+
             // 添加收货地址
             if (address) {
                 data['address'] = address;
             }
-            
+
             <?php if($conf['captcha_open']==1){?>
             data['code'] = code;
             <?php }?>
-            
+
             // 添加更多输入框的数据
             <?php
             if (!empty($tool['inputs'])) {
@@ -544,7 +544,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                 }
             }
             ?>
-            
+
             var ii = layer.load(2, {shade:[0.1,'#fff']});
             $.ajax({
                 type : "POST",
@@ -569,7 +569,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                         }
                         // 设置user_order cookie，用于支付成功后获取订单号
                         document.cookie = 'user_order=' + data.trade_no + '; path=/';
-                        
+
                         layer.open({
                             type: 1,
                             title: false,
@@ -653,7 +653,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                     }else{
                         layer.alert(data.msg);
                     }
-                } 
+                }
             });
         }else{
             window.location.href='other/submit.php?type='+type+'&orderid='+orderid;
@@ -661,4 +661,4 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
     }
     </script>
 </body>
-</html> 
+</html>

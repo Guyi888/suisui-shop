@@ -117,7 +117,7 @@ class third_yunbao{
 			return false;
 		}
 	}
-	
+
 	public function query_order($orderid, $goodsid, $value = []){
 		$order_state = array(1=>'未付款',2=>'待处理',3=>'待处理',4=>'已完成',5=>'异常',6=>'已取消');
 		$token = md5('user='.$this->config['username'].'&&pass='.md5($this->config['password']).'');

@@ -50,8 +50,8 @@ const app = new Vue({
     info: "",
     num_val: 1,
     uPir: 0,
-    inputs: [], // 存储商品设置的输入框标题 - 博客地址：zhonguo.ren QQ群：915043052
-    inputValues: {}, // 存储输入框的值 - 博客地址：zhonguo.ren QQ群：915043052
+    inputs: [], // 存储商品设置的输入框标题 - 博客地址：zhonguo.ren QQ群：qqfaka
+    inputValues: {}, // 存储输入框的值 - 博客地址：zhonguo.ren QQ群：qqfaka
   },
   // 计算属性
   computed: {
@@ -68,15 +68,15 @@ const app = new Vue({
       );
       this.info = res.data[0];
       console.log(res.data[0]);
-      
-      // 处理输入框标题 - 博客地址：zhonguo.ren QQ群：915043052
+
+      // 处理输入框标题 - 博客地址：zhonguo.ren QQ群：qqfaka
       if (this.info.inputs) {
         this.inputs = this.info.inputs.split('|').map(item => item.trim()).filter(item => item);
       } else {
         this.inputs = [];
       }
-      
-      // 初始化输入框值 - 博客地址：zhonguo.ren QQ群：915043052
+
+      // 初始化输入框值 - 博客地址：zhonguo.ren QQ群：qqfaka
       this.inputValues = {};
       this.inputs.forEach((input, index) => {
         this.inputValues['inputvalue' + (index + 2)] = '';
@@ -97,16 +97,16 @@ const app = new Vue({
       var tid = this.info.tid;
       var inputvalue = $("#inputvalue").val();
       console.log(tid, inputvalue);
-      
-      // 收集所有动态输入框的值 - 博客地址：zhonguo.ren QQ群：915043052
+
+      // 收集所有动态输入框的值 - 博客地址：zhonguo.ren QQ群：qqfaka
       var submitData = {
         tid: tid,
         num: $("#num").val(),
         inputvalue: $("#inputvalue").val(),
         hashsalt: hashsalt,
       };
-      
-      // 遍历所有动态输入框，将值添加到提交数据中 - 博客地址：zhonguo.ren QQ群：915043052
+
+      // 遍历所有动态输入框，将值添加到提交数据中 - 博客地址：zhonguo.ren QQ群：qqfaka
       this.inputs.forEach((input, index) => {
         var inputId = 'inputvalue' + (index + 2);
         var inputValue = $("#" + inputId).val();

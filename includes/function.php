@@ -30,7 +30,7 @@ function curl_get($url)
 
 	$ret = curl_exec($ch);
 	$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	
+
 
 
 	curl_close($ch);
@@ -131,7 +131,7 @@ function get_curl($url,$post=0,$referer=0,$cookie=0,$header=0,$ua=0,$nobaody=0,$
 
 	$ret = curl_exec($ch);
 	$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	
+
 
 
 	curl_close($ch);
@@ -717,13 +717,13 @@ function changeUserMoney($zid, $money, $add=true, $action=null, $bz=null, $order
 
 	if($add == true){
 
-		
+
 
 		$newmoney = round($oldmoney+$money, 2);
 
 	}else{
 
-	
+
 
 		$newmoney = round($oldmoney-$money, 2);
 
@@ -761,13 +761,13 @@ function changeSupMoney($sid, $money, $add=true, $action=null, $bz=null)
 
     if($add == true){
 
-       
+
 
         $newmoney = round($oldmoney+$money, 2);
 
     }else{
 
-      
+
 
         $newmoney = round($oldmoney-$money, 2);
 

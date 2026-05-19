@@ -135,10 +135,10 @@ if ($result["return_code"] == 'SUCCESS') {
     if ($result["result_code"] == 'SUCCESS') {
         $code_url = $result['code_url'];
         echo "<p>✓ 下单成功，code_url: " . $code_url . "</p>\n";
-        
+
         // 显示二维码
         echo "<div class='qr-image' id='qrcode'></div>\n";
-        
+
         // 6. 显示订单详情
         echo "<div class='detail' id='orderDetail'>\n";
         echo "<dl class='detail-ct' style='display: none;'>\n";
@@ -153,7 +153,7 @@ if ($result["return_code"] == 'SUCCESS') {
         echo "</dl>\n";
         echo "<a href='javascript:void(0)' class='arrow'><i class='ico-arrow'></i></a>\n";
         echo "</div>\n";
-        
+
         // 7. 显示提示信息
         echo "<div class='tip'>\n";
         echo "<span class='dec dec-left'></span>\n";
@@ -164,7 +164,7 @@ if ($result["return_code"] == 'SUCCESS') {
         echo "<p>扫描二维码完成支付</p>\n";
         echo "</div>\n";
         echo "</div>\n";
-        
+
         // 8. 加载二维码生成脚本
         echo "<script src='//lib.baomitu.com/jquery/1.12.4/jquery.min.js'></script>\n";
         echo "<script src='//lib.baomitu.com/jquery.qrcode/1.0/jquery.qrcode.min.js'></script>\n";
@@ -180,7 +180,7 @@ if ($result["return_code"] == 'SUCCESS') {
         echo "        });\n";
         echo "    });\n";
         echo "</script>\n";
-        
+
     } else {
         $error_msg = isset($result["err_code_des"]) ? $result["err_code_des"] : '未知错误';
         echo "<p>✗ 下单失败: $error_msg</p>\n";

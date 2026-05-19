@@ -104,7 +104,7 @@ function cart_shop_save(id) {
 				layer.alert(data.msg);
 			}
 			$('#save').val('保存修改');
-		} 
+		}
 	});
 }
 function dopay(type,orderid){
@@ -176,7 +176,7 @@ function dopay(type,orderid){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}else{
 		top.location.href='other/submit.php?type='+type+'&orderid='+orderid;
@@ -266,7 +266,7 @@ $("#submit_cart").click(function(){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}
 });

@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-sm-12 col-md-10 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("price", 1);
 $numrows = $DB->getColumn("SELECT count(*) from pre_price");
 ?>
@@ -97,7 +97,7 @@ $numrows = $DB->getColumn("SELECT count(*) from pre_price");
         <table class="table table-striped">
           <thead><tr><th width="40"><input type="checkbox" name="chkAll" id="chkAll" onClick="checkAll(this)"></th><th>ID</th><th>名称</th><th>类型</th><th>加价规则</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $rs = $DB->query("SELECT * FROM pre_price WHERE 1 order by id desc");
 while ($res = $rs->fetch()) {
 	echo "<tr><td><input type=\"checkbox\" name=\"checkbox[]\" id=\"list1\" value=\"" . $res["id"] . "\" onClick=\"unselectall()\"></td><td><b>" . $res["id"] . "</b></td><td>" . $res["name"] . "</td><td>" . display_kind($res["kind"]) . "</td><td>" . $res["p_2"] . "|" . $res["p_1"] . "|" . $res["p_0"] . "</td><td><a href=\"./shoplist.php?prid=" . $res["id"] . "\" target=\"_blank\" class=\"btn btn-success btn-xs\">商品</a>&nbsp;<a href=\"javascript:editframe(" . $res["id"] . ")\" class=\"btn btn-info btn-xs\">编辑</a>&nbsp;<a href=\"javascript:delItem(" . $res["id"] . ")\" class=\"btn btn-xs btn-danger\">删除</a>&nbsp;<a href=\"javascript:change(" . $res["id"] . ")\" class=\"btn btn-xs btn-default\">批量更改</a></td></tr>";
@@ -111,7 +111,7 @@ while ($res = $rs->fetch()) {
     </div>
   </div>
 </div>
-<?php 
+<?php
 // 获取所有活跃分类，区分一级和二级
 $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 order by sort asc");
 $classes = [];
@@ -150,7 +150,7 @@ foreach ($classes as $cid => $class) {
 <script src="<?php echo $cdnpublic;?>layer/2.3/layer.js"></script>
 <script src="assets/js/price.js?ver=<?php echo VERSION;?>"></script>
 </body>
-</html><?php 
+</html><?php
 function display_kind($zt)
 {
 	if ($zt == 1) {

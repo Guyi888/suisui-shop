@@ -1,7 +1,7 @@
 <?php
 /**
  * 支付宝当面付扫码支付页面
- * 作者：教主 博客：zhonguo.ren Q群：915043052
+ * 作者：岁岁 @qqfaka 博客：zhonguo.ren Q群：qqfaka
  */
 
 // 开启错误报告以便调试
@@ -31,7 +31,7 @@ if (!function_exists('ordername_replace')) {
      * @param string $name 商品名称
      * @param string $trade_no 交易订单号
      * @return string 替换后的订单名称
-     * 作者：教主 博客：zhonguo.ren Q群：915043052
+     * 作者：岁岁 @qqfaka 博客：zhonguo.ren Q群：qqfaka
      */
     function ordername_replace($template, $name, $trade_no) {
         $replacements = array(
@@ -184,7 +184,7 @@ try {
 try {
     $qrPay = new AlipayTradeService($config);
     echo '<!-- AlipayTradeService实例化成功 -->';
-    
+
     // 记录请求参数以便调试
     $requestParams = array(
         'trade_no' => $trade_no,
@@ -193,7 +193,7 @@ try {
     );
     $log_file = __DIR__ . '/alipay_error.log';
     error_log('支付宝请求参数: ' . json_encode($requestParams), 3, $log_file);
-    
+
     $qrPayResult = $qrPay->qrPay($qrPayRequestBuilder);
     error_log('支付宝qrPay结果: ' . json_encode($qrPayResult), 3, $log_file);
     echo '<!-- 调用qrPay方法成功 -->';
@@ -208,10 +208,10 @@ try {
     $status = $qrPayResult->getTradeStatus();
     $response = $qrPayResult->getResponse();
     echo '<!-- 获取响应结果成功 -->';
-    
+
     error_log('支付宝响应状态: ' . $status, 3, dirname(__FILE__) . '/alipay_error.log');
     error_log('支付宝响应数据: ' . print_r($response, true), 3, dirname(__FILE__) . '/alipay_error.log');
-    
+
     if($status == 'SUCCESS') {
         $code_url = $response->qr_code;
         echo '<!-- 支付二维码生成成功 -->';

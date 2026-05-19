@@ -35,7 +35,7 @@ if($conf['verify_open']==1){
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background-color: #f2f2f7;
@@ -47,7 +47,7 @@ if($conf['verify_open']==1){
       min-height: 100vh;
       overflow-x: hidden;
     }
-    
+
     /* 背景图片 */
     .bg-image {
       position: fixed;
@@ -62,7 +62,7 @@ if($conf['verify_open']==1){
       background-repeat: no-repeat;
       filter: brightness(0.9);
     }
-    
+
     /* 容器样式 */
     .container {
       display: flex;
@@ -73,7 +73,7 @@ if($conf['verify_open']==1){
       padding: 20px;
       position: relative;
     }
-    
+
     /* 注册卡片 */
     .reg-card {
       width: 100%;
@@ -89,7 +89,7 @@ if($conf['verify_open']==1){
       border: 1px solid rgba(255, 255, 255, 0.5);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    
+
     /* 电脑端横向布局 */
     @media (min-width: 1024px) {
       .container {
@@ -99,14 +99,14 @@ if($conf['verify_open']==1){
         gap: 40px;
         padding: 40px;
       }
-      
+
       .reg-card {
         width: 50%;
         max-width: 500px;
         margin-bottom: 0;
         margin-top: 10vh;
       }
-      
+
       .home-button {
         position: absolute;
         top: 40px;
@@ -114,16 +114,16 @@ if($conf['verify_open']==1){
         margin-bottom: 0;
       }
     }
-    
 
-    
+
+
     /* 标题样式 */
     .logo-container {
       text-align: center;
       margin-bottom: 35px;
       position: relative;
     }
-    
+
     .logo {
       width: 100px;
       height: 100px;
@@ -132,11 +132,11 @@ if($conf['verify_open']==1){
       border: 4px solid rgba(255, 255, 255, 0.8);
       transition: transform 0.3s ease;
     }
-    
+
     .logo:hover {
       transform: rotate(-5deg) scale(1.05);
     }
-    
+
     h1 {
       font-size: 26px;
       font-weight: 700;
@@ -148,19 +148,19 @@ if($conf['verify_open']==1){
       background-clip: text;
       display: inline-block;
     }
-    
+
     .subtitle {
       font-size: 16px;
       color: #8e8e93;
       margin-bottom: 5px;
     }
-    
+
     /* 表单样式 */
     .form-group {
       margin-bottom: 22px;
       position: relative;
     }
-    
+
     .input-field {
       width: 100%;
       padding: 16px 16px;
@@ -172,18 +172,18 @@ if($conf['verify_open']==1){
       font-family: inherit;
       color: #1c1c1e;
     }
-    
+
     .input-field:focus {
       outline: none;
       border-color: #007aff;
       background-color: white;
       box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
     }
-    
+
     .input-field::placeholder {
       color: #8e8e93;
     }
-    
+
     .input-icon {
       position: absolute;
       right: 16px;
@@ -192,7 +192,7 @@ if($conf['verify_open']==1){
       color: #8e8e93;
       font-size: 18px;
     }
-    
+
     /* 按钮样式 */
     .btn {
       width: 100%;
@@ -208,40 +208,40 @@ if($conf['verify_open']==1){
       overflow: hidden;
       z-index: 1;
     }
-    
+
     .btn-primary {
       background: linear-gradient(135deg, #007aff, #5ac8fa);
       color: white;
       box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
     }
-    
+
     .btn-primary:hover {
       box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
       transform: translateY(-2px);
     }
-    
+
     .btn-primary:active {
       transform: translateY(0);
     }
-    
+
     .btn-secondary {
       background-color: #f2f2f7;
       color: #1c1c1e;
       border: 2px solid #e0e0e5;
     }
-    
+
     .btn-secondary:hover {
       background-color: #e5e5ea;
       border-color: #d1d1d6;
     }
-    
+
     /* 操作链接 */
     .action-links {
       display: flex;
       justify-content: space-between;
       margin-top: 25px;
     }
-    
+
     .action-link {
       color: #007aff;
       text-decoration: none;
@@ -251,11 +251,11 @@ if($conf['verify_open']==1){
       position: relative;
       padding: 5px 0;
     }
-    
+
     .action-link:hover {
       color: #0056b3;
     }
-    
+
     .action-link::after {
       content: '';
       position: absolute;
@@ -266,11 +266,11 @@ if($conf['verify_open']==1){
       background-color: #007aff;
       transition: width 0.3s ease;
     }
-    
+
     .action-link:hover::after {
       width: 100%;
     }
-    
+
     /* 返回首页按钮 */
     .home-button {
       background-color: rgba(255, 255, 255, 0.85);
@@ -287,24 +287,24 @@ if($conf['verify_open']==1){
       backdrop-filter: blur(5px);
       -webkit-backdrop-filter: blur(5px);
     }
-    
+
     .home-button:hover {
       background-color: rgba(255, 255, 255, 0.95);
       border-color: #007aff;
       transform: translateY(-2px);
     }
-    
+
     /* 加载状态 */
     .loading {
       text-align: center;
       color: #8e8e93;
       padding: 20px;
     }
-    
+
     .loading-dots {
       display: inline-block;
     }
-    
+
     .loading-dots span {
       display: inline-block;
       width: 10px;
@@ -314,54 +314,54 @@ if($conf['verify_open']==1){
       margin: 0 3px;
       animation: loading 1.4s infinite ease-in-out both;
     }
-    
+
     .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
     .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-    
+
     @keyframes loading {
       0%, 80%, 100% { transform: scale(0); }
       40% { transform: scale(1); background-color: #5ac8fa; }
     }
-    
+
     /* 验证码样式 */
     #captchaform {
       margin-top: 15px;
     }
-    
+
     /* 响应式设计 - 移动端 */
     @media (max-width: 480px) {
       .reg-card {
         padding: 35px 25px;
       }
-      
+
       h1 {
         font-size: 24px;
       }
-      
+
       .input-field, .btn {
         font-size: 16px;
       }
-      
+
       .logo {
         width: 80px;
         height: 80px;
       }
     }
-    
+
     /* 响应式调整 - 平板端 */
     @media (min-width: 768px) and (max-width: 1023px) {
       .reg-card {
         max-width: 500px;
       }
     }
-    
+
 
   </style>
 </head>
 <body>
   <!-- 背景图片 -->
   <div class="bg-image"></div>
-  
+
   <div class="container">
     <div class="reg-card">
       <div class="logo-container">
@@ -369,25 +369,25 @@ if($conf['verify_open']==1){
         <h1>供货商注册</h1>
         <p class="subtitle">欢迎加入我们，成为供应商</p>
       </div>
-      
+
       <form>
         <div class="form-group">
           <input type="text" name="user" class="input-field" required="required" placeholder="用户名"/>
           <span class="input-icon"><i class="fa fa-user"></i></span>
         </div>
-        
+
         <div class="form-group">
           <input type="password" name="pass" class="input-field" required="required" placeholder="密码"/>
           <span class="input-icon"><i class="fa fa-lock"></i></span>
         </div>
-        
+
         <div class="form-group">
           <input type="text" name="qq" class="input-field" required="required" placeholder="QQ号"/>
           <span class="input-icon"><i class="fa fa-qq"></i></span>
         </div>
-        
+
         <?php if($conf['verify_open']==1){?><input type="hidden" name="hashsalt" value="<?php echo $addsalt?>"/><?php }?>
-        
+
         <!-- 简单文本验证码 -->
         <?php if(!$conf['captcha_open'] || $conf['captcha_open']>3){?>
         <div class="form-group">
@@ -396,7 +396,7 @@ if($conf['verify_open']==1){
           <div style="clear:both;"></div>
         </div>
         <?php }?>
-        
+
         <?php if($conf['captcha_open']>=1){?>
           <input type="hidden" name="captcha_type" value="<?php echo $conf['captcha_open']?>"/>
           <?php if($conf['captcha_open']>=2){?><input type="hidden" name="appid" value="<?php echo $conf['captcha_id']?>"/><?php }?>
@@ -407,23 +407,23 @@ if($conf['verify_open']==1){
             <div id="captchaform"></div>
           </div>
         <?php }?>
-        
+
         <div class="form-group">
           <button type="button" id="submit_reg" class="btn btn-primary">立即注册</button>
         </div>
-        
+
         <div class="action-links">
           <a href="findpwd.php" class="action-link">找回密码</a>
           <a href="login.php" class="action-link">已有账号，去登录</a>
         </div>
-        
+
         <?php if($conf['forceloginhome']==1){ echo '<p style="text-align:center; color:#8e8e93; font-size:14px; margin-top:20px;">'.$conf['footer'].'</p>';}?>
       </form>
     </div>
-    
+
     <a href="../" class="home-button">返回首页</a>
   </div>
-  
+
   <script src="//lib.baomitu.com/jquery/1.12.4/jquery.min.js"></script>
   <script src="//lib.baomitu.com/layer/2.3/layer.js"></script>
   <script src="../assets/js/reguser.js?ver=<?php echo VERSION ?>"></script>

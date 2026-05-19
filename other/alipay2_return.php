@@ -1,5 +1,5 @@
 <?php
-/* * 
+/* *
  * 功能：支付宝页面跳转同步通知页面
  * 版本：3.3
  * 日期：2012-07-23
@@ -21,10 +21,12 @@ require_once(SYSTEM_ROOT."epay/alipay_notify.class.php");
 $alipayNotify = new AlipayNotify($alipay_config);
 $verify_result = $alipayNotify->verifyReturn();
 if($verify_result && $conf['alipay_api']==7) {
-	//商户订单号
+	//商户订单号
+
 	$out_trade_no = daddslashes($_POST['out_trade_no']);
 
-	//支付宝交易号
+	//支付宝交易号
+
 	$trade_no = daddslashes($_POST['trade_no']);
 
 	//交易状态

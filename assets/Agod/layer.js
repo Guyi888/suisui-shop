@@ -1,10 +1,10 @@
 /**
- 
+
  @Name：layer v3.1.1 Web弹层组件
  @Author：贤心
  @Site：http://layer.layui.com
  @License：MIT
- 
+
  */
 
 ;
@@ -500,7 +500,7 @@
         };
 
         //辨别tips的方位
-        goal.where = [function () { //上        
+        goal.where = [function () { //上
                 goal.autoLeft();
                 goal.tipTop = goal.top - layArea[1] - 10;
                 tipsG.removeClass('layui-layer-TipsB').addClass('layui-layer-TipsT').css('border-right-color', config.tips[1]);
@@ -989,10 +989,10 @@
         });
     };
 
-    /** 
-     
+    /**
+
      拓展模块，layui开始合并在一起
-     
+
      */
 
     var cache = layer.cache || {}, skin = function (type) {

@@ -119,7 +119,7 @@ if(!defined('IN_CRONLITE'))exit();
     box-shadow: 0 4px 20px rgba(158, 211, 249, 0.2) !important;
     border: none !important;
     overflow: hidden;
-    
+
 }
 .btn-group.themed-background-muted .btn {
     border-radius: 0 !important;
@@ -207,8 +207,8 @@ if(!defined('IN_CRONLITE'))exit();
         <h4 class="modal-title" id="myModalLabel"><?php echo $conf['sitename']?></h4>
        </div>
         <div class="modal-body">
-         	<?php echo $conf['modal']?>
-  	    </div>
+	<?php echo $conf['modal']?>
+	    </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">知道啦</button>
       </div>
@@ -253,20 +253,20 @@ if(!defined('IN_CRONLITE'))exit();
 			<?php }?>
 		</div>
 	</div>
-      
+
 		<div id="mustsee" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
           <div id="mustsee" class="panel-collapse collapse in" aria-expanded="true" style="">
-		
+
           </div>
 		</div>
 	</div>
 
   </font></div><font color="#414324">
-            
-    	<style>
+
+	<style>
     #nr{
-    	font-size:20px;
-    	margin: 0;
+	font-size:20px;
+	margin: 0;
         background: -webkit-linear-gradient(left,
             #ffffff,
             #ff0000 6.26%,
@@ -298,13 +298,13 @@ if(!defined('IN_CRONLITE'))exit();
             background-position: -100%, 0;
         }
     }
-    
-  
+
+
 
 </style>
 <div style="background-color:#fff;border-radius: 25px;box-shadow: 0px 0px 3px #ffffff;padding:5px;margin-top: 10px;margin-bottom:0px;display:none;">
     <marquee>
-    	<b id="nr">公告：本站拥有全网最全精品三角洲辅助！以及其他端游游戏辅助！诚信经营,价格最低,货源最全,卡密问题质保可退换,放心下单即可! 有任何问题在本站客户中心提交工单即可受理！百分百售后！</b>
+	<b id="nr">公告：本站拥有全网最全精品三角洲辅助！以及其他端游游戏辅助！诚信经营,价格最低,货源最全,卡密问题质保可退换,放心下单即可! 有任何问题在本站客户中心提交工单即可受理！百分百售后！</b>
     </marquee>
 
 
@@ -315,26 +315,26 @@ if(!defined('IN_CRONLITE'))exit();
 	<div class="block-title">
 
         <ul class="nav nav-tabs" data-toggle="tabs">
-  
+
             <li style="width: 25%;" align="center" class="active"><a href="#shop" data-toggle="tab"><span style="font-weight:bold"><img src="./assets/img/suyan7.png" width="20px" height="auto">下单</span></a></li>
             <li style="width: 25%;" align="center"><a href="#search" data-toggle="tab" id="tab-query"><span style="font-weight:bold"><i class="fa fa-search" style="font-size:16px;color:#9ED3F9;"></i> 查单</span></a></li>
-            
+
             <li style="width: 25%;" align="center"><a href="#more" data-toggle="tab"><span style="font-weight:bold"><img src="./assets/img/suyan10.png" width="20px"> 更多</span></a></li>
-            
-			
+
+
         </ul>
     </div>
-    
+
 <!--TAB标签-->
     <div class="tab-content">
- <div class="tab-pane" id="daohang">	
+ <div class="tab-pane" id="daohang">
        <?php include TEMPLATE_ROOT.'default/nav.inc.php'; ?>
-  	</div>
+	</div>
 <!--在线下单-->
-    <div class="tab-pane active" id="shop">	
+    <div class="tab-pane active" id="shop">
        <?php include TEMPLATE_ROOT.'TingdongCat/assets/shop.inc.php'; ?>
-  	</div>
-  	
+	</div>
+
 <!--在线下单-->
 <!--查询订单-->
     <div class="tab-pane" id="search">
@@ -422,7 +422,7 @@ if(!defined('IN_CRONLITE'))exit();
             </a>
         </div>
 	</div>
-	
+
 <!--更多-->
 
 
@@ -430,7 +430,7 @@ if(!defined('IN_CRONLITE'))exit();
     </div>
 </div>
 
-<?php 
+<?php
 // 无论$conf['articlenum']设置如何，都显示文章列表，且至少显示5个
 $limit = intval($conf['articlenum']) > 0 ? intval($conf['articlenum']) : 5;
 if($limit < 5) $limit = 5; // 确保至少显示5个文章
@@ -490,12 +490,12 @@ $(document).ready(function() {
 <?php if($conf['classblock']==1 || $conf['classblock']==2 && checkmobile()==false)include TEMPLATE_ROOT.'default/classblock.inc.php'; ?>
 <div class="col-xs-12 col-sm-10 col-md-8 col-lg-5 center-block" style="float: none;margin-top:15px;">
 <div class="block animated bounceInDown btn-rounded" style="border:1px solid #FFF0F5;font-size:15px;padding:15px;border-radius:15px;background-color: white;">
-<div class="panel-heading"><h3 class="panel-title" types=""><font color="#9ED3F9"><span class="glyphicon glyphicon-stats"></span>&nbsp;&nbsp;<b>今日订单详细</b><img src="https://z3.ax1x.com/2021/06/19/RCRtyD.gif"/></font></h3></div>
+<div class="panel-heading"><h3 class="panel-title" types=""><font color="#9ED3F9"><span class="fa fa-bar-chart"></span>&nbsp;&nbsp;<b>今日订单详细</b><img src="https://z3.ax1x.com/2021/06/19/RCRtyD.gif"/></font></h3></div>
 <div class="btn-group btn-group-justified">
 			<a target="_blank" class="btn btn-effect-ripple btn-default collapsed" style="overflow: hidden; position: relative;"><b><font color="white">购买用户</font></b></a>
 			<a target="_blank" class="btn btn-effect-ripple btn-default collapsed" style="overflow: hidden; position: relative;"><b><font color="white">下单日期</font></b></a>
 			<a target="_blank" class="btn btn-effect-ripple btn-default collapsed" style="overflow: hidden; position: relative;"><b><font color="white">物品名称</font></b></a>
-			</div>  
+			</div>
 		<marquee class="zmd" behavior="scroll" direction="UP" onmouseover="this.stop()" onmouseout="this.start()" scrollamount="5" style="height:16em">
 			<table class="table table-hover table-striped" style="text-align:center;table-layout:fixed;width:100%;">
 				<thead style="display:none">
@@ -515,12 +515,12 @@ $(document).ready(function() {
                         $goods_list[] = $res['name'];
                     }
                     $goods_count = count($goods_list);
-                    
+
                     for ($a = 0; $a < $c; $a++) {
                         // 随机获取一个商品名称
                         $rand_index = rand(0, $goods_count-1);
                         $name = $goods_list[$rand_index];
-                        
+
                         $date = date('Y-m-d'); #今日
                         $time = date("Y-m-d", strtotime("-1 day"));
                         if ($a > 50) {
@@ -552,7 +552,7 @@ $(document).ready(function() {
 	<?php if(!$conf['hide_tongji']){?>
 	<div class="row text-center">
 		<div class="col-xs-4">
-		    
+
 			<h5 class="widget-heading"><small>订单总数</small><br><a href="javascript:void(0)" class="themed-color-flat"><span id="count_orders"></span>条</a></h5>
 		</div>
 		<div class="col-xs-4">
@@ -560,7 +560,7 @@ $(document).ready(function() {
 		</div>
 		<div class="col-xs-4">
 			<h5 class="widget-heading"><small>运营天数</small><br><a href="javascript:void(0)" class="themed-color-flat"><span id="count_yxts"></span>天</a></h5>
-			
+
 		</div>
 	</div>
 	<?php }?>

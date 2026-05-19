@@ -24,8 +24,8 @@ $cat_name = "";
 while ($res = $re->fetch()) {
     if($is_fenzhan && in_array($res['cid'], $classhide))continue;
     if($res['cid'] == $cid){
-    	$cat_name=$res['name'];
-    	$qcid = $cid;
+	$cat_name=$res['name'];
+	$qcid = $cid;
     }
     $ar_data[] = $res;
 }
@@ -201,22 +201,22 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
         font-size: .6rem;
     }
 .fui-goods-group.block .fui-goods-item .image {
-     width: 100%; 
-     margin: unset; 
-     padding-bottom: unset; 
+     width: 100%;
+     margin: unset;
+     padding-bottom: unset;
      <?php if(checkmobile()){ ?>
         height:5.5rem;
      <?php }else{ ?>
         height:8rem;
      <?php } ?>
-     
+
 }
 .layui-flow-more{
         width: 100%;
     float: left;
 }
 .fui-goods-group .fui-goods-item .image img{
-    border-radius:5px;    
+    border-radius:5px;
 }
 .fui-goods-group .fui-goods-item .detail .minprice {
     font-size: .6rem;
@@ -439,25 +439,25 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                 </div>
 
                 <div class="goods_sort">
-                	<div class="item item-price" data-order="sort" data-sort="ASC"><span class="text">综合</span>
-                	    <span class="sorting">
-                    		<i class="icon icon-sanjiao2"></i>
-                    		<i class="icon icon-sanjiao1"></i>
-                	    </span>
-                	</div>
-                	<div class="item item-price" data-order="sales" data-sort="ASC"><span class="text">销量</span>
-                        	    <span class="sorting">
-                    		<i class="icon icon-sanjiao2"></i>
-                    		<i class="icon icon-sanjiao1"></i>
-                	    </span>
-                	</div>
-                	<div class="item item-price" data-order="price" data-sort="ASC"><span class="text">价格</span>
-                	    <span class="sorting">
-                    		<i class="icon icon-sanjiao2"></i>
-                    		<i class="icon icon-sanjiao1"></i>
-                	    </span>
-                	</div>
-                	<div class="item" ><span class="text"><i class="icon icon-sort" id="listblock" data-state="list" style="font-size:20px;cursor:pointer;"></i></span> </div>
+	<div class="item item-price" data-order="sort" data-sort="ASC"><span class="text">综合</span>
+	    <span class="sorting">
+		<i class="icon icon-sanjiao2"></i>
+		<i class="icon icon-sanjiao1"></i>
+	    </span>
+	</div>
+	<div class="item item-price" data-order="sales" data-sort="ASC"><span class="text">销量</span>
+	    <span class="sorting">
+		<i class="icon icon-sanjiao2"></i>
+		<i class="icon icon-sanjiao1"></i>
+	    </span>
+	</div>
+	<div class="item item-price" data-order="price" data-sort="ASC"><span class="text">价格</span>
+	    <span class="sorting">
+		<i class="icon icon-sanjiao2"></i>
+		<i class="icon icon-sanjiao1"></i>
+	    </span>
+	</div>
+	<div class="item" ><span class="text"><i class="icon icon-sort" id="listblock" data-state="list" style="font-size:20px;cursor:pointer;"></i></span> </div>
                 </div>
                 <section style="text-align: center;display:none;height: 1.5rem;line-height: 1.6rem;" class="show_class">
                 <section style="display: inline-block;" class="">
@@ -470,10 +470,10 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                 </section>
                  <div class="layui-tab tag_name tab_con" style="margin:0;display:none;">
                         <ul class="layui-tab-title" style="margin: 0;background:#fff;overflow: hidden;">
-                
+
                         </ul>
                 </div>
-                
+
                 <div class="fui-goods-group block three" style="background: #f3f3f3;" id="goods-list-container">
                     <div class="flow_load"><div id="goods_list"></div></div>
                     <div class="footer" style="width:100%; margin-top:0.5rem;margin-bottom:2.5rem;display: block;">
@@ -486,7 +486,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
 
             </div>
         </div>
-        
+
         </div>
         <input type="hidden" name="_cid" value="<?php echo $cid; ?>">
         <input type="hidden" name="_cidname" value="<?php echo $cat_name; ?>">
@@ -495,7 +495,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
 		<input type="hidden" name="_template_showsales" value="<?php echo $conf['template_showsales']?>">
         <input type="hidden" name="_sort_type" value="">
         <input type="hidden" name="_sort" value="">
-        
+
         <div class="fui-navbar" style="bottom:-34px;background-color: white;max-width: 650px">
         </div>
 
@@ -525,7 +525,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                     </div>
                 </div>
                 <div class="account-btn" style="display: block" onclick="$('.tzgg').hide()">确认</div>
-                
+
                 <!--<div class="account-close">-->
                 <!--<i class="icon icon-guanbi1"></i>-->
                 <!--</div>-->

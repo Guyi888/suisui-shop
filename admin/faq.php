@@ -9,7 +9,7 @@ if ($islogin == 1) {
 }
 ?>
     <div class="col-md-12 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("article", 1);
 ?>
 <div class="block">
@@ -91,14 +91,14 @@ adminpermission("article", 1);
                     <div class="card-body">
                         <h3 class="card-title">常见问题解答</h3>
                         <p class="card-text">本页面汇总了系统使用和开发过程中的常见问题及解决方案，帮助您快速解决遇到的困难。</p>
-                        <p class="text-muted">作者：教主 - <a href="http://zhonguo.ren" target="_blank">zhonguo.ren</a> | QQ群：915043052</p>
+                        <p class="text-muted">作者：岁岁 @qqfaka - <a href="http://zhonguo.ren" target="_blank">zhonguo.ren</a> | QQ群：qqfaka</p>
                     </div>
                 </div>
 
                 <div class="faq-container mt-4">
                     <!-- 系统安装与配置 -->
                     <div class="category-title">一、系统安装与配置</div>
-                    
+
                     <div class="faq-item">
                         <div class="faq-question">Q: 系统安装要求是什么？</div>
                         <div class="faq-answer">
@@ -325,7 +325,7 @@ adminpermission("article", 1);
                                     ksort($params);
                                     $sign_str = http_build_query($params);
                                     $params['sign'] = md5($sign_str);
-                                    
+
                                     // 发送请求
                                     $ch = curl_init();
                                     curl_setopt($ch, CURLOPT_URL, $url);
@@ -334,11 +334,11 @@ adminpermission("article", 1);
                                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                                     $result = curl_exec($ch);
                                     curl_close($ch);
-                                    
+
                                     // 返回解析后的JSON数据
                                     return json_decode($result, true);
                                 }
-                                
+
                                 // 调用示例
                                 $api_url = 'http://127.0.0.3/api/shop.php';
                                 $api_token = 'your_api_token';
@@ -347,7 +347,7 @@ adminpermission("article", 1);
                                     'page' => 1,
                                     'page_size' => 10
                                 );
-                                
+
                                 $result = call_api($api_url, $params, $api_token);
                                 if ($result['code'] == 0) {
                                     // 处理成功
@@ -622,7 +622,7 @@ adminpermission("article", 1);
         $('.faq-question').click(function() {
             const answer = $(this).next('.faq-answer');
             answer.toggleClass('show');
-            
+
             // 可以添加一些动画效果
             if (answer.hasClass('show')) {
                 answer.slideDown();

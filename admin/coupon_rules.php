@@ -7,19 +7,19 @@ if($islogin==1) {
     // 设置 zid，管理员默认为 0
     $zid = 0;
     $action = isset($_GET['action']) ? $_GET['action'] : 'list';
-    
+
     // 发放规则列表
     if($action == 'list') {
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $pageSize = 20;
         $start = ($page - 1) * $pageSize;
-        
+
         // 查询所有规则，不区分zid，因为优惠券规则是全局的
         $total = $DB->getColumn("SELECT COUNT(*) FROM `shua_coupon_rules`");
         $rules = $DB->getAll("SELECT r.*, c.name as coupon_name FROM `shua_coupon_rules` r LEFT JOIN `shua_coupons` c ON r.cid = c.cid ORDER BY rid DESC");
-        
+
         $scene_text = ['每日签到', '推广链接', '抽奖商品'];
-        
+
         echo '<div class="col-xs-12">
     <div class="block">
         <div class="block-title">
@@ -41,7 +41,7 @@ if($islogin==1) {
                     </tr>
                 </thead>
                 <tbody>';
-        
+
         foreach($rules as $rule) {
             $params = json_decode($rule['params'], true);
             $params_text = '';
@@ -52,7 +52,7 @@ if($islogin==1) {
             } elseif($rule['scene'] == 2) {
                 $params_text = '抽奖商品';
             }
-            
+
             // 处理添加时间，确保能正确显示
             $add_time = $rule['add_time'];
             // 如果是字符串，直接显示；如果是时间戳，转换后显示
@@ -61,7 +61,7 @@ if($islogin==1) {
             } else {
                 $add_time_display = date('Y-m-d H:i:s', $add_time);
             }
-            
+
             echo '<tr>
                 <td>' . $rule['rid'] . '</td>
                 <td>' . $scene_text[$rule['scene']] . '</td>
@@ -74,11 +74,11 @@ if($islogin==1) {
                 </td>
             </tr>';
         }
-        
+
         if(empty($rules)) {
             echo '<tr><td colspan="7" class="text-center">暂无发放规则</td></tr>';
         }
-        
+
         echo '</tbody>
             </table>
         </div>
@@ -88,7 +88,7 @@ if($islogin==1) {
     </div>
 </div>';
     }
-    
+
     // 添加规则
     elseif($action == 'add') {
         $coupons = $DB->getAll("SELECT cid, name FROM `shua_coupons` WHERE zid = ? AND active = 1 ORDER BY cid DESC", [$zid]);
@@ -146,7 +146,7 @@ if($islogin==1) {
         </form>
     </div>
 </div>';
-    
+
     echo '<script>
 $(function() {
     // 场景类型切换
@@ -164,19 +164,19 @@ $(function() {
 });
 </script>';
     }
-    
+
     // 编辑规则
     elseif($action == 'edit') {
         $rid = intval($_GET['rid']);
         $rule = $DB->getRow("SELECT * FROM `shua_coupon_rules` WHERE rid = ?", [$rid]);
-        
+
         if(!$rule) {
             showmsg('规则不存在', 'coupon_rules.php');
         }
-        
+
         $params = json_decode($rule['params'], true);
         $coupons = $DB->getAll("SELECT cid, name FROM `shua_coupons` WHERE active = 1 ORDER BY cid DESC");
-        
+
         echo '<div class="col-xs-12">
     <div class="block">
         <div class="block-title">
@@ -232,7 +232,7 @@ $(function() {
         </form>
     </div>
 </div>';
-    
+
     echo '<script>
 $(function() {
     // 场景类型切换
@@ -250,24 +250,24 @@ $(function() {
 });
 </script>';
     }
-    
+
     // 保存规则
     elseif($action == 'save') {
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $scene = intval($_POST['scene']);
             $cid = intval($_POST['cid']);
-            
+
             // 构建参数
             $params = [];
             if($scene == 0) {
                 $params['continue_days'] = intval($_POST['continue_days']);
             }
-            
+
             $params_json = json_encode($params);
-            
+
             // 使用正确的datetime格式保存时间
             $add_time = date('Y-m-d H:i:s');
-            
+
             if(isset($_POST['rid'])) {
                 // 编辑
                 $rid = intval($_POST['rid']);
@@ -276,13 +276,13 @@ $(function() {
                 // 添加
                 $DB->exec("INSERT INTO `shua_coupon_rules` (zid, scene, cid, params, add_time, active) VALUES (?, ?, ?, ?, ?, ?)", [$zid, $scene, $cid, $params_json, $add_time, 1]);
             }
-            
+
             showmsg('规则保存成功', 'coupon_rules.php');
         } else {
             showmsg('非法请求', 'coupon_rules.php');
         }
     }
-    
+
     // 删除规则
     elseif($action == 'delete') {
         $rid = intval($_GET['rid']);

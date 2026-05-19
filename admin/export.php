@@ -23,7 +23,7 @@ $select2 = "<option value=\"0\">请选择商品</option>";
 <script src="<?php echo $cdnpublic;?>bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.zh-CN.min.js"></script>
 
     <div class="col-sm-12 col-md-10 col-lg-8 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("order", 1);
 ?>	  <div class="block">
         <div class="block-title"><h3 class="panel-title">导出订单列表</h3></div>
@@ -64,7 +64,7 @@ adminpermission("order", 1);
           </form>
         </div>
 		<div class="panel-footer">
-          <span class="glyphicon glyphicon-info-sign"></span> 生成txt的格式：输入内容1----输入内容2----输入内容3----输入内容4----输入内容5----下单数量<br/>
+          <span class="fa fa-info-circle"></span> 生成txt的格式：输入内容1----输入内容2----输入内容3----输入内容4----输入内容5----下单数量<br/>
 		  已标记为已完成的下次导出时就不会导出了。
         </div>
       </div>

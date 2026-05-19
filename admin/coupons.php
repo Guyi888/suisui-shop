@@ -7,7 +7,7 @@ if($islogin==1) {
     // 确保 zid 始终有值，管理员默认为 0
     $zid = 0; // 直接设置为0，避免任何可能的未定义问题
     $action = isset($_GET['action']) ? $_GET['action'] : 'list';
-    
+
     // 自动创建优惠券表并插入测试数据
     if($action == 'list') {
         try {
@@ -33,7 +33,7 @@ if($islogin==1) {
                     KEY `zid` (`zid`),
                     KEY `active` (`active`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='优惠券表';",
-                
+
                 "CREATE TABLE IF NOT EXISTS `shua_user_coupons` (
                     `ucid` int(11) unsigned NOT NULL AUTO_INCREMENT,
                     `zid` int(11) unsigned NOT NULL DEFAULT '1',
@@ -50,7 +50,7 @@ if($islogin==1) {
                     KEY `userid` (`userid`),
                     KEY `status` (`status`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户优惠券关联表';",
-                
+
                 "CREATE TABLE IF NOT EXISTS `shua_coupon_rules` (
                     `rid` int(11) unsigned NOT NULL AUTO_INCREMENT,
                     `zid` int(11) unsigned NOT NULL DEFAULT '1',
@@ -65,7 +65,7 @@ if($islogin==1) {
                     KEY `cid` (`cid`),
                     KEY `active` (`active`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='优惠券发放规则表';",
-                
+
                 "CREATE TABLE IF NOT EXISTS `shua_coupon_logs` (
                     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
                     `zid` int(11) unsigned NOT NULL DEFAULT '1',
@@ -81,12 +81,12 @@ if($islogin==1) {
                     KEY `type` (`type`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='优惠券发放记录表';"
             );
-            
+
             // 逐条执行SQL语句
             foreach($create_tables as $sql) {
                 $DB->exec($sql);
             }
-            
+
             // 检查是否有优惠券数据，如果没有，插入一条测试数据
             // 仅在系统首次安装时执行，通过文件标记判断
             $init_file = __DIR__ . '/coupon_init_flag.txt';
@@ -102,17 +102,17 @@ if($islogin==1) {
             // 忽略错误，继续执行
         }
     }
-    
+
     // 优惠券列表
     if($action == 'list') {
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $pageSize = 20;
         $start = ($page - 1) * $pageSize;
-        
+
         // 直接使用简单的查询方式，不使用预处理
         $total = $DB->getColumn("SELECT COUNT(*) FROM `shua_coupons`");
         $coupons = $DB->getAll("SELECT * FROM `shua_coupons` ORDER BY cid DESC");
-        
+
         // 先输出状态切换脚本，确保函数在使用前定义
         echo '<script>
         function toggleStatus(cid, status) {
@@ -132,7 +132,7 @@ if($islogin==1) {
             });
         }
         </script>';
-        
+
         echo '<div class="col-xs-12">
     <div class="block">
         <div class="block-title">
@@ -158,18 +158,18 @@ if($islogin==1) {
                     </tr>
                 </thead>
                 <tbody>';
-        
+
         // 移除页面底部的重复脚本定义
         $remove_script = 'true';
-        
+
         if(count($coupons) > 0) {
             foreach($coupons as $coupon) {
                 $type_text = ['满减券', '折扣券', '固定金额券'][$coupon['type']];
                 $status_text = $coupon['active'] ? '<span class="label label-success" onclick="toggleStatus(' . $coupon['cid'] . ', 0)" style="cursor: pointer;">启用</span>' : '<span class="label label-default" onclick="toggleStatus(' . $coupon['cid'] . ', 1)" style="cursor: pointer;">禁用</span>';
-                
+
                 // 添加AJAX状态切换脚本
                 $status_script = 'true';
-                
+
                 // 处理有效期显示，确保日期格式正确
                 if($coupon['valid_days'] > 0) {
                     $valid_text = '领取后' . $coupon['valid_days'] . '天有效';
@@ -177,14 +177,14 @@ if($islogin==1) {
                     // 检查日期是否有效
                     $start_date = date('Y-m-d', strtotime($coupon['start_time']));
                     $end_date = date('Y-m-d', strtotime($coupon['end_time']));
-                    
+
                     // 如果日期无效，显示默认值
                     if($start_date == '1970-01-01') $start_date = '';
                     if($end_date == '1970-01-01') $end_date = '';
-                    
+
                     $valid_text = $start_date . ' 至 ' . $end_date;
                 }
-                
+
                 echo '<tr>
                     <td>' . $coupon['cid'] . '</td>
                     <td>' . $coupon['name'] . '</td>
@@ -204,7 +204,7 @@ if($islogin==1) {
         } else {
             echo '<tr><td colspan="10" class="text-center">暂无优惠券</td></tr>';
         }
-        
+
         echo '</tbody>
             </table>
         </div>
@@ -213,13 +213,13 @@ if($islogin==1) {
         echo '</div>
     </div>
 </div>';
-        
+
         // 删除测试数据脚本
         if(file_exists('test_coupons_db.php')) {
             unlink('test_coupons_db.php');
         }
     }
-    
+
     // 添加优惠券
     elseif($action == 'add') {
         echo '<div class="col-xs-12">
@@ -319,7 +319,7 @@ if($islogin==1) {
         </form>
     </div>
 </div>';
-    
+
     echo '<script>
 $(function() {
     // 有效期类型切换
@@ -340,7 +340,7 @@ $(function() {
             $("#valid_days input").prop("required", true);
         }
     });
-    
+
     // 初始化时设置正确的必填属性
     var initialValidType = $("#valid_type").val();
     if(initialValidType == "0") {
@@ -352,19 +352,19 @@ $(function() {
     }
 });
 </script>';
-    
+
     // 添加页面脚本修改完成
     }
-    
+
     // 编辑优惠券
     elseif($action == 'edit') {
         $cid = intval($_GET['cid']);
         $coupon = $DB->getRow("SELECT * FROM `shua_coupons` WHERE cid = ? AND zid = ?", [$cid, $zid]);
-        
+
         if(!$coupon) {
             showmsg('优惠券不存在', 'coupons.php');
         }
-        
+
         echo '<div class="col-xs-12">
     <div class="block">
         <div class="block-title">
@@ -463,7 +463,7 @@ $(function() {
         </form>
     </div>
 </div>';
-    
+
     echo '<script>
 $(function() {
     // 有效期类型切换
@@ -484,7 +484,7 @@ $(function() {
             $("#valid_days input").prop("required", true);
         }
     });
-    
+
     // 初始化时设置正确的必填属性
     var initialValidType = $("#valid_type").val();
     if(initialValidType == "0") {
@@ -496,10 +496,10 @@ $(function() {
     }
 });
 </script>';
-    
+
     // 同时确保添加页面也有初始化逻辑
     }
-    
+
     // 保存优惠券
     elseif($action == 'save') {
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -512,7 +512,7 @@ $(function() {
             $valid_type = intval($_POST['valid_type']);
             $description = trim($_POST['description']);
             $active = intval($_POST['active']);
-            
+
             // 处理有效期
             if($valid_type == 0) {
                 // 固定时间，使用date函数格式化正确的日期字符串
@@ -525,7 +525,7 @@ $(function() {
                 $end_time = date('Y-m-d H:i:s', strtotime('+365 days'));
                 $valid_days = intval($_POST['days']);
             }
-            
+
             if(isset($_POST['cid'])) {
                 // 编辑
                 $cid = intval($_POST['cid']);
@@ -534,26 +534,26 @@ $(function() {
                 // 添加
                 $DB->exec("INSERT INTO `shua_coupons` (zid, name, type, value, max_discount, min_amount, total, start_time, end_time, valid_days, description, active, used, add_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)", [$zid, $name, $type, $value, $max_discount, $min_amount, $total, $start_time, $end_time, $valid_days, $description, $active, date('Y-m-d H:i:s')]);
             }
-            
+
             showmsg('优惠券保存成功', 'coupons.php');
         } else {
             showmsg('非法请求', 'coupons.php');
         }
     }
-    
+
     // 切换优惠券状态
     elseif($action == 'toggle') {
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $cid = intval($_POST['cid']);
             $status = intval($_POST['status']);
-            
+
             $DB->exec("UPDATE `shua_coupons` SET active = ? WHERE cid = ? AND zid = ?", [$status, $cid, $zid]);
             exit('success');
         } else {
             exit('error');
         }
     }
-    
+
     // 删除优惠券
     elseif($action == 'delete') {
         $cid = intval($_GET['cid']);

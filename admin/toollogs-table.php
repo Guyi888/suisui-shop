@@ -17,7 +17,7 @@ $con = '系统共有 <b>' . $numrows . '</b> 条';
         <table class="table table-striped table-bordered table-vcenter orderList">
           <thead><tr><th width="40"><input type="checkbox" name="chkAll" id="chkAll" onClick="checkAll(this)"></th><th>ID</th><th>日志内容</th><th>上架时间</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = isset($_GET['num']) ? intval($_GET['num']) : 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -31,7 +31,7 @@ while ($res = $rs->fetch()) {
           </tbody>
         </table>
 </form>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;

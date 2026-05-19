@@ -206,12 +206,12 @@ function getpddinput() {
     var pattresult6 = (/([0-9]{8})/).exec(pddinput);
     var pattresult7 = (/[a-zA-Z0-9=_\&\?\-\/]?[a-zA-Z0-9]{15}[a-zA-Z0-9=_\&\?\-\/]?/).exec(pddinput);
     var pattresult12 = (/^[a-zA-Z0-9]{16}/).exec(pddinput);
-    
+
     var pattresult10 = (/[\ud83a-\ud83f][\u0000-\uFFFF]/).exec(pddinput);
     var no_emoji_input = pddinput.replace(/[\ud83a-\ud83f][\u0000-\uFFFF]/g, "");
     no_emoji_input = no_emoji_input.replace(/[\ufe00-\ufe0f]/g, "");
     no_emoji_input = no_emoji_input.replace(/[\u0000-\uffff][\u20aa-\u20ff]/g, "");
-    
+
     var pattresult13 = (/[a-zA-Z0-9]{13}/).exec(no_emoji_input);
     var pattresult14 = (/[a-zA-Z0-9]{14}/).exec(no_emoji_input);
     var status = false;
@@ -267,7 +267,7 @@ function checkInput() {
 		if (inputnameElement.length && inputvalueElement.length) {
 			var gettype = inputnameElement.attr("gettype") || '';
 			var inputvalue = inputvalueElement.val() || '';
-			
+
 			if(gettype == 'shareid'){
 				if(inputvalue != '' && inputvalue.indexOf('http')>=0){
 					getshareid();
@@ -386,7 +386,7 @@ $(document).ready(function(){
 	} else {
 		console.log('DOM ready: #inputsname container found');
 	}
-	
+
 	$("#submit_card").click(function(){
 		var km=$("#km").val();
 		if(km==''){layer.alert('卡密不能为空！');return false;}
@@ -407,10 +407,10 @@ $(document).ready(function(){
 				$("#shopname").val(res.name);
 				console.log('Debug: res.input =', res.input);
 				console.log('Debug: res.inputs =', res.inputs);
-				
+
 				// 清除并重新生成输入框
 				$('#inputsname').html('');
-					
+
 					// 生成主输入框
 					var inputName = res.input;
 					if (!inputName || inputName == 'hide' || inputName == 'null') {
@@ -423,7 +423,7 @@ $(document).ready(function(){
 					input.val(qqValue);
 					inputGroup.find('.input-group').append(addon).append(input);
 					$('#inputsname').append(inputGroup);
-					
+
 					// 处理额外的输入框（如果有）
 					if (res.inputs && res.inputs != '') {
 						try {
@@ -461,7 +461,7 @@ $(document).ready(function(){
 										addstr='<div class="input-group-addon onclick" onclick="getshareid2(\'inputvalue'+(i+2)+'\',$(\'#inputvalue\').val())">自动获取</div>';
 									else if(value=='收货地址'||value=='收货人地址'||inputsnametype=='address')
 										addstr='<div class="input-group-addon onclick" onclick="getCity(\'inputvalue'+(i+2)+'\')">点此选择</div>';
-									
+
 									var inputGroup = $('<div class="form-group"><div class="input-group"></div></div>');
 									var inputAddon = $('<div class="input-group-addon" id="inputname'+(i+2)+'" gettype="'+inputsnametype+'">').text(value);
 									var input = $('<input type="text" name="inputvalue'+(i+2)+'" id="inputvalue'+(i+2)+'" value="" class="form-control" required/>');
@@ -476,7 +476,7 @@ $(document).ready(function(){
 							console.error('Error processing inputsname:', e);
 						}
 					}
-					
+
 					// 处理商品描述
 					if(res.desc && res.desc != '' && res.desc != 'null'){
 						$('#alert_frame').show();
@@ -484,7 +484,7 @@ $(document).ready(function(){
 					} else {
 						$('#alert_frame').hide();
 					}
-					
+
 					// 处理商品提示
 					if(res.alert && res.alert != '' && res.alert != 'null'){
 						var alertIndex=layer.alert(''+decodeURIComponent(res.alert)+'',{
@@ -494,7 +494,7 @@ $(document).ready(function(){
 							layer.close(alertIndex);
 						});
 					}
-					
+
 					console.log('Debug: Input fields generated successfully');
 				} else {
 					layer.open({
@@ -514,7 +514,7 @@ $(document).ready(function(){
 		try {
 			var km=$("#km").val();
 			if(km==''){layer.alert('卡密不能为空！');return false;}
-			
+
 			// 安全检查：确保#inputvalue元素存在
 			var inputvalueElement = $('#inputvalue');
 			if (!inputvalueElement.length) {
@@ -522,13 +522,13 @@ $(document).ready(function(){
 				layer.alert('系统错误：输入框未正确生成，请刷新页面重试！');
 				return false;
 			}
-			
+
 			// 检查输入值是否为空
 			if (inputvalueElement.val()=='') {
 				layer.alert('请确保每项不能为空！');
 				return false;
 			}
-			
+
 			// 只检查存在的输入框
 			var allFilled = true;
 			var emptyFields = [];
@@ -556,7 +556,7 @@ $(document).ready(function(){
 			if (inputnameElement.length && inputvalueElement.length) {
 				var inputnameHtml = inputnameElement.html();
 				var inputvalue = inputvalueElement.val();
-				
+
 				if((inputnameHtml=='下单ＱＱ' || inputnameHtml=='ＱＱ账号' || inputnameHtml == 'QQ账号') && (inputvalue.length<5 || inputvalue.length>11 || isNaN(inputvalue))){layer.alert('请输入正确的QQ号！');return false;}
 				var reg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
 				if(inputnameHtml=='你的邮箱' && !reg.test(inputvalue)){layer.alert('邮箱格式不正确！');return false;}
@@ -595,7 +595,7 @@ $(document).ready(function(){
 				}
 		}
 		var ii = layer.load(2, {shade:[0.1,'#fff']});
-			
+
 			// 构建AJAX数据对象，只包含存在的输入值
 			var ajaxData = {km: km, hashsalt: hashsalt};
 			for (var i = 1; i <= 5; i++) {
@@ -604,7 +604,7 @@ $(document).ready(function(){
 					ajaxData['inputvalue' + (i === 1 ? '' : i)] = inputElement.val();
 				}
 			}
-			
+
 			$.ajax({
 				type : "POST",
 				url : "ajax.php?act=card_pay",

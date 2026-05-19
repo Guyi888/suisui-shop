@@ -263,7 +263,7 @@
             </svg>
         </button>
     </div>
-    
+
     <script>
     function continueVisit() {
         const btn = document.querySelector('.continue-btn');
@@ -285,10 +285,28 @@
         `;
 
         // 设置Cookie
-        const interval = <?php echo !empty($conf['wall_guide_interval']) ? intval($conf['wall_guide_interval']) : 24; ?>;
+        const intervalValue = <?php echo !empty($conf['wall_guide_interval']) ? intval($conf['wall_guide_interval']) : 24; ?>;
+        const intervalUnit = '<?php echo !empty($conf['wall_guide_interval_unit']) ? $conf['wall_guide_interval_unit'] : 'hour'; ?>';
+
+        let intervalMs;
+        switch(intervalUnit) {
+            case 'second':
+                intervalMs = intervalValue * 1000;
+                break;
+            case 'minute':
+                intervalMs = intervalValue * 60 * 1000;
+                break;
+            case 'hour':
+            default:
+                intervalMs = intervalValue * 60 * 60 * 1000;
+                break;
+        }
+
         const exp = new Date();
-        exp.setTime(exp.getTime() + interval * 60 * 60 * 1000);
-        document.cookie = `wall_guide_skip=1;path=/;expires=${exp.toGMTString()}`;
+        exp.setTime(exp.getTime() + intervalMs);
+
+        // 使用更可靠的方式设置Cookie
+        document.cookie = "wall_guide_skip=1; expires=" + exp.toUTCString() + "; path=/; SameSite=Lax";
 
         // 添加退出动画
         container.style.animation = 'slideDown 0.4s cubic-bezier(0.4, 0, 1, 1) forwards';

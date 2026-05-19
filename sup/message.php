@@ -29,7 +29,7 @@ include 'head.php';
 .msg-body{padding: 15px;margin-bottom: 20px;}
 </style>
 <div class="wrapper">
-<div class="col-sm-12">	
+<div class="col-sm-12">
 <div class="panel panel-default">
 <div class="panel-heading font-bold" style="background-color: #9999CC;color: white;">消息列表</div>
 <div class="panel-body"><a href="javascript:msg_read_all();" class="btn btn-primary">一键已读</a></div>
@@ -49,7 +49,7 @@ echo '
 if($msgcount==0){
 	echo '<tr><td class="text-center"><font color="grey">消息列表空空如也</font></td></tr>';
 }
-?>	
+?>
           <tbody>
           </tbody>
         </table>
@@ -79,7 +79,7 @@ function msg_read_all()
 			layer.msg('服务器错误');
 			return false;
 		}
-	});        	
+	});
 }
 function show(id) {
 	$.ajax({

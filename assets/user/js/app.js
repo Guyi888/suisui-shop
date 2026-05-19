@@ -1,7 +1,7 @@
 /**
  * 0.1.0
  * Deferred load js/css file, used for ui-jq.js and Lazy Loading.
- * 
+ *
  * @ flatfull.com All Rights Reserved.
  * Author url: http://themeforest.net/user/flatfull
  */
@@ -26,9 +26,9 @@ var uiLoad = uiLoad || {};
 			}
 
       $.each(srcs, function(index, src) {
-      	promise = promise.then( function(){
-      		return src.indexOf('.css') >=0 ? loadCSS(src) : loadScript(src);
-      	} );
+	promise = promise.then( function(){
+		return src.indexOf('.css') >=0 ? loadCSS(src) : loadScript(src);
+	} );
       });
       deferred.resolve();
       return promise;
@@ -92,13 +92,13 @@ var uiLoad = uiLoad || {};
       $(document).on('click', '[ui-nav] a', function (e) {
         var $this = $(e.target), $active;
         $this.is('a') || ($this = $this.closest('a'));
-        
+
         $active = $this.parent().siblings( ".active" );
         $active && $active.toggleClass('active').find('> ul:visible').slideUp(200);
-        
+
         ($this.parent().hasClass('active') && $this.next().slideUp(200)) || $this.next().slideDown(200);
         $this.parent().toggleClass('active');
-        
+
         $this.next().is('ul') && e.preventDefault();
       });
 
@@ -110,7 +110,7 @@ var uiLoad = uiLoad || {};
   $(function(){
 
       $(document).on('click', '[ui-toggle]', function (e) {
-      	e.preventDefault();
+	e.preventDefault();
         var $this = $(e.target);
         $this.attr('ui-toggle') || ($this = $this.closest('[ui-toggle]'));
         var $target = $($this.attr('target')) || $this;

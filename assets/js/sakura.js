@@ -81,7 +81,7 @@ Sakura.prototype.update = function() {
 			}
 		}
 
-		
+
 	}
 }
 
@@ -220,5 +220,5 @@ function stopp() {
 		startSakura();
 	}
 }
-		
-		
+
+

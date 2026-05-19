@@ -42,11 +42,13 @@ $cid = isset($_GET['cid'])?intval($_GET['cid']):0;
 <div class="block">
 <div class="block-title clearfix">
 <h2 id="blocktitle"></h2>
-<span class="pull-right"><select id="pagesize" class="form-control" title="每页显示"><option value="30">30</option><option value="50">50</option><option value="60">60</option><option value="80">80</option><option value="100">100</option></select><span>
+<span class="pull-right">
+<?php if(isset($_GET['cid']))echo '<span style="color:red;font-size:13px;margin-right:10px;">提示：如果出现排序操作移动不了，请点击"重置商品排序"按钮</span>';?>
+<select id="pagesize" class="form-control" title="每页显示"><option value="30">30</option><option value="50">50</option><option value="60">60</option><option value="80">80</option><option value="100">100</option></select><span>
 </span></span>
 </div>
   <form onsubmit="return searchItem()" method="GET" class="form-inline">
-  
+
   <!-- 电脑端布局：所有按钮放在同一行 -->
   <div class="hidden-xs">
     <a href="./shopedit.php?my=add&cid=<?php echo htmlspecialchars($_GET['cid'])?>" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;添加商品</a>&nbsp;
@@ -78,7 +80,7 @@ $cid = isset($_GET['cid'])?intval($_GET['cid']):0;
     <a href="javascript:change_inputs()" class="btn btn-info"><i class="fa fa-edit"></i>&nbsp;批量替换输入框标题</a>&nbsp;
     <a href="javascript:listTable('start')" class="btn btn-default" title="刷新商品列表"><i class="fa fa-refresh"></i></a>
   </div>
-  
+
   <!-- 手机端布局：分两行显示 -->
   <div class="visible-xs">
     <!-- 第一行：添加商品按钮 + 更多按钮 + 刷新按钮 -->
@@ -119,9 +121,9 @@ $cid = isset($_GET['cid'])?intval($_GET['cid']):0;
 <div id="listTable"></div>
 <?php }?>
     </div>
-<?php if(!isset($_GET['cid']))echo '<font color="grey">提示：查看单个分类的商品列表可进行商品排序操作';?>
+<?php if(!isset($_GET['cid']))echo '<font color="grey">提示：查看单个分类的商品列表可进行商品排序操作</font>';?>
   </div>
-      
+
 <script src="<?php echo $cdnpublic?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/shoplist.js?ver=<?php echo VERSION ?>"></script>
 </body>

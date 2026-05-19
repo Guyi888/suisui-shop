@@ -35,11 +35,11 @@ function checkFontAwesome() {
   fontTest.style.position = 'absolute';
   fontTest.style.left = '-9999px';
   document.body.appendChild(fontTest);
-  
+
   // 检查图标是否显示（通过宽度判断）
   const width = fontTest.offsetWidth;
   document.body.removeChild(fontTest);
-  
+
   if (width > 0) {
     console.log('Font Awesome加载成功');
   } else {
@@ -97,11 +97,11 @@ window.onload = function() {
         justify-content: center;
         touch-action: manipulation;
     }
-    
+
     #chat-float-btn .chat-text {
         display: none;
     }
-    
+
     #chat-float-btn .chat-icon {
         width: 28px;
         height: 28px;
@@ -116,12 +116,12 @@ window.onload = function() {
         width: 45px;
         height: 45px;
     }
-    
+
     #chat-float-btn .chat-icon {
         width: 24px;
         height: 24px;
     }
-    
+
     #chat-widget-box {
         width: 95%;
         height: 75vh;
@@ -132,7 +132,7 @@ window.onload = function() {
 #chat-float-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(<?php echo hexdec(substr($conf['chat_btn_color'] ?? '#2196F3', 1, 2)); ?>, <?php echo hexdec(substr($conf['chat_btn_color'] ?? '#2196F3', 3, 2)); ?>, <?php echo hexdec(substr($conf['chat_btn_color'] ?? '#2196F3', 5, 2)); ?>, 0.6);
-    background: <?php 
+    background: <?php
         $btnColor = $conf['chat_btn_color'] ?? '#2196F3';
         // 计算悬停颜色（稍微深一点）
         $r = max(0, hexdec(substr($btnColor, 1, 2)) - 20);
@@ -192,22 +192,22 @@ window.onload = function() {
         bottom: 80px;
         margin: 0 auto;
     }
-    
+
     #chat-widget-messages {
         min-height: 280px;
         max-height: 300px;
     }
-    
+
     #chat-widget-input {
         padding: 12px;
     }
-    
+
     #chat-widget-input input[type=text] {
         padding: 8px 12px;
         font-size: 14px;
         width: 50%;
     }
-    
+
     #chat-widget-input button, #chat-widget-input label {
         background: #f0f0f0;
         color: #666;
@@ -722,7 +722,7 @@ window.onload = function() {
             <i class="fa fa-chevron-down" id="chat-widget-close" title="关闭"></i>
         </div>
     </div>
-    
+
     <div id="chat-widget-messages">
         <!-- 静态欢迎消息和快捷选项 -->
         <div id="chat-widget-static-content">
@@ -731,7 +731,7 @@ window.onload = function() {
                 <span class="chat-msg-bubble"><?php echo htmlspecialchars($conf['chat_welcome']); ?></span>
                 <span class="chat-msg-time"><?php echo date('m-d H:i'); ?></span>
             </div>
-            
+
             <!-- 快捷问题 -->
             <div class="chat-quick-questions">
                 <h4>猜你想问:</h4>
@@ -744,12 +744,12 @@ window.onload = function() {
                     <div class="question-item" data-question="不想等了,如何退款?">不想等了,如何退款?</div>
                 </div>
             </div>
-            
+
             <div class="chat-msg-admin">
                 <span class="chat-msg-bubble">请您直接提供订单号哦,提供订单号+问题优先回复</span>
                 <span class="chat-msg-time"><?php echo date('m-d H:i'); ?></span>
             </div>
-            
+
             <!-- 快捷操作按钮 -->
             <div class="chat-quick-actions">
                 <button class="action-btn" data-action="如何查询订单">如何查询订单</button>
@@ -758,11 +758,11 @@ window.onload = function() {
                 <button class="action-btn" data-action="申请退款">申请退款</button>
             </div>
         </div>
-        
+
         <!-- 动态消息容器 -->
         <div id="chat-widget-dynamic-messages"></div>
     </div>
-    
+
     <form id="chat-widget-input" enctype="multipart/form-data" autocomplete="off">
         <input type="text" name="content" placeholder="请输入" autocomplete="off">
         <label for="chat-widget-order" title="选择订单" style="background:#e0e0e0;">
@@ -783,7 +783,7 @@ window.onload = function() {
         <?php endif; ?>
         <button type="submit" title="发送" style="background:#2196f3;color:#fff;"><i class="fa fa-paper-plane"></i></button>
     </form>
-    
+
     <div id="chat-widget-footer">
     </div>
     <!-- 隐藏的音频元素，用于播放回复提示音 -->
@@ -805,7 +805,6 @@ window.onload = function() {
     <video class="modal-content" id="chat-video-modal-content" controls></video>
 </div>
 
-<script src="//lib.baomitu.com/jquery/2.1.4/jquery.min.js"></script>
 <script>
 var chatSessionId = null;
 var chatPollingTimer = null;
@@ -822,27 +821,27 @@ function renderChatMessages(list) {
             messageHash += msg.id + '_' + msg.type + '_' + msg.content + '|';
         });
     }
-    
+
     // 检查消息是否有变化
     if(lastMessageHash === messageHash) {
         // 消息没有变化，不更新DOM，直接返回
         return;
     }
-    
+
     // 更新消息列表哈希
     lastMessageHash = messageHash;
-    
+
     var html = '';
     if(list.length > 0) {
         list.forEach(function(msg){
             var time = '<span class="chat-msg-time">'+msg.create_time+'</span>';
             var content = msg.content;
-            
+
             // 将换行符转换为HTML换行标签，确保订单信息格式正确
             if(msg.type === 0) {
                 content = content.replace(/\n/g, '<br>');
             }
-            
+
             if(msg.sender==='user'){
                 html += '<div class="chat-msg-user">'+time+
                     (msg.type==1?'<span class="chat-msg-bubble"><img src="'+content+'" style="max-width:120px;max-height:120px;"></span>':(msg.type==2?'<span class="chat-msg-bubble"><video src="'+content+'" style="max-width:200px;max-height:150px;" controls onclick="openVideoModal(this.src)"></video></span>':'<span class="chat-msg-bubble">'+content+'</span>'))+
@@ -854,7 +853,7 @@ function renderChatMessages(list) {
         });
     }
     $('#chat-widget-dynamic-messages').html(html);
-    
+
     // 检查是否有新消息，有新消息则播放提示音
     if(list.length > lastMessageCount && lastMessageCount > 0) {
         playChatNotification();
@@ -942,13 +941,13 @@ $(function(){
             $('#chat-widget-input [name=content]').focus();
         }, 350);
     });
-    
+
     // 订单选择按钮点击事件
     $('#chat-widget-order').parent().find('label[for="chat-widget-order"]').click(function(e) {
         e.preventDefault();
         showOrderSelector();
     });
-    
+
     // 点击页面其他地方关闭订单选择器
     $(document).click(function(e) {
         if (!$(e.target).closest('#chat-widget-order, label[for="chat-widget-order"]').length) {
@@ -973,15 +972,15 @@ $(function(){
         e.preventDefault();
         var content = $(this).find('[name=content]').val().trim();
         var order_id = $(this).find('[name=order_id]').val();
-        
+
         // 如果没有输入内容但选择了订单，自动生成订单相关的消息
         if(!content && order_id) {
             content = '我想咨询订单 #' + order_id + ' 的情况';
             $(this).find('[name=content]').val(content);
         }
-        
+
         if(!content) return;
-        
+
         var formData = new FormData(this);
         $.ajax({
             url: chatBasePath + '/user/ajax_chat.php?act=send',
@@ -1095,21 +1094,21 @@ $(function(){
     $('#chat-widget-controls .fa-volume-up').click(function() {
         $(this).toggleClass('fa-volume-up fa-volume-off');
     });
-    
+
     // 图片放大功能
     $(document).on('click', '.chat-msg-bubble img', function() {
         var modal = document.getElementById('chat-image-modal');
         var modalImg = document.getElementById('chat-image-modal-content');
         var closeBtn = document.getElementById('chat-image-modal-close');
-        
+
         modal.style.display = 'block';
         modalImg.src = this.src;
-        
+
         // 点击关闭按钮
         closeBtn.onclick = function() {
             modal.style.display = 'none';
         }
-        
+
         // 点击模态框外部关闭
         modal.onclick = function(event) {
             if (event.target == modal) {
@@ -1124,17 +1123,17 @@ function openVideoModal(videoSrc) {
     var modal = document.getElementById('chat-video-modal');
     var modalVideo = document.getElementById('chat-video-modal-content');
     var closeBtn = document.getElementById('chat-video-modal-close');
-    
+
     modal.style.display = 'block';
     modalVideo.src = videoSrc;
     modalVideo.play();
-    
+
     // 点击关闭按钮
     closeBtn.onclick = function() {
         modal.style.display = 'none';
         modalVideo.pause();
     }
-    
+
     // 点击模态框外部关闭
     modal.onclick = function(event) {
         if (event.target == modal) {
@@ -1150,17 +1149,17 @@ function openVideoModal(videoSrc) {
     var startTime, startX, startY;
     var $btn = $('#chat-float-btn');
     var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+
     $btn.on('mousedown touchstart', function(e) {
         startTime = new Date().getTime();
         var evt = e.type === 'touchstart' ? e.originalEvent.touches[0] : e;
         startX = evt.pageX;
         startY = evt.pageY;
-        
+
         var pos = $btn.offset();
         offsetX = evt.pageX - pos.left;
         offsetY = evt.pageY - pos.top;
-        
+
         if (isMobile) {
             setTimeout(function() {
                 if (new Date().getTime() - startTime > 150) {
@@ -1170,18 +1169,18 @@ function openVideoModal(videoSrc) {
         } else {
             dragging = true;
         }
-        
+
         e.preventDefault();
         e.stopPropagation();
     });
-    
+
     $(document).on('mousemove touchmove', function(e) {
         if (!dragging) return;
         var evt = e.type === 'touchmove' ? e.originalEvent.touches[0] : e;
         var moveDistance = Math.sqrt(Math.pow(evt.pageX - startX, 2) + Math.pow(evt.pageY - startY, 2));
-        
+
         if (isMobile && moveDistance < 8) return;
-        
+
         var x = evt.pageX - offsetX;
         var y = evt.pageY - offsetY;
         var maxX = $(window).width() - $btn.outerWidth();
@@ -1190,17 +1189,17 @@ function openVideoModal(videoSrc) {
         y = Math.max(0, Math.min(y, maxY));
         $btn.css({left: x, top: y, right: 'auto', bottom: 'auto', position: 'fixed'});
     });
-    
+
     $(document).on('mouseup touchend', function(e) {
         var endTime = new Date().getTime();
         var evt = e.type === 'touchend' ? e.originalEvent.changedTouches[0] : e;
         var moveDistance = Math.sqrt(Math.pow(evt.pageX - startX, 2) + Math.pow(evt.pageY - startY, 2));
-        
+
         if (endTime - startTime < 200 && moveDistance < 8) {
             // 直接触发点击事件处理函数
             $btn.click();
         }
-        
+
         dragging = false;
     });
 })();

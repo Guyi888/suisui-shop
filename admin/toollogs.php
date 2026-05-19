@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
 **/
 include("../includes/common.php");
 $title='上架日志';
@@ -26,23 +26,23 @@ adminpermission('shop', 1);
 </span></span>
 </div>
   <form onsubmit="return searchItem()" method="GET" class="form-inline">
-  
+
   <a href="./toollogsedit.php?my=add" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;添加日志</a>&nbsp;
 
   <a href="javascript:clearItem()" class="btn btn-default" title="刷新列表"><i class="fa fa-refresh"></i></a>
-  
+
 </form>
 
 
 <div id="listTable"></div>
 <div class="panel-footer">
-				<span class="glyphicon glyphicon-info-sign"></span>
+				<span class="fa fa-info-circle"></span>
 				自行调用上架日志：/toollogs.php | <a href="/toollogs.php">前往查看上架日志</a>
 			</div>
     </div>
-    
+
   </div>
-      
+
 <script src="<?php echo $cdnpublic?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/toollogs.js?ver=<?php echo VERSION ?>"></script>
 </body>

@@ -1,8 +1,8 @@
 <?php
 /**
  * 系统数据清理
- * 博客地址：6v6.ren
- * Q群：941535592
+ * 岁岁 @qqfaka
+ * Q群：qqfaka
 **/
 include("../includes/common.php");
 $title='系统数据清理';
@@ -199,7 +199,7 @@ showmsg('删除分站记录成功！',1);
 
 <div class="clean-section" style="margin-top: 20px; background: #e8e8e8;">
     <h4><i class="fa fa-cogs"></i> 自定义清理</h4>
-    
+
     <div class="row">
         <div class="col-md-4">
             <form action="./clean.php?mod=cleanpayi" method="post" role="form" class="clean-form">
@@ -234,7 +234,7 @@ showmsg('删除分站记录成功！',1);
 </div>
 
 <div class="panel-footer">
-    <span class="glyphicon glyphicon-info-sign"></span>
+    <span class="fa fa-info-circle"></span>
     定期清理数据有助于提升网站访问速度
 </div>
 </div>

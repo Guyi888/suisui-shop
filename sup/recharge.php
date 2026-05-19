@@ -20,15 +20,15 @@ img.logo{width: 20px;margin: -2px 5px 0 5px;}
 			<b>我当前的账户余额：<span style="font-size:16px; color:#FF6133;"><?php echo $suprow["rmb"];?></span> 元</b>
 			<hr>
 			<input type="text" class="form-control" name="value" autocomplete="off" placeholder="输入要充值的余额"><br>
-<?php 
+<?php
 if ($conf["alipay_api"]) {
-	?><button type="submit" class="btn btn-default" id="buy_alipay"><img src="../assets/img/alipay.png" class="logo">支付宝</button>&nbsp;<?php 
+	?><button type="submit" class="btn btn-default" id="buy_alipay"><img src="../assets/img/alipay.png" class="logo">支付宝</button>&nbsp;<?php
 }
 if ($conf["qqpay_api"]) {
-	?><button type="submit" class="btn btn-default" id="buy_qqpay"><img src="../assets/img/qqpay.png" class="logo">QQ钱包</button>&nbsp;<?php 
+	?><button type="submit" class="btn btn-default" id="buy_qqpay"><img src="../assets/img/qqpay.png" class="logo">QQ钱包</button>&nbsp;<?php
 }
 if ($conf["wxpay_api"]) {
-	?><button type="submit" class="btn btn-default" id="buy_wxpay"><img src="../assets/img/wxpay.png" class="logo">微信支付</button>&nbsp;<?php 
+	?><button type="submit" class="btn btn-default" id="buy_wxpay"><img src="../assets/img/wxpay.png" class="logo">微信支付</button>&nbsp;<?php
 }
 ?><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModa4" id="alink" style="visibility: hidden;"></button>
 <hr>
@@ -45,7 +45,7 @@ if ($conf["wxpay_api"]) {
         <table class="table table-striped">
           <thead><tr><th>充值金额</th><th>充值时间</th><th>状态</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $flag = false;
 $rs = $DB->query("SELECT * FROM pre_suppoints WHERE sid='" . $suprow["sid"] . "' AND action='1' ORDER BY id DESC LIMIT 10");
 while ($res = $rs->fetch()) {
@@ -62,7 +62,7 @@ if (!$flag) {
   </div>
  </div>
 </div>
-<?php 
+<?php
 include "./foot.php";
 ?><script>
 function dopay(type){

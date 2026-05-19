@@ -60,11 +60,80 @@ if($islogin==1){}else exit("<script language='javascript'>window.location.href='
 	</div>
 </div>
 
+<div class="modal" id="modal-banip">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">封禁IP地址</h4>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="ban_ip_zid" value="">
+				<div class="form-group">
+					<label>封禁IP地址：</label>
+					<input type="text" class="form-control" id="ban_ip_address" readonly>
+				</div>
+				<div class="form-group">
+					<label>封禁时长：</label>
+					<select class="form-control" id="ban_duration">
+						<option value="1">1小时</option>
+						<option value="6">6小时</option>
+						<option value="12">12小时</option>
+						<option value="24" selected>24小时</option>
+						<option value="72">3天</option>
+						<option value="168">7天</option>
+						<option value="720">30天</option>
+						<option value="0">永久封禁</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label>封禁原因：</label>
+					<textarea class="form-control" id="ban_reason" rows="3" placeholder="请输入封禁原因（可选）"></textarea>
+				</div>
+				<div class="form-group">
+					<label><input type="checkbox" id="ban_block_user" checked> 同时封禁该用户账号</label>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-info" data-dismiss="modal">取消</button>
+				<button type="button" class="btn btn-danger" id="confirm_ban_ip">确认封禁</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <?php
 
 adminpermission('site', 1);
 
 $my=isset($_GET['my'])?$_GET['my']:null;
+
+if($my!='add' && $my!='edit' && $my!='add_submit' && $my!='edit_submit' && $my!='delete'){
+	$result = $DB->query("DESCRIBE pre_site");
+	$columns = [];
+	while ($row = $result->fetch()) {
+		$columns[] = $row['Field'];
+	}
+
+	if (!in_array('reg_ip', $columns)) {
+		try {
+			$DB->exec("ALTER TABLE `pre_site` ADD COLUMN `reg_ip` VARCHAR(50) DEFAULT NULL COMMENT '注册IP' AFTER `qq`");
+			$DB->exec("ALTER TABLE `pre_site` ADD INDEX `idx_reg_ip` (`reg_ip`)");
+
+			if($conf['debug_mode']==1){
+				$log_msg = "自动为 pre_site 表添加 reg_ip 字段成功 - 时间：" . date('Y-m-d H:i:s');
+				file_put_contents(ROOT . "cache/auto_update.log", $log_msg . PHP_EOL, FILE_APPEND);
+			}
+		} catch (Exception $e) {
+			if($conf['debug_mode']==1){
+				$log_msg = "添加 reg_ip 字段失败：" . $e->getMessage() . " - 时间：" . date('Y-m-d H:i:s');
+				file_put_contents(ROOT . "cache/auto_update.log", $log_msg . PHP_EOL, FILE_APPEND);
+			}
+		}
+	}
+}
 
 if($my=='add')
 {
@@ -137,8 +206,8 @@ showmsg('保存错误,请确保每项都不为空!',3);
 $rows=$DB->getRow("select user from pre_site where user='$user' limit 1");
 if($rows)
 	showmsg('用户名已存在！',3);
-$sql="insert into `pre_site` (`power`,`user`,`pwd`,`rmb`,`qq`,`addtime`,`status`) values (0, :user, :pwd, :rmb, :qq, :date, 1)";
-$data = [':user'=>$user, ':pwd'=>$pwd, ':rmb'=>$rmb, ':qq'=>$qq, ':date'=>$date];
+$sql="insert into `pre_site` (`power`,`user`,`pwd`,`rmb`,`qq`,`reg_ip`,`addtime`,`status`) values (0, :user, :pwd, :rmb, :qq, :reg_ip, :date, 1)";
+$data = [':user'=>$user, ':pwd'=>$pwd, ':rmb'=>$rmb, ':qq'=>$qq, ':reg_ip'=>$clientip, ':date'=>$date];
 if($DB->exec($sql, $data)!==false){
 	showmsg('添加用户成功！<br/><br/><a href="./userlist.php">>>返回用户列表</a>',1);
 }else
@@ -189,6 +258,85 @@ $numrows=$DB->getColumn("SELECT count(*) from pre_site WHERE power=0");
 </div>
 <script src="<?php echo $cdnpublic?>layer/2.3/layer.js"></script>
 <script src="assets/js/userlist.js?ver=<?php echo VERSION ?>"></script>
+<script>
+function showBanIP(ip, zid) {
+	$('#ban_ip_zid').val(zid);
+	$('#ban_ip_address').val(ip);
+	$('#ban_reason').val('');
+	$('#ban_block_user').prop('checked', true);
+	$('#modal-banip').modal('show');
+}
+
+$(document).ready(function() {
+	$('#confirm_ban_ip').click(function() {
+		var ip = $('#ban_ip_address').val();
+		var zid = $('#ban_ip_zid').val();
+		var duration = $('#ban_duration').val();
+		var reason = $('#ban_reason').val();
+		var block_user = $('#ban_block_user').prop('checked') ? 1 : 0;
+
+		if(!ip) {
+			layer.msg('IP地址不能为空', {icon: 2});
+			return;
+		}
+
+		var duration_text = '';
+		if(duration == 0) {
+			duration_text = '永久';
+		} else if(duration == 1) {
+			duration_text = '1小时';
+		} else if(duration == 24) {
+			duration_text = '24小时';
+		} else if(duration == 72) {
+			duration_text = '3天';
+		} else if(duration == 168) {
+			duration_text = '7天';
+		} else if(duration == 720) {
+			duration_text = '30天';
+		} else {
+			duration_text = duration + '小时';
+		}
+
+		layer.confirm('确定要封禁IP地址 <b>' + ip + '</b> 吗？<br>封禁时长：' + duration_text + '<br>同时封禁用户：' + (block_user ? '是' : '否'), {
+			btn: ['确认封禁', '取消'],
+			icon: 3,
+			title: '确认封禁'
+		}, function(index) {
+			layer.close(index);
+
+			var loading = layer.load(2, {shade: [0.1, '#fff']});
+
+			$.ajax({
+				type: 'POST',
+				url: 'ajax.php?act=ban_ip',
+				data: {
+					ip: ip,
+					zid: zid,
+					duration: duration,
+					reason: reason,
+					block_user: block_user
+				},
+				dataType: 'json',
+				success: function(data) {
+					layer.close(loading);
+					if(data.code == 1) {
+						layer.msg(data.msg, {icon: 1, time: 1500}, function() {
+							$('#modal-banip').modal('hide');
+							listTable('start');
+						});
+					} else {
+						layer.msg(data.msg, {icon: 2});
+					}
+				},
+				error: function() {
+					layer.close(loading);
+					layer.msg('请求失败，请重试', {icon: 2});
+				}
+			});
+		});
+	});
+});
+</script>
 <?php }?>
 </body>
 </html>

@@ -11,19 +11,19 @@ if(!checkRefererHost())exit('{"code":403}');
 function sendOrderEmail($row, $shoprow) {
     if($row['email_sent'] == 1 || !$row['input'] || !$shoprow['send_email'])
         return true;
-    
+
     $email = $row['input'];
     if(!filter_var($email, FILTER_VALIDATE_EMAIL))
         return false;
-    
+
     $mailconf = $DB->getRow("SELECT * FROM pre_config WHERE k='mail_config' limit 1");
     if(!$mailconf || !$mailconf['v'])
         return false;
-    
+
     $mailconf = json_decode($mailconf['v'], true);
     if(!$mailconf['smtp_host'] || !$mailconf['smtp_user'] || !$mailconf['smtp_pwd'] || !$mailconf['from_email'])
         return false;
-    
+
     require_once '../includes/mail.class.php';
     $mail = new Mailer($mailconf['smtp_host'], $mailconf['smtp_port'], $mailconf['smtp_ssl']);
     $mail->setAccount($mailconf['smtp_user'], $mailconf['smtp_pwd']);
@@ -31,7 +31,7 @@ function sendOrderEmail($row, $shoprow) {
     $mail->setReceiver($email);
     $mail->setMail('您的订单已完成 - '.date('Y-m-d H:i:s'), $shoprow['showcontent']);
     $result = $mail->sendMail();
-    
+
     if($result['error'] == 0){
         $DB->query("update pre_orders set email_sent=1 where id='" . $row['id'] . "'");
         return true;
@@ -78,10 +78,20 @@ case 'order':
 	}else{
 		$trade['type']='默认';
 	}
-	$input=$tool['input']?$tool['input']:'下单QQ';
+	// 卡密信息
+	$km_info = '';
+	$km_rows = $DB->getAll("select * from pre_faka where orderid='$id' limit 10");
+	if($km_rows){
+		$km_info = '<li class="list-group-item"><b>卡密信息：</b><br/>';
+		foreach($km_rows as $km_row){
+			$km_info .= '卡号：'.$km_row['km'].'<br/>密码：'.$km_row['pw'].'<br/><br/>';
+		}
+		$km_info .= '</li>';
+	}
+	$input=$tool['input']?htmlspecialchars($tool['input']):'下单QQ';
 	$inputs=explode('|',$tool['inputs']);
 	$value=$tool['value']>0?$tool['value']:1;
-	$data = '<li class="list-group-item"><b>商品名称：</b>'.$tool['name'].'</li><li class="list-group-item" style="word-break:break-all;"><b>下单数据：</b><br/>'.$input.'：'.$rows['input'].($rows['input2']?'<br/>'.$inputs[0].'：'.$rows['input2']:null).($rows['input3']?'<br/>'.$inputs[1].'：'.$rows['input3']:null).($rows['input4']?'<br/>'.$inputs[2].'：'.$rows['input4']:null).($rows['input5']?'<br/>'.$inputs[3].'：'.$rows['input5']:null).'</li><li class="list-group-item"><b>下单数量：</b>'.($rows['value']*$value).'</li><li class="list-group-item"><b>站点ID：</b>'.$rows['zid'].'</li><li class="list-group-item"><b>下单时间：</b>'.$rows['addtime'].'</li><li class="list-group-item"><b>购买方式：</b>'.$trade['type'].'</li>'.$addstr;
+	$data = '<li class="list-group-item"><b>商品名称：</b>'.htmlspecialchars($tool['name']).'</li><li class="list-group-item" style="word-break:break-all;"><b>下单数据：</b><br/>'.$input.'：'.htmlspecialchars($rows['input']).($rows['input2']?'<br/>'.htmlspecialchars($inputs[0]).'：'.htmlspecialchars($rows['input2']):null).($rows['input3']?'<br/>'.htmlspecialchars($inputs[1]).'：'.htmlspecialchars($rows['input3']):null).($rows['input4']?'<br/>'.htmlspecialchars($inputs[2]).'：'.htmlspecialchars($rows['input4']):null).($rows['input5']?'<br/>'.htmlspecialchars($inputs[3]).'：'.htmlspecialchars($rows['input5']):null).'</li><li class="list-group-item"><b>下单数量：</b>'.($rows['value']*$value).'</li><li class="list-group-item"><b>站点ID：</b>'.$rows['zid'].'</li><li class="list-group-item"><b>下单时间：</b>'.$rows['addtime'].'</li><li class="list-group-item"><b>购买方式：</b>'.$trade['type'].'</li>'.$addstr.$km_info;
 	$result=array("code"=>0,"msg"=>"succ","data"=>$data);
 	exit(json_encode($result));
 break;
@@ -91,28 +101,28 @@ case 'order2':
 	$rows=$DB->getRow("select * from pre_orders where id='$id' limit 1");
 	if(!$rows)
 		exit('{"code":-1,"msg":"当前订单不存在！"}');
-	$tool=$DB->getRow("select * from pre_tools where tid='{\$rows['tid']}' limit 1");
-	$input=$tool['input']?$tool['input']:'下单ＱＱ';
+	$tool=$DB->getRow("select * from pre_tools where tid='{$rows['tid']}' limit 1");
+	$input=$tool['input']?htmlspecialchars($tool['input']):'下单ＱＱ';
 	$inputs=explode('|',$tool['inputs']);
 	if(strpos($input,'[')!==false && strpos($input,']')!==false)$input = explode('[',$input)[0];
-	$data = '<div class="form-group"><div class="input-group"><div class="input-group-addon" id="inputname">'.$input.'</div><input type="text" id="inputvalue" value="'.$rows['input'].'" class="form-control" required/></div></div>';
+	$data = '<div class="form-group"><div class="input-group"><div class="input-group-addon" id="inputname">'.$input.'</div><input type="text" id="inputvalue" value="'.htmlspecialchars($rows['input']).'" class="form-control" required/></div></div>';
 	$i=2;
 	foreach($inputs as $input){
 		if(!$input)continue;
 		if(strpos($input,'{')!==false && strpos($input,'}')!==false){
 			$inputname = substr($input,0,strpos($input,'{'));
 			$arr = explode(',',getSubstr($input,'{','}'));
-			$select='<option value="'.$rows['input'.$i].'">'.$rows['input'.$i].'</option>';
+			$select='<option value="'.htmlspecialchars($rows['input'.$i]).'">'.htmlspecialchars($rows['input'.$i]).'</option>';
 			foreach($arr as $option){
 				if(strpos($option,':')!==false){
-					$select.='<option value="'.explode(':',$option)[0].'">'.$option.'</option>';
+					$select.='<option value="'.htmlspecialchars(explode(':',$option)[0]).'">'.htmlspecialchars($option).'</option>';
 				}else{
-					$select.='<option value="'.$option.'">'.$option.'</option>';
+					$select.='<option value="'.htmlspecialchars($option).'">'.htmlspecialchars($option).'</option>';
 				}
 			}
-			$data .= '<div class="form-group"><div class="input-group"><div class="input-group-addon" id="inputname'.$i.'">'.$inputname.'</div><select id="inputvalue'.$i.'" class="form-control">'.$select.'</select></div></div>';
+			$data .= '<div class="form-group"><div class="input-group"><div class="input-group-addon" id="inputname'.$i.'">'.htmlspecialchars($inputname).'</div><select id="inputvalue'.$i.'" class="form-control">'.$select.'</select></div></div>';
 		}else{
-			$data .= '<div class="form-group"><div class="input-group"><div class="input-group-addon" id="inputname'.$i.'">'.$input.'</div><input type="text" id="inputvalue'.$i.'" value="'.$rows['input'.$i].'" class="form-control" required/></div></div>';
+			$data .= '<div class="form-group"><div class="input-group"><div class="input-group-addon" id="inputname'.$i.'">'.htmlspecialchars($input).'</div><input type="text" id="inputvalue'.$i.'" value="'.htmlspecialchars($rows['input'.$i]).'" class="form-control" required/></div></div>';
 		}
 		$i++;
 	}
@@ -168,9 +178,18 @@ case 'operation':
 			$result = do_goods($id);
 		}elseif($status==6){
 			$row=$DB->getRow("select * from pre_orders where id='$id' limit 1");
-			if($row && $row['zid']>1 && $row['status']==3 && is_numeric($row['userid'])){
-				$zid = intval($row['userid']);
-				changeUserMoney($zid, $row['money'], true, '退款', '订单(ID'.$id.')已退款到余额');
+			if($row && ($row['zid']>1 || is_numeric($row['userid']))){
+				if($row['money']==0){
+					$tool=$DB->getRow("select * from pre_tools where tid='" . $row['tid'] . "' limit 1");
+					$money=$tool['price'];
+					$money=$row['value']*$money;
+				}else{
+					$money=$row['money'];
+				}
+				if(is_numeric($row['userid'])){
+					$zid = intval($row['userid']);
+					changeUserMoney($zid, $money, true, '退款', '订单(ID'.$id.')已退款到余额');
+				}
 				rollbackPoint($id);
 				$DB->exec("update pre_orders set status='4',result=NULL where id='$id'");
 			}
@@ -216,7 +235,7 @@ case 'getmoney': //退款查询
 	}else{
 		$money=$row['money'];
 	}
-	
+
 	//$tc_point=$DB->getColumn("select point from pre_points where zid='" . $row['zid'] . "' and action='提成' and orderid='$id' limit 1");
 	//if($tc_point>0)$money-=$tc_point;
 	if($money==0)exit('{"code":-1,"msg":"该订单为0元"}');
@@ -282,7 +301,7 @@ case 'showStatus': //订单进度查询
 	if($list === false){
 		exit('{"code":-1,"msg":"该对接暂不支持查询订单进度"}');
 	}
-	
+
 	if(is_array($list)){
 		$shopurl = '';
 		if($shequ['type']=='yile'){

@@ -133,7 +133,7 @@ while($res = $rs->fetch())
         <div class="block block-themed" style="box-shadow:0px 5px 10px 0 rgba(0, 0, 0, 0.25);">
             <div class="block-header bg-amethyst"
                  style="background-color: #6a67c7; border-color: #6a67c7; padding: 10px 10px;">
-                <h3 class="block-title"><i class="glyphicon glyphicon-stats"></i>&nbsp;&nbsp;<b>推广统计信息</b></h3>
+                <h3 class="block-title"><i class="fa fa-bar-chart"></i>&nbsp;&nbsp;<b>推广统计信息</b></h3>
             </div>
             <div class="block-content block-content-mini block-content-full bg-gray-lighter">
                 <div class="row text-center">

@@ -65,7 +65,7 @@ function saveOrderPwd(id,skey) {
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function showOrder(id,skey){
@@ -94,7 +94,7 @@ function showOrder(id,skey){
 				    // var orderStateText = item.order_state !== null ? item.order_state : "请与实际情况为准";
 					if(typeof data.list.order_state !== "undefined" && data.list.order_state && typeof data.list.now_num !== "undefined"){
 						tempItem += '<tr><td><span style="color:red;">订单进度</span></td><td>开始数量：' + data.list.start_num + '<br>下单数量：<font color="blue">' + data.list.num + '</font><br>当前数量：' + data.list.now_num + '<br>实时状态：<font color="blue">' + data.list.order_state + '</font></td><td>完成数量：<font style="color:blue">' + (data.list.now_num - data.list.start_num) + '</font></td></tr>';
-                    
+
 					}else{
 				// 		tempItem += '<tr><td colspan="6" style="text-align:center" class="orderTitle"><b><font color="red">↓↓↓ 订单实时进度看下面 ↓↓↓</font></b></td>';
 						$.each(data.list, function(i, v){
@@ -102,18 +102,18 @@ function showOrder(id,skey){
 				tempItem += '<tr><td class="warning orderTitle"><span style="color:red;">订单进度</span></td><td class="orderContent"><font style="color:blue">'+v+'</font></td><td>无</td></tr>';
 						});
 					}
-					
+
 					if(typeof data.bd == "undefined"){
 					    data.bd='无';
 					}
 					if(typeof data.result !== "undefined" && data.result){
 							tempItem += '<tr style="border-bottom: 3px solid black;"><td class="warning orderTitle">异常信息</td><td class="orderContent">'+data.result+'</td><td>'+data.bd+'</td></tr>';
-                    
+
 					    if(data.bd.indexOf('异常')!= -1){ tempItem += '<tr style="border-bottom: 3px solid black;"><td class="warning orderTitle">提示</td><td class="orderContent">请再次把订单编号复制发给客服补单</td><td>无</td></tr>'; }98
 					}else if(typeof status[data.status] == "string" && (status[data.status].indexOf('<span class="label label-danger">异常</span>')!=-1) || typeof data.list.订单状态 == "string" && (data.list.订单状态.indexOf('补')!=-1)){
                      tempItem += '<tr style="border-bottom: 3px solid black;"><td class="warning orderTitle"><b>异常信息</b></td><td class="orderContent">可以点击申请退款，退不了可联系客服</td><td>无</td></tr>';
                         }
-                        
+
 				}else if(data.kminfo){
 					tempItem += '<tr style="border-bottom: 3px solid black;"><td class="warning orderTitle"><b><span style="color:red;">卡密信息</span></b></td><td class="orderContent">'+data.kminfo+'</td><td>无</td></tr>';
 				}else if(data.result){
@@ -130,9 +130,9 @@ function showOrder(id,skey){
                           <thead>
                             <tr>
                               <th>类型</th>
-                              <th>状态</th>      
+                              <th>状态</th>
                               <th>操作</th>
-                            </tr> 
+                            </tr>
                           </thead>
                           <tbody>
                           <tr>
@@ -143,7 +143,7 @@ function showOrder(id,skey){
 							<tr>
                               <td>商品名称</td>
                               <td >` + data.name + `</td>
-                              
+
                             </tr>
                             <tr style="border-top: 2px solid black;">
                               <td>订单状态</td>
@@ -158,13 +158,13 @@ function showOrder(id,skey){
                               <td>下单信息</td>
                               <td id = "copyinput1" style="word-break: break-all;">` +data.inputs+ `</td><td><span style="margin:0;height:2em;" id="btncopy1" onclick="copy1(false,'')" class="btn btn-warning btn-xs">复制保存</span></td>
                             </tr>
-							
+
 							<tr>
                               <td>购买时间</td>
                               <td >` +data.date+ `</td><td>无</td> `;
-							  
+
 							item += '<tr><td>订单操作</td><td ><a onclick="return apply_refund('+id+',\''+skey+'\')" class="btn btn-xs btn-danger">申请退款</a>&nbsp <a href="./user/jiameng.php" class="btn btn-xs btn-danger">加盟赚钱</a></tr>'
-                
+
 							  item +=`</td></tr>`
 
 

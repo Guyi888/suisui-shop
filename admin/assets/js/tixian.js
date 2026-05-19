@@ -88,7 +88,7 @@ function saveInfo(id) {
 				layer.alert(data.msg);
 			}
 			$('#save').val('保存');
-		} 
+		}
 	});
 }
 function skimg(zid){
@@ -120,7 +120,7 @@ function setfail(id, money) {
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}, function(){
 	  layer.close(confirmobj);
@@ -144,7 +144,7 @@ function delItem(id) {
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}, function(){
 	  layer.close(confirmobj);
@@ -165,7 +165,7 @@ function operation(id,op) {
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function setResult(id) {

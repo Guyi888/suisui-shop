@@ -1,6 +1,6 @@
 -- 博客地址：zhonguo.ren
--- QQ群：915043052
--- 开发者：教主
+-- QQ群：qqfaka
+-- 开发者：岁岁 @qqfaka
 -- 文件说明：为pre_pay表添加address字段
 -- 创建时间：2026-02-01
 

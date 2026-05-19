@@ -14,6 +14,30 @@ case 'login':
 	if(!$user || !$pass){
 		exit('{"code":-1,"msg":"用户名或密码不能为空"}');
 	}
+
+	// 登录失败限制检查
+	$login_limit_enable = isset($conf['login_limit_enable']) ? intval($conf['login_limit_enable']) : 0;
+	if($login_limit_enable == 1){
+		$login_limit_max = intval($conf['login_limit_max']) > 0 ? intval($conf['login_limit_max']) : 5;
+		$login_limit_time = intval($conf['login_limit_time']) > 0 ? intval($conf['login_limit_time']) : 30;
+		$cache_file = ROOT.'cache/login_fail_'.md5($clientip).'.json';
+		$now_time = time();
+
+		if(file_exists($cache_file)){
+			$cache_data = json_decode(file_get_contents($cache_file), true);
+			if($cache_data && isset($cache_data['fail_count']) && $cache_data['fail_count'] >= $login_limit_max){
+				$fail_time = $cache_data['last_fail_time'];
+				$expire_time = $fail_time + ($login_limit_time * 60);
+				if($now_time < $expire_time){
+					$remain_minutes = ceil(($expire_time - $now_time) / 60);
+					exit('{"code":-1,"msg":"登录失败次数过多，请'.$remain_minutes.'分钟后再试"}');
+				}else{
+					@unlink($cache_file);
+				}
+			}
+		}
+	}
+
 	if($conf['captcha_open_login']==1 && $conf['captcha_open']==1){
 		if(isset($_POST['geetest_challenge']) && isset($_POST['geetest_validate']) && isset($_POST['geetest_seccode'])){
 			$GtSdk = new \lib\GeetestLib($conf['captcha_id'], $conf['captcha_key']);
@@ -77,6 +101,13 @@ case 'login':
 		ob_clean();
 		setcookie("user_token", $token, time() + 604800, '/');
 		log_result('分站登录', 'User:'.$user.' IP:'.$clientip, null, 1);
+
+		// 登录成功，清除登录失败记录
+		if(isset($login_limit_enable) && $login_limit_enable == 1){
+			$cache_file = ROOT.'cache/login_fail_'.md5($clientip).'.json';
+			@unlink($cache_file);
+		}
+
 		if($_SESSION['Oauth_qq_openid'] && $_SESSION['Oauth_qq_token']){
 			$DB->exec("UPDATE pre_site SET qq_openid=:qq_openid,lasttime=NOW() WHERE zid=:zid", [':qq_openid'=>$_SESSION['Oauth_qq_openid'], ':zid'=>$row['zid']]);
 			unset($_SESSION['Oauth_qq_openid']);
@@ -89,6 +120,30 @@ case 'login':
 			exit('{"code":0,"msg":"登陆用户中心成功！"}');
 		}
 	}else {
+		// 登录失败，记录失败次数
+		if(isset($login_limit_enable) && $login_limit_enable == 1){
+			$cache_file = ROOT.'cache/login_fail_'.md5($clientip).'.json';
+			$now_time = time();
+
+			if(file_exists($cache_file)){
+				$cache_data = json_decode(file_get_contents($cache_file), true);
+				if($cache_data && isset($cache_data['last_fail_time'])){
+					// 检查上次失败时间是否在限制时间内（30分钟内）
+					if(($now_time - $cache_data['last_fail_time']) < 1800){
+						$cache_data['fail_count'] = isset($cache_data['fail_count']) ? $cache_data['fail_count'] + 1 : 1;
+					}else{
+						// 超过30分钟，重新计数
+						$cache_data['fail_count'] = 1;
+					}
+					$cache_data['last_fail_time'] = $now_time;
+				}else{
+					$cache_data = ['fail_count' => 1, 'last_fail_time' => $now_time];
+				}
+			}else{
+				$cache_data = ['fail_count' => 1, 'last_fail_time' => $now_time];
+			}
+			@file_put_contents($cache_file, json_encode($cache_data));
+		}
 		exit('{"code":-1,"msg":"用户名或密码不正确！"}');
 	}
 break;
@@ -123,8 +178,8 @@ case 'quickreg':
 	if(strlen($nickname)>32) $nickname = mb_strcut($nickname, 0, 32);
 	$faceimg = $_SESSION['Oauth_qq_faceimg'];
 
-	$sql="insert into `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`qq_openid`,`nickname`,`faceimg`,`rmb`,`qq`,`sitename`,`keywords`,`description`,`addtime`,`lasttime`,`status`) values (:upzid,0,NULL,NULL,:user,:pwd,:qq_openid,:nickname,:faceimg,'0',NULL,NULL,NULL,NULL,NOW(),NOW(),'1')";
-	$data = [':upzid'=>$siterow['zid']?$siterow['zid']:0, ':user'=>$user, ':pwd'=>$pwd, ':qq_openid'=>$openid, ':nickname'=>$nickname, ':faceimg'=>$faceimg];
+	$sql="insert into `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`qq_openid`,`nickname`,`faceimg`,`rmb`,`qq`,`reg_ip`,`sitename`,`keywords`,`description`,`addtime`,`lasttime`,`status`) values (:upzid,0,NULL,NULL,:user,:pwd,:qq_openid,:nickname,:faceimg,'0',NULL,:reg_ip,NULL,NULL,NULL,NOW(),NOW(),'1')";
+	$data = [':upzid'=>$siterow['zid']?$siterow['zid']:0, ':user'=>$user, ':pwd'=>$pwd, ':qq_openid'=>$openid, ':nickname'=>$nickname, ':faceimg'=>$faceimg, ':reg_ip'=>$clientip];
 	if($DB->exec($sql, $data)){
 		$zid = $DB->lastInsertId();
 		unset($_SESSION['Oauth_qq_openid']);
@@ -179,7 +234,7 @@ break;
 case 'checkdomain':
 	$qz = daddslashes($_GET['qz']);
 	$domain = $qz . '.' . daddslashes($_GET['domain']);
-	$srow=$DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain LIMIT 1", [':domain'=>$domain]);
+	$srow=$DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain OR domain3=:domain OR domain4=:domain OR domain5=:domain OR domain6=:domain LIMIT 1", [':domain'=>$domain]);
 	if($srow)exit('1');
 	else exit('0');
 break;
@@ -267,8 +322,8 @@ case 'reguser':
 		unset($_SESSION['vc_code']);
 		exit('{"code":2,"msg":"验证码错误！"}');
 	}
-	$sql="insert into `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`rmb`,`qq`,`sitename`,`keywords`,`description`,`anounce`,`bottom`,`modal`,`addtime`,`lasttime`,`status`) values (:upzid,0,NULL,NULL,:user,:pwd,'0',:qq,NULL,NULL,NULL,NULL,NULL,NULL,NOW(),NOW(),'1')";
-	$data = [':upzid'=>$siterow['zid']?$siterow['zid']:0, ':user'=>$user, ':pwd'=>$pwd, ':qq'=>$qq];
+	$sql="insert into `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`rmb`,`qq`,`reg_ip`,`sitename`,`keywords`,`description`,`anounce`,`bottom`,`modal`,`addtime`,`lasttime`,`status`) values (:upzid,0,NULL,NULL,:user,:pwd,'0',:qq,:reg_ip,NULL,NULL,NULL,NULL,NULL,NULL,NOW(),NOW(),'1')";
+	$data = [':upzid'=>$siterow['zid']?$siterow['zid']:0, ':user'=>$user, ':pwd'=>$pwd, ':qq'=>$qq, ':reg_ip'=>$clientip];
 	if($DB->exec($sql, $data)){
 		$zid = $DB->lastInsertId();
 		unset($_SESSION['addsalt']);
@@ -311,7 +366,7 @@ case 'paysite':
 		exit('{"code":-1,"msg":"域名前缀不合格！"}');
 	} elseif (!preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain)) {
 		exit('{"code":-1,"msg":"域名格式不正确！"}');
-	} elseif ($DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain LIMIT 1", [':domain'=>$domain]) || $qz=='www' || $domain==$_SERVER['HTTP_HOST'] || in_array($domain,explode(',',$conf['fenzhan_remain']))) {
+	} elseif ($DB->getRow("SELECT zid FROM pre_site WHERE domain=:domain OR domain2=:domain OR domain3=:domain OR domain4=:domain OR domain5=:domain OR domain6=:domain LIMIT 1", [':domain'=>$domain]) || $qz=='www' || $domain==$_SERVER['HTTP_HOST'] || in_array($domain,explode(',',$conf['fenzhan_remain']))) {
 		exit('{"code":-1,"msg":"此前缀已被使用！"}');
 	}
 	if(!$islogin2){
@@ -399,8 +454,8 @@ case 'paysite':
 			$DB->exec($sql, $data);
 			$zid=$userrow['zid'];
 		}else{
-			$sql="INSERT INTO `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`rmb`,`qq`,`sitename`,`title`,`keywords`,`description`,`addtime`,`endtime`,`status`) VALUES (:upzid, :power, :domain, NULL, :user, :pwd, :rmb, :qq, :sitename, :title, :keywords, :description, NOW(), :endtime, 1)";
-			$data = [':upzid'=>$siterow['zid']?$siterow['zid']:0, ':power'=>$kind, ':domain'=>$domain, ':user'=>$user, ':pwd'=>$pwd, ':rmb'=>'0.00', ':qq'=>$qq, ':sitename'=>$name, ':title'=>$conf['title'], ':keywords'=>$keywords, ':description'=>$description, ':endtime'=>$endtime];
+			$sql="INSERT INTO `pre_site` (`upzid`,`power`,`domain`,`domain2`,`user`,`pwd`,`rmb`,`qq`,`reg_ip`,`sitename`,`title`,`keywords`,`description`,`addtime`,`endtime`,`status`) VALUES (:upzid, :power, :domain, NULL, :user, :pwd, :rmb, :qq, :reg_ip, :sitename, :title, :keywords, :description, NOW(), :endtime, 1)";
+			$data = [':upzid'=>$siterow['zid']?$siterow['zid']:0, ':power'=>$kind, ':domain'=>$domain, ':user'=>$user, ':pwd'=>$pwd, ':rmb'=>'0.00', ':qq'=>$qq, ':reg_ip'=>$clientip, ':sitename'=>$name, ':title'=>$conf['title'], ':keywords'=>$keywords, ':description'=>$description, ':endtime'=>$endtime];
 			$DB->exec($sql, $data);
 			$zid = $DB->lastInsertId();
 		}
@@ -459,28 +514,28 @@ case 'create_url':
 	if(!$userrow['domain'])exit('{"code":-1,"msg":"当前分站还未绑定域名"}');
 	$url = 'http://'.$userrow['domain'].'/';
 	if($conf['fanghong_api']){
-    	if($force==1){
-    		$turl = fanghongdwz($url,true);
-    	}else{
-    		$turl = fanghongdwz($url);
-    	}
-    	if(!empty($userrow['domain2'])){
-    		$url2 = 'http://'.$userrow['domain2'].'/';
-    		if($force==1){
-    			$turl2 = fanghongdwz($url2,true);
-    		}else{
-    			$turl2 = fanghongdwz($url2);
-    		}
-    	}
-    	if($turl == $url){
-    		$result = array('code'=>-1, 'msg'=>'生成失败，请联系站长更换接口');
-    	}elseif(strpos($turl,'/') || strpos($turl2,'/')){
-    		$result = array('code'=>0, 'msg'=>'succ', 'url'=>$turl, 'url2'=>$turl2);
-    	}else{
-    		$result = array('code'=>-1, 'msg'=>'生成失败：'.$turl);
-    	}
+	if($force==1){
+		$turl = fanghongdwz($url,true);
 	}else{
-	   	$result = array('code'=>-1, 'msg'=>'站长未开启'); 
+		$turl = fanghongdwz($url);
+	}
+	if(!empty($userrow['domain2'])){
+		$url2 = 'http://'.$userrow['domain2'].'/';
+		if($force==1){
+			$turl2 = fanghongdwz($url2,true);
+		}else{
+			$turl2 = fanghongdwz($url2);
+		}
+	}
+	if($turl == $url){
+		$result = array('code'=>-1, 'msg'=>'生成失败，请联系站长更换接口');
+	}elseif(strpos($turl,'/') || strpos($turl2,'/')){
+		$result = array('code'=>0, 'msg'=>'succ', 'url'=>$turl, 'url2'=>$turl2);
+	}else{
+		$result = array('code'=>-1, 'msg'=>'生成失败：'.$turl);
+	}
+	}else{
+		$result = array('code'=>-1, 'msg'=>'站长未开启');
 	}
 	exit(json_encode($result));
 break;
@@ -490,7 +545,7 @@ case 'qiandao':
 	if(!isset($_SESSION['isqiandao']) || $_SESSION['isqiandao']!=$userrow['zid'])exit('{"code":-1,"msg":"校验失败，请刷新页面重试"}');
 	$day = date("Y-m-d");
 	$lastday = date("Y-m-d",strtotime("-1 day"));
-	
+
 	if ($DB->getRow("SELECT * FROM pre_qiandao WHERE zid='{$userrow['zid']}' AND date='$day' ORDER BY id DESC LIMIT 1")) {
 		exit('{"code":-1,"msg":"今天已经签到过了, 明天在来吧！"}');
 	}
@@ -614,21 +669,21 @@ case 'uploadimg':
 			$file_ext = strtolower(substr($_FILES['file']['name'], strripos($_FILES['file']['name'], '.') + 1));
 			$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp');
 			$max_size = 2 * 1024 * 1024; // 2MB
-			
+
 			if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 				exit('{"code":-1,"msg":"只允许上传JPG、PNG、GIF、WEBP、BMP格式的图片文件！"}');
 			}
-			
+
 			if ($_FILES['file']['size'] > $max_size) {
 				exit('{"code":-1,"msg":"文件大小不能超过2MB！"}');
 			}
-			
+
 			// 检查文件是否为真实图片
 			$image_info = getimagesize($_FILES['file']['tmp_name']);
 			if (!$image_info) {
 				exit('{"code":-1,"msg":"请上传真实的图片文件！"}');
 			}
-			
+
 			$filename = md5_file($_FILES['file']['tmp_name']).'.png';
 			$fileurl = 'assets/img/workorder/'.$filename;
 			if(copy($_FILES['file']['tmp_name'], ROOT.$fileurl)){

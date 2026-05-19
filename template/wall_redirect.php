@@ -242,9 +242,9 @@
 
         <h1 class="redirect-title">正在安全跳转</h1>
         <p class="redirect-message">系统正在进行安全检测，请稍候...</p>
-        
+
         <div class="countdown" id="countdown">3</div>
-        
+
         <div class="security-tips">
             <ul>
                 <li>为防止网站被墙，系统采用多重安全访问机制</li>
@@ -252,7 +252,7 @@
                 <li>如果您是从微信或QQ访问，可能需要复制链接到浏览器打开</li>
             </ul>
         </div>
-        
+
         <div class="manual-redirect">
             <p>如果长时间未跳转，请<a href="/" id="manualRedirect">手动点击此处</a></p>
         </div>
@@ -263,36 +263,36 @@
         let countdown = 3;
         const countdownElement = document.getElementById('countdown');
         const manualRedirectLink = document.getElementById('manualRedirect');
-        
+
         const timer = setInterval(() => {
             countdown--;
             countdownElement.textContent = countdown;
-            
+
             if (countdown <= 0) {
                 clearInterval(timer);
                 window.location.href = '/';
             }
         }, 1000);
-        
+
         // 手动跳转
         manualRedirectLink.addEventListener('click', (e) => {
             e.preventDefault();
             clearInterval(timer);
             window.location.href = '/';
         });
-        
+
         // 添加一些防爬虫和防墙的JavaScript混淆
         (function(){
             const randomNum = Math.floor(Math.random() * 10000);
             const encoded = btoa(window.location.href + randomNum);
             const decoded = atob(encoded);
-            
+
             // 简单的访问统计，用于区分正常用户和爬虫
             if (typeof navigator !== 'undefined') {
                 const userAgent = navigator.userAgent;
                 // 检测常见爬虫特征
                 const isBot = /bot|crawler|spider|slurp|bingpreview|facebookexternalhit|pinterest|duckduckgo/i.test(userAgent);
-                
+
                 if (isBot) {
                     // 如果检测到可能是爬虫，可以采取一些措施
                     console.log('Bot detected');

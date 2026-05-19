@@ -36,7 +36,7 @@ if (isset($_GET["kw"])) {
         <table class="table table-striped">
           <thead><tr><th>商品名称</th><th>当前分站成本价</th><th>自定义密价</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = isset($_GET["num"]) ? intval($_GET["num"]) : 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -55,7 +55,7 @@ while ($res = $rs->fetch()) {
 ?>          </tbody>
         </table>
 </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;

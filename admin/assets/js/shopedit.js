@@ -221,13 +221,13 @@ $(document).ready(function(){
 	$("#getGoods").click(function(){
 		var shequ=$("select[name='shequ']").val();
 		if(shequ==''){layer.alert('请先选择一个对接网站');return false;}
-		
+
 		// 清空之前的数据
 		$('#goodslist').empty();
 		shoplist = {}; // 使用对象而不是数组，提高性能
-		
+
 		var ii = layer.load(2, {shade:[0.1,'#fff']});
-		
+
 		$.ajax({
 			type : "POST",
 			url : "ajax_shop.php?act=getGoodsList",
@@ -236,17 +236,17 @@ $(document).ready(function(){
 			timeout: 15000, // 设置15秒超时
 			success : function(data) {
 				layer.close(ii);
-				
+
 				// 确保data是对象类型
 				if (typeof data !== 'object' || data === null) {
 					layer.alert('获取商品列表失败：返回数据格式错误');
 					return;
 				}
-				
+
 				if(data.code == 0){
 					$('#getGoods').attr('type', data.type || '');
 					$('#goodslist').append('<option value="">--请选择商品--</option>');
-					
+
 					// 确保data.data是数组
 					if (Array.isArray(data.data)) {
 						$.each(data.data, function(i, item){
@@ -257,7 +257,7 @@ $(document).ready(function(){
 							}
 						});
 					}
-					
+
 					// 设置默认值
 					var defaultVal = $("#goodslist").attr('default');
 					if(defaultVal!==undefined && defaultVal!==null && defaultVal!==''){
@@ -384,25 +384,25 @@ $(document).ready(function(){
 							}
 						});
 						$("input[name='inputs']").val(inputs.substr(1));
-						
+
 						// 确保价格是数字类型
 						var price = parseFloat(data.price) || 0;
 						$("#price").val(price);
-						
+
 						// 确保最小/最大数量是数字类型
 						var limit_min = parseInt(data.limit_min) || 1;
 						var limit_max = parseInt(data.limit_max) || 0;
-						
+
 						if($("#value").val()=='' || $("#value").val()<limit_min || $("#value").val()>limit_max)$("#value").val(limit_min);
 						$("#value").attr('min',limit_min);
 						$("#value").attr('max',limit_max);
 						if($("input[name='name']").val()==''||isAdd)$("input[name='name']").val(data.name || '');
 						if($("textarea[name='desc']").val()==''||isAdd)setDesc(data.desc || '');
-						
+
 						// 设置表单中的最小和最大下单数量
 						$("input[name='min']").val(limit_min);
 						$("input[name='max']").val(limit_max);
-						
+
 						$("#GoodsInfo").html('<b>商品名称：</b><a href="http://'+$("select[name='shequ'] option:selected").attr('domain')+'/home/order/'+goodsid+'" target="_blank" rel="noreferrer">'+(data.name || '')+'</a><br/><b>商品简介：</b>'+(data.desc || '')+'<br/><b>社区商品售价：</b>'+price+' 元<br/><b>最小下单数量：</b>'+limit_min+'<br/><b>最大下单数量：</b>'+limit_max);
 						$("#GoodsInfo").slideDown();
 						changeNum();
@@ -685,7 +685,7 @@ $(document).ready(function(){
 			if(min) $("#value").attr('min', min);
 			if(max) $("#value").attr('max', max);
 			if($("#value").val()=='' || $("#value").val()<min || $("#value").val()>max)$("#value").val(min);
-			
+
 			// 调用getGoodsParam获取完整商品信息
 			var ii = layer.load(2, {shade:[0.1,'#fff']});
 			$.ajax({
@@ -696,13 +696,13 @@ $(document).ready(function(){
 				timeout: 15000, // 设置15秒超时
 				success : function(data) {
 					layer.close(ii);
-					
+
 					// 确保data是对象类型
 					if (typeof data !== 'object' || data === null) {
 						layer.alert('获取商品信息失败：返回数据格式错误');
 						return;
 					}
-					
+
 					if(data.code == 0){
 						// 填充表单字段
 						if (data.input) $("input[name='input']").val(data.input);
@@ -713,12 +713,12 @@ $(document).ready(function(){
 						if(data.alert && ($("textarea[name='alert']").val()==''||isAdd)){
 							$("input[name='alert']").val(data.alert);
 						}
-						
+
 						// 更新价格
 						if(data.price !== undefined && data.price !== null && data.price !== '') {
 							$("#price").val(data.price);
 						}
-						
+
 						// 更新最小/最大数量
 						if(data.min !== undefined && data.min !== null) {
 							$("#value").attr('min', data.min);
@@ -728,7 +728,7 @@ $(document).ready(function(){
 							$("#value").attr('max', data.max);
 							if($("#value").val()>data.max)$("#value").val(data.min);
 						}
-						
+
 						// 显示商品信息
 						var goodsInfoHtml = '<b>商品名称：</b>' + (name || '') + '<br/>';
 						goodsInfoHtml += '<b>商品售价：</b>' + (data.price || price || 0) + ' 元<br/>';
@@ -737,19 +737,19 @@ $(document).ready(function(){
 						goodsInfoHtml += '<b>商品简介：</b>' + (data.desc || '');
 						$("#GoodsInfo").html(goodsInfoHtml);
 						$("#GoodsInfo").slideDown();
-						
+
 						// 自动填充商品价格到销售价格字段
 						if(data.price !== undefined && data.price !== null && data.price !== '') {
 							var price_val = data.price;
 							$("input[name='price']").val(price_val);
 							$("input[name='price1']").val(price_val);
 						}
-						
+
 						// 自动填充默认数量信息
 						if(data.min !== undefined && data.min !== null) {
 							$("input[name='value']").val(data.min);
 						}
-						
+
 						// 调用changeNum更新价格
 						changeNum();
 					}else{

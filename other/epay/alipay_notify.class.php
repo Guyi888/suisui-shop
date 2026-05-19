@@ -23,7 +23,7 @@ class AlipayNotify {
 		$this->alipay_config = $alipay_config;
 	}
     function AlipayNotify($alipay_config) {
-    	$this->__construct($alipay_config);
+	$this->__construct($alipay_config);
     }
     /**
      * 针对notify_url验证消息是否是支付宝发出的合法消息
@@ -43,7 +43,7 @@ class AlipayNotify {
 			}
 		}
 	}
-	
+
     /**
      * 针对return_url验证消息是否是支付宝发出的合法消息
      * @return 验证结果
@@ -62,7 +62,7 @@ class AlipayNotify {
 			}
 		}
 	}
-	
+
     /**
      * 获取返回时的签名验证结果
      * @param $para_temp 通知返回来的参数数组
@@ -72,13 +72,13 @@ class AlipayNotify {
 	function getSignVeryfy($para_temp, $sign) {
 		//除去待签名参数数组中的空值和签名参数
 		$para_filter = paraFilter($para_temp);
-		
+
 		//对待签名参数数组排序
 		$para_sort = argSort($para_filter);
-		
+
 		//把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
 		$prestr = createLinkstring($para_sort);
-		
+
 		$isSgin = false;
 		switch (strtoupper(trim($this->alipay_config['sign_type']))) {
 			case "MD5" :
@@ -87,7 +87,7 @@ class AlipayNotify {
 			default :
 				$isSgin = false;
 		}
-		
+
 		return $isSgin;
 	}
 }

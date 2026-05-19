@@ -3,11 +3,33 @@
  * 分站管理
 **/
 include("../includes/common.php");
+
+function addDomainColumnsIfNotExists() {
+    global $DB;
+    $columns = ['domain3', 'domain4', 'domain5', 'domain6'];
+
+    try {
+        $result = $DB->query("DESCRIBE `pre_site`");
+        $existingColumns = [];
+        while($row = $result->fetch()) {
+            $existingColumns[] = $row['Field'];
+        }
+
+        foreach($columns as $col) {
+            if(!in_array($col, $existingColumns)) {
+                $DB->exec("ALTER TABLE `pre_site` ADD COLUMN `{$col}` VARCHAR(255) NULL DEFAULT NULL AFTER `domain2`");
+            }
+        }
+    } catch(Exception $e) {
+        // 忽略错误
+    }
+}
+addDomainColumnsIfNotExists();
+
 $title='分站管理';
 include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <div class="wrapper">
 <div class="col-sm-12">
 		<div class="panel panel-default">
@@ -92,8 +114,24 @@ echo '<form action="./sitelist.php?my=edit_submit&zid='.$zid.'" method="POST">
 <input type="text" class="form-control" name="domain" value="'.$row['domain'].'" disabled>
 </div>
 <div class="form-group">
-<label>额外域名:</label><br>
+<label>额外域名1:</label><br>
 <input type="text" class="form-control" name="domain2" value="'.$row['domain2'].'" placeholder="没有请留空">
+</div>
+<div class="form-group">
+<label>额外域名2:</label><br>
+<input type="text" class="form-control" name="domain3" value="'.$row['domain3'].'" placeholder="没有请留空">
+</div>
+<div class="form-group">
+<label>额外域名3:</label><br>
+<input type="text" class="form-control" name="domain4" value="'.$row['domain4'].'" placeholder="没有请留空">
+</div>
+<div class="form-group">
+<label>额外域名4:</label><br>
+<input type="text" class="form-control" name="domain5" value="'.$row['domain5'].'" placeholder="没有请留空">
+</div>
+<div class="form-group">
+<label>额外域名5:</label><br>
+<input type="text" class="form-control" name="domain6" value="'.$row['domain6'].'" placeholder="没有请留空">
 </div>
 <div class="form-group">
 <label>站点名称:</label><br>
@@ -163,21 +201,39 @@ $rows=$DB->getRow("SELECT * FROM pre_site WHERE zid='$zid' AND upzid='{$userrow[
 if(!$rows)
 	showmsg('当前记录不存在！',3);
 $domain2=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain2'])))));
+$domain3=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain3'])))));
+$domain4=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain4'])))));
+$domain5=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain5'])))));
+$domain6=trim(strtolower(htmlspecialchars(strip_tags(daddslashes($_POST['domain6'])))));
 $endtime=trim(htmlspecialchars(strip_tags(daddslashes($_POST['endtime']))));
 $sitename=trim(htmlspecialchars(strip_tags(daddslashes($_POST['sitename']))));
 if($sitename==NULL or $endtime==NULL){
 showmsg('保存错误,请确保每项都不为空!',3);
 } elseif (!empty($domain2) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain2)) {
-	showmsg('域名格式不正确');
+	showmsg('域名2格式不正确');
+} elseif (!empty($domain3) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain3)) {
+	showmsg('域名3格式不正确');
+} elseif (!empty($domain4) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain4)) {
+	showmsg('域名4格式不正确');
+} elseif (!empty($domain5) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain5)) {
+	showmsg('域名5格式不正确');
+} elseif (!empty($domain6) && !preg_match('/^[a-zA-Z0-9\_\-\.]+$/',$domain6)) {
+	showmsg('域名6格式不正确');
 } else {
-if (!empty($domain2) && $DB->getRow("SELECT zid FROM pre_site WHERE (domain=:domain OR domain2=:domain) AND zid!=:zid LIMIT 1", [':domain'=>$domain2, ':zid'=>$zid]) || $domain2==$_SERVER['HTTP_HOST'] || !empty($domain2) && (in_array($domain2,explode(',',$conf['fenzhan_remain'])) || in_array($domain2,explode(',',$conf['fenzhan_domain'])))) {
-	showmsg('此域名已被使用！');
-}elseif(strpos($domain2,'www.')!==false){
-	$domain=str_replace('www.','',$domain2);
-	if(in_array($domain,explode(',',$conf['fenzhan_remain'])) || in_array($domain,explode(',',$conf['fenzhan_domain'])))
-		showmsg('此域名已被使用！');
+foreach([$domain2,$domain3,$domain4,$domain5,$domain6] as $d){
+	if(!empty($d) && $DB->getRow("SELECT zid FROM pre_site WHERE (domain=:domain OR domain2=:domain OR domain3=:domain OR domain4=:domain OR domain5=:domain OR domain6=:domain) AND zid!=:zid LIMIT 1", [':domain'=>$d, ':zid'=>$zid])) {
+		showmsg('域名 '.$d.' 已被使用！');
+	}
+	if(!empty($d) && ($d==$_SERVER['HTTP_HOST'] || in_array($d,explode(',',$conf['fenzhan_remain'])) || in_array($d,explode(',',$conf['fenzhan_domain'])))) {
+		showmsg('域名 '.$d.' 已被使用！');
+	}
+	if(!empty($d) && strpos($d,'www.')!==false){
+		$domain=str_replace('www.','',$d);
+		if(in_array($domain,explode(',',$conf['fenzhan_remain'])) || in_array($domain,explode(',',$conf['fenzhan_domain'])))
+			showmsg('域名 '.$d.' 已被使用！');
+	}
 }
-if($DB->exec("UPDATE pre_site SET domain2=:domain2,sitename=:sitename,endtime=:endtime WHERE zid=:zid", [':domain2'=>$domain2, ':sitename'=>$sitename, ':endtime'=>$endtime, ':zid'=>$zid])!==false)
+if($DB->exec("UPDATE pre_site SET domain2=:domain2,domain3=:domain3,domain4=:domain4,domain5=:domain5,domain6=:domain6,sitename=:sitename,endtime=:endtime WHERE zid=:zid", [':domain2'=>$domain2, ':domain3'=>$domain3, ':domain4'=>$domain4, ':domain5'=>$domain5, ':domain6'=>$domain6, ':sitename'=>$sitename, ':endtime'=>$endtime, ':zid'=>$zid])!==false)
 	showmsg('修改分站成功！<br/><br/><a href="./sitelist.php">>>返回分站列表</a>',1);
 else
 	showmsg('修改分站失败！'.$DB->error(),4);
@@ -227,7 +283,13 @@ $offset=$pagesize*($page - 1);
 $rs=$DB->query("SELECT * FROM pre_site WHERE{$sql} ORDER BY zid DESC LIMIT $offset,$pagesize");
 while($res = $rs->fetch())
 {
-echo '<tr><td><b>'.$res['zid'].'</b></td><td>'.$res['user'].'</td><td>'.$res['sitename'].'<br/>'.$res['qq'].'</td><td>'.$res['rmb'].'</td><td>'.$res['addtime'].'<br/>'.$res['endtime'].'</td><td>'.$res['domain'].'<br/>'.$res['domain2'].'</td><td><a href="./sitelist.php?my=edit&zid='.$res['zid'].'" class="btn btn-info btn-xs">编辑</a>&nbsp;<a href="./sitelist.php?my=delete&zid='.$res['zid'].'" class="btn btn-xs btn-danger" onclick="return confirm(\'你确实要删除此站点吗？\');">删除</a></td></tr>';
+$domains = $res['domain'];
+if(!empty($res['domain2'])) $domains .= '<br/>'.$res['domain2'];
+if(!empty($res['domain3'])) $domains .= '<br/>'.$res['domain3'];
+if(!empty($res['domain4'])) $domains .= '<br/>'.$res['domain4'];
+if(!empty($res['domain5'])) $domains .= '<br/>'.$res['domain5'];
+if(!empty($res['domain6'])) $domains .= '<br/>'.$res['domain6'];
+echo '<tr><td><b>'.$res['zid'].'</b></td><td>'.$res['user'].'</td><td>'.$res['sitename'].'<br/>'.$res['qq'].'</td><td>'.$res['rmb'].'</td><td>'.$res['addtime'].'<br/>'.$res['endtime'].'</td><td>'.$domains.'</td><td><a href="./sitelist.php?my=edit&zid='.$res['zid'].'" class="btn btn-info btn-xs">编辑</a>&nbsp;<a href="./sitelist.php?my=delete&zid='.$res['zid'].'" class="btn btn-xs btn-danger" onclick="return confirm(\'你确实要删除此站点吗？\');">删除</a></td></tr>';
 }
 ?>
           </tbody>

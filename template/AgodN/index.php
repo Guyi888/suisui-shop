@@ -5,7 +5,7 @@ if(!defined('IN_CRONLITE'))exit();
 if(isset($_GET['buyok']) && $_GET['buyok']==1){
     // 优先使用用户自己的订单号（从cookie中获取）
     $orderid = isset($_COOKIE['user_order']) ? $_COOKIE['user_order'] : null;
-    
+
     // 如果cookie中没有订单号，再获取最新的订单
     if(!$orderid){
         $latest_order = $DB->getRow("SELECT trade_no FROM pre_pay WHERE status=1 ORDER BY addtime DESC LIMIT 1");
@@ -13,7 +13,7 @@ if(isset($_GET['buyok']) && $_GET['buyok']==1){
             $orderid = $latest_order['trade_no'];
         }
     }
-    
+
     // 如果有订单号，跳转到订单查询页面
     if($orderid){
         header('Location: ./?mod=query&orderid='.$orderid);
@@ -324,8 +324,9 @@ if(empty($_GET['cid'])){
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            gap: 15px;
+            gap: 10px;
             margin-top: auto;
+            flex-wrap: wrap;
         }
         .product-price {
             color: #4e8cff;
@@ -337,6 +338,12 @@ if(empty($_GET['cid'])){
             color: #4CAF50;
             font-size: 12px;
             white-space: nowrap;
+        }
+        .product-sales {
+            color: #666;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-right: 10px;
         }
         .bottom-bar {
             position: fixed;
@@ -429,7 +436,7 @@ if(empty($_GET['cid'])){
         .product-desc > *:last-child {
             margin-bottom: 0;
         }
-        .product-desc h1, .product-desc h2, .product-desc h3, 
+        .product-desc h1, .product-desc h2, .product-desc h3,
         .product-desc h4, .product-desc h5, .product-desc h6 {
             margin: 15px 0 10px;
             color: #333;
@@ -515,7 +522,7 @@ if(empty($_GET['cid'])){
             <!-- 公告区域 -->
             <div class="announcement" style="background: #fff; padding: 15px; border-radius: 10px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #4e8cff;">
                 <div style="color: #666; line-height: 1.5;">
-                    <?php 
+                    <?php
                     // 优先使用后台设置的首页公告
                     if(!empty($conf['anounce'])){
                         echo $conf['anounce'];
@@ -553,7 +560,7 @@ if(empty($_GET['cid'])){
                 <span>选择商品</span>
             </div>
             <div id="goodslist">
-            <?php 
+            <?php
             // 初始化价格对象
             if ($islogin2 == 1) {
                 $price_obj = new \lib\Price($userrow['zid'], $userrow);
@@ -562,7 +569,7 @@ if(empty($_GET['cid'])){
             } else {
                 $price_obj = new \lib\Price(1);
             }
-            
+
             $rs=$DB->query("SELECT * FROM pre_tools WHERE cid='{$cid}' AND active=1 ORDER BY sort ASC");
             while($res = $rs->fetch()){
                 if($res['is_curl']==4){
@@ -570,11 +577,11 @@ if(empty($_GET['cid'])){
                 }else{
                     $count = $res['stock'];
                 }
-                
+
                 // 计算商品价格
                 $price_obj->setToolInfo($res['tid'], $res);
                 $price = $price_obj->getToolPrice($res['tid']);
-                
+
                 // 根据配置的库存显示方式显示库存信息
                         if($conf['agodn_stock_display'] == 1 && $count !== null){
                             // 模糊库存范围显示
@@ -595,10 +602,17 @@ if(empty($_GET['cid'])){
                             // 准确库存显示
                             $stockText = $count === null ? '无限' : '库存'.$count.'张';
                         }
+                // 计算销量 - 通过查询pre_pay表中status=1的订单数量
+                $sales = $DB->getColumn("SELECT COUNT(*) FROM pre_pay WHERE tid=:tid AND status=1", array(':tid' => $res['tid']));
+                $salesInfo = '';
+                if(isset($conf['agodn_show_sales']) && $conf['agodn_show_sales'] == 1) {
+                    $salesInfo = '<div class="product-sales">已售'.$sales.'件</div>';
+                }
                 echo '<div class="product-card" data-tid="'.$res['tid'].'" data-price="'.$price.'">
                     <div class="product-title">'.$res['name'].'</div>
                     <div class="product-info">
                         <div class="product-price">¥'.$price.'</div>
+                        '.$salesInfo.'
                         <div class="product-stock">'.$stockText.'</div>
                     </div>
                     <div class="product-desc" style="display:none;">
@@ -624,55 +638,57 @@ if(empty($_GET['cid'])){
     <script>
     // 库存显示配置
     var agodn_stock_display = <?php echo isset($conf['agodn_stock_display']) ? $conf['agodn_stock_display'] : 0;?>;
-    function hex_md5(s) { 
-        var hexcase = 0;  
-        var chrsz   = 8;  
-        
+    // 销量显示配置
+    var agodn_show_sales = <?php echo isset($conf['agodn_show_sales']) ? $conf['agodn_show_sales'] : 1;?>;
+    function hex_md5(s) {
+        var hexcase = 0;
+        var chrsz   = 8;
+
         function safe_add(x, y) {
             var lsw = (x & 0xFFFF) + (y & 0xFFFF);
             var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
             return (msw << 16) | (lsw & 0xFFFF);
         }
-        
+
         function bit_rol(num, cnt) {
             return (num << cnt) | (num >>> (32 - cnt));
         }
-        
+
         function md5_cmn(q, a, b, x, s, t) {
             return safe_add(bit_rol(safe_add(safe_add(a, q), safe_add(x, t)), s),b);
         }
-        
+
         function md5_ff(a, b, c, d, x, s, t) {
             return md5_cmn((b & c) | ((~b) & d), a, b, x, s, t);
         }
-        
+
         function md5_gg(a, b, c, d, x, s, t) {
             return md5_cmn((b & d) | (c & (~d)), a, b, x, s, t);
         }
-        
+
         function md5_hh(a, b, c, d, x, s, t) {
             return md5_cmn(b ^ c ^ d, a, b, x, s, t);
         }
-        
+
         function md5_ii(a, b, c, d, x, s, t) {
             return md5_cmn(c ^ (b | (~d)), a, b, x, s, t);
         }
-        
+
         function core_md5(x, len) {
             x[len >> 5] |= 0x80 << ((len) % 32);
             x[(((len + 64) >>> 9) << 4) + 14] = len;
-            
+
             var a =  1732584193;
             var b = -271733879;
             var c = -1732584194;
             var d =  271733878;
-            
+
             for(var i = 0; i < x.length; i += 16) {
                 var olda = a;
                 var oldb = b;
                 var oldc = c;
                 var oldd = d;
-                
+
                 a = md5_ff(a, b, c, d, x[i+ 0], 7 , -680876936);
                 d = md5_ff(d, a, b, c, x[i+ 1], 12, -389564586);
                 c = md5_ff(c, d, a, b, x[i+ 2], 17,  606105819);
@@ -689,7 +705,7 @@ if(empty($_GET['cid'])){
                 d = md5_ff(d, a, b, c, x[i+13], 12, -40341101);
                 c = md5_ff(c, d, a, b, x[i+14], 17, -1502002290);
                 b = md5_ff(b, c, d, a, x[i+15], 22,  1236535329);
-                
+
                 a = md5_gg(a, b, c, d, x[i+ 1], 5 , -165796510);
                 d = md5_gg(d, a, b, c, x[i+ 6], 9 , -1069501632);
                 c = md5_gg(c, d, a, b, x[i+11], 14,  643717713);
@@ -706,7 +722,7 @@ if(empty($_GET['cid'])){
                 d = md5_gg(d, a, b, c, x[i+ 2], 9 , -51403784);
                 c = md5_gg(c, d, a, b, x[i+ 7], 14,  1735328473);
                 b = md5_gg(b, c, d, a, x[i+12], 20, -1926607734);
-                
+
                 a = md5_hh(a, b, c, d, x[i+ 5], 4 , -378558);
                 d = md5_hh(d, a, b, c, x[i+ 8], 11, -2022574463);
                 c = md5_hh(c, d, a, b, x[i+11], 16,  1839030562);
@@ -723,7 +739,7 @@ if(empty($_GET['cid'])){
                 d = md5_hh(d, a, b, c, x[i+12], 11, -421815835);
                 c = md5_hh(c, d, a, b, x[i+15], 16,  530742520);
                 b = md5_hh(b, c, d, a, x[i+ 2], 23, -995338651);
-                
+
                 a = md5_ii(a, b, c, d, x[i+ 0], 6 , -198630844);
                 d = md5_ii(d, a, b, c, x[i+ 7], 10,  1126891415);
                 c = md5_ii(c, d, a, b, x[i+14], 15, -1416354905);
@@ -740,7 +756,7 @@ if(empty($_GET['cid'])){
                 d = md5_ii(d, a, b, c, x[i+11], 10, -1120210379);
                 c = md5_ii(c, d, a, b, x[i+ 2], 15,  718787259);
                 b = md5_ii(b, c, d, a, x[i+ 9], 21, -343485551);
-                
+
                 a = safe_add(a, olda);
                 b = safe_add(b, oldb);
                 c = safe_add(c, oldc);
@@ -748,7 +764,7 @@ if(empty($_GET['cid'])){
             }
             return Array(a, b, c, d);
         }
-        
+
         function str2binl(str) {
             var bin = Array();
             var mask = (1 << chrsz) - 1;
@@ -756,7 +772,7 @@ if(empty($_GET['cid'])){
                 bin[i>>5] |= (str.charCodeAt(i / chrsz) & mask) << (i%32);
             return bin;
         }
-        
+
         function binl2hex(binarray) {
             var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
             var str = "";
@@ -766,14 +782,14 @@ if(empty($_GET['cid'])){
             }
             return str;
         }
-        
+
         return binl2hex(core_md5(str2binl(s), s.length * chrsz));
     }
     var sys_key = '<?php echo SYS_KEY?>';
     $(document).ready(function(){
         // 记录滚动位置
         var scrollPosition;
-        
+
         // 初始化pjax
         GoodsHandler.initPjax();
 
@@ -781,23 +797,23 @@ if(empty($_GET['cid'])){
         <?php if(!empty($conf['modal'])){?>
         $('#myModal').modal('show');
         <?php }?>
-        
+
         // 分类切换
         $('.category-item').click(function(e){
             e.preventDefault();
             // 保存当前滚动位置
             scrollPosition = $(window).scrollTop();
-            
+
             var cid = $(this).data('cid');
             $('.category-item').removeClass('active');
             $(this).addClass('active');
-            
+
             // 加载商品后恢复滚动位置
             GoodsHandler.loadGoods(cid, false).then(function(){
                 $(window).scrollTop(scrollPosition);
             });
         });
-        
+
         // 搜索功能
         $('.search-btn').click(function(e){
             e.preventDefault();

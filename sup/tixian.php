@@ -10,7 +10,7 @@ if ($islogin3 == 1) {
 }
 ?><div class="wrapper">
 <div class="col-xs-12">
-<?php 
+<?php
 if ($conf["sup_tixian"] == 0) {
 	showmsg("当前站点未开放提现功能！");
 }
@@ -57,22 +57,22 @@ $numrows = $DB->getColumn("SELECT count(*) FROM pre_suptixian WHERE sid='" . $su
 		余额提现
 	</div>
 	<div class="list-group-item list-group-item-info">
-	<?php 
+	<?php
 if ($conf["sup_skimg"] == 1 && file_exists(ROOT . "assets/img/skimg/sk_sup" . $suprow["sid"] . ".png")) {
 	?>		已绑定结算账号信息：结算方式：<?php echo display_type($suprow["pay_type"]);?>		<br>
 		当前收款图：<img onclick="img('<?php echo $suprow["sid"];?>')"  width="100" src="<?php echo "../assets/img/skimg/sk_sup" . $suprow["sid"] . ".png";?>">
 		<hr>
 		<a href="uset.php?mod=skimg" class="btn btn-warning btn-sm">修改收款图</a>&nbsp;&nbsp;<a href="uset.php?mod=user" class="btn btn-info btn-sm">修改提现方式</a>
-	<?php 
+	<?php
 } elseif ($conf["sup_skimg"] == 1) {
 	?>		请先上传收款图！ <a href="uset.php?mod=skimg" class="btn btn-warning btn-sm">点此上传</a>
-	<?php 
+	<?php
 } elseif (!empty($suprow["pay_account"]) && !empty($suprow["pay_name"])) {
 	?>		已绑定结算账号信息：结算方式：<?php echo display_type($suprow["pay_type"]);?> 账号：<?php echo $suprow["pay_account"];?> 姓名：<?php echo $suprow["pay_name"];?> <a href="uset.php?mod=user" class="btn btn-warning btn-sm">修改绑定</a>
-	<?php 
+	<?php
 } else {
 	?>		请先绑定收款账号！ <a href="uset.php?mod=user" class="btn btn-warning btn-sm">点此设置</a>
-	<?php 
+	<?php
 }
 ?>	</div>
 	<div class="list-group-item list-group-item-warning">
@@ -112,7 +112,7 @@ if ($conf["sup_skimg"] == 1 && file_exists(ROOT . "assets/img/skimg/sk_sup" . $s
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>金额</th><th>实际到账</th><th>提现方式</th><th>提现账号</th><th>姓名</th><th>申请时间</th><th>完成时间</th><th>状态</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $rs = $DB->query("SELECT * FROM pre_suptixian WHERE sid='" . $suprow["sid"] . "' ORDER BY id DESC LIMIT 10");
 while ($res = $rs->fetch()) {
 	echo "<tr><td><b>" . $res["id"] . "</b></td><td>" . $res["money"] . "</td><td>" . $res["realmoney"] . "</td><td>" . display_type($res["pay_type"]) . "</td><td>" . $res["pay_account"] . "</td><td>" . $res["pay_name"] . "</td><td>" . $res["addtime"] . "</td><td>" . ($res["status"] == 1 ? $res["endtime"] : null) . "</td><td>" . display_zt($res["status"], $res["id"]) . "</td></tr>";
@@ -124,7 +124,7 @@ while ($res = $rs->fetch()) {
   </div>
  </div>
 </div>
-<?php 
+<?php
 include "./foot.php";
 ?><script>
 function inputMoney(){
@@ -153,7 +153,7 @@ function getResult(id) {
 }
 </script>
 </body>
-</html><?php 
+</html><?php
 function display_zt($zt, $id)
 {
 	if ($zt == 2) {

@@ -19,7 +19,7 @@ $(function() {
 
         //移除其他已点击
         $(".goods_sort div").attr("class","item item-price");
-        $(this).addClass(sort_type); 
+        $(this).addClass(sort_type);
         $(this).data("sort",sort_type_new);
         $('.goods_sort div').removeClass('on');
         $(this).addClass("on");
@@ -46,7 +46,7 @@ $(function() {
         });
         $(".swiper-button-next").show();
         $(".swiper-button-prev").show();
-    }  
+    }
     jQuery(function ($) {
         $(window).resize(function () {
             var width = $('#js-com-header-area').width();
@@ -92,14 +92,14 @@ $(function() {
      document.activeElement.blur();
       return false;
     });
-    
+
     if($.cookie('goods_list_style') == 'list'){
         $("#listblock").data("state","gongge");
         $("#listblock").removeClass("icon-sort");
         $("#listblock").addClass("icon-app");
         $("#goods-list-container").removeClass("block three");
     }
-    
+
     /*点击切换风格*/
     $("#listblock").on("click",function(){
         var index = layer.msg('加载中', {
@@ -119,18 +119,18 @@ $(function() {
             $("#goods-list-container").removeClass("block three");
         }
         //设置cookie
-        var cookietime = new Date(); 
+        var cookietime = new Date();
         cookietime.setTime(cookietime.getTime() + (86400));
         $.cookie('goods_list_style', attr, { expires: cookietime });
         layer.close(index);
     });
-        
+
     //弹窗广告
     if( !$.cookie('op')){
         $('.tzgg').show();
         $.cookie('op', false, { expires: 1});
     }
-    
+
         /**
      * 兼容iphone
      * @type {number | boolean | *}
@@ -176,7 +176,7 @@ function load(text="加载中")
     var index = layer.msg(text, {
         icon: 16
         ,shade: 0.01
-    });  
+    });
 }
 
 //获取商品
@@ -198,7 +198,7 @@ function get_goods(){
             load();
         }
         //写入数据
-        $(".show_class").show();  
+        $(".show_class").show();
         flow.load({
                 elem: '#goods_list' //流加载容器
                 ,isAuto:true
@@ -216,7 +216,7 @@ function get_goods(){
                     success : function(res) {
 							$(".tag_name").hide();
 							$(".tag_name ul").html("");
-                            
+
                             //假设你的列表返回在data集合中
                             layui.each(res.data, function(index, item){
                                 html = '<a class="fui-goods-item" title="'+item.name+'" href="./?mod=buy&tid='+item.tid+'">';
@@ -259,7 +259,7 @@ function get_goods(){
 								}
                                 html += ''+show_tag_html+'<img class="lazy" lay-src="'+item.shopimg+'" src="./assets/store/picture/loadimg.gif" alt="'+item.name+'">'+shoukong+'';
                                 html += '</div>';
-                                
+
 
                                 html += '<div class="detail" style="height:unset;">';
                                 html += '<div class="name" style="color: #000000;">'+item.name+'</div>';
@@ -303,21 +303,21 @@ function get_goods(){
                 });
                 }
           });
-        
+
     });
 }
 
 var audio_init = {
 	changeClass: function (target,id) {
-       	var className = $(target).attr('class');
-       	var ids = document.getElementById(id);
-       	(className == 'on')
-           	? $(target).removeClass('on').addClass('off')
-           	: $(target).removeClass('off').addClass('on');
-       	(className == 'on')
-           	? ids.pause()
-           	: ids.play();
-   	},
+	var className = $(target).attr('class');
+	var ids = document.getElementById(id);
+	(className == 'on')
+	? $(target).removeClass('on').addClass('off')
+	: $(target).removeClass('off').addClass('on');
+	(className == 'on')
+	? ids.pause()
+	: ids.play();
+	},
 	play:function(){
 		document.getElementById('media').play();
 	}

@@ -2,8 +2,8 @@
 /*
  * 计划任务处理文件
  * 博客：zhonguo.ren
- * QQ群：915043052
- * 开发者：教主
+ * QQ群：qqfaka
+ * 开发者：岁岁 @qqfaka
  * 功能：处理各种自动任务，包括自动补单、数据清理等
  */
 
@@ -49,10 +49,10 @@ if($should_reorder || $_GET['action'] == 'reorder') {
             // 更新最后执行时间
             $DB->exec("REPLACE INTO pre_config SET k='last_reorder_time',v='{$date}'");
         }
-        
+
         // 执行自动补单
         $result = autoReorder($autoreorder_config);
-        
+
         // 输出结果
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
@@ -76,11 +76,11 @@ if($should_reorder || $_GET['action'] == 'reorder') {
  */
 function autoReorder($config) {
     global $DB, $date;
-    
+
     $processed = 0;
     $success = 0;
     $failed = 0;
-    
+
     try {
         // 检查必要的表是否存在
         $tables = ['shua_orders', 'shua_goods', 'shua_kms', 'shua_shequ'];
@@ -90,12 +90,12 @@ function autoReorder($config) {
                 throw new Exception("表 {$table} 不存在");
             }
         }
-        
+
         // 解析订单状态
         $status_array = explode(',', $config['autoreorder_status']);
         $status_condition = [];
         $include_djzt2 = false;
-        
+
         foreach ($status_array as $status) {
             if ($status == 'djzt2') {
                 $include_djzt2 = true;
@@ -103,7 +103,7 @@ function autoReorder($config) {
                 $status_condition[] = $status;
             }
         }
-        
+
         // 调试信息
         if ($_GET['action'] == 'reorder' && isset($_GET['debug'])) {
             echo "<pre>";
@@ -112,15 +112,15 @@ function autoReorder($config) {
             echo "是否包含对接失败: " . ($include_djzt2 ? '是' : '否');
             echo "</pre>";
         }
-        
+
         $status_condition_str = implode(',', $status_condition);
-        
+
         // 构建查询条件
         $where_condition = '';
         if (!empty($status_condition_str)) {
             $where_condition = "status IN ({$status_condition_str})";
         }
-        
+
         if ($include_djzt2) {
             if (!empty($where_condition)) {
                 $where_condition .= " OR djzt = 2";
@@ -131,11 +131,11 @@ function autoReorder($config) {
             // 如果没有选择任何状态，默认选择未处理和处理中
             $where_condition = "status IN (0,1)";
         }
-        
+
         // 计算时间条件
         $after_time = date('Y-m-d H:i:s', time() - $config['autoreorder_after'] * 60);
         $timeout_time = date('Y-m-d H:i:s', time() - $config['autoreorder_timeout'] * 60);
-        
+
         // 调试信息
         if ($_GET['action'] == 'reorder' && isset($_GET['debug'])) {
             echo "<pre>";
@@ -144,47 +144,47 @@ function autoReorder($config) {
             echo "时间条件 - 结束: " . $after_time . "<br>";
             echo "</pre>";
         }
-        
+
         // 构建查询语句
         if ($include_djzt2 && empty($status_condition_str)) {
             // 只勾选了对接失败选项，不限制时间范围
-            $query = "SELECT * FROM shua_orders WHERE 
-                djzt = 2 AND 
-                reorder_times < '{$config['autoreorder_max_retries']}' 
-                ORDER BY addtime ASC 
+            $query = "SELECT * FROM shua_orders WHERE
+                djzt = 2 AND
+                reorder_times < '{$config['autoreorder_max_retries']}'
+                ORDER BY addtime ASC
                 LIMIT {$config['autoreorder_limit']}";
         } else {
             // 其他情况，使用原来的时间条件
-            $query = "SELECT * FROM shua_orders WHERE 
-                ({$where_condition}) AND 
-                addtime >= '{$timeout_time}' AND 
-                addtime <= '{$after_time}' AND 
-                reorder_times < '{$config['autoreorder_max_retries']}' 
-                ORDER BY addtime ASC 
+            $query = "SELECT * FROM shua_orders WHERE
+                ({$where_condition}) AND
+                addtime >= '{$timeout_time}' AND
+                addtime <= '{$after_time}' AND
+                reorder_times < '{$config['autoreorder_max_retries']}'
+                ORDER BY addtime ASC
                 LIMIT {$config['autoreorder_limit']}";
         }
-        
+
         // 调试信息
         if ($_GET['action'] == 'reorder' && isset($_GET['debug'])) {
             echo "<pre>";
             echo "SQL查询语句: " . $query . "<br>";
             echo "</pre>";
         }
-        
+
         $orders = $DB->query($query);
-        
+
         // 检查 $orders 是否为 false
         if ($orders === false) {
             throw new Exception('查询失败');
         }
-        
+
         // 使用 fetchAll 方法获取所有结果
         $order_list = $orders->fetchAll();
-        
+
         // 处理每个订单
         foreach ($order_list as $order) {
             $processed++;
-            
+
             try {
                 // 补单前更新订单状态为处理中
                 $DB->update('shua_orders', [
@@ -192,12 +192,12 @@ function autoReorder($config) {
                     'reorder_times' => $order['reorder_times'] + 1,
                     'last_reorder_time' => $date
                 ], ['id' => $order['id']]);
-                
+
                 // 检查是否为对接状态失败的订单
                 if($order['djzt'] == 2) {
                     // 使用 do_goods 函数重新提交失败的订单
                     $result = do_goods($order['id']);
-                    
+
                     // 处理补单结果
                     if(strpos($result, '成功') !== false) {
                         $DB->update('pre_orders', [
@@ -220,14 +220,14 @@ function autoReorder($config) {
                         $failed++;
                         continue;
                     }
-                    
+
                     // 获取商品对应的对接信息
                     $shequ = null;
                     if($goods['shequ_id']) {
                         // 使用参数化查询修复SQL注入漏洞
                         $shequ = $DB->getRow("SELECT * FROM shua_shequ WHERE id=:id", [':id' => $goods['shequ_id']]);
                     }
-                    
+
                     // 根据商品类型执行对应的补单逻辑
                     $result = false;
                     if($shequ) {
@@ -237,7 +237,7 @@ function autoReorder($config) {
                         // 本地商品
                         $result = reorderLocal($order, $goods);
                     }
-                    
+
                     // 处理补单结果
                     if($result) {
                         $DB->update('pre_orders', [
@@ -250,7 +250,7 @@ function autoReorder($config) {
                         $failed++;
                     }
                 }
-                
+
             } catch(Exception $e) {
                 $failed++;
                 // 记录错误信息
@@ -263,7 +263,7 @@ function autoReorder($config) {
         // 记录错误但继续执行
         $failed = 1;
     }
-    
+
     return [
         'processed' => $processed,
         'success' => $success,
@@ -276,17 +276,17 @@ function autoReorder($config) {
  */
 function reorderThirdParty($order, $goods, $shequ) {
     global $DB;
-    
+
     try {
         // 加载对应插件
         $plugin_file = SYS_ROOT . 'plugins/third_' . $shequ['type'] . '/index.php';
         if(!file_exists($plugin_file)) {
             throw new Exception("插件不存在 third_{$shequ['type']}");
         }
-        
+
         // 创建插件实例
         $plugin = new \lib\Plugin('third_' . $shequ['type']);
-        
+
         // 构建下单参数
         $params = [
             'order_no' => $order['orderno'],
@@ -299,17 +299,17 @@ function reorderThirdParty($order, $goods, $shequ) {
             'custom' => $order['custom'],
             'buyer' => $order['buyer']
         ];
-        
+
         // 调用插件下单接口
         $result = $plugin->call('doGoods', $shequ, $params);
-        
+
         if($result && $result['code'] == 1) {
             // 补单成功
             return $result;
         } else {
             throw new Exception($result['msg'] ?? '补单失败，未知错误');
         }
-        
+
     } catch(Exception $e) {
         throw $e;
     }
@@ -320,32 +320,32 @@ function reorderThirdParty($order, $goods, $shequ) {
  */
 function reorderLocal($order, $goods) {
     global $DB, $date;
-    
+
     try {
         // 检查库存
         if($goods['stock'] < $order['num']) {
             throw new Exception('库存不足');
         }
-        
+
         // 获取商品卡密 - 使用参数化查询修复SQL注入漏洞
         $codes = $DB->query("SELECT * FROM shua_kms WHERE gid=:gid AND used=0 LIMIT :num", [':gid' => $goods['id'], ':num' => $order['num']]);
-        
+
         // 检查 $codes 是否为 false
         if ($codes === false) {
             throw new Exception('查询卡密失败');
         }
-        
+
         // 使用 fetchAll 方法获取所有卡密
         $code_list = [];
         $code_rows = $codes->fetchAll();
         foreach ($code_rows as $code) {
             $code_list[] = $code['km'];
         }
-        
+
         if(count($code_list) < $order['num']) {
             throw new Exception('卡密数量不足');
         }
-        
+
         // 更新卡密状态
         $km_ids = [];
         foreach($code_list as $km) {
@@ -354,16 +354,16 @@ function reorderLocal($order, $goods) {
             $km_ids[] = $km_row['id'];
         }
         $DB->update('shua_kms', ['used' => 1, 'uid' => $order['uid'], 'oid' => $order['id'], 'usetime' => $date], "id IN (" . implode(',', $km_ids) . ")");
-        
+
         // 更新库存
         $DB->update('shua_goods', ['stock' => $goods['stock'] - $order['num'], 'sales' => $goods['sales'] + $order['num']], ['id' => $goods['id']]);
-        
+
         return [
             'code' => 1,
             'msg' => '补单成功',
             'result' => implode('\n', $code_list)
         ];
-        
+
     } catch(Exception $e) {
         throw $e;
     }

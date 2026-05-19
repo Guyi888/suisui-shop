@@ -13,26 +13,26 @@ switch($act){
     case 'report_invalid':
         $goods_id = intval($_POST['goods_id']);
         $desc = trim(strip_tags(daddslashes($_POST['desc'])));
-        
+
         if(empty($goods_id)) {
             exit('{"code":-1,"msg":"商品ID不能为空"}');
         }
         if(empty($desc)) {
             exit('{"code":-1,"msg":"补充说明不能为空"}');
         }
-        
+
         // 查询商品是否存在
         $row = $DB->getRow("SELECT * FROM pre_tools WHERE tid='$goods_id' LIMIT 1");
         if(!$row) {
             exit('{"code":-1,"msg":"商品不存在"}');
         }
-        
+
         // 检查是否已经报备过
         $exist = $DB->getRow("SELECT * FROM pre_pan_invalid WHERE goods_id='$goods_id' AND status=0 LIMIT 1");
         if($exist) {
             exit('{"code":-1,"msg":"该商品已有待处理的报备记录，请勿重复提交"}');
         }
-        
+
         // 插入报备记录
         $sql = "INSERT INTO pre_pan_invalid (goods_id, goods_name, `desc`, addtime, status) VALUES (:goods_id, :goods_name, :desc, NOW(), 0)";
         $data = [
@@ -40,7 +40,7 @@ switch($act){
             ':goods_name' => $row['name'],
             ':desc' => $desc
         ];
-        
+
         if($DB->exec($sql, $data)) {
             exit('{"code":0,"msg":"报备成功，我们会尽快处理！"}');
         } else {
@@ -51,17 +51,17 @@ switch($act){
     case 'check_invalid_progress':
         try {
             // 查询所有报备记录，关联商品表获取商品名称
-            $sql = "SELECT r.*, t.name as goods_name FROM pre_netdisk_reports r 
-                   LEFT JOIN pre_tools t ON r.tid = t.tid 
+            $sql = "SELECT r.*, t.name as goods_name FROM pre_netdisk_reports r
+                   LEFT JOIN pre_tools t ON r.tid = t.tid
                    ORDER BY r.addtime DESC LIMIT 50";
-            
+
             $rs = $DB->query($sql);
             $data = array();
-            
+
             while($row = $rs->fetch(PDO::FETCH_ASSOC)){
                 // 格式化时间
                 $addtime = date('Y-m-d H:i:s', $row['addtime']);
-                
+
                 $data[] = array(
                     'id' => $row['id'],
                     'goods_name' => $row['goods_name'],
@@ -69,23 +69,23 @@ switch($act){
                     'status' => $row['status']
                 );
             }
-            
+
             exit(json_encode(array('code'=>0, 'msg'=>'success', 'data'=>$data)));
-            
+
         } catch (Exception $e) {
             // 检查是否是表不存在的错误
             if(strpos($e->getMessage(), "Table") !== false && strpos($e->getMessage(), "doesn't exist") !== false) {
                 // 如果表不存在，返回空数据
                 exit(json_encode(array('code'=>0, 'msg'=>'success', 'data'=>array())));
             }
-            
+
             exit(json_encode(array('code'=>-1, 'msg'=>'查询失败')));
         }
     break;
 
     case 'get_invalid_list':
         if($islogin!=1)exit('{"code":-1,"msg":"未登录"}');
-        
+
         $data = [];
         $rs = $DB->query("SELECT * FROM pre_pan_invalid ORDER BY id DESC");
         while($row = $rs->fetch(PDO::FETCH_ASSOC)){
@@ -102,13 +102,13 @@ switch($act){
 
     case 'set_invalid_status':
         if($islogin!=1)exit('{"code":-1,"msg":"未登录"}');
-        
+
         $id = intval($_POST['id']);
         $status = intval($_POST['status']);
-        
+
         if($status<0 || $status>3)
             exit('{"code":-1,"msg":"无效的状态值"}');
-        
+
         if($DB->exec("UPDATE pre_pan_invalid SET status='$status',process_time=NOW() WHERE id='$id'") !== false){
             exit('{"code":0,"msg":"设置成功"}');
         }else{
@@ -119,34 +119,34 @@ switch($act){
     case 'get_chat_messages':
         try {
             $user_id = isset($_POST['user_id']) ? trim($_POST['user_id']) : '';
-            
+
             // 基础验证
             if(empty($user_id)) {
                 throw new Exception('用户ID不能为空');
             }
-            
+
             // 检查数据库连接
             if(!$DB || !($DB instanceof PDO)) {
                 throw new Exception('数据库连接失败');
             }
-            
+
             // 查询消息
-            $sql = "SELECT id, type, message, UNIX_TIMESTAMP(addtime) as addtime, status 
-                   FROM pre_chat_message 
-                   WHERE user_id = :user_id 
+            $sql = "SELECT id, type, message, UNIX_TIMESTAMP(addtime) as addtime, status
+                   FROM pre_chat_message
+                   WHERE user_id = :user_id
                    ORDER BY id ASC LIMIT 50";
-            
+
             $stmt = $DB->prepare($sql);
             if(!$stmt) {
                 throw new Exception('SQL准备失败：' . implode(', ', $DB->errorInfo()));
             }
-            
+
             $stmt->bindValue(':user_id', $user_id, PDO::PARAM_STR);
-            
+
             if(!$stmt->execute()) {
                 throw new Exception('SQL执行失败：' . implode(', ', $stmt->errorInfo()));
             }
-            
+
             $messages = [];
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $messages[] = [
@@ -157,10 +157,10 @@ switch($act){
                     'status' => intval($row['status'])
                 ];
             }
-            
+
             // 更新消息状态
             try {
-                $update_sql = "UPDATE pre_chat_message SET status=1 
+                $update_sql = "UPDATE pre_chat_message SET status=1
                               WHERE user_id=:user_id AND type=1 AND status=0";
                 $update_stmt = $DB->prepare($update_sql);
                 $update_stmt->bindValue(':user_id', $user_id, PDO::PARAM_STR);
@@ -169,13 +169,13 @@ switch($act){
                 // 更新状态失败不影响主流程
                 error_log('更新消息状态失败: ' . $e->getMessage());
             }
-            
+
             exit(json_encode([
                 'code' => 0,
                 'msg' => 'success',
                 'messages' => $messages
             ]));
-            
+
         } catch (Exception $e) {
             error_log('Chat Error: ' . $e->getMessage());
             exit(json_encode([
@@ -187,15 +187,15 @@ switch($act){
 
     case 'add_chat_rule':
         if($islogin!=1)exit('{"code":-1,"msg":"未登录"}');
-        
+
         $type = intval($_POST['type']);
         $keyword = trim($_POST['keyword']);
         $reply = trim($_POST['reply']);
         $status = intval($_POST['status']);
-        
+
         if(empty($keyword))exit('{"code":-1,"msg":"关键词不能为空"}');
         if(empty($reply))exit('{"code":-1,"msg":"回复内容不能为空"}');
-        
+
         if($DB->exec("INSERT INTO pre_chat_rules (type,keyword,reply,status) VALUES (:type,:keyword,:reply,:status)", [
             ':type'=>$type,
             ':keyword'=>$keyword,
@@ -206,19 +206,19 @@ switch($act){
         else
             exit('{"code":-1,"msg":"添加失败'.$DB->error().'"}');
     break;
-    
+
     case 'edit_chat_rule':
         if($islogin!=1)exit('{"code":-1,"msg":"未登录"}');
-        
+
         $id = intval($_POST['id']);
         $type = intval($_POST['type']);
         $keyword = trim($_POST['keyword']);
         $reply = trim($_POST['reply']);
         $status = intval($_POST['status']);
-        
+
         if(empty($keyword))exit('{"code":-1,"msg":"关键词不能为空"}');
         if(empty($reply))exit('{"code":-1,"msg":"回复内容不能为空"}');
-        
+
         if($DB->exec("UPDATE pre_chat_rules SET type=:type,keyword=:keyword,reply=:reply,status=:status WHERE id=:id", [
             ':type'=>$type,
             ':keyword'=>$keyword,
@@ -230,10 +230,10 @@ switch($act){
         else
             exit('{"code":-1,"msg":"修改失败'.$DB->error().'"}');
     break;
-    
+
     case 'get_chat_rule':
         if($islogin!=1)exit('{"code":-1,"msg":"未登录"}');
-        
+
         $id = intval($_POST['id']);
         $row = $DB->getRow("SELECT * FROM pre_chat_rules WHERE id=:id LIMIT 1", [':id'=>$id]);
         if($row)
@@ -241,10 +241,10 @@ switch($act){
         else
             exit('{"code":-1,"msg":"规则不存在"}');
     break;
-    
+
     case 'del_chat_rule':
         if($islogin!=1)exit('{"code":-1,"msg":"未登录"}');
-        
+
         $id = intval($_POST['id']);
         if($DB->exec("DELETE FROM pre_chat_rules WHERE id=:id", [':id'=>$id]) !== false)
             exit('{"code":0,"msg":"删除成功"}');
@@ -255,16 +255,16 @@ switch($act){
     case 'send_chat_message':
         $user_id = trim($_POST['user_id']);
         $message = trim($_POST['message']);
-        
+
         if(empty($user_id)) exit('{"code":-1,"msg":"用户ID不能为空"}');
         if(empty($message)) exit('{"code":-1,"msg":"消息不能为空"}');
-        
+
         // 插入用户消息
         $DB->exec("INSERT INTO pre_chat_message (user_id,type,message,status,addtime) VALUES (:user_id,0,:message,0,NOW())", [
             ':user_id'=>$user_id,
             ':message'=>$message
         ]);
-        
+
         // 检查是否需要自动回复
         if($conf['chat_auto_reply']==1){
             // 检查关键词自动回复
@@ -289,7 +289,7 @@ switch($act){
                 }
             }
         }
-        
+
         exit('{"code":0,"msg":"发送成功"}');
     break;
 
@@ -298,18 +298,18 @@ switch($act){
         $user_id = trim($_POST['user_id']);
         $message = trim($_POST['message']);
         $is_default = isset($_POST['is_default']) && $_POST['is_default'] == 1;
-        
+
         if(empty($user_id)) exit('{"code":-1,"msg":"用户ID不能为空"}');
         if(empty($message)) exit('{"code":-1,"msg":"消息不能为空"}');
-        
+
         // 如果不是默认消息，需要验证登录
         if(!$is_default && $islogin!=1) exit('{"code":-1,"msg":"未登录"}');
-        
+
         // 检查是否是系统设置的默认消息
         if($is_default && $message != $conf['chat_first_msg']) {
             exit('{"code":-1,"msg":"非法请求"}');
         }
-        
+
         // 插入管理员消息
         if($DB->exec("INSERT INTO pre_chat_message (user_id,type,message,status,addtime) VALUES (:user_id,1,:message,0,NOW())", [
             ':user_id'=>$user_id,
@@ -323,41 +323,41 @@ switch($act){
 
     case 'set':
         if($islogin!=1)exit('{"code":-1,"msg":"未登录"}');
-        
+
         $chat_open = intval($_POST['chat_open']);
         $chat_auto_reply = intval($_POST['chat_auto_reply']);
         $chat_first_msg = trim($_POST['chat_first_msg']);
         $chat_style = trim($_POST['chat_style']);
         $chat_position = trim($_POST['chat_position']);
-        
+
         if(empty($chat_first_msg))exit('{"code":-1,"msg":"首次打开回复内容不能为空"}');
-        
+
         saveSetting('chat_open', $chat_open);
         saveSetting('chat_auto_reply', $chat_auto_reply);
         saveSetting('chat_first_msg', $chat_first_msg);
         saveSetting('chat_style', $chat_style);
         saveSetting('chat_position', $chat_position);
-        
+
         $CACHE->clear();
         exit('{"code":0,"msg":"保存成功"}');
     break;
 
     case 'clear_chat':
         if($islogin!=1)exit('{"code":-1,"msg":"未登录"}');
-        
+
         $user_id = trim($_POST['user_id']);
         if(empty($user_id)) exit('{"code":-1,"msg":"用户ID不能为空"}');
-        
+
         if($DB->exec("DELETE FROM pre_chat_message WHERE user_id=:user_id", [':user_id'=>$user_id]) !== false){
             exit('{"code":0,"msg":"删除成功"}');
         }else{
             exit('{"code":-1,"msg":"删除失败'.$DB->error().'"}');
         }
     break;
-    
+
     case 'clear_all_chat':
         if($islogin!=1)exit('{"code":-1,"msg":"未登录"}');
-        
+
         if($DB->exec("DELETE FROM pre_chat_message") !== false){
             exit('{"code":0,"msg":"清空成功"}');
         }else{
@@ -369,19 +369,19 @@ switch($act){
     case 'reportNetdiskFail':
         $tid = intval($_POST['tid']);
         $reason = trim(htmlspecialchars($_POST['reason']));
-        
+
         // 检查商品是否存在
         $row = $DB->getRow("SELECT * FROM pre_tools WHERE tid='$tid' LIMIT 1");
         if(!$row) {
             exit('{"code":-1,"msg":"商品不存在"}');
         }
-        
+
         // 检查是否已经报备过
         $count = $DB->getColumn("SELECT count(*) FROM pre_netdisk_reports WHERE tid='$tid' AND status<2");
         if($count > 0) {
             exit('{"code":-1,"msg":"该商品已有人报备，正在处理中"}');
         }
-        
+
         // 检查数据表是否存在
         try {
             $DB->query("SELECT 1 FROM pre_netdisk_reports LIMIT 1");
@@ -397,7 +397,7 @@ switch($act){
                 KEY `tid` (`tid`),
                 KEY `status` (`status`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-            
+
             try {
                 $DB->exec($sql);
                 error_log("创建表成功: pre_netdisk_reports");
@@ -417,7 +417,7 @@ switch($act){
                 $DB->exec($sql);
             }
         }
-        
+
         // 插入报备记录
         try {
             // 先检查表是否存在
@@ -428,7 +428,7 @@ switch($act){
             } catch (Exception $e) {
                 error_log("检查表是否存在失败: " . $e->getMessage());
             }
-            
+
             if (!$tableExists) {
                 // 如果表不存在，创建表
                 $sql = "CREATE TABLE IF NOT EXISTS `pre_netdisk_reports` (
@@ -444,7 +444,7 @@ switch($act){
                 $DB->exec($sql);
                 error_log("创建表成功: pre_netdisk_reports");
             }
-            
+
             // 插入数据
             $sql = "INSERT INTO pre_netdisk_reports (tid, reason, addtime, status) VALUES (:tid, :reason, :addtime, 0)";
             $data = [
@@ -452,7 +452,7 @@ switch($act){
                 ':reason' => $reason,
                 ':addtime' => time()
             ];
-            
+
             if($DB->exec($sql, $data)) {
                 exit('{"code":0,"msg":"报备成功，感谢您的反馈！"}');
             } else {
@@ -468,4 +468,4 @@ switch($act){
 
     default:
         exit('{"code":-4,"msg":"No Act"}');
-} 
+}

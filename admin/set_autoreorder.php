@@ -2,8 +2,8 @@
 /*
  * 自动补单设置页面
  * 博客：zhonguo.ren
- * QQ群：915043052
- * 开发者：教主
+ * QQ群：qqfaka
+ * 开发者：岁岁 @qqfaka
  * 功能：管理自动补单功能，设置补单参数、补单规则等
  */
 include("../includes/common.php");
@@ -11,7 +11,7 @@ include("../includes/common.php");
 // 自动创建缺少的表
 function createMissingTables() {
     global $DB;
-    
+
     try {
         // 检查pre_goods表
         $goods_check = $DB->query("SELECT 1 FROM pre_goods LIMIT 1");
@@ -32,7 +32,7 @@ function createMissingTables() {
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1");
         }
-        
+
         // 检查pre_orders表是否有reorder_times和last_reorder_time字段
         $orders_check = $DB->query("SELECT reorder_times, last_reorder_time FROM pre_orders LIMIT 1");
         if ($orders_check === false) {
@@ -41,7 +41,7 @@ function createMissingTables() {
             // 添加last_reorder_time字段
             $DB->exec("ALTER TABLE pre_orders ADD COLUMN last_reorder_time datetime DEFAULT NULL");
         }
-        
+
     } catch (Exception $e) {
         // 忽略错误，继续执行
     }
@@ -98,18 +98,18 @@ if(isset($_POST['submit'])) {
         'autoreorder_after' => intval($_POST['autoreorder_after']),
         'autoreorder_timeout' => intval($_POST['autoreorder_timeout'])
     ];
-    
+
     // 处理订单状态数组
     if(isset($_POST['autoreorder_status'])) {
         $data['autoreorder_status'] = implode(',', $_POST['autoreorder_status']);
     } else {
         $data['autoreorder_status'] = '0,1';
     }
-    
+
     // 保存配置
     $success = 0;
     $error = '';
-    
+
     foreach($data as $key => $value) {
         if($DB->exec("REPLACE INTO pre_config SET k='{$key}',v='{$value}'")) {
             $success++;
@@ -117,11 +117,11 @@ if(isset($_POST['submit'])) {
             $error .= "保存{$key}失败<br/>";
         }
     }
-    
+
     // 检查是否是 AJAX 请求（同时检查 POST 参数中的 ajax 标记）
     $is_ajax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
     $is_ajax = $is_ajax || isset($_POST['ajax']) && $_POST['ajax'] == 1;
-    
+
     if ($is_ajax) {
         // 清空所有输出缓冲区
         ob_clean();
@@ -151,7 +151,7 @@ if(!$last_reorder_time) $last_reorder_time = '从未运行';
 // 获取补单统计信息
 $total_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder_times > 0");
 $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder_times > 0 AND addtime >= CURDATE()");
-?>        
+?>
 
 <div class="col-sm-12 col-md-10 center-block" style="float: none;">
     <div class="block">
@@ -190,9 +190,9 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                             </div>
                         </div>
                     </div>
-                    
+
                     <hr/>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">自动补单</label>
                         <div class="col-sm-10">
@@ -205,7 +205,7 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                             <small class="help-block">开启后将自动执行补单操作</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">补单间隔</label>
                         <div class="col-sm-10">
@@ -216,7 +216,7 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                             <small class="help-block">设置两次补单之间的时间间隔，建议设置为5-15分钟</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">每次补单数</label>
                         <div class="col-sm-10">
@@ -227,7 +227,7 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                             <small class="help-block">每次补单的最大订单数量，建议根据服务器性能设置</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">最大重试次数</label>
                         <div class="col-sm-10">
@@ -238,7 +238,7 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                             <small class="help-block">单个订单的最大补单次数，超过此次数将不再尝试补单</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">补单延迟</label>
                         <div class="col-sm-10">
@@ -249,7 +249,7 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                             <small class="help-block">订单下单后多久开始尝试补单，建议设置为10分钟以上</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">补单超时</label>
                         <div class="col-sm-10">
@@ -260,12 +260,12 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                             <small class="help-block">订单下单后超过此时间将不再补单，建议设置为30-60分钟</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">补单订单状态</label>
                         <div class="col-sm-10">
                             <div class="checkbox-group">
-                                <?php 
+                                <?php
                                 $status_array = explode(',', $autoreorder_config['autoreorder_status']);
                                 ?>
                                 <label class="checkbox-item">
@@ -300,7 +300,7 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                             <small class="help-block">选择哪些状态的订单需要进行自动补单，建议选择未处理、处理中状态</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">计划任务</label>
                         <div class="col-sm-10">
@@ -309,7 +309,7 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                             <small class="help-block">请确保在服务器中设置了计划任务，执行频率建议为5分钟</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
                             <input type="submit" name="submit" value="保存配置" class="btn btn-primary form-control"/>
@@ -318,7 +318,7 @@ $today_reordered = $DB->getColumn("SELECT COUNT(*) FROM pre_orders WHERE reorder
                 </form>
             </div>
         </div>
-        
+
         <div class="card mt-3">
             <div class="card-header">
                 <h3 class="card-title">使用说明</h3>

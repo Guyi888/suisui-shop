@@ -109,7 +109,7 @@ if(!empty($tool['blockpay'])){
                 </div>
             </div>
         </div>
-        
+
 
         <div class="layui-col-sm6" style="margin-top: 0.5em;">
             <div class="layui-card" style="border-radius: 0.5em">
@@ -141,7 +141,7 @@ if(!empty($tool['blockpay'])){
             </div>
         </div>
 
-        
+
         <div class="layui-col-sm6" style="margin-top: 0.5em;">
             <div class="layui-card" style="border-radius: 0.5em">
                 <div class="layui-card-header">
@@ -154,7 +154,7 @@ if(!empty($tool['blockpay'])){
                                title="<p style='width:100%'><img src='./assets/img/rmb.png' width='13px' /> 余额 <span style='color:#999;font-size:0.8em;margin-left:1em'>剩<?php echo $userrow['rmb']?>元</span></p>">
                     </div>
                     <?php } ?>
-					
+
 					<?php  if($conf['alipay_api'] != 0 ){ ?>
                     <div style="padding: 0.3em;border-radius: 0.3em;line-height: 2em;height: 2.5em;">
                         <input type="radio" name="pay" <?php echo ($conf['alipay_api'] != 0 ? '' : 'disabled') ?>
@@ -162,21 +162,21 @@ if(!empty($tool['blockpay'])){
                                title="<p style='width:100%'><img src='./assets/img/alipay.png' width='13px' /> 支付宝</p>">
                     </div>
                     <?php } ?>
-                    
+
                     <?php  if($conf['wxpay_api'] != 0 ){ ?>
                     <div style="padding: 0.3em;border-radius: 0.3em;line-height: 2em;height: 2.5em;">
                         <input type="radio" name="pay" <?php echo ($conf['wxpay_api'] != 0 ? '' : 'disabled') ?> value="wxpay"
                                title="<p style='width:100%'><img src='./assets/img/wxpay.png' width='13px' /> 微信</p>">
                     </div>
                     <?php } ?>
-                    
+
                     <?php  if($conf['qqpay_api'] != 0 ){ ?>
                     <div style="padding: 0.3em;border-radius: 0.3em;line-height: 2em;height: 2.5em;">
                         <input type="radio" name="pay" <?php echo ($conf['qqpay_api'] != 0 ? '' : 'disabled') ?> value="qqpay"
                                title="<p style='width:100%'><img src='./assets/img/qqpay.png' width='13px' /> QQ钱包</p>">
                     </div>
                     <?php } ?>
-                    
+
                     <div id="demo_url" data-url="<?php echo $share_link ?>" style="padding: 0.3em;border-radius: 0.3em;line-height: 2em;height: 2.5em">
                         <input type="radio" name="pay" value="help"
                                title="<p style='width:100%'><img src='./assets/img/payd.png' width='13px' /> 帮我付 (朋友代付)</p>">

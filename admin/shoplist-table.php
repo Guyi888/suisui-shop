@@ -65,7 +65,7 @@ if (isset($_GET["kw"])) {
 	$link = "";
 	$type_text = "";
 	$status_text = "";
-	
+
 	// 处理类型搜索
 	if (isset($_GET["type"])) {
 		$type = trim(daddslashes($_GET["type"]));
@@ -83,7 +83,7 @@ if (isset($_GET["kw"])) {
 			$link .= "&type=" . $type;
 		}
 	}
-	
+
 	// 处理状态搜索
 	if (isset($_GET["status"])) {
 		$status = trim(daddslashes($_GET["status"]));
@@ -104,7 +104,7 @@ if (isset($_GET["kw"])) {
 			$link .= "&status=" . $status;
 		}
 	}
-	
+
 	$numrows = $DB->getColumn("SELECT count(*) from pre_tools A where" . $sql);
 	if ($type_text && $status_text) {
 		$con = "类型为 <b>" . $type_text . "</b> 且状态为 <b>" . $status_text . "</b> 的共有 <b>" . $numrows . "</b> 个商品";
@@ -121,7 +121,7 @@ if (isset($_GET["kw"])) {
         <table class="table table-striped" id="shoplist">
           <thead><tr><th>商品名称</th><th><a href="./shoprank.php" style="color:#000">销量</a></th><th>商品价格设置</th><th>商品类型</th><th class="<?php echo isset($_GET["cid"]) ? "hide" : "";?>">所属分类</th><th class="<?php echo isset($_GET["cid"]) ? "" : "hide";?>">排序操作</th><th>库存</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
 $offset = $pagesize * ($page - 1);
@@ -145,7 +145,7 @@ while ($res = $rs->fetch()) {
 <select name="cid"><option selected>将选定商品移动到分类</option><?php echo $select;?></select><button type="button" onclick="move()">确定移动</button>
 </div>
 </form>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;
@@ -175,7 +175,7 @@ if ($page < $pages) {
 }
 ?></ul><script>
 $("#blocktitle").html('<?php echo $con;?>');
-</script><?php 
+</script><?php
 function display_shoptype($type, $shequ = 0, $tid = 0)
 {
 	global $shequurls;

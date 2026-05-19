@@ -1445,7 +1445,7 @@ fieldset[disabled] .btn-info-light.active {
 
 /*
 =================================================================
-(#alert) div 
+(#alert) div
 =================================================================
 */
 .alert {
@@ -1507,7 +1507,7 @@ fieldset[disabled] .btn-info-light.active {
 
 /*
 =================================================================
-(#content) form 
+(#content) form
 =================================================================
 */
 
@@ -1773,7 +1773,7 @@ menu { display:-webkit-box; display:-ms-flexbox; display:inline-block; }
 
 menu > menuitem { pointer-events: all; opacity:1; }
 menu menuitem a { white-space:nowrap; display: inline; }
-   
+
 menuitem:hover > menu {
    pointer-events:initial;
 }
@@ -1798,7 +1798,7 @@ menu > menuitem > menu {
 /* User Styles Below Not Required */
 /* User Styles Below Not Required */
 
-menu { 
+menu {
    margin-top: 0;
    margin-left: 0;
 }
@@ -1836,9 +1836,9 @@ menu > menuitem > a + menu:after{
    border:10px solid transparent;
    border-top: 10px solid white;
    left:12px;
-   top: -40px;  
+   top: -40px;
 }*/
-menuitem > menu > menuitem > a + menu:after{ 
+menuitem > menu > menuitem > a + menu:after{
    content: '';
    position:absolute;
    border:10px solid transparent;
@@ -1875,10 +1875,10 @@ menuitem > menu > menuitem > menu > menuitem{
    -webkit-transform:translateX(195px) translateY(0%);
            transform:translateX(195px) translateY(0%);
    opacity: 0;
-} 
-menuitem > menu > menuitem:hover > menu > menuitem,  
-menuitem > menu > menuitem.hover > menu > menuitem{  
-   -webkit-transform:translateX(0) translateY(0%);  
+}
+menuitem > menu > menuitem:hover > menu > menuitem,
+menuitem > menu > menuitem.hover > menu > menuitem{
+   -webkit-transform:translateX(0) translateY(0%);
            transform:translateX(0) translateY(0%);
    opacity: 1;
 }
@@ -2357,10 +2357,10 @@ plugin 插件布局样式
     }
 
     .form-inline-mobile .form-control{
-        height: 28px; 
+        height: 28px;
         padding: 2px 3px;
     }
-   
+
 }
 
 /*

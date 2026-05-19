@@ -48,7 +48,7 @@ class AlipayTradeService {
 
 
 	public $token = NULL;
-	
+
 	//返回数据格式
 	public $format = "json";
 
@@ -114,7 +114,7 @@ class AlipayTradeService {
 		{
 			$result = $aop->pageExecute($request,"post");
 		}
-		else 
+		else
 		{
 			$result = $aop->Execute($request);
 		}
@@ -128,7 +128,7 @@ class AlipayTradeService {
 	 * alipay.trade.create
 	 * @param $builder 业务参数，使用build中的对象生成。
 	 * @return $response 支付宝返回的信息
- 	*/
+	*/
 	public function create($req) {
 		$bizContent = $req->getBizContent();
 		$this->writeLog($bizContent);
@@ -180,19 +180,19 @@ class AlipayTradeService {
 	 * alipay.trade.page.pay
 	 * @param $builder 业务参数，使用build中的对象生成。
 	 * @return $response 支付宝返回的信息
- 	*/
+	*/
 	public function pagePay($builder) {
-	
+
 		$biz_content=$builder->getBizContent();
 		//打印业务参数
 		$this->writeLog($biz_content);
-	
+
 		$request = new AlipayTradePagePayRequest();
-	
+
 		$request->setNotifyUrl($this->notify_url);
 		$request->setReturnUrl($this->return_url);
 		$request->setBizContent ( $biz_content );
-	
+
 		// 首先调用支付api
 		$response = $this->aopclientRequestExecute ($request,true);
 		// $response = $response->alipay_trade_wap_pay_response;
@@ -203,19 +203,19 @@ class AlipayTradeService {
 	 * alipay.trade.wap.pay
 	 * @param $builder 业务参数，使用build中的对象生成。
 	 * @return $response 支付宝返回的信息
- 	*/
+	*/
 	public function wapPay($builder) {
-	
+
 		$biz_content=$builder->getBizContent();
 		//打印业务参数
 		$this->writeLog($biz_content);
-	
+
 		$request = new AlipayTradeWapPayRequest();
-	
+
 		$request->setNotifyUrl($this->notify_url);
 		$request->setReturnUrl($this->return_url);
 		$request->setBizContent ( $biz_content );
-	
+
 		// 首先调用支付api
 		$response = $this->aopclientRequestExecute ($request,true);
 		// $response = $response->alipay_trade_wap_pay_response;
@@ -259,12 +259,12 @@ class AlipayTradeService {
 		$this->writeLog($biz_content);
 		$request = new AlipayTradeCloseRequest();
 		$request->setBizContent ( $biz_content );
-	
+
 		$response = $this->aopclientRequestExecute ($request);
 		$response = $response->alipay_trade_close_response;
 		return $response;
 	}
-	
+
 	/**
 	 * 退款查询   alipay.trade.fastpay.refund.query (统一收单交易退款查询)
 	 * @param $builder 业务参数，使用build中的对象生成。
@@ -276,7 +276,7 @@ class AlipayTradeService {
 		$this->writeLog($biz_content);
 		$request = new AlipayTradeFastpayRefundQueryRequest();
 		$request->setBizContent ( $biz_content );
-	
+
 		$response = $this->aopclientRequestExecute ($request);
 		$response = $response->alipay_trade_fastpay_refund_query_response;
 		return $response;
@@ -287,7 +287,7 @@ class AlipayTradeService {
 	 * alipay.trade.query (统一收单线下交易查询)
 	 * @param $builder 业务参数，使用build中的对象生成。
 	 * @return $response 支付宝返回的信息
- 	*/
+	*/
 	public function query($builder) {
 		$biz_content = $builder->getBizContent();
 		//$this->writeLog($biz_content);
@@ -302,10 +302,10 @@ class AlipayTradeService {
 	 * alipay.trade.query (统一收单线下交易查询)
 	 * @param $params 订单参数，可以是字符串或数组
 	 * @return $response 支付宝返回的信息
- 	*/
+	*/
 	public function orderQuery($params) {
 		$queryContentBuilder = new AlipayTradeQueryContentBuilder();
-		
+
 		// 如果是数组，支持out_trade_no或trade_no
 		if (is_array($params)) {
 			if (isset($params['out_trade_no'])) {
@@ -319,7 +319,7 @@ class AlipayTradeService {
 			// 如果是字符串，默认为out_trade_no
 			$queryContentBuilder->setOutTradeNo($params);
 		}
-		
+
 		$response = $this->query($queryContentBuilder);
 		return $response;
 	}
@@ -364,7 +364,7 @@ class AlipayTradeService {
 		return empty($response)||
 					$response->code == "20000";
 	}
-	
+
 
 	/**
 	 * alipay.data.dataservice.bill.downloadurl.query (查询对账单下载地址)
@@ -377,7 +377,7 @@ class AlipayTradeService {
 		$this->writeLog($biz_content);
 		$request = new alipaydatadataservicebilldownloadurlqueryRequest();
 		$request->setBizContent ( $biz_content );
-	
+
 		$response = $this->aopclientRequestExecute ($request);
 		$response = $response->alipay_data_dataservice_bill_downloadurl_query_response;
 		return $response;
@@ -394,7 +394,7 @@ class AlipayTradeService {
 		if(!file_exists($log_dir)) {
 		    mkdir($log_dir, 0755, true);
 		}
-		
+
 		// 记录详细的签名验证日志
 		$log_file = $log_dir . '/alipay_service.log';
 		$log = fopen($log_file, 'a');
@@ -403,12 +403,12 @@ class AlipayTradeService {
 		fwrite($log, '待验证参数: ' . json_encode($arr) . "\n");
 		fwrite($log, '支付宝公钥: ' . $this->alipay_public_key . "\n");
 		fwrite($log, '签名类型: ' . $this->signtype . "\n");
-		
+
 		$aop = new AopClient();
 		$aop->alipayrsaPublicKey = $this->alipay_public_key;
 		$result = $aop->rsaCheckV1($arr, $this->alipay_public_key, $this->signtype);
 		fwrite($log, '第一步签名验证结果: ' . ($result ? '成功' : '失败') . "\n");
-		
+
 		if($result){
 			fwrite($log, '开始查询订单: ' . $arr['trade_no'] . "\n");
 			$queryResponse = $this->orderQuery($arr['trade_no']);
@@ -416,10 +416,10 @@ class AlipayTradeService {
 			$result = $this->querySuccess($queryResponse);
 			fwrite($log, '订单查询验证结果: ' . ($result ? '成功' : '失败') . "\n");
 		}
-		
+
 		fwrite($log, '最终验证结果: ' . ($result ? '成功' : '失败') . "\n");
 		fclose($log);
-		
+
 		return $result;
 	}
 

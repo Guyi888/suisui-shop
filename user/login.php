@@ -2,7 +2,7 @@
 /**
  * 登录页面 - 美化版
  * 博客地址: zhonguo.ren
- * QQ群: 915043052
+ * QQ群: qqfaka
 **/
 $is_defend=true;
 include("../includes/common.php");
@@ -80,7 +80,7 @@ if($conf['cdnpublic']==1){
             <div class="blob1"></div>
             <div class="blob2"></div>
         </div>
-        
+
         <div class="right">
             <div class="form-box">
                 <div class="header">
@@ -107,7 +107,7 @@ if($conf['cdnpublic']==1){
                             </button>
                         </div>
                     </div>
-                    
+
                     <?php if($conf['captcha_open_login']==1 && $conf['captcha_open']>=1){?>
                     <input type="hidden" name="captcha_type" value="<?php echo $conf['captcha_open']?>">
                     <?php if($conf['captcha_open']>=2){?><input type="hidden" name="appid" value="<?php echo $conf['captcha_id']?>"><?php }?>
@@ -124,14 +124,14 @@ if($conf['cdnpublic']==1){
                     </div>
                     <div id="captchaform"></div>
                     <?php }?>
-                    
+
                     <div class="row">
                         <label class="remember">
                             <input type="checkbox" name="remember" value="1"> 记住我
                         </label>
                         <a href="findpwd.php">忘记密码？</a>
                     </div>
-                    
+
                     <button type="button" id="submit_login" class="hover-btn">
                         <span class="label">立即登录</span>
                         <div class="overlay">
@@ -142,7 +142,7 @@ if($conf['cdnpublic']==1){
                         </div>
                     </button>
                 </form>
-                
+
                 <?php if($conf['login_qq']>=1 || $conf['login_wx']>=1){?>
                 <div class="social-account-container">
                     <div class="title">社交账号登录</div>
@@ -164,7 +164,7 @@ if($conf['cdnpublic']==1){
                     </div>
                 </div>
                 <?php }?>
-                
+
                 <div class="divider">
                     还没有账号？<a href="<?php echo $conf['user_open']==1 ? 'reg.php' : 'regsite.php';?>">立即注册</a>
                     <span style="margin:0 8px;">|</span>
@@ -173,7 +173,7 @@ if($conf['cdnpublic']==1){
             </div>
         </div>
     </div>
-    
+
     <script src="<?php echo $cdnpublic?>jquery/1.12.4/jquery.min.js"></script>
     <script src="<?php echo $cdnpublic?>layer/2.3/layer.js"></script>
     <script src="../assets/js/login.js?ver=<?php echo VERSION ?>"></script>

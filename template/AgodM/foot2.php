@@ -28,7 +28,7 @@
           },
           methods: {
             Query_order(_Query) {
-                
+
               $.ajax({
                 type: 'POST',
                 url: './ajax.php?act=query',

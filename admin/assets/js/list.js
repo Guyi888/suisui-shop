@@ -363,7 +363,7 @@ function saveOrder(id) {
 				layer.alert(data.msg);
 			}
 			$('#save').val('保存');
-		} 
+		}
 	});
 }
 function saveOrderNum(id) {
@@ -385,7 +385,7 @@ function saveOrderNum(id) {
 				layer.alert(data.msg);
 			}
 			$('#save').val('保存');
-		} 
+		}
 	});
 }
 $(document).ready(function(){

@@ -73,13 +73,13 @@ $row=$DB->getRow("select * from pre_tools where tid='$tid' limit 1");
 <div class="form-group">
 <label>第一个输入框标题:</label><br>
 <div class="input-group">
-<input type="text" class="form-control" name="input" value="<?php echo $row['input']?>" placeholder="留空默认为“下单账号”"><span class="input-group-btn"><a href="#inputabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="glyphicon glyphicon-exclamation-sign"></i></a></span>
+<input type="text" class="form-control" name="input" value="<?php echo $row['input']?>" placeholder="留空默认为“下单账号”"><span class="input-group-btn"><a href="#inputabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="fa fa-exclamation-circle"></i></a></span>
 </div>
 </div>
 <div class="form-group">
 <label>更多输入框标题:</label><br>
 <div class="input-group">
-<input type="text" class="form-control" name="inputs" value="<?php echo $row['inputs']?>" placeholder="留空则不显示更多输入框"><span class="input-group-btn"><a href="#inputsabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="glyphicon glyphicon-exclamation-sign"></i></a></span>
+<input type="text" class="form-control" name="inputs" value="<?php echo $row['inputs']?>" placeholder="留空则不显示更多输入框"><span class="input-group-btn"><a href="#inputsabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="fa fa-exclamation-circle"></i></a></span>
 </div>
 <pre><font color="green">多个输入框请用|隔开(不能超过4个)</font></pre>
 </div>
@@ -95,7 +95,7 @@ $row=$DB->getRow("select * from pre_tools where tid='$tid' limit 1");
 <label>商品图片:</label><br>
 <input type="file" id="file" onchange="fileUpload()" style="display:none;"/>
 <div class="input-group">
-<input type="text" class="form-control" id="shopimg" name="shopimg" value="<?php echo $row['shopimg']?>" placeholder="填写图片URL，没有请留空"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片"><i class="glyphicon glyphicon-upload"></i></a><a href="javascript:fileView()" class="btn btn-warning" title="查看图片"><i class="glyphicon glyphicon-picture"></i></a></span>
+<input type="text" class="form-control" id="shopimg" name="shopimg" value="<?php echo $row['shopimg']?>" placeholder="填写图片URL，没有请留空"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片"><i class="fa fa-upload"></i></a><a href="javascript:fileView()" class="btn btn-warning" title="查看图片"><i class="fa fa-picture-o"></i></a></span>
 </div>
 </div>
 <div class="form-group">
@@ -114,7 +114,7 @@ $row=$DB->getRow("select * from pre_tools where tid='$tid' limit 1");
 <label>允许重复下单:</label><br>
 <div class="input-group">
 <select class="form-control" name="repeat" default="<?php echo $row['repeat']?>"><option value="0">0_否</option><option value="1">1_是</option></select>
-<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="是指相同下单输入内容（非同一用户）当天只能下单一次，或上一条订单未处理的情况下不能重复下单"><span class="glyphicon glyphicon-info-sign"></span></a>
+<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="是指相同下单输入内容（非同一用户）当天只能下单一次，或上一条订单未处理的情况下不能重复下单"><span class="fa fa-info-circle"></span></a>
 </div>
 </div>
 <div class="form-group">

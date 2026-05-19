@@ -7,7 +7,7 @@
  */
 class AlipayTradePagePayRequest
 {
-	/** 
+	/**
 	 * 统一收单下单并支付页面接口
 	 **/
 	private $bizContent;
@@ -21,7 +21,7 @@ class AlipayTradePagePayRequest
 	private $returnUrl;
     private $needEncrypt=false;
 
-	
+
 	public function setBizContent($bizContent)
 	{
 		$this->bizContent = $bizContent;

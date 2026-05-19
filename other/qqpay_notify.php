@@ -22,12 +22,12 @@ if($qpayNotify->verifySign() && $conf['qqpay_api']==1) {
 		$total_fee = $result['total_fee'];
 		//币种
 		$fee_type = $result['fee_type'];
-		
+
 		//------------------------------
 		//处理业务开始
 		//------------------------------
 		$srow=$DB->getRow("SELECT * FROM pre_pay WHERE trade_no='{$out_trade_no}' LIMIT 1");
-		
+
 		if($srow['status']==0){
 			// 验证实付金额与订单金额是否一致（QQ钱包金额单位为分，需要转换为元）
 			if(floatval($total_fee)/100 == floatval($srow['money'])) {
@@ -57,6 +57,6 @@ if($qpayNotify->verifySign() && $conf['qqpay_api']==1) {
 </xml>";
 }
 
- 
+
 
 ?>

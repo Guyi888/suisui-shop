@@ -16,7 +16,7 @@ class AlipayTradeCloseContentBuilder
 
     // 支付宝交易号
     private $tradeNo;
-    
+
     //卖家端自定义的的操作员 ID
     private $operatorId;
 
@@ -55,13 +55,13 @@ class AlipayTradeCloseContentBuilder
     }
     public function getOperatorId()
     {
-    	return $this->operatorId;
+	return $this->operatorId;
     }
-    
+
     public function setOperatorId($operatorId)
     {
-    	$this->operatorId = $operatorId;
-    	$this->bizContentarr['operator_id'] = $operatorId;
+	$this->operatorId = $operatorId;
+	$this->bizContentarr['operator_id'] = $operatorId;
     }
 
 }

@@ -44,7 +44,7 @@ img.logo{width: 22px;margin: -2px 5px 0 5px;}
 			<div class="form-group" id="display_searchBar">
 				<div class="input-group"><div class="input-group-addon">搜索商品</div>
 				<input type="text" id="searchkw" class="form-control" placeholder="搜索商品" onkeydown="if(event.keyCode==13){$('#doSearch').click()}"/>
-				<div class="input-group-addon"><span class="glyphicon glyphicon-search onclick" title="搜索" id="doSearch"></span></div>
+				<div class="input-group-addon"><span class="fa fa-search onclick" title="搜索" id="doSearch"></span></div>
 			</div></div>
 			<?php }?>
 			<div class="form-group" id="display_selectclass"<?php if($hideclass){?> style="display:none;"<?php }?>>
@@ -64,7 +64,7 @@ img.logo{width: 22px;margin: -2px 5px 0 5px;}
 				<input type="text" name="leftcount" id="leftcount" class="form-control" disabled/>
 			</div></div>
 			<div id="alert_frame" class="alert alert-success animated rubberBand" style="display:none;background: linear-gradient(to right,#71D7A2,#5ED1D7);font-weight: bold;color:white;"></div>
-			
+
 			<div class="form-group">
 				<label>下单账号：</label><br/>
 				<font color="green">请输入【<span id="inputsname" style="color:red">下单账号</span>】，多个用回车换行，如果有多个参数用|隔开</font><br/>

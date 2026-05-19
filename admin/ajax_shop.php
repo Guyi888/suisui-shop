@@ -1,7 +1,7 @@
 <?php
 include("../includes/common.php");
 if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
-$act=isset($_GET['act'])?daddslashes($_GET['act']):null;
+$act=isset($_REQUEST['act'])?daddslashes($_REQUEST['act']):null;
 
 @header('Content-Type: application/json; charset=UTF-8');
 
@@ -19,6 +19,16 @@ case 'getTool':
 	$siteurl = (is_https() ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].$scriptpath.'/';
 	$rows['link'] = $siteurl.'?cid='.$rows['cid'].'&tid='.$rows['tid'];
 	$result=array("code"=>0,"msg"=>"succ","data"=>$rows);
+	exit(json_encode($result));
+break;
+case 'getTools':
+	$cid=intval($_POST['cid']);
+	$rs=$DB->query("SELECT tid,name FROM pre_tools WHERE cid=:cid AND active=1 ORDER BY sort ASC, tid DESC", array(':cid' => $cid));
+	$data = array();
+	while($res=$rs->fetch()){
+		$data[] = array('tid' => $res['tid'], 'name' => $res['name']);
+	}
+	$result=array("code"=>0,"msg"=>"succ","data"=>$data);
 	exit(json_encode($result));
 break;
 case 'getPrice':
@@ -392,12 +402,12 @@ case 'changePriceRule':
 	adminpermission('price', 2);
 	$id=intval($_POST['id']);
 	$cids=$_POST['cids'];
-	
+
 	// 检查cids是否为数组，确保至少有一个分类被选择
 	if(!is_array($cids) || empty($cids)){
 		exit('{"code":-1,"msg":"请选择至少一个分类！"}');
 	}
-	
+
 	// 过滤并验证分类ID
 	$validCids = [];
 	foreach($cids as $cid){
@@ -406,11 +416,11 @@ case 'changePriceRule':
 			$validCids[] = $cid;
 		}
 	}
-	
+
 	if(empty($validCids)){
 		exit('{"code":-1,"msg":"请选择有效的分类！"}');
 	}
-	
+
 	// 构建SQL语句
 	$cidsStr = implode(',', $validCids);
 	$sql="UPDATE pre_tools SET prid='$id' WHERE cid IN ($cidsStr)";
@@ -443,7 +453,7 @@ case 'goodslistbycid':
 			// 插件不存在或加载失败
 		}
 	}
-	
+
 	if($supports_batch){
 		try {
 			$rows = third_call($row['type'], $row, 'goods_list_by_cid', [$cid]);
@@ -473,35 +483,35 @@ case 'batchaddgoods':
 	$parent_cid=isset($_POST['parent_cid'])?intval($_POST['parent_cid']):0;
 	$prid=isset($_POST['prid'])?intval($_POST['prid']):exit('{"code":-1,"msg":"no prid"}');
 	if(count($_POST['list'])==0)exit('{"code":-1,"msg":"请至少选中一个商品"}');
-	
+
 	// 分类映射：原始分类名 => 本地分类ID
 	$category_map = array();
 	$add_success = 0;
 	$update_success = 0;
 	$new_category_count = 0;
-	
+
 	foreach($_POST['list'] as $res){
 		$row = json_decode($res, true);
 		if(!$row || !$row['tid'])continue;
-		
+
 		// 确定当前商品要使用的分类ID
 		$current_mcid = $mcid;
-		
+
 		// 如果不是"新建同名分类"，确保mcid是整数
 		if($mcid != 'new'){
 			$current_mcid = intval($current_mcid);
 		}
-		
+
 		// 如果是"新建同名分类"，则为每个商品创建对应的原始分类
 		if($mcid == 'new' && !empty($row['original_cname'])){
 			$original_cname = $row['original_cname'];
-			
+
 			// 检查分类是否已存在于映射中
 			if(!isset($category_map[$original_cname])){
 				// 检查数据库中是否已存在该分类
 				// 考虑父级分类ID，支持二级分类
 				$existing_cid = $DB->getColumn("SELECT cid FROM pre_class WHERE name=:name AND pid=:pid LIMIT 1", [':name'=>$original_cname, ':pid'=>$parent_cid]);
-				
+
 				if($existing_cid){
 					// 使用已存在的分类
 					$category_map[$original_cname] = $existing_cid;
@@ -526,13 +536,13 @@ case 'batchaddgoods':
 			// 使用映射的分类ID
 			$current_mcid = $category_map[$original_cname];
 		}
-		
+
 		// 检查商品是否已存在
 		$tool=$DB->getRow("SELECT * FROM pre_tools WHERE shequ=:shequ AND goods_id=:goods_id LIMIT 1", [':shequ'=>$shequ, ':goods_id'=>$row['tid']]);
-		
+
 		// 获取默认数量信息，优先使用对接站返回的value
 		$goods_value = isset($row['value']) && $row['value'] > 0 ? intval($row['value']) : 1;
-		
+
 		if($tool){
 			// 更新现有商品
 			$sql = "UPDATE `pre_tools` SET `cid`=:cid,`name`=:name,`price`=:price,`prid`=:prid,`cost`=:cost,`cost2`=:cost2,`prices`=:prices,`input`=:input,`inputs`=:inputs,`desc`=:desc,`alert`=:alert,`shopimg`=:shopimg,`value`=:value,`is_curl`=:is_curl,`curl`=:curl,`shequ`=:shequ,`goods_id`=:goods_id,`goods_type`=:goods_type,`goods_param`=:goods_param,`repeat`=:repeat,`multi`=:multi,`min`=:min,`max`=:max,`validate`=:validate,`valiserv`=:valiserv,`close`=:close WHERE `tid`=:tid";
@@ -553,7 +563,7 @@ case 'batchaddgoods':
 			$DB->exec("INSERT INTO `pre_toollogs` (`content`,`date`,`addtime`,`active`) VALUES (:content, CURDATE(), NOW(), 1)", array(':content' => $content));
 		}
 	}
-	
+
 	// 生成结果消息
 	$msg = '成功添加'.$add_success.'个商品，更新'.$update_success.'个商品！';
 	if($new_category_count > 0){
@@ -564,7 +574,7 @@ case 'batchaddgoods':
 			$msg .= ' 新建了'.$new_category_count.'个一级分类！';
 		}
 	}
-	
+
 	$result=['code'=>0, 'msg'=>$msg];
 	exit(json_encode($result));
 break;

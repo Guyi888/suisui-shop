@@ -53,7 +53,7 @@ while($res = $rs->fetch()){
 		<div class="form-group">
 			<div class="input-group"><div class="input-group-addon">搜索</div>
 			<input type="text" name="kw" value="" class="form-control" placeholder="输入关键词" onkeydown="if(event.keyCode==13){doSearch.click()}" required/>
-			<span class="input-group-addon btn" id="doSearch"><span class="glyphicon glyphicon-search" title="搜索"></span></span>
+			<span class="input-group-addon btn" id="doSearch"><span class="fa fa-search" title="搜索"></span></span>
 		</div></div>
 		<div class="table-responsive">
 			<table class="table table-hover table-bordered">
@@ -76,7 +76,7 @@ foreach($msgrow as $row){
 if($msgcount==0){
 	echo '<tr><td class="text-center"><font color="grey">文章列表空空如也</font></td></tr>';
 }
-?>			
+?>
 			</tbody>
         </table>
 		<?php if($msgcount>$pagesize){

@@ -1,9 +1,9 @@
 <?php
 /**
  * CX-NEW1 模板配置文件
- * 作者：教主
- * 博客地址：zhonguo.ren
- * Q群：915043052
+ * 作者：岁岁 @qqfaka
+ * 博客地址：qqfaka
+ * Q群：qqfaka
  */
 
 $template_info = [

@@ -43,12 +43,12 @@ function unselectall() {
 function batchOperation() {
 	var aid = $("select[name='aid']").val();
 	var checkbox = $("input[name='checkbox[]']:checked");
-	
+
 	if(checkbox.length == 0){
 		layer.msg('请至少选择一条记录', {icon: 2});
 		return false;
 	}
-	
+
 	if(aid == 1){
 		layer.confirm('确定要删除选中的 ' + checkbox.length + ' 条记录吗？删除后将无法恢复！', {
 			btn: ['确定', '取消'],

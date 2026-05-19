@@ -2,7 +2,7 @@
 /**
  * 注册页面 - 美化版
  * 博客地址: zhonguo.ren
- * QQ群: 915043052
+ * QQ群: qqfaka
 **/
 $is_defend=true;
 include("../includes/common.php");
@@ -86,7 +86,7 @@ if($conf['cdnpublic']==1){
             <div class="blob1"></div>
             <div class="blob2"></div>
         </div>
-        
+
         <div class="right">
             <div class="form-box">
                 <div class="header">
@@ -118,7 +118,7 @@ if($conf['cdnpublic']==1){
                         <label for="qq">QQ号码</label>
                         <input type="text" id="qq" name="qq" placeholder="请输入QQ号，用于找回密码" required="required">
                     </div>
-                    
+
                     <?php if($conf['captcha_open']>=1){?>
                     <?php if($conf['captcha_open']>=2){?><input type="hidden" name="appid" value="<?php echo $conf['captcha_id']?>"><?php }?>
                     <div id="captcha">
@@ -142,7 +142,7 @@ if($conf['cdnpublic']==1){
                         </div>
                     </div>
                     <?php }?>
-                    
+
                     <button type="button" id="submit_reg" class="hover-btn">
                         <span class="label">立即注册</span>
                         <div class="overlay">
@@ -153,7 +153,7 @@ if($conf['cdnpublic']==1){
                         </div>
                     </button>
                 </form>
-                
+
                 <div class="divider">
                     已有账号？<a href="login.php">返回登录</a>
                     <span style="margin:0 8px;">|</span>
@@ -162,7 +162,7 @@ if($conf['cdnpublic']==1){
             </div>
         </div>
     </div>
-    
+
     <input type="hidden" name="hashsalt" value="<?php echo $addsalt?>">
     <script src="<?php echo $cdnpublic?>jquery/1.12.4/jquery.min.js"></script>
     <script src="<?php echo $cdnpublic?>layer/2.3/layer.js"></script>

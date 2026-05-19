@@ -140,7 +140,7 @@ class third_kakayun{
 			return '打开对接网站失败';
 		}
 	}
-	
+
 	public function query_order($orderid, $goodsid, $value = []){
 		$order_state = array('未使用','已使用','未付款','进行中','已撤回','已完成');
 		$url = '/dockapi/index/queryorder.html';
@@ -246,7 +246,7 @@ class third_kakayun{
 				}else{
 					$class_name = '分类-' . $rows['id'];
 				}
-				
+
 				if(isset($rows['goods']) && is_array($rows['goods'])){
 					foreach($rows['goods'] as $row){
 						$list[] = array(
@@ -306,7 +306,7 @@ class third_kakayun{
 				}else{
 					$class_name = '分类-' . $row['id'];
 				}
-				
+
 				$list[] = array(
 					'cid' => $row['id'],
 					'name' => $class_name
@@ -332,7 +332,7 @@ class third_kakayun{
 			$list = [];
 			foreach($json['data'] as $rows){
 				if($rows['id'] != $cid)continue;
-				
+
 				$class_name = '';
 				if(isset($rows['groupname'])){
 					$class_name = $rows['groupname'];
@@ -345,7 +345,7 @@ class third_kakayun{
 				}else{
 					$class_name = '分类-' . $rows['id'];
 				}
-				
+
 				if(isset($rows['goods']) && is_array($rows['goods'])){
 					foreach($rows['goods'] as $row){
 						$list[] = array(

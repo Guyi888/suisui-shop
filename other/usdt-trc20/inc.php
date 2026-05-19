@@ -91,7 +91,7 @@ function getTransferInList(): array
         }
 
         foreach ($data['token_transfers'] as $transfer) {
-            if (isset($transfer['to_address'], $transfer['finalResult'], $transfer['block_ts'], $transfer['quant'], $transfer['transaction_id']) && 
+            if (isset($transfer['to_address'], $transfer['finalResult'], $transfer['block_ts'], $transfer['quant'], $transfer['transaction_id']) &&
                 $transfer['to_address'] == $USDT_ADDRESS && $transfer['finalResult'] == 'SUCCESS') {
                 $result[] = [
                     'time'     => $transfer['block_ts'] / 1000,

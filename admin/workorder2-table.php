@@ -30,8 +30,8 @@ $offset = $pagesize * ($page - 1);
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>ZID</th><th>商品ID</th><th>订单号</th><th>问题描述</th><th>状态</th><th>提交时间</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
-// 直接将limit和offset拼接到SQL语句中（MySQL PDO不支持将limit和offset作为参数）	
+<?php
+// 直接将limit和offset拼接到SQL语句中（MySQL PDO不支持将limit和offset作为参数）
 $rs = $DB->query("SELECT * FROM pre_workorder WHERE" . $sql . " order by id desc limit " . $offset . "," . $pagesize, $params);
 while ($res = $rs->fetch()) {
 	$content = explode("*", $res["content"]);
@@ -45,7 +45,7 @@ while ($res = $rs->fetch()) {
 <select name="aid"><option selected>批量操作</option><option value="1">&gt;改为待处理</option><option value="2">&gt;改为已完成</option><option value="3">&gt;批量回复</option><option value="4">&gt;删除选中</option></select><button type="button" onclick="change()">执行</button>
       </div>
 	  </form>
-<div class="text-center"><ul class="pagination"><?php 
+<div class="text-center"><ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;
@@ -73,7 +73,7 @@ if ($page < $pages) {
 	echo "<li class=\"disabled\"><a>&raquo;</a></li>";
 	echo "<li class=\"disabled\"><a>尾页</a></li>";
 }
-?></ul></div><?php 
+?></ul></div><?php
 function getid($id)
 {
 	global $DB;

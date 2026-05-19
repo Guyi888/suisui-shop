@@ -37,14 +37,14 @@ if($conf['qiandao_virtual']==1){
 	// 虚拟签到数据
 	$virtual_data = array();
 	$now = time();
-	
+
 	// 生成5条虚拟签到记录
 	for($i=0; $i<5; $i++){
 		$virtual_zid = rand(1000, 9999); // 随机ZID
 		$virtual_time = date("Y-m-d H:i:s", $now - rand(10, 3600)); // 10秒到1小时前
 		$virtual_reward = number_format(rand(1, 50) / 100, 2); // 0.01-0.50元
 		$virtual_continue = rand(1, 30); // 1-30天连续签到
-		
+
 		$virtual_data[] = array(
 			'zid' => $virtual_zid,
 			'time' => $virtual_time,
@@ -52,18 +52,18 @@ if($conf['qiandao_virtual']==1){
 			'continue' => $virtual_continue
 		);
 	}
-	
+
 	// 合并虚拟数据和真实数据，并按时间倒序排序
 	$all_data = array_merge($qdrow, $virtual_data);
-	
+
 	// 按时间倒序排序
 	usort($all_data, function($a, $b) {
 		return strtotime($b['time']) - strtotime($a['time']);
 	});
-	
+
 	// 只保留前10条
 	$qdrow = array_slice($all_data, 0, 10);
-	
+
 	// 更新最新签到榜的头像
 	$qqrow = array();
 	foreach($qdrow as $row){
@@ -77,8 +77,6 @@ $title = '每日签到';
 include 'head.php';
 ?>
 
-<!-- 引入淡蓝色主题 -->
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 
 <?php
 $url = 'http://'.$userrow['domain'].'/';
@@ -118,7 +116,7 @@ if($conf['fanghong_api']>0){
 			</div>
 			<div class="panel-footer">
 				<button type="button" class="btn btn-info btn-block" id="qiandao" style="width: 69%;display: inline-block;" ><span style="font-size:16px" ><b><i class="fa fa-check-square"></i> <?php echo $isqiandao==true?'今天已签到':'立即签到';?></b></span></button>
-				<a  href="#fxhy" data-toggle="modal" title="点击分享本站"><button type="button" class="btn btn-danger btn-block" style="width: 29%;display: inline-block;margin-top: -0.1em;"><span style="font-size:16px" ><b><i class="fa fa-external-link"></i> 分享</b></span></button></a>	
+				<a  href="#fxhy" data-toggle="modal" title="点击分享本站"><button type="button" class="btn btn-danger btn-block" style="width: 29%;display: inline-block;margin-top: -0.1em;"><span style="font-size:16px" ><b><i class="fa fa-external-link"></i> 分享</b></span></button></a>
 			</div>
 			</div>
 			<div class="panel panel-default text-center">
@@ -198,18 +196,18 @@ foreach($qdrow as $row){
               <li class="list-group-item">将网站分享给你的好友，有机会获取10W名片赞或者永久超级会员哟！</li>
             </div>
           </div>
-        </div>      
+        </div>
         <!--复制广告词分享结束-->
 <?php include './foot.php';?>
 <script src="<?php echo $cdnpublic?>clipboard.js/1.7.1/clipboard.min.js"></script>
 <script>
 var clipboard = new Clipboard('.fenx');
 clipboard.on('success', function(e) {
-  	layer.msg("复制成功,快去分享给朋友一起来领免费名片赞吧！", {icon: 1});
+	layer.msg("复制成功,快去分享给朋友一起来领免费名片赞吧！", {icon: 1});
 });
 clipboard.on('error', function(e) {
      layer.msg("复制失败，请长按链接后手动复制", {icon: 2});
-});	
+});
 $(document).ready(function(){
 	$("#qiandao").click(function(){
 		$.ajax({
@@ -226,7 +224,7 @@ $(document).ready(function(){
 			}
 		 },
 		 error: function(){
-			layer.alert('签到失败，请稍后刷新重试！'); 
+			layer.alert('签到失败，请稍后刷新重试！');
 		 }
 	   });
 	});

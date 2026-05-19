@@ -1,7 +1,7 @@
 <?php
 // 客服工作台
 // 博客地址：zhonguo.ren
-// Q群：915043052
+// Q群：qqfaka
 include "../includes/common.php";
 $title = "客服工作台";
 include "./head.php";
@@ -13,17 +13,31 @@ if ($islogin != 1) {
 if (!$DB->query("SELECT 1 FROM shua_chat_session LIMIT 1")) {
     $DB->exec("CREATE TABLE IF NOT EXISTS shua_chat_session (
         id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+        zid INT(11) UNSIGNED DEFAULT '0' COMMENT '账号ID，0表示游客',
         user_ip VARCHAR(50) NOT NULL,
-        user_id INT(11) UNSIGNED DEFAULT 0,
-        username VARCHAR(50) DEFAULT '',
+        user_agent TEXT,
         status TINYINT(1) DEFAULT 1,
         create_time DATETIME NOT NULL,
         last_msg_time DATETIME NOT NULL,
         PRIMARY KEY (id),
+        INDEX idx_zid (zid),
         INDEX idx_user_ip (user_ip),
         INDEX idx_status (status),
         INDEX idx_last_msg_time (last_msg_time)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+} else {
+    // 检查并添加 zid 字段（如果旧表没有）
+    $columns = $DB->getAll("SHOW COLUMNS FROM shua_chat_session");
+    $has_zid = false;
+    foreach($columns as $col) {
+        if($col['Field'] == 'zid') {
+            $has_zid = true;
+            break;
+        }
+    }
+    if(!$has_zid) {
+        $DB->exec("ALTER TABLE shua_chat_session ADD COLUMN zid INT(11) UNSIGNED DEFAULT '0' COMMENT '账号ID，0表示游客' AFTER id, ADD INDEX idx_zid (zid)");
+    }
 }
 
 if (!$DB->query("SELECT 1 FROM shua_chat_message LIMIT 1")) {
@@ -102,14 +116,14 @@ function loadSessionList() {
                 res.data.forEach(function(item) {
                     totalUnread += parseInt(item.unread || 0);
                     var displayName = item.username ? item.username : item.user_ip;
-                    html += '<a href="#" class="list-group-item'+(item.id==currentSessionId?' active':'')+'" data-id="'+item.id+'">'+ 
-                        '<span class="badge">'+(item.unread>0?item.unread:'')+'</span>'+displayName+'<br><small>'+item.last_msg_time+'</small>'+ 
-                        (item.status==0?'<span class="label label-default pull-right">已关闭</span>':'')+ 
+                    html += '<a href="#" class="list-group-item'+(item.id==currentSessionId?' active':'')+'" data-id="'+item.id+'">'+
+                        '<span class="badge">'+(item.unread>0?item.unread:'')+'</span>'+displayName+'<br><small>'+item.last_msg_time+'</small>'+
+                        (item.status==0?'<span class="label label-default pull-right">已关闭</span>':'')+
                         '</a>';
                 });
             }
             $('#chat-session-list .list-group').html(html);
-            
+
             // 检查是否有新的未读消息
             if(totalUnread > lastUnreadCount) {
                 // 有新消息，播放通知声音
@@ -131,29 +145,29 @@ function loadMessageList(sessionId, scrollBottom, playSound) {
     // 保存当前滚动位置，用于检测新消息
     var currentHeight = $('#chat-message-list')[0].scrollHeight;
     var isAtBottom = $('#chat-message-list').scrollTop() + $('#chat-message-list').height() >= currentHeight - 50;
-    
+
     $.get('ajax.php?act=chat_message_list&session_id='+sessionId, function(res) {
         if(res.code === 0) {
             // 保存当前会话的最后消息ID
             var currentLastId = lastMessageIds[sessionId] || 0;
             var newUserMessages = [];
             var hasNewUserMessages = false;
-            
+
             // 计算消息列表的哈希值，用于检测消息是否有变化
             var messageHash = '';
             res.data.forEach(function(msg) {
                 messageHash += msg.id + '_' + msg.type + '_' + msg.content + '|';
             });
-            
+
             // 检查消息是否有变化
             if(lastMessageListHash[sessionId] === messageHash) {
                 // 消息没有变化，不更新DOM，直接返回
                 return;
             }
-            
+
             // 更新消息列表哈希
             lastMessageListHash[sessionId] = messageHash;
-            
+
             var html = '';
             res.data.forEach(function(msg) {
                 if(msg.type==1) {
@@ -163,19 +177,19 @@ function loadMessageList(sessionId, scrollBottom, playSound) {
                 } else {
                     html += '<div class="'+(msg.sender=='admin'?'text-right':'text-left')+'"><span class="label label-'+(msg.sender=='admin'?'primary':'default')+'">'+(msg.sender=='admin'?'客服':'用户')+'</span> '+msg.content+' <small>'+msg.create_time+'</small></div>';
                 }
-                
+
                 // 检查是否是新的用户消息
                 if(msg.id > currentLastId && msg.sender !== 'admin') {
                     newUserMessages.push(msg);
                     hasNewUserMessages = true;
                 }
             });
-            
+
             // 更新最后消息ID
             if(res.data.length > 0) {
                 lastMessageIds[sessionId] = res.data[res.data.length - 1].id;
             }
-            
+
             // 只有当有新的用户消息且不是首次加载时才播放声音
             if(hasNewUserMessages && currentLastId > 0 && playSound !== false && chatSoundEnabled) {
                 var audio = document.getElementById('chat-notification-audio');
@@ -185,10 +199,10 @@ function loadMessageList(sessionId, scrollBottom, playSound) {
                     });
                 }
             }
-            
+
             if(html==='') html = '<div class="text-center text-muted" style="margin-top:200px;">暂无消息</div>';
             $('#chat-message-list').html(html);
-            
+
             // 自动滚动到底部（如果之前就在底部）
             if(scrollBottom!==false || isAtBottom) {
                 $('#chat-message-list').scrollTop($('#chat-message-list')[0].scrollHeight);
@@ -220,19 +234,19 @@ $(function(){
         $(this).addClass('active');
         $('#chat-reply-box').show();
         $('#chat-reply-form [name=session_id]').val(sid);
-        
+
         // 显示会话标题
         var displayName = $(this).text().trim();
         displayName = displayName.split('\n')[0];
         displayName = displayName.replace(/\d+/, '').trim();
         $('#chat-session-title').text('会话：'+displayName);
-        
+
         // 清除该会话的未读计数，防止点击后继续响
         $(this).find('.badge').text('').hide();
-        
+
         // 加载消息列表，不播放声音
         loadMessageList(sid, true, false);
-        
+
         // 更新全局未读计数
         setTimeout(function() {
             $.get('ajax.php?act=chat_session_list', function(res) {
@@ -478,15 +492,15 @@ function openImageModal(src) {
     var modal = document.getElementById('chat-image-modal');
     var modalImg = document.getElementById('chat-image-modal-content');
     var closeBtn = document.getElementById('chat-image-modal-close');
-    
+
     modal.style.display = 'block';
     modalImg.src = src;
-    
+
     // 点击关闭按钮
     closeBtn.onclick = function() {
         modal.style.display = 'none';
     }
-    
+
     // 点击模态框外部关闭
     modal.onclick = function(event) {
         if (event.target == modal) {
@@ -500,17 +514,17 @@ function openVideoModal(src) {
     var modal = document.getElementById('chat-video-modal');
     var modalVideo = document.getElementById('chat-video-modal-content');
     var closeBtn = document.getElementById('chat-video-modal-close');
-    
+
     modal.style.display = 'block';
     modalVideo.src = src;
     modalVideo.play();
-    
+
     // 点击关闭按钮
     closeBtn.onclick = function() {
         modal.style.display = 'none';
         modalVideo.pause();
     }
-    
+
     // 点击模态框外部关闭
     modal.onclick = function(event) {
         if (event.target == modal) {
@@ -520,4 +534,4 @@ function openVideoModal(src) {
     }
 }
 </script>
-<?php include "./foot.php";?> 
+<?php include "./foot.php";?>

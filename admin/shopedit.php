@@ -60,7 +60,7 @@ if ($islogin == 1) {
     </div>
   </div>
 </div>
-<?php 
+<?php
 adminpermission("shop", 1);
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 // 获取所有活跃分类，区分一级和二级
@@ -219,7 +219,7 @@ if ($my == "add") {
 <div class="form-group">
 <label>*商品分类:</label><br>
 <!-- 添加分类搜索功能 -->
-<select name="cid" class="form-control" id="categorySelect" default="<?php echo htmlspecialchars($_GET["cid"]);?>'" style="width:100%">
+<select name="cid" class="form-control" id="categorySelect" default="<?php echo htmlspecialchars($_GET["cid"]);?>" style="width:100%">
 <?php echo $select;?>
 </select>
 <script>
@@ -238,7 +238,7 @@ $(document).ready(function() {
             }
         }
     });
-    
+
     // 如果有默认值，设置选中状态
     var defaultCid = '<?php echo htmlspecialchars($_GET["cid"]);?>';
     if(defaultCid && defaultCid != 0) {
@@ -297,13 +297,13 @@ $(document).ready(function() {
 <div class="form-group">
 <label>第一个输入框标题:</label><br>
 <div class="input-group">
-<input type="text" class="form-control" name="input" value="" placeholder="留空默认为“下单账号”"><span class="input-group-btn"><a href="#inputabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="glyphicon glyphicon-exclamation-sign"></i></a></span>
+<input type="text" class="form-control" name="input" value="" placeholder="留空默认为“下单账号”"><span class="input-group-btn"><a href="#inputabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="fa fa-exclamation-circle"></i></a></span>
 </div>
 </div>
 <div class="form-group">
 <label>更多输入框标题:</label><br>
 <div class="input-group">
-<input type="text" class="form-control" name="inputs" value="" placeholder="留空则不显示更多输入框"><span class="input-group-btn"><a href="#inputsabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="glyphicon glyphicon-exclamation-sign"></i></a></span>
+<input type="text" class="form-control" name="inputs" value="" placeholder="留空则不显示更多输入框"><span class="input-group-btn"><a href="#inputsabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="fa fa-exclamation-circle"></i></a></span>
 </div>
 <pre><font color="green">多个输入框请用|隔开(不能超过4个)</font></pre>
 </div>
@@ -319,7 +319,7 @@ $(document).ready(function() {
 <label>商品图片:</label><br>
 <input type="file" id="file" onchange="fileUpload()" style="display:none;"/>
 <div class="input-group">
-<input type="text" class="form-control" id="shopimg" name="shopimg" value="" placeholder="填写图片URL，没有请留空"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片"><i class="glyphicon glyphicon-upload"></i></a><a href="javascript:fileView()" class="btn btn-warning" title="查看图片"><i class="glyphicon glyphicon-picture"></i></a></span>
+<input type="text" class="form-control" id="shopimg" name="shopimg" value="" placeholder="填写图片URL，没有请留空"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片"><i class="fa fa-upload"></i></a><a href="javascript:fileView()" class="btn btn-warning" title="查看图片"><i class="fa fa-picture-o"></i></a></span>
 </div>
 </div>
 <div class="form-group">
@@ -342,7 +342,7 @@ $(document).ready(function() {
 <br>
 <div class="input-group">
 <select class="form-control" name="repeat"><option value="0">0_否</option><option value="1">1_是</option></select>
-<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="是指相同下单输入内容（非同一用户）当天只能下单一次，或上一条订单未处理的情况下不能重复下单"><span class="glyphicon glyphicon-info-sign"></span></a>
+<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="是指相同下单输入内容（非同一用户）当天只能下单一次，或上一条订单未处理的情况下不能重复下单"><span class="fa fa-info-circle"></span></a>
 </div>
 </div>
 <div class="form-group">
@@ -362,7 +362,7 @@ $(document).ready(function() {
 </div></div>
 </div>
 </form>
-<?php 
+<?php
 } elseif ($my == "edit") {
 	$tid = intval($_GET["tid"]);
 	$row = $DB->getRow("select * from pre_tools where tid=:tid limit 1", array(":tid" => $tid));
@@ -494,7 +494,7 @@ $(document).ready(function() {
             }
         }
     });
-    
+
     // 设置默认选中状态
     var defaultCid = '<?php echo $row["cid"];?>';
     if(defaultCid && defaultCid != 0) {
@@ -553,13 +553,13 @@ $(document).ready(function() {
 <div class="form-group">
 <label>第一个输入框标题:</label><br>
 <div class="input-group">
-<input type="text" class="form-control" name="input" value="<?php echo $row["input"];?>" placeholder="留空默认为“下单账号”"><span class="input-group-btn"><a href="#inputabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="glyphicon glyphicon-exclamation-sign"></i></a></span>
+<input type="text" class="form-control" name="input" value="<?php echo $row["input"];?>" placeholder="留空默认为“下单账号”"><span class="input-group-btn"><a href="#inputabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="fa fa-exclamation-circle"></i></a></span>
 </div>
 </div>
 <div class="form-group">
 <label>更多输入框标题:</label><br>
 <div class="input-group">
-<input type="text" class="form-control" name="inputs" value="<?php echo $row["inputs"];?>" placeholder="留空则不显示更多输入框"><span class="input-group-btn"><a href="#inputsabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="glyphicon glyphicon-exclamation-sign"></i></a></span>
+<input type="text" class="form-control" name="inputs" value="<?php echo $row["inputs"];?>" placeholder="留空则不显示更多输入框"><span class="input-group-btn"><a href="#inputsabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="fa fa-exclamation-circle"></i></a></span>
 </div>
 <pre><font color="green">多个输入框请用|隔开(不能超过4个)</font></pre>
 </div>
@@ -575,7 +575,7 @@ $(document).ready(function() {
 <label>商品图片:</label><br>
 <input type="file" id="file" onchange="fileUpload()" style="display:none;"/>
 <div class="input-group">
-<input type="text" class="form-control" id="shopimg" name="shopimg" value="<?php echo $row["shopimg"];?>" placeholder="填写图片URL，没有请留空"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片"><i class="glyphicon glyphicon-upload"></i></a><a href="javascript:fileView()" class="btn btn-warning" title="查看图片"><i class="glyphicon glyphicon-picture"></i></a></span>
+<input type="text" class="form-control" id="shopimg" name="shopimg" value="<?php echo $row["shopimg"];?>" placeholder="填写图片URL，没有请留空"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片"><i class="fa fa-upload"></i></a><a href="javascript:fileView()" class="btn btn-warning" title="查看图片"><i class="fa fa-picture-o"></i></a></span>
 </div>
 </div>
 <div class="form-group">
@@ -598,7 +598,7 @@ $(document).ready(function() {
 <br>
 <div class="input-group">
 <select class="form-control" name="repeat" default="<?php echo $row["repeat"];?>"><option value="0">0_否</option><option value="1">1_是</option></select>
-<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="是指相同下单输入内容（非同一用户）当天只能下单一次，或上一条订单未处理的情况下不能重复下单"><span class="glyphicon glyphicon-info-sign"></span></a>
+<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="是指相同下单输入内容（非同一用户）当天只能下单一次，或上一条订单未处理的情况下不能重复下单"><span class="fa fa-info-circle"></span></a>
 </div>
 </div>
 <div class="form-group">
@@ -618,7 +618,7 @@ $(document).ready(function() {
 </div></div>
 </div>
 </form>
-<?php 
+<?php
 } elseif ($my == "add_submit") {
 	$cid = $_POST["cid"];
 	$name = $_POST["name"];
@@ -751,7 +751,7 @@ var isAdd = true;
 </script>
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/shopedit.js?ver=<?php echo VERSION;?>"></script>
-<?php 
+<?php
 if ($conf["shopdesc_editor"]) {
 	?><script charset="utf-8" src="../assets/kindeditor/kindeditor-all-min.js"></script>
 <script charset="utf-8" src="../assets/kindeditor/zh-CN.js"></script>
@@ -769,10 +769,10 @@ KindEditor.ready(function(K) {
 	});
 });
 </script>
-<?php 
+<?php
 }
 ?><script>
-<?php 
+<?php
 \lib\Plugin::showThirdPluginsEditJs();
 ?></script>
 </body>

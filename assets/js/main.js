@@ -13,6 +13,7 @@ var $_GET = (function () {
     return {};
   }
 })();
+var isModal = false;
 function getcount() {
   $.ajax({
     type: "GET",
@@ -824,7 +825,7 @@ function queryOrder(type, content, page) {
     return;
   }
   queryOrderExecuting = true;
-  
+
   $("#submit_query").val("Loading");
   $("#result2").hide();
   $("#list").html("");
@@ -1067,7 +1068,7 @@ function showOrder(id, skey) {
           item += data.kminfo;
           item += "</div>";
         }
-        
+
         // 显示订单实时状态（如果有，且数量大于100或者是div对接商品）
         if (data.list && typeof data.list === "object") {
           // 检查是否需要显示订单实时状态
@@ -1095,7 +1096,7 @@ function showOrder(id, skey) {
               showRealTimeStatus = true;
             }
           }
-          
+
           // 只有当需要显示实时状态时才显示
           if (showRealTimeStatus) {
             item +=
@@ -1220,20 +1221,20 @@ function copyText(text) {
 
 function formatTimestamp(timestamp) {
   if (!timestamp) return '';
-  
+
   var time = parseInt(timestamp);
   if (isNaN(time)) return timestamp;
-  
+
   var date = new Date(time * 1000);
   if (isNaN(date.getTime())) return timestamp;
-  
+
   var year = date.getFullYear();
   var month = String(date.getMonth() + 1).padStart(2, '0');
   var day = String(date.getDate()).padStart(2, '0');
   var hours = String(date.getHours()).padStart(2, '0');
   var minutes = String(date.getMinutes()).padStart(2, '0');
   var seconds = String(date.getSeconds()).padStart(2, '0');
-  
+
   return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
 }
 function apply_refund(id, skey) {
@@ -1626,12 +1627,12 @@ var audio_init = {
   },
 };
 $(document).ready(function () {
-  // 二级分类点击事件 - 教主修改，博客地址：6v6.ren Q群：941535592
+  // 二级分类点击事件 - 岁岁 @qqfaka修改，岁岁 @qqfaka
   $(".goodTypeChange").click(function () {
     var id = $(this).data("id");
     var img = $(this).data("img");
     var notice = $(this).data("notice");
-    
+
     // 如果有提示语，显示弹窗
     if(notice && notice.trim() != '') {
       layer.alert(notice, {
@@ -1640,7 +1641,7 @@ $(document).ready(function () {
         btn: ['我知道了']
       });
     }
-    
+
     history.replaceState({}, null, "./?cid=" + id);
     $("#cid").val(id);
     $("#cid").change();
@@ -1963,7 +1964,7 @@ $(document).ready(function () {
       user-select: none !important;
       resize: none !important;
     }
-    
+
     .layui-layer {
       position: fixed !important;
       top: 50% !important;
@@ -1975,62 +1976,62 @@ $(document).ready(function () {
       -webkit-user-drag: none !important;
       user-drag: none !important;
     }
-    
+
     .layui-layer-shade {
       pointer-events: auto !important;
     }
-    
+
     .payment-layer-custom::-webkit-scrollbar {
       display: none !important;
     }
-    
+
     @media (min-width: 768px) {
       .payment-layer-custom {
         padding: 24px !important;
       }
     }
-    
+
     .order-header {
       text-align: center;
       padding: 8px 0 16px;
       margin-bottom: 10px;
     }
-    
+
     .success-icon {
       color: #52c41a;
       font-size: 40px;
       margin-bottom: 8px;
       display: block;
     }
-    
+
     .order-title {
       font-size: 16px;
       color: #333;
       font-weight: 500;
       margin: 0 0 12px 0;
     }
-    
+
     .order-amount {
       font-size: 28px;
       color: #1677ff;
       font-weight: 600;
       margin: 0;
     }
-    
+
     /* 金额响应式 */
     @media (max-width: 360px) {
       .order-amount {
         font-size: 24px;
       }
     }
-    
+
     .payment-options {
       display: flex;
       flex-direction: column;
       gap: 10px;
       margin: 20px 0;
     }
-    
+
     .payment-btn {
       display: flex;
       align-items: center;
@@ -2045,47 +2046,47 @@ $(document).ready(function () {
       width: 100%;
       cursor: pointer;
     }
-    
+
     .payment-btn:active {
       transform: translateY(1px);
       opacity: 0.9;
     }
-    
-    .alipay-btn { 
+
+    .alipay-btn {
       background: #4096ff;
     }
-    
-    .wechat-btn { 
+
+    .wechat-btn {
       background: #07c160;
     }
-    
-    .qqpay-btn { 
+
+    .qqpay-btn {
       background: #12b7f5;
     }
-    
-    .balance-btn { 
+
+    .balance-btn {
       background: #597ef7;
     }
-    
+
     .payment-logo {
       width: 22px;
       height: 22px;
       margin-right: 10px;
       flex-shrink: 0;
     }
-    
+
     .balance-remain {
       margin-left: 6px;
       font-size: 13px;
       opacity: 0.9;
     }
-    
+
     .custom-paymsg {
       margin-top: 8px;
       font-size: 13px;
       line-height: 1.5;
     }
-    
+
     .cancel-order-btn {
       width: 100%;
       padding: 12px;
@@ -2099,45 +2100,45 @@ $(document).ready(function () {
       cursor: pointer;
       margin-top: 15px;
     }
-    
+
     .cancel-order-btn:active {
       background: #e8e8e8;
     }
-    
+
     .cancel-order-btn i {
       margin-right: 6px;
     }
-    
+
     @media (max-width: 375px) {
       .payment-layer-custom {
         padding: 18px !important;
         border-radius: 18px 18px 0 0 !important;
       }
-      
+
       .payment-btn {
         padding: 12px 16px;
         font-size: 14px;
         border-radius: 8px;
       }
-      
+
       .payment-logo {
         width: 20px;
         height: 20px;
         margin-right: 8px;
       }
-      
+
       .order-title {
         font-size: 15px;
       }
-      
+
       .order-amount {
         font-size: 26px;
       }
-      
+
       .success-icon {
         font-size: 36px;
       }
-      
+
       .cancel-order-btn {
         padding: 11px;
         font-size: 14px;
@@ -2145,13 +2146,13 @@ $(document).ready(function () {
       }
     }
 </style>
-  
+
   <div class="order-header">
     <i class="fa fa-check-circle success-icon"></i>
     <h2 class="order-title">请选择支付方式</h2>
     <div class="order-amount">¥ ${data.need}</div>
   </div>
-  
+
   <div class="payment-options">
     ${
       data.pay_alipay > 0
@@ -2163,7 +2164,7 @@ $(document).ready(function () {
     `
         : ""
     }
-    
+
     ${
       data.pay_wxpay > 0
         ? `
@@ -2174,7 +2175,7 @@ $(document).ready(function () {
     `
         : ""
     }
-    
+
     ${
       data.pay_qqpay > 0
         ? `
@@ -2185,7 +2186,7 @@ $(document).ready(function () {
     `
         : ""
     }
-    
+
     ${
       data.pay_rmb > 0
         ? `
@@ -2197,10 +2198,10 @@ $(document).ready(function () {
     `
         : ""
     }
-    
+
     ${data.paymsg ? `<div class="custom-paymsg">${data.paymsg}</div>` : ""}
   </div>
-  
+
   <button class="cancel-order-btn" onclick="cancel('${data.trade_no}')">
     <i class="fa fa-times"></i> 取消订单
   </button>
@@ -2673,6 +2674,72 @@ $(document).ready(function () {
       },
     });
   });
+
+  $(document).on('click', '#recommendBtn', function () {
+    loadRecommendList();
+  });
+
+  function loadRecommendList() {
+    var ii = layer.load(1, {shade: [0.3, '#000']});
+    $.ajax({
+      type: "GET",
+      url: "ajax.php?act=getRecommend",
+      dataType: "json",
+      timeout: 10000,
+      success: function (data) {
+        layer.close(ii);
+        if (data && data.code == 0 && data.data) {
+          var html = "";
+          if (data.data.length > 0) {
+            $.each(data.data, function (index, item) {
+              html += '<div class="recommend-item" style="padding: 12px; border-bottom: 1px dashed #eee; cursor: pointer; transition: all 0.3s;" data-cid="' + (item.cid || 0) + '" data-tid="' + (item.tid || 0) + '">';
+              html += '<div style="display: flex; align-items: center;">';
+              html += '<span style="margin-right: 10px; color: #ff9f43;">★</span>';
+              html += '<span style="font-weight: bold; color: #333; flex: 1;">' + (item.name || '') + '</span>';
+              html += '<span style="color: #ff6b6b; font-size: 14px;">¥' + (item.price || '0.00') + '</span>';
+              html += '</div>';
+              html += '</div>';
+            });
+          } else {
+            html = '<div style="text-align: center; padding: 40px; color: #999;">暂无推荐商品</div>';
+          }
+
+          layer.open({
+            type: 1,
+            title: '<i class="fa fa-star" style="color: #ff9f43;"></i> 商品推荐',
+            area: ['90%', '500px'],
+            content: '<div style="max-height: 420px; overflow-y: auto; padding: 10px;">' + html + '</div>',
+            success: function(layero, index){
+              $(layero).find('.recommend-item').click(function(){
+                var cid = $(this).attr("data-cid");
+                var tid = $(this).attr("data-tid");
+                layer.close(index);
+
+                if (cid && $("#cid").length > 0) {
+                  $("#cid").val(cid);
+                  $("#cid").trigger("change");
+
+                  setTimeout(function() {
+                    if (tid && $("#tid").length > 0) {
+                      $("#tid").val(tid);
+                      $("#tid").trigger("change");
+                    }
+                  }, 300);
+                }
+              });
+            }
+          });
+        } else {
+          layer.msg(data ? (data.msg || '获取失败') : '获取失败', {icon: 2});
+        }
+      },
+      error: function (xhr, status, error) {
+        layer.close(ii);
+        layer.msg('网络错误，请稍后重试', {icon: 2});
+        console.log('Recommend load error:', error);
+      }
+    });
+  }
 
   if (homepage == true) {
     getcount();

@@ -7,7 +7,6 @@ $title = '网站设置';
 include 'head.php';
 if ($conf['fenzhan_cost2'] <= 0) $conf['fenzhan_cost2'] = $conf['fenzhan_price2'];
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <div class="wrapper">
 	<div class="col-sm-12">
 		<?php
@@ -258,7 +257,7 @@ if ($conf['fenzhan_cost2'] <= 0) $conf['fenzhan_cost2'] = $conf['fenzhan_price2'
 					</form>
 				</div>
 				<div class="panel-footer">
-					<span class="glyphicon glyphicon-info-sign"></span>
+					<span class="fa fa-info-circle"></span>
 					实用工具：<a href="http://www.w3school.com.cn/tiy/t.asp?f=html_basic" target="_blank" rel="noreferrer">HTML在线测试</a>｜<a href="http://pic.xiaojianjian.net/" target="_blank" rel="noreferrer">图床</a>｜<a href="http://music.hi.cn/" target="_blank" rel="noreferrer">音乐外链</a>
 				</div>
 			</div>
@@ -366,7 +365,7 @@ if ($conf['fenzhan_cost2'] <= 0) $conf['fenzhan_cost2'] = $conf['fenzhan_price2'
 					</form>
 				</div>
 				<div class="panel-footer">
-					<span class="glyphicon glyphicon-info-sign"></span>
+					<span class="fa fa-info-circle"></span>
 					实用工具：<a href="http://www.w3school.com.cn/tiy/t.asp?f=html_basic" target="_blank" rel="noreferrer">HTML在线测试</a>｜<a href="http://pic.xiaojianjian.net/" target="_blank" rel="noreferrer">图床</a>｜<a href="http://music.hi.cn/" target="_blank" rel="noreferrer">音乐外链</a>
 				</div>
 			</div>
@@ -383,21 +382,21 @@ if ($conf['fenzhan_cost2'] <= 0) $conf['fenzhan_cost2'] = $conf['fenzhan_price2'
 				$file_ext = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
 				$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 				$max_size = 2 * 1024 * 1024; // 2MB
-				
+
 				if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 					exit("只允许上传JPG、PNG、GIF、WEBP格式的图片文件！");
 				}
-				
+
 				if ($_FILES["file"]["size"] > $max_size) {
 					exit("文件大小不能超过2MB！");
 				}
-				
+
 				// 检查文件是否为真实图片
 				$image_info = getimagesize($_FILES["file"]["tmp_name"]);
 				if (!$image_info) {
 					exit("请上传真实的图片文件！");
 				}
-				
+
 				copy($_FILES['file']['tmp_name'], ROOT.'assets/img/logo_'.$userrow['zid'].'.png');
 				echo "成功上传文件!<br>（可能需要清空浏览器缓存才能看到效果，按Ctrl+F5即可一键刷新缓存）";
 			}
@@ -421,21 +420,21 @@ if ($conf['fenzhan_cost2'] <= 0) $conf['fenzhan_cost2'] = $conf['fenzhan_price2'
 				$file_ext = strtolower(pathinfo($_FILES["shoukuan"]["name"], PATHINFO_EXTENSION));
 				$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 				$max_size = 2 * 1024 * 1024; // 2MB
-				
+
 				if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 					exit("只允许上传JPG、PNG、GIF、WEBP格式的图片文件！");
 				}
-				
+
 				if ($_FILES["shoukuan"]["size"] > $max_size) {
 					exit("文件大小不能超过2MB！");
 				}
-				
+
 				// 检查文件是否为真实图片
 				$image_info = getimagesize($_FILES["shoukuan"]["tmp_name"]);
 				if (!$image_info) {
 					exit("请上传真实的图片文件！");
 				}
-				
+
 				copy($_FILES['shoukuan']['tmp_name'], ROOT.'assets/img/skimg/sk_'.$userrow['zid'].'.png');
 				echo "成功上传文件!<br>（可能需要清空浏览器缓存才能看到效果，按Ctrl+F5即可一键刷新缓存）";
 			}
@@ -464,21 +463,21 @@ if ($conf['fenzhan_cost2'] <= 0) $conf['fenzhan_cost2'] = $conf['fenzhan_price2'
 				$file_ext = strtolower(pathinfo($_FILES["wxqrcode"]["name"], PATHINFO_EXTENSION));
 				$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 				$max_size = 2 * 1024 * 1024; // 2MB
-				
+
 				if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 					exit("只允许上传JPG、PNG、GIF、WEBP格式的图片文件！");
 				}
-				
+
 				if ($_FILES["wxqrcode"]["size"] > $max_size) {
 					exit("文件大小不能超过2MB！");
 				}
-				
+
 				// 检查文件是否为真实图片
 				$image_info = getimagesize($_FILES["wxqrcode"]["tmp_name"]);
 				if (!$image_info) {
 					exit("请上传真实的图片文件！");
 				}
-				
+
 				copy($_FILES['wxqrcode']['tmp_name'], ROOT.'assets/img/qrcode/wxqrcode_'.$userrow['zid'].'.png');
 				echo "成功上传文件!<br>（可能需要清空浏览器缓存才能看到效果，按Ctrl+F5即可一键刷新缓存）";
 			}

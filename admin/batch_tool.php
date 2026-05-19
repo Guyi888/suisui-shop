@@ -87,7 +87,7 @@ if($_GET['act'] == 'getGoodsLiti'){
         <div class="form-group">
             <div class="input-group mt-10"> <span class="input-group-addon" id="nameNumber">第一个输入框标题：</span>
                 <input type="text" class="form-control" id="title" placeholder="作品ID[shareid]">
-                <span class="input-group-btn"><a href="#inputabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="glyphicon glyphicon-exclamation-sign"></i></a></span>
+                <span class="input-group-btn"><a href="#inputabout" data-toggle="modal" class="btn btn-info" title="说明"><i class="fa fa-exclamation-circle"></i></a></span>
             </div>
         </div>
         <p><input type="button" name="submit" value="替换" class="btn btn-primary btn-block" onclick="upInputTitle()"></p>
@@ -102,7 +102,7 @@ if($_GET['act'] == 'getGoodsLiti'){
                 <select class="form-control" id="shequ3">
                     <?php echo $option?>
                 </select>
-                <span class="input-group-btn"><a onclick="getGoodsParam()" class="btn btn-default">初始化</a></span> 
+                <span class="input-group-btn"><a onclick="getGoodsParam()" class="btn btn-default">初始化</a></span>
             </div>
         </div>
     </div>
@@ -191,7 +191,7 @@ if($_GET['act'] == 'getGoodsLiti'){
             }
         });
      }
-    
+
     // 初始化商品功能
     function getGoodsParam(){
         var shequ = $('#shequ3').val();
@@ -223,7 +223,7 @@ if($_GET['act'] == 'getGoodsLiti'){
                         layer.msg('加载失败，请刷新重试');
                         return false;
                     }
-                });            
+                });
             }
         });
     }

@@ -232,7 +232,7 @@ function processOrder($srow, $is_fenzhan = true)
 	} else {
 		$cost = $tools['price'] * $srow['num'];
 	}
-	// 地区加价日志记录 - 博客地址：zhonguo.ren QQ群：915043052
+	// 地区加价日志记录 - 博客地址：zhonguo.ren QQ群：qqfaka
 	$address = isset($srow['address']) ? $srow['address'] : '';
 	if (!empty($address)) {
 		$regionPrice = new \lib\RegionPrice();
@@ -242,22 +242,22 @@ function processOrder($srow, $is_fenzhan = true)
 		$region_result = $regionPrice->calculatePrice($original_price, $address, $srow['tid'], $tools['name'], $srow['trade_no']);
 	}
 	$sql2="INSERT INTO `pre_orders` (`tid`,`zid`,`input`,`input2`,`input3`,`input4`,`input5`,`value`,`userid`,`addtime`,`tradeno`,`money`,`cost`,`status`,`djzt`,`address`) VALUES (:tid,:zid,:input,:input2,:input3,:input4,:input5,:value,:userid,:addtime,:tradeno,:money,:cost,:status,:djzt,:address)";
-	
+
 	$data2 = array(
-		':tid' => $srow['tid'], 
-		':zid' => $srow['zid'], 
-		':input' => addslashes(isset($input[0]) ? $input[0] : ''), 
-		':input2' => addslashes(isset($input[1]) ? $input[1] : ''), 
-		':input3' => addslashes(isset($input[2]) ? $input[2] : ''),  
-		':input4' => addslashes(isset($input[3]) ? $input[3] : ''), 
-		':input5' => addslashes(isset($input[4]) ? $input[4] : ''), 
-		':value' => $srow['num'], 
-		':userid' => $srow['userid'], 
-		':addtime' => $date, 
-		':tradeno' => $srow['trade_no'], 
-		':money' => $srow['money'], 
-		':cost' => $cost, 
-		':status' => $status, 
+		':tid' => $srow['tid'],
+		':zid' => $srow['zid'],
+		':input' => addslashes(isset($input[0]) ? $input[0] : ''),
+		':input2' => addslashes(isset($input[1]) ? $input[1] : ''),
+		':input3' => addslashes(isset($input[2]) ? $input[2] : ''),
+		':input4' => addslashes(isset($input[3]) ? $input[3] : ''),
+		':input5' => addslashes(isset($input[4]) ? $input[4] : ''),
+		':value' => $srow['num'],
+		':userid' => $srow['userid'],
+		':addtime' => $date,
+		':tradeno' => $srow['trade_no'],
+		':money' => $srow['money'],
+		':cost' => $cost,
+		':status' => $status,
 		':djzt' => ($tools['is_curl'] == 2 ? 2 : 0),
 		':address' => $address
 	);
@@ -462,20 +462,20 @@ function do_goods($orderid, $url = '', $post = '')
 	global $date;
 	global $conf;
 	$message = ''; // 初始化 $message 变量
-	
+
 	if (!empty($url)) {
 		$ret = get_curl($url, $post);
 		return $ret;
 	}
-	
+
 	$order_row = $DB->getRow("SELECT * FROM `pre_orders` WHERE `id`='" . $orderid . "' LIMIT 1");
-	
+
 	if (!$order_row) {
 		return "订单不存在！";
 	}
-	
+
 	$tools = $DB->getRow("SELECT * FROM `pre_tools` WHERE `tid`='" . $order_row['tid'] . "' LIMIT 1");
-	
+
 	if (!$tools) {
 		return "商品不存在！";
 	}
@@ -624,7 +624,7 @@ function addSupPointRecord($sid, $money = 0, $action = "提成", $bz = NULL)
 function rollbackPoint($orderid)
 {
 	global $DB;
-	
+
 	$DB->exec("CREATE TABLE IF NOT EXISTS pre_points (
 		id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 		zid INT UNSIGNED NOT NULL,
@@ -637,33 +637,33 @@ function rollbackPoint($orderid)
 		INDEX idx_orderid (orderid),
 		INDEX idx_zid (zid)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-	
+
 	$column_exists = $DB->getColumn("SHOW COLUMNS FROM pre_points LIKE 'status'");
 	if (!$column_exists) {
 		$DB->exec("ALTER TABLE pre_points ADD COLUMN status TINYINT DEFAULT 0 AFTER orderid");
 	}
-	
+
 	$rs = $DB->query("SELECT id,zid,point FROM pre_points WHERE orderid=:orderid AND action='提成' LIMIT 2", [':orderid' => $orderid]);
 	$isSuccess = false;
 	while ($res = $rs->fetch()) {
 		$point = floatval($res['point']);
 		$zid = intval($res['zid']);
 		$id = intval($res['id']);
-		
+
 		if ($point <= 0) {
 			continue;
 		}
-		
+
 		$DB->beginTransaction();
 		try {
 			$DB->exec("UPDATE pre_site SET rmb=rmb-:point WHERE zid=:zid", [':point' => $point, ':zid' => $zid]);
-			
+
 			$DB->exec("INSERT INTO `pre_points` (`zid`, `action`, `point`, `bz`, `addtime`, `orderid`) VALUES (
 				:zid, '退款', -:point, '订单(ID::orderid)退款，扣除提成', NOW(), :orderid
 			)", [':zid' => $zid, ':point' => $point, ':orderid' => $orderid]);
-			
+
 			$DB->exec("UPDATE pre_points SET status='4' WHERE id=:id", [':id' => $id]);
-			
+
 			$DB->commit();
 			$isSuccess = true;
 		} catch (Exception $e) {
@@ -715,7 +715,7 @@ function micropay_api()
 function get_pay_api($type)
 {
 	global $conf;
-	
+
 	// 如果传入的是channel值，直接返回对应的配置
 	if ($type == 'epay1') {
 		return array("url" => $conf['epay_url'], "pid" => $conf['epay_pid'], "key" => $conf['epay_key'], "channel" => "epay1");
@@ -726,7 +726,7 @@ function get_pay_api($type)
 	} elseif ($type == 'epay4') {
 		return array("url" => $conf['epay_url4'], "pid" => $conf['epay_pid4'], "key" => $conf['epay_key4'], "channel" => "epay4");
 	}
-	
+
 	// 处理充值专用支付接口
 	if ($type == "recharge_alipay" && $conf['recharge_alipay_api'] > 0) {
 		// 使用充值专用的支付宝API
@@ -828,7 +828,7 @@ function get_pay_api($type)
 			$channel = "wxpay_recharge";
 		}
 	}
-	
+
 	// 处理标准支付接口
 	if (!isset($url) && !isset($pid) && !isset($key) && !isset($channel)) {
 		if ($type == "alipay" && $conf['alipay_api'] == 2 || $type == "qqpay" && $conf['qqpay_api'] == 2 || $type == "wxpay" && $conf['wxpay_api'] == 2 || $type == "recharge" && $conf['recharge_api'] == 2) {
@@ -862,7 +862,7 @@ function get_pay_api($type)
 			$channel = "epay1";
 		}
 	}
-	
+
 	return array("url" => empty($url) ? null : $url, "pid" => empty($pid) ? null : $pid, "key" => empty($key) ? null : $key, "channel" => empty($channel) ? null : $channel);
 }
 function pay_api()

@@ -1,7 +1,7 @@
 <?php
-/* 
-QQ群915043052
-个人博客blog.6v6.ren
+/*
+QQ群qqfaka
+岁岁 @qqfaka
 */
 $is_defend=true;
 require '../includes/common.php';
@@ -297,16 +297,16 @@ body {
         min-height: 60px;
         padding: 10px 12px;
     }
-    
+
     .apple-action-btn i {
         font-size: 18px;
         margin-bottom: 4px;
     }
-    
+
     .stats-card h3 {
         font-size: 20px;
     }
-    
+
     .welcome-section h2 {
         font-size: 20px;
     }
@@ -342,7 +342,7 @@ body {
             <p>账户余额</p>
         </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 col-sm-12">
         <div class="stats-card">
             <i class="fa fa-user-o"></i>
@@ -350,7 +350,7 @@ body {
             <p>用户ID</p>
         </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 col-sm-12">
         <div class="stats-card">
             <i class="fa fa-line-chart"></i>
@@ -358,7 +358,7 @@ body {
             <p>今日收益</p>
         </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 col-sm-12">
         <div class="stats-card">
             <i class="fa fa-clock-o"></i>

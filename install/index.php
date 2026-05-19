@@ -1,7 +1,7 @@
 <?php
-/* 
-QQ群915043052
-个人博客blog.6v6.ren
+/*
+QQ群qqfaka
+岁岁 @qqfaka
 */
 //文件格式
 header("Content-type: text/html; charset=utf-8");
@@ -14,7 +14,7 @@ define('WWW_ROOT', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 // $runtimePath = str_replace(DIRECTORY_SEPARATOR . 'public', DIRECTORY_SEPARATOR . 'runtime', WWW_ROOT);
 //定义后台名称
 $config = [
-    'siteName' => "6v6云商城",
+    'siteName' => "岁岁云商城",
     'siteVersion' => "V4",
     'tablePrefix' => "shua"
 ];
@@ -44,7 +44,7 @@ if (is_file($lockFile)) {
 }
 // 同意协议页面
 if (@!isset($_GET['s']) || @$_GET['s'] === 'step1') {
-    
+
     require_once './view/step1.html';
 }
 // 检测环境页面
@@ -78,13 +78,13 @@ if (@$_GET['s'] === 'step3') {
                 // 设置纯文本输出格式
                 header('Content-Type: text/plain; charset=utf-8');
                 if ($msg) {echo $msg;exit;}
-                
+
                 // 禁用输出缓冲，确保实时输出
                 @ini_set('output_buffering', 'off');
                 @ini_set('zlib.output_compression', false);
                 @ini_set('implicit_flush', true);
                 @ob_end_clean();
-                
+
                 //执行安装
                 $host = isset($_POST['hostname']) ? $_POST['hostname'] : '127.0.0.1';
                 $port = isset($_POST['port']) ? $_POST['port'] : '3306';
@@ -121,13 +121,13 @@ if (@$_GET['s'] === 'step3') {
                     echo "progress:1|正在连接数据库服务器...\n";
                     @ob_flush();
                     @flush();
-                    
+
                     $link = @new mysqli("{$host}:{$port}", $mysqlUserName, $mysqlPassword);
                     $error = $link->connect_error;
                     if (!is_null($error)) {
                         // 转义防止和alert中的引号冲突
                         $error = addslashes($error);
-                        
+
                         // 根据错误类型提供更友好的提示
                         if (stripos($error, 'Access denied') !== false) {
                             exit("progress:1|数据库连接失败：用户名或密码错误，请检查数据库账号和密码是否正确！\n错误详情：{$error}|error");
@@ -142,22 +142,22 @@ if (@$_GET['s'] === 'step3') {
                     if ($link->server_info < 5.5) {
                         exit("progress:1|MySQL数据库版本不能低于5.5,请将您的MySQL升级到5.5及以上|error");
                     }
-                    
+
                     echo "progress:1|数据库连接成功|success\n";
                     @ob_flush();
                     @flush();
-                    
+
                     // 2. 创建数据库并选中
                     echo "progress:2|正在检查并创建数据库...\n";
                     @ob_flush();
                     @flush();
-                    
+
                     // 尝试选择数据库
                     if (!$link->select_db($mysqlDatabase)) {
                         echo "progress:2|数据库不存在，尝试创建数据库...\n";
                         @ob_flush();
                         @flush();
-                        
+
                         // 创建数据库
                         $create_sql = 'CREATE DATABASE IF NOT EXISTS ' . $mysqlDatabase . ' DEFAULT CHARACTER SET utf8;';
                         if (!$link->query($create_sql)) {
@@ -169,46 +169,46 @@ if (@$_GET['s'] === 'step3') {
                                 exit("progress:2|创建数据库失败：请检查数据库名称是否合法以及用户权限是否足够！\n错误详情：{$createError}|error");
                             }
                         }
-                        
+
                         // 再次尝试选择创建的数据库
                         if (!$link->select_db($mysqlDatabase)) {
                             exit("progress:2|无法选择数据库：虽然数据库已创建成功，但无法切换到该数据库，请检查用户权限！|error");
                         }
                     }
                     $link->query("USE `{$mysqlDatabase}`");//使用数据库
-                    
+
                     echo "progress:2|数据库准备完成|success\n";
                     @ob_flush();
                     @flush();
-                    
+
                     // 3. 检查是否存在表
                     echo "progress:2.5|正在检查数据库中是否存在表...\n";
                     @ob_flush();
                     @flush();
-                    
+
                     $result = $link->query("SHOW TABLES LIKE '{$mysqlPreFix}_%'");
                     $tableCount = $result->num_rows;
-                    
+
                     if ($tableCount > 0 && !isset($_POST['force'])) {
                         exit("progress:2.5|表已存在|exists");
                     }
-                    
+
                     if ($tableCount > 0 && isset($_POST['force'])) {
                         echo "progress:2.5|确认继续安装，开始清除已有数据...\n";
                         @ob_flush();
                         @flush();
-                        
+
                         // 获取所有表名
                         $tables = [];
                         while ($row = $result->fetch_row()) {
                             $tables[] = $row[0];
                         }
-                        
+
                         // 删除所有表
                         foreach ($tables as $table) {
                             $link->query("DROP TABLE IF EXISTS `{$table}`");
                         }
-                        
+
                         echo "progress:2.5|已有数据清除完成，继续安装|success\n";
                         @ob_flush();
                         @flush();
@@ -217,20 +217,20 @@ if (@$_GET['s'] === 'step3') {
                         @ob_flush();
                         @flush();
                     }
-                    
+
                     // 写入数据库
                     $date = date("Y-m-d");
-                    
+
                     // 3. 执行主安装SQL
                     echo "progress:3|正在执行主安装SQL文件...\n";
                     @ob_flush();
                     @flush();
-                    
+
                     $sqlArr = file('./database/install.sql');
                     $sql = '';
                     $totalQueries = count($sqlArr);
                     $processedQueries = 0;
-                    
+
                     foreach ($sqlArr as $value) {
                         if (substr($value, 0, 2) == '--' || $value == '' || substr($value, 0, 2) == '/*')
                             continue;
@@ -255,16 +255,16 @@ if (@$_GET['s'] === 'step3') {
                             $sql = '';
                         }
                     }
-                    
+
                     echo "progress:4|主数据库结构创建完成|success\n";
                     @ob_flush();
                     @flush();
-                    
+
                     // 4. 执行客服相关表SQL
                     echo "progress:5|正在创建客服相关表...\n";
                     @ob_flush();
                     @flush();
-                    
+
                     $chatTablesFile = './database/chat_tables.sql';
                     if (file_exists($chatTablesFile)) {
                         //检查文件读取权限
@@ -291,7 +291,7 @@ if (@$_GET['s'] === 'step3') {
                             }
                         }
                     }
-                    
+
                     echo "progress:5|客服相关表创建完成|success\n";
                     @ob_flush();
                     @flush();
@@ -300,26 +300,26 @@ if (@$_GET['s'] === 'step3') {
                     echo "progress:6|正在插入系统配置数据...\n";
                     @ob_flush();
                     @flush();
-                    
+
 	            $link->query("INSERT INTO `{$mysqlPreFix}_config` VALUES ('build', '".$date."')");
                     $link->query("INSERT INTO `{$mysqlPreFix}_config` VALUES ('syskey', '" . md5(time(),'QQ2769693841') . "')");
                     $link->query("INSERT INTO `{$mysqlPreFix}_config` VALUES ('cronkey', '" . mt_rand(100000,999999) . "')");
-                    
+
                     echo "progress:6|系统配置数据插入完成|success\n";
                     @ob_flush();
                     @flush();
-                    
+
                     // 6. 创建config.php配置文件
                     echo "progress:7|正在生成系统配置文件...\n";
                     @ob_flush();
                     @flush();
-                    
+
                     //检查目录权限
                     $configDir = dirname($databaseConfigFile);
                     if (!is_writable($configDir)) {
                         exit("progress:7|安装失败、因为无config目录的写入权限！请前往宝塔面板将config目录权限设置为777|error");
                     }
-                    
+
                     //替换数据库相关配置
                     $config= "<?php
 \$dbconfig=array(
@@ -334,32 +334,32 @@ if (@$_GET['s'] === 'step3') {
                     if (!$putConfig) {
                         exit("progress:7|安装失败、因为无config.php文件的写入权限！请前往宝塔面板将config目录权限设置为777|error");
                     }
-                    
+
                     echo "progress:7|系统配置文件生成完成|success\n";
                     @ob_flush();
                     @flush();
-                    
+
                     // 7. 创建install.lock锁文件
                     echo "progress:8|正在创建安装锁文件...\n";
                     @ob_flush();
                     @flush();
-                    
+
                     //检查install目录权限
                     $installDir = dirname($lockFile);
                     if (!is_writable($installDir)) {
                         exit("progress:8|安装失败、因为无install目录的写入权限！请前往宝塔面板将install目录权限设置为777|error");
                     }
-                    
+
                     $adminName = '';
                     $result = @file_put_contents($lockFile, 'ok');
                     if (!$result) {
                         exit("progress:8|安装失败、因为无install.lock文件的写入权限！请前往宝塔面板将install目录权限设置为777|error");
                     }
-                    
+
                     echo "progress:8|安装锁文件创建完成|success\n";
                     @ob_flush();
                     @flush();
-                    
+
                     // 完成安装
                     $_SESSION['admin'] = 'admin';
                     $_SESSION['password'] = '123456';

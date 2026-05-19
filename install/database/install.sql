@@ -85,7 +85,7 @@ CREATE TABLE `shua_cache` (
 
 /*Data for the table `shua_cache` */
 
-insert  into `shua_cache`(`k`,`v`,`expire`) values 
+insert  into `shua_cache`(`k`,`v`,`expire`) values
 ('config','a:63:{s:9:\"admin_pwd\";s:6:\"123456\";s:10:\"admin_user\";s:5:\"admin\";s:10:\"alipay_api\";s:1:\"2\";s:7:\"anounce\";s:1211:\"<p>\r\n<li class=\"list-group-item\"><span class=\"btn btn-danger btn-xs\">1</span> 售后问题可直接联系平台在线QQ客服</li>\r\n<li class=\"list-group-item\"><span class=\"btn btn-success btn-xs\">2</span> 下单之前请一定要看完该商品的注意事项再进行下单！</li>\r\n<li class=\"list-group-item\"><span class=\"btn btn-info btn-xs\">3</span> 所有业务全部恢复，都可以正常下单，欢迎尝试</li>\r\n<li class=\"list-group-item\"><span class=\"btn btn-warning btn-xs\">4</span> 温馨提示：请勿重复下单哦！必须要等待前面任务订单完成才可以下单！</li>\r\n<li class=\"list-group-item\"><span class=\"btn btn-primary btn-xs\">5</span> <a href=\"./user/regsite.php\">价格贵？不怕，点击0元搭建，在后台超低价下单！</a></li>\r\n<div class=\"btn-group btn-group-justified\">\r\n<a target=\"_blank\" class=\"btn btn-info\" href=\"http://wpa.qq.com/msgrd?v=3&uin=123456&site=qq&menu=yes\"><i class=\"fa fa-qq\"></i> 联系客服</a>\r\n<a target=\"_blank\" class=\"btn btn-warning\" href=\"http://qun.qq.com/join.html\"><i class=\"fa fa-users\"></i> 官方Q群</a>\r\n<a target=\"_blank\" class=\"btn btn-danger\" href=\"./\"><i class=\"fa fa-cloud-download\"></i> APP下载</a>\r\n</div></p>\";s:6:\"bottom\";s:0:\"\";s:5:\"build\";s:10:\"2023-05-28\";s:17:\"captcha_open_free\";s:1:\"1\";s:16:\"captcha_open_reg\";s:1:\"1\";s:9:\"cdnpublic\";s:1:\"0\";s:9:\"chatframe\";s:0:\"\";s:5:\"cishu\";s:1:\"3\";s:7:\"cronkey\";s:6:\"555267\";s:11:\"description\";s:120:\"彩虹云商城系统，专注数字娱乐产品、网络生活服务产品销售，只为您方便、快捷、省心！\";s:9:\"faka_mail\";s:231:\"<b>商品名称：</b> [name]<br/><b>购买时间：</b>[date]<br/><b>以下是你的卡密信息：</b><br/>[kmdata]<br/>----------<br/><b>使用说明：</b><br/>[alert]<br/>----------<br/>云商城自助下单平台<br/>[domain]\";s:11:\"fenzhan_buy\";s:1:\"1\";s:16:\"fenzhan_edithtml\";s:1:\"1\";s:14:\"fenzhan_expiry\";s:2:\"12\";s:12:\"fenzhan_free\";s:1:\"0\";s:12:\"fenzhan_kfqq\";s:1:\"1\";s:13:\"fenzhan_price\";s:2:\"10\";s:14:\"fenzhan_price2\";s:2:\"20\";s:18:\"fenzhan_pricelimit\";s:1:\"1\";s:12:\"fenzhan_rank\";s:1:\"1\";s:14:\"fenzhan_tixian\";s:1:\"0\";s:21:\"fenzhan_tixian_alipay\";s:1:\"1\";s:17:\"fenzhan_tixian_qq\";s:1:\"1\";s:17:\"fenzhan_tixian_wx\";s:1:\"1\";s:9:\"gg_search\";s:400:\"<span class=\"label label-primary\">待处理</span> 说明正在努力提交到服务器！<p></p><p></p><span class=\"label label-success\">已完成</span> 已经提交到接口正在处理！<p></p><p></p><span class=\"label label-warning\">处理中</span> 已经开始为您开单 请耐心等！<p></p><p></p><span class=\"label label-danger\">有异常</span> 下单信息有误 联系客服处理！\";s:9:\"gift_open\";s:1:\"0\";s:14:\"invite_content\";s:185:\"特价名片赞0.1元起，免费领名片赞，空间人气、QQ钻、大会员、名片赞、说说赞、空间访问、全民K歌，链接：[url] (请复制链接到浏览器打开)\";s:8:\"keywords\";s:50:\"QQ云商城,自助下单,网红助手,网红速成\";s:4:\"kfqq\";s:6:\"123456\";s:10:\"lt_version\";s:4:\"1012\";s:9:\"mail_port\";s:3:\"465\";s:9:\"mail_smtp\";s:11:\"smtp.qq.com\";s:5:\"modal\";s:0:\"\";s:6:\"paymsg\";s:203:\"<hr/>小提示：<b style=\"color:red\">如果微信出现无法付款时，您可以把微信的钱转到QQ里，然后使用QQ钱包支付！<a href=\"./?mod=wx\" target=\"_blank\">点击查看教程</a></b>\";s:12:\"pricejk_time\";s:3:\"600\";s:11:\"qiandao_day\";s:2:\"15\";s:12:\"qiandao_mult\";s:4:\"1.05\";s:14:\"qiandao_reward\";s:4:\"0.02\";s:9:\"qqpay_api\";s:1:\"2\";s:11:\"search_open\";s:1:\"1\";s:15:\"shopdesc_editor\";s:1:\"1\";s:12:\"shoppingcart\";s:1:\"1\";s:8:\"sitename\";s:21:\"彩虹云商城系统\";s:5:\"style\";s:1:\"1\";s:8:\"sup_bond\";s:1:\"0\";s:6:\"syskey\";s:16:\"Sv???t?$-????q\";s:8:\"template\";s:8:\"CX-NEW1\";s:12:\"tixian_limit\";s:1:\"1\";s:10:\"tixian_min\";s:2:\"10\";s:11:\"tixian_rate\";s:2:\"98\";s:11:\"tongji_time\";s:3:\"300\";s:13:\"ui_background\";s:1:\"3\";s:12:\"updatestatus\";s:1:\"0\";s:21:\"updatestatus_interval\";s:1:\"6\";s:9:\"user_open\";s:1:\"1\";s:11:\"verify_open\";s:1:\"1\";s:7:\"version\";s:4:\"1010\";s:14:\"workorder_open\";s:1:\"1\";s:14:\"workorder_type\";s:66:\"业务补单|卡密错误|充值没到账|订单中途改了密码\";s:9:\"wxpay_api\";s:1:\"2\";}',0),
 ('getcount','a:2:{s:4:\"time\";i:1685236943;s:4:\"data\";a:20:{s:4:\"code\";i:0;s:4:\"yxts\";d:1;s:6:\"count1\";s:1:\"0\";s:6:\"count2\";s:1:\"0\";s:6:\"count3\";s:1:\"0\";s:6:\"count4\";s:1:\"0\";s:6:\"count5\";d:0;s:6:\"count6\";s:1:\"0\";s:6:\"count7\";s:1:\"0\";s:6:\"count8\";d:0;s:6:\"count9\";d:0;s:7:\"count10\";d:0;s:7:\"count11\";d:0;s:7:\"count12\";d:0;s:7:\"count13\";d:0;s:7:\"count14\";d:0;s:7:\"count15\";d:0;s:7:\"count16\";d:0;s:7:\"count17\";s:1:\"0\";s:5:\"chart\";a:3:{s:4:\"date\";a:7:{i:0;a:2:{i:0;i:1;i:1;s:4:\"0521\";}i:1;a:2:{i:0;i:2;i:1;s:4:\"0522\";}i:2;a:2:{i:0;i:3;i:1;s:4:\"0523\";}i:3;a:2:{i:0;i:4;i:1;s:4:\"0524\";}i:4;a:2:{i:0;i:5;i:1;s:4:\"0525\";}i:5;a:2:{i:0;i:6;i:1;s:4:\"0526\";}i:6;a:2:{i:0;i:7;i:1;s:4:\"0527\";}}s:6:\"orders\";a:7:{i:0;a:2:{i:0;i:1;i:1;s:1:\"0\";}i:1;a:2:{i:0;i:2;i:1;s:1:\"0\";}i:2;a:2:{i:0;i:3;i:1;s:1:\"0\";}i:3;a:2:{i:0;i:4;i:1;s:1:\"0\";}i:4;a:2:{i:0;i:5;i:1;s:1:\"0\";}i:5;a:2:{i:0;i:6;i:1;s:1:\"0\";}i:6;a:2:{i:0;i:7;i:1;s:1:\"0\";}}s:5:\"money\";a:7:{i:0;a:2:{i:0;i:1;i:1;d:0;}i:1;a:2:{i:0;i:2;i:1;d:0;}i:2;a:2:{i:0;i:3;i:1;d:0;}i:3;a:2:{i:0;i:4;i:1;d:0;}i:4;a:2:{i:0;i:5;i:1;d:0;}i:5;a:2:{i:0;i:6;i:1;d:0;}i:6;a:2:{i:0;i:7;i:1;d:0;}}}}}',0),
 ('tongji','a:7:{s:6:\"orders\";s:1:\"0\";s:7:\"orders1\";s:1:\"0\";s:7:\"orders2\";s:1:\"0\";s:5:\"money\";d:0;s:6:\"money1\";d:0;s:4:\"site\";s:1:\"0\";s:4:\"gift\";N;}',0);
@@ -142,7 +142,7 @@ CREATE TABLE `shua_config` (
 
 /*Data for the table `shua_config` */
 
-insert  into `shua_config`(`k`,`v`) values 
+insert  into `shua_config`(`k`,`v`) values
 ('adminlogin','2023-05-28 09:22:21'),
 ('admin_pwd','123456'),
 ('admin_user','admin'),
@@ -368,7 +368,7 @@ CREATE TABLE `shua_logs` (
 
 /*Data for the table `shua_logs` */
 
-insert  into `shua_logs`(`id`,`action`,`param`,`result`,`addtime`,`status`) values 
+insert  into `shua_logs`(`id`,`action`,`param`,`result`,`addtime`,`status`) values
 (1,'后台登录','IP:127.0.0.1','','2023-05-28 09:22:21',1);
 
 /*Table structure for table `shua_message` */
@@ -751,7 +751,7 @@ CREATE TABLE `shua_toollogs` (
 
 /*Data for the table `shua_toollogs` */
 
-insert  into `shua_toollogs`(`id`,`content`,`date`,`addtime`,`active`) values 
+insert  into `shua_toollogs`(`id`,`content`,`date`,`addtime`,`active`) values
 (1,'1111','2023-05-26','2023-05-26 00:00:00',1);
 
 /*Table structure for table `shua_tools` */
@@ -896,7 +896,7 @@ CREATE TABLE IF NOT EXISTS `shua_coupon_rules` (
   KEY `active` (`active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='优惠券发放规则表';
 
--- 创建地区加价规则表 - 博客地址：zhonguo.ren QQ群：915043052
+-- 创建地区加价规则表 - 博客地址：zhonguo.ren QQ群：qqfaka
 CREATE TABLE IF NOT EXISTS `pre_region_price_rules` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `region_name` varchar(100) NOT NULL COMMENT '地区名称',

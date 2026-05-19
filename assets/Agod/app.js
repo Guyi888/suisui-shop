@@ -277,7 +277,7 @@ function getPoint(data) {
 	var close = data.close;
 // 	console.log(data.input);
 // 	console.log(data.inputs);
-	
+
 	if(close == 1){
 		$('#check_pay').html('停止下单');
 		layer.alert('当前商品维护中，停止下单！');
@@ -286,7 +286,7 @@ function getPoint(data) {
 	}else{
 		$('#check_pay').html('立即购买');
 	}
-	
+
     $('#num').val(data.min ? data.min:'1');
 	$('#num').attr("max",data.max ? data.max:'100000');
 	$('#num').attr("min",data.min ? data.min:'1');
@@ -301,7 +301,7 @@ function getPoint(data) {
 			inputnametype = inputname.split('[')[1].split(']')[0];
 			inputname = inputname.split('[')[0];
 		}
-		
+
 		$('#inputsname').append('<div class="ure_info_input_box" id="inputname"><div class="ure_info_input_box_hide"><p>*</p><p>'+inputname+'</p></div><div class="input"><input id="inputvalue" name="inputvalue" type="text" value="" required class="phone_num"></div></div>');
 	}
 	var inputsname = data.inputs;
@@ -336,7 +336,7 @@ function getPoint(data) {
 			else
 				var addstr='';
 			if(addstr!=''){
-			    
+
 				$('#inputsname').append('<div class="layui-form-item"><label class="layui-form-label"  style="width: 100%;text-align: left;padding:0" id="inputname'+(i+2)+'" gettype="'+inputsnametype+'">'+value+'：</label><div class="layui-input-" style="padding-right: 80px !important;"><input type="text" name="inputvalue'+(i+2)+'" id="inputvalue'+(i+2)+'" value="" class="layui-input" required/></div>'+addstr+'</div>');
 			}else{
 				$('#inputsname').append('<div class="ure_info_input_box" id="inputname"><div class="ure_info_input_box_hide" gettype="'+inputsnametype+'"><p>*</p><p>'+value+'</p></div><div class="input"><input id="inputvalue'+(i+2)+'" name="inputvalue'+(i+2)+'" type="text" value="" required class="phone_num"></div></div>');

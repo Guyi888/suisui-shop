@@ -320,7 +320,7 @@ function pjax(options) {
     if (autofocusEl && document.activeElement !== autofocusEl) {
       autofocusEl.focus();
     }
-    
+
     executeScriptTags(container.scripts)
 
     var scrollTo = options.scrollTo

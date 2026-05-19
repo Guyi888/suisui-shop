@@ -8,16 +8,13 @@ exit('<script language="javascript">window.location.href="./login.php";</script>
 adminpermission('shop', 1);
 $numrows = $DB->getColumn('SELECT count(*) from shua_class');
 
-// 引入Layer组件
-echo '<script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/layer/3.5.1/layer.js"></script>';
-
-// 添加pid字段到分类表（如果不存在）- 教主修改，博客地址：6v6.ren Q群：941535592
+// 添加pid字段到分类表（如果不存在）- 岁岁 @qqfaka修改，岁岁 @qqfaka
 $column_exists = $DB->getColumn('SHOW COLUMNS FROM shua_class LIKE \'pid\'');
 if(!$column_exists){
 	$DB->exec('ALTER TABLE shua_class ADD COLUMN pid int(11) unsigned NOT NULL DEFAULT \'0\' COMMENT \'父分类ID，0表示一级分类\' AFTER `zid`');
 }
 
-// 添加notice字段到分类表（如果不存在）用于存储二级分类提示语 - 教主修改，博客地址：6v6.ren Q群：941535592
+// 添加notice字段到分类表（如果不存在）用于存储二级分类提示语 - 岁岁 @qqfaka修改，岁岁 @qqfaka
 $notice_column_exists = $DB->getColumn('SHOW COLUMNS FROM shua_class LIKE \'notice\'');
 if(!$notice_column_exists){
 	$DB->exec('ALTER TABLE shua_class ADD COLUMN notice text COMMENT \'分类提示语，前台选中时弹窗显示\' AFTER `blockpay`');
@@ -86,12 +83,12 @@ function unselectall() {
 function batchOperation() {
 	var aid = $("select[name='aid']").val();
 	var checkbox = $("input[name='checkbox[]']:checked");
-	
+
 	if(checkbox.length == 0){
 		layer.msg('请至少选择一个分类', {icon: 2});
 		return false;
 	}
-	
+
 	if(aid == 3){
 		layer.confirm('确定要删除选中的 ' + checkbox.length + ' 个分类吗？删除后将无法恢复！', {
 			btn: ['确定', '取消'],
@@ -293,12 +290,12 @@ function delClass(cid) {
 function saveAll() {
 	var sortData = {};
 	var nameData = {};
-	
+
 	$('input[name^="sort"]').each(function() {
 		var cid = $(this).attr('name').match(/\d+/)[0];
 		sortData[cid] = $(this).val();
 	});
-	
+
 	$('input[name^="name"]').each(function() {
 		var cid = $(this).attr('name').match(/\d+/)[0];
 		var name = $(this).val();
@@ -308,7 +305,7 @@ function saveAll() {
 		}
 		nameData[cid] = name;
 	});
-	
+
 	var loading = layer.load(2);
 	$.ajax({
 		type: 'POST',
@@ -421,7 +418,7 @@ function setClass(cid) {
 	layer.msg('设置不可售地区功能暂未实现', {icon: 2});
 }
 
-// 设置二级分类提示语 - 教主修改，博客地址：6v6.ren Q群：941535592
+// 设置二级分类提示语 - 岁岁 @qqfaka修改，岁岁 @qqfaka
 function setNotice(cid) {
 	// 先获取当前提示语
 	$.ajax({
@@ -434,7 +431,7 @@ function setNotice(cid) {
 			if(data.code == 0 && data.data) {
 				currentNotice = data.data;
 			}
-			
+
 			// 弹出输入框
 			layer.prompt({
 				formType: 2,
@@ -477,13 +474,13 @@ function setNotice(cid) {
     <table class="table table-striped">
       <thead><tr><th width="40"><input type="checkbox" name="chkAll" id="chkAll" onClick="checkAll(this)"></th><th>排序操作</th><th style="min-width:150px">名称（<?php echo $numrows;?>）</th><th>分类类型</th><th>操作</th></tr></thead>
       <tbody id="classlisttbody">
-<?php 
+<?php
 // 显示一级分类及其子分类
 foreach ($classes as $res) {
 	// 一级分类行
 	$activeBtn = $res['active'] == 1 ? '<span class="btn btn-sm btn-success" onclick="setActive('.$res['cid'].',0)">显示</span>' : '<span class="btn btn-sm btn-warning" onclick="setActive('.$res['cid'].',1)">隐藏</span>';
 	$classBlockBtn = $conf['classblock'] > 0 ? '<li><a href="javascript:setClass('.$res['cid'].')">设置不可售地区</a></li>' : '';
-	
+
 	// 输出一级分类
 	 echo '<tr data-cid="' . $res['cid'] . '" class="primary-class">
 	<td><input type="checkbox" name="checkbox[]" id="list1" value="' . $res['cid'] . '" onClick="unselectall()"></td>
@@ -511,13 +508,13 @@ foreach ($classes as $res) {
 		</div>
 	</td>
   </tr>';
-  
+
   // 显示子分类（如果有）
   if (isset($subClasses[$res['cid']])) {
     foreach ($subClasses[$res['cid']] as $subRes) {
 	    $subActiveBtn = $subRes['active'] == 1 ? '<span class="btn btn-sm btn-success" onclick="setActive('.$subRes['cid'].',0)">显示</span>' : '<span class="btn btn-sm btn-warning" onclick="setActive('.$subRes['cid'].',1)">隐藏</span>';
 	    $subClassBlockBtn = $conf['classblock'] > 0 ? '<li><a href="javascript:setClass('.$subRes['cid'].')">设置不可售地区</a></li>' : '';
-	    
+
 	    // 输出子分类
 	    echo '<tr data-cid="' . $subRes['cid'] . '" class="sub-class" style="background-color:#f9f9f9;">
 	<td><input type="checkbox" name="checkbox[]" id="list1" value="' . $subRes['cid'] . '" onClick="unselectall()"></td>
@@ -548,7 +545,7 @@ foreach ($classes as $res) {
     }
   }
 }?><tr><td colspan="2"><span class="btn btn-primary btn-sm" onclick="saveAll()"><i class="fa fa-floppy-o"></i> 保存全部</span></td><td><input type="text" class="form-control input-sm" name="addname" placeholder="分类名称" required></td><td colspan="3"><label><input name="chkAll1" type="checkbox" id="chkAll1" onClick="this.value=check1(this.form.list1)" value="checkbox">全选</label>&nbsp;
-<span class="btn btn-success btn-sm" onclick="addClass()"><span class="glyphicon glyphicon-plus"></span> 添加分类</span>&nbsp;&nbsp;<a href="./classlist.php?my=classimg" class="btn btn-info btn-sm"><i class="fa fa-picture-o"></i> 修改分类图片</a>&nbsp;&nbsp;<select name="aid"><option selected>批量操作</option><option value="1">&gt;改为显示</option><option value="2">&gt;改为隐藏</option><option value="3">&gt;删除选中</option></select><button type="button" onclick="batchOperation()">执行</button>
+<span class="btn btn-success btn-sm" onclick="addClass()"><span class="fa fa-plus"></span> 添加分类</span>&nbsp;&nbsp;<a href="./classlist.php?my=classimg" class="btn btn-info btn-sm"><i class="fa fa-picture-o"></i> 修改分类图片</a>&nbsp;&nbsp;<select name="aid"><option selected>批量操作</option><option value="1">&gt;改为显示</option><option value="2">&gt;改为隐藏</option><option value="3">&gt;删除选中</option></select><button type="button" onclick="batchOperation()">执行</button>
           </tbody>
         </table>
       </div>

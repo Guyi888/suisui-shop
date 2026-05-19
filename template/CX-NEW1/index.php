@@ -23,32 +23,32 @@ if (empty($site_info['appurl'])) {
   <link rel="icon" href="<?php echo $cdnserver?>assets/img/favicon/favicon.ico" type="image/x-icon" />
   <link rel="shortcut icon" href="<?php echo $cdnserver?>assets/img/favicon/favicon.ico" type="image/x-icon" />
   <?php }?>
-  
+
   <!-- 预加载关键资源 -->
   <!-- 暂时移除预加载，避免跨域问题 -->
-  
+
   <!-- 预加载字体资源 -->
   <link rel="preload" href="//lib.baomitu.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="//lib.baomitu.com/twitter-bootstrap/3.3.7/fonts/glyphicons-halflings-regular.woff2" as="font" type="font/woff2" crossorigin>
-  
+
   <!-- 关键CSS优先加载 - 使用最快的CDN -->
   <link href="//lib.baomitu.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">
   <link rel="stylesheet" href="<?php echo $cdnserver?>assets/css/common.css?ver=<?php echo VERSION ?>">
-  
+
   <!-- 非关键JavaScript异步加载 -->
   <script src="//lib.baomitu.com/modernizr/2.8.3/modernizr.min.js" async></script>
   <!--[if lt IE 9]>
     <script src="//lib.baomitu.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="//lib.baomitu.com/respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
-  
+
   <!-- 关键JavaScript立即加载 - 使用最快的CDN -->
   <script src="//lib.baomitu.com/jquery/1.12.4/jquery.min.js"></script>
   <script src="//lib.baomitu.com/layer/2.3/layer.js"></script>
   <script src="assets/js/main.js?ver=<?php echo VERSION ?>"></script>
-  
+
   <!-- 全局错误处理 -->
   <script>
   window.addEventListener('error', function(e) {
@@ -56,7 +56,7 @@ if (empty($site_info['appurl'])) {
       return false;
   });
   </script>
-  
+
   <!-- 分类点击功能优化 -->
   <script>
   $(document).ready(function(){
@@ -64,23 +64,23 @@ if (empty($site_info['appurl'])) {
       $(document).on('click', '.goodTypeChange', function(e){
           e.preventDefault();
           e.stopPropagation();
-          
+
           var id = $(this).data('id');
           console.log('分类点击事件触发，ID:', id);
-          
+
           // 立即响应，不等待AJAX
           $("#cid").val(id);
           $("#goodType").hide('fast');
           $("#goodTypeContent").show('fast');
-          
+
           // 异步加载商品数据
           setTimeout(function(){
               $("#cid").trigger('change');
           }, 100);
-          
+
           return false;
       });
-      
+
       // 返回按钮
       $(document).on('click', '.backType', function(e){
           e.preventDefault();
@@ -89,11 +89,11 @@ if (empty($site_info['appurl'])) {
           $("#goodTypeContent").hide('fast');
           return false;
       });
-      
+
       console.log('关键JavaScript已加载完成');
   });
   </script>
-  
+
   <style type="text/css">
 #submit_cart_shop {
     background: linear-gradient(to right,#00FFFF,#02C874);
@@ -161,8 +161,8 @@ img {
         <h4 class="modal-title" id="myModalLabel"><?php echo $conf['sitename']?></h4>
        </div>
         <div class="modal-body">
-         	<?php echo $conf['modal']?>
-  	    </div>
+	<?php echo $conf['modal']?>
+	    </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">知道啦</button>
       </div>
@@ -196,7 +196,7 @@ img {
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title" id="myModalLabel">查询内容是什么？该输入什么？</h4>
       </div>
-      	<li class="list-group-item">例如您购买的是预留的手机号或者QQ号，输入下单的手机号或者QQ号即可查询订单</li>
+	<li class="list-group-item">例如您购买的是预留的手机号或者QQ号，输入下单的手机号或者QQ号即可查询订单</li>
         <li class="list-group-item"><font color="red">如果您不知道下单账号是什么，可以不填写，直接点击查询，则会根据浏览器缓存查询</font></li>
 
 
@@ -225,11 +225,11 @@ if (preg_match('/^(https?:\/\/|ftp:\/\/|\/\/)/i', $top_image)) {
                     </div>
                 </div>
             </div>
-           
+
         <center>
             <h2>     <a href="javascript:void(alert('建议收藏到浏览器书签哦！'));"><b>
     <font color="#414324"><?php echo $conf['sitename']?></font></b></a></h2><font color="#414324">
-   <h5><div color="wrap"><img src="https://z3.ax1x.com/2021/06/19/RCRVzT.png">低价货源-信誉保证<img src="https://z3.ax1x.com/2021/06/19/RCRVzT.png"> 
+   <h5><div color="wrap"><img src="https://z3.ax1x.com/2021/06/19/RCRVzT.png">低价货源-信誉保证<img src="https://z3.ax1x.com/2021/06/19/RCRVzT.png">
     <style>
 
 h5 {
@@ -271,22 +271,22 @@ h5 {
 </style>
 </div>
 </h5></font></center><font color="#414324">
-        <div class="flip-box-1-3"> 
+        <div class="flip-box-1-3">
         <div class="block-content block-content-mini block-content-full">
             <div class="btn-group btn-group-justified">
-				<div class="btn-group"> 
+				<div class="btn-group">
 <a class="btn btn-default fenzhan-jump" href="./user/regsite.php" target="_blank"><img src="https://z3.ax1x.com/2021/06/19/RCRtyD.gif">&nbsp;<font color="#B008B"><span style="font-weight:bold">自助开通分站</span></font></a>
 					</div>
-					 	<a href="#anounce" target="_blank" data-toggle="modal" class="btn btn-default"><img src="https://z3.ax1x.com/2021/06/19/RCoJN4.jpg">&nbsp;<span style="font-weight:bold"><b><font color="#DC143C">平台公告</font></b></span></a>
+						<a href="#anounce" target="_blank" data-toggle="modal" class="btn btn-default"><img src="https://z3.ax1x.com/2021/06/19/RCoJN4.jpg">&nbsp;<span style="font-weight:bold"><b><font color="#DC143C">平台公告</font></b></span></a>
 						                <div class="btn-group">
                  <a class="btn btn-default" data-toggle="modal" href="user/login.php"><img src="https://z3.ax1x.com/2021/06/19/RCRNOe.gif">&nbsp;<b><font color="#0000CD">注册/登录</font></b></a></div>
 				</div>
              <center>
                    <a class="btn btn-default" href="http://wpa.qq.com/msgrd?v=3&uin=<?php echo $conf['kfqq'] ?>&site=qq&menu=yes" target="_blank"><font color="#FF0000"><span style="font-weight:bold">♛《售后问题》 9:00-23:00  </span></font><font color="#006400"><span style="font-weight:bold">♛人工客服中心♛</span></font></a>
-             
+
                  <center>
                                                     <!--勉强运行-->
-	 <center><li style="font-weight:bold" class="list-group-item">    
+	 <center><li style="font-weight:bold" class="list-group-item">
 <center>
                 <font color="#3299CC">当前时间:</font><span id="run_time" style="color:red"></span>
             </center>
@@ -315,14 +315,14 @@ h5 {
             </script>
             <!--勉强运行-->
             </li></center></center></div>
-            
+
     </div>
       </font></div><font color="#414324">
-            
-    	<style>
+
+	<style>
     #nr{
-    	font-size:20px;
-    	margin: 0;
+	font-size:20px;
+	margin: 0;
         background: -webkit-linear-gradient(left,
             #ffffff,
             #ff0000 6.26%,
@@ -354,13 +354,13 @@ h5 {
             background-position: -100%, 0;
         }
     }
-    
-  
+
+
 
 </style>
 <div style="background-color:#333;border-radius: 25px;box-shadow: 0px 0px 5px #f200ff;padding:5px;margin-top: 10px;margin-bottom:0px;">
     <marquee>
-    	<b id="nr">最亲爱的站长祝愿：站长祝各位幸福安康，快乐美满，好事成双，生意兴隆，有项目上架联系客服上架，有问题第一时间找客服处理，友友们请第一时间收藏本网址-售后做不到最好,但是一定竭尽全力去解决您遇到的问题-开通分战,密价提卡，诚信邀代理!</b>
+	<b id="nr">最亲爱的站长祝愿：站长祝各位幸福安康，快乐美满，好事成双，生意兴隆，有项目上架联系客服上架，有问题第一时间找客服处理，友友们请第一时间收藏本网址-售后做不到最好,但是一定竭尽全力去解决您遇到的问题-开通分战,密价提卡，诚信邀代理!</b>
     </marquee>
     </div>
 
@@ -383,10 +383,10 @@ h5 {
             <li style="width: 25%;" align="center" class="active"><a href="#shop" data-toggle="tab"><span style="font-weight:bold"><img border="0" width="22" src="https://pan.suyanw.cn/view.php/a4c308fe41a57c4751b133d9189161b4.gif"><font color="#0000FF">下单</font></span></a></li>
             <li style="width: 25%;" align="center"><a href="#search" data-toggle="tab" id="tab-query"><span style="font-weight:bold"><i class="fa fa-search"></i> <font color="#8B008B">查单</font></span></a></li>
 			<li style="width: 25%;" align="center"><a href="./user/regsite.php" target="_blank" class="fenzhan-jump"><font color="#FF4000"><i class="fa fa-location-arrow fa-spin"></i> <b>分站</b></font></a></li>
-		
+
 			<li style="width: 25%;" align="center"><a href="#more" data-toggle="tab"><span style="font-weight:bold"><i class="fa fa-folder-open"></i> <font color="#FF8C00">更多</font></span></a></li>
         </ul>
-        
+
 
 
 
@@ -395,8 +395,8 @@ h5 {
     <center><span style="color: rgb(194, 79, 74)"><i class="fa fa-check"></i><b><font color="#D2B48C">【平台所有商品全天24小时自动发货】</font><i class="fa fa-check"></i></b></span></center>
     <center><span style="font-size:10px;"><strong><span><span style="color:#E53333;">下单步骤<span style="color:#E53333;"> &gt; <span><span style="color:#E8E8E8;">选择分类</span></span> &gt; <span style="color:#009900;">选择商品<span style="color:#E53333;"> &gt; </span></span><span></span><span style="color:#EE33EE;">填写信息<span style="color:#E53333;"> &gt; </span><span style="color:#F08080;">下单成功</span></span></span></span></strong></span>
 </center></div></font><center><font color="#414324"><b><font color="#0000CD"></font></b></font></center>
-    
-    
+
+
     </marquee>
 
     </marquee>
@@ -404,16 +404,16 @@ h5 {
 <!--TAB标签-->
 <!--在线下单-->
 
-    <div class="tab-pane active" id="shop">	
+    <div class="tab-pane active" id="shop">
 <?php include ROOT.'user/shop.inc.php'; ?>
 	</div>
-  	
+
 <!--在线下单-->
 <marquee>
-    	<b id="nr">诚信经营,价格最低,货源最全,卡密问题质保可退换,放心下单即可!!!</b>
+	<b id="nr">诚信经营,价格最低,货源最全,卡密问题质保可退换,放心下单即可!!!</b>
     </marquee>
 <!--查询订单-->
-				
+
 						<div class="tab-pane fade fade-up" id="search">
 							<ul class="list-group animated bounceIn">
       <li class="list-group-item">
@@ -450,8 +450,8 @@ h5 {
 									</font>
 									<font color="red">
 				查单号:请输入您购买时候填写的手机号，如果填写的时候忘记手机号请点击立即查询即可！
-				
-									</font>						
+
+									</font>
 							<br>
 							<div id="result2" class="form-group" style="display:none;">
 								<center>
@@ -521,10 +521,10 @@ h5 {
             网站轻轻松松推广日挣上千￥不是梦</strong></td>
       </tr>
             <tr class="active">
-        <td><span class="glyphicon glyphicon-magnet"></span>&nbsp;快加入我们成为大家庭中的一员吧<hr> <a href="#userjs" data-toggle="modal" class="btn btn-effect-ripple  btn-info btn-sm" style="float:left;overflow: hidden; position: relative;">
-            <span class="glyphicon glyphicon-eye-open"></span>&nbsp;网站详情介绍</a>
+        <td><span class="fa fa-magnet"></span>&nbsp;快加入我们成为大家庭中的一员吧<hr> <a href="#userjs" data-toggle="modal" class="btn btn-effect-ripple  btn-info btn-sm" style="float:left;overflow: hidden; position: relative;">
+            <span class="fa fa-eye"></span>&nbsp;网站详情介绍</a>
           <a href="./user/regsite.php" target="_blank" class="btn btn-effect-ripple  btn-success btn-sm" style="float:right;overflow: hidden; position: relative;">
-            <span class="glyphicon glyphicon-share-alt"></span>&nbsp;开通网站</a></td></tr>
+            <span class="fa fa-share"></span>&nbsp;开通网站</a></td></tr>
       <tr>
     </tbody>
   </table>
@@ -538,7 +538,7 @@ h5 {
 		<p>
 		<a class="btn btn-info" id="start" style="display:block;">开始</a>
 		<a class="btn btn-danger" id="stop" style="display:none;">停止</a>
-		</p> 
+		</p>
 		<div id="result"></div><br/>
 		<div class="giftlist" style="display:none;"><strong>最近记录</strong><ul id="pst_1"></ul></div>
 		</div>
@@ -726,7 +726,7 @@ h5 {
 				</div>
 			</div>
 			<ul class="list-group" style="margin-bottom: 0px;">
-			<li class="list-group-item">   
+			<li class="list-group-item">
 			   <div class="media">
 					<span class="pull-left thumb-sm"><img src="//q4.qlogo.cn/headimg_dl?dst_uin=<?php echo $conf['kfqq'] ?>&spec=100" alt="..." class="img-circle img-thumbnail img-avatar"></span>
 			   <div class="pull-right push-15-t">
@@ -742,7 +742,7 @@ h5 {
 			<li class="list-group-item">
 			想要快速回答你的问题就请把问题描述讲清楚!<br>
 			下单账号+业务名称+问题，直奔主题，按顺序回复!<br>
-			有问题直接留言，请勿抖动语音否则直接无视。<br>			
+			有问题直接留言，请勿抖动语音否则直接无视。<br>
 			</li>
 			</ul>
 		</div>
@@ -754,12 +754,12 @@ h5 {
 </style>
 
 
-<div class="block animated bounceInDown btn-rounded" style="border:1px solid #FFF0F5;margin-top:15px;font-size:15px;padding:15px;border-radius:15px;background-color: white;"><div class="panel-heading"><h3 class="panel-title" types=""><font color="#000000"><span class="glyphicon glyphicon-stats"></span>&nbsp;&nbsp;<b>今日订单详细</b><img src="https://z3.ax1x.com/2021/06/19/RCRtyD.gif"/></i></a></span></h3></div>
+<div class="block animated bounceInDown btn-rounded" style="border:1px solid #FFF0F5;margin-top:15px;font-size:15px;padding:15px;border-radius:15px;background-color: white;"><div class="panel-heading"><h3 class="panel-title" types=""><font color="#000000"><span class="fa fa-bar-chart"></span>&nbsp;&nbsp;<b>今日订单详细</b><img src="https://z3.ax1x.com/2021/06/19/RCRtyD.gif"/></i></a></span></h3></div>
 <div class="btn-group btn-group-justified">
 		<a target="_blank" class="btn btn-effect-ripple btn-default collapsed" style="overflow: hidden; position: relative;"><b><font color="modal-title">购买用户</font></b></a>
 		<a target="_blank" class="btn btn-effect-ripple btn-default collapsed" style="overflow: hidden; position: relative;"><b><font color="modal-title">下单日期</font></b></a>
 		<a target="_blank" class="btn btn-effect-ripple btn-default collapsed" style="overflow: hidden; position: relative;"><b><font color="modal-title">物品名称</font></b></a>
-		</div>  
+		</div>
 		<marquee class="zmd" behavior="scroll" direction="UP" onmouseover="this.stop()" onmouseout="this.start()" scrollamount="5" style="height:16em">
 			<table class="table table-hover table-striped" style="text-align:center;table-layout:fixed;width:100%;">
 				<thead style="display:none">
@@ -779,12 +779,12 @@ h5 {
                         $goods_list[] = $res['name'];
                     }
                     $goods_count = count($goods_list);
-                    
+
                     for ($a = 0; $a < $c; $a++) {
                         // 随机获取一个商品名称
                         $rand_index = rand(0, $goods_count-1);
                         $name = $goods_list[$rand_index];
-                        
+
                         $date = date('Y-m-d'); #今日
                         $time = date("Y-m-d", strtotime("-1 day"));
                         if ($a > 50) {
@@ -899,11 +899,11 @@ setTimeout(function() {
 			</div><br>
                                             <center>
                                                 <img src="https://pan.suyanw.cn/view.php/9511f86349582ca1c605f353d2b72ac2.jpg" style="max-height: 26px; height: auto; width: auto;"></img>
-                                                
+
                                                 <img src="https://pan.suyanw.cn/view.php/d1e978792c2b796a04514a277fa72b5c.jpg" style="max-height: 26px; height: auto; width: auto;"></img>
-                                                
+
                                                 <img src="https://pan.suyanw.cn/view.php/0c28f568861d37e9e58f2a22bba2506a.jpg" style="max-height: 26px; height: auto; width: auto;"></img>
-                                                
+
                                                 <img src="https://pan.suyanw.cn/view.php/dc1f6a276f1f6a05bd7afd504ce182b7.jpg" style="max-height: 26px; height: auto; width: auto;"></img>
                                             </center>
 	<!--底部导航-->
@@ -938,7 +938,7 @@ catch (e) {
   </div>
 </div>
 <!--音乐代码-->
-<!-- 
+<!--
   严禁反编译、逆向等任何形式的侵权行为，违者将追究法律责任
  -->
   <!-- 非关键JavaScript异步加载 - 使用更快的CDN -->
@@ -964,46 +964,46 @@ catch (e) {
               console.warn('lazyload初始化失败:', e);
           }
       }, 500);
-      
+
       // 延迟加载其他功能
       setTimeout(function() {
           console.log('页面完全加载完成');
       }, 1000);
   });
   </script>
-	  	<script type="text/javascript">
-  		var isModal = <?php echo empty($conf['modal']) ? 'false' : 'true'; ?> ;
-  		var homepage = true;
-  		var hashsalt = <?php echo $addsalt_js ?> ;
-  		
-  		// 错误处理和调试
-  		window.addEventListener('error', function(e) {
-  		    console.error('JavaScript错误:', e.error);
-  		});
-  		
-  		$(function() {
-  		    // 检查jQuery插件是否加载
-  		    try {
-  		        if(typeof $.fn.lazyload !== 'undefined') {
-  		            $("img.lazy").lazyload({
-  		                effect: "fadeIn"
-  		            });
-  		        } else {
-  		            console.warn('lazyload插件未加载');
-  		        }
-  		        
-  		        // 检查Bootstrap tooltip是否可用
-  		        if(typeof $.fn.tooltip !== 'undefined') {
-  		            $('[data-toggle="tooltip"]').tooltip();
-  		        }
-  		    } catch(e) {
-  		        console.warn('插件初始化失败:', e);
-  		    }
-  		});
+		<script type="text/javascript">
+		var isModal = <?php echo empty($conf['modal']) ? 'false' : 'true'; ?> ;
+		var homepage = true;
+		var hashsalt = <?php echo $addsalt_js ?> ;
+
+		// 错误处理和调试
+		window.addEventListener('error', function(e) {
+		    console.error('JavaScript错误:', e.error);
+		});
+
+		$(function() {
+		    // 检查jQuery插件是否加载
+		    try {
+		        if(typeof $.fn.lazyload !== 'undefined') {
+		            $("img.lazy").lazyload({
+		                effect: "fadeIn"
+		            });
+		        } else {
+		            console.warn('lazyload插件未加载');
+		        }
+
+		        // 检查Bootstrap tooltip是否可用
+		        if(typeof $.fn.tooltip !== 'undefined') {
+		            $('[data-toggle="tooltip"]').tooltip();
+		        }
+		    } catch(e) {
+		        console.warn('插件初始化失败:', e);
+		    }
+		});
 		var ss = 0,
 		    mm = 0,
 		    hh = 0;
-		
+
 		function TimeGo() {
 		    ss++;
 		    if (ss >= 60) {
@@ -1017,20 +1017,20 @@ catch (e) {
 		    ss_str = (ss < 10 ? "0" + ss : ss);
 		    mm_str = (mm < 10 ? "0" + mm : mm);
 		    tMsg = "" + hh + "小时" + mm_str + "分" + ss_str + "秒";
-		    
+
 		    // 检查元素是否存在，避免null错误
 		    var stimeElement = document.getElementById("stime");
 		    if (stimeElement) {
 		        stimeElement.innerHTML = tMsg;
 		    }
-		    
+
 		    setTimeout("TimeGo()", 1000);
 		}
-		
+
 		// 只有在页面加载完成后才启动计时器
 		$(document).ready(function() {
 		    TimeGo();
-		  		});
+				});
   </script>
 <?php /* 暂时注释掉classblock，文件不存在 */ ?>
 <?php include_once SYSTEM_ROOT.'sakura.php'; loadSakuraEffect(); /* loadChatWidget(); */ ?>
@@ -1103,7 +1103,7 @@ $(function(){
     window.open('./user/regsite.php', '_blank');
     return false;
   });
-  
+
   // 确保分站按钮不会被 Bootstrap tab 系统拦截
   $(document).on('click', '.fenzhan-jump', function(e){
     e.preventDefault();
@@ -1111,23 +1111,23 @@ $(function(){
     window.open('./user/regsite.php', '_blank');
     return false;
   });
-  
-  // 获取URL参数函数 - 博客地址:6v6.ren q群941535592
+
+  // 获取URL参数函数 - 岁岁 @qqfaka
   function getUrlParam(name) {
       var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
       var r = window.location.search.substr(1).match(reg);
       if (r != null) return decodeURIComponent(r[2]);
       return '';
   }
-  
-  // 检测buyok参数并显示订单弹窗 - 博客地址:6v6.ren q群941535592
+
+  // 检测buyok参数并显示订单弹窗 - 岁岁 @qqfaka
   if(getUrlParam('buyok') == '1'){
       console.log('检测到buyok参数，准备显示订单弹窗');
-      
+
       // 直接从URL获取订单ID和skey参数
       var orderid = getUrlParam('orderid');
       var skey = getUrlParam('skey');
-      
+
       // 如果有订单ID和skey参数，直接显示订单详情
       if(orderid && skey && typeof showOrder === 'function'){
           console.log('使用订单ID和skey显示订单:', orderid, skey);
@@ -1137,9 +1137,9 @@ $(function(){
       else {
           var searchtype = getUrlParam('searchtype') || 1;
           var qq = getUrlParam('qq') || '';
-          
+
           console.log('通过查询获取最新订单，searchtype:', searchtype, 'qq:', qq);
-          
+
           // 先检查$_GET变量的类型，确保正确处理
           if (typeof window.$_GET === 'function') {
               // 保存原始的$_GET函数
@@ -1163,18 +1163,18 @@ $(function(){
                   }
               };
           }
-          
+
           // 临时设置querymode，禁用查询弹窗显示
           var tempQuerymode = window.querymode;
           window.querymode = 'noPopup';
-          
+
           // 执行订单查询
           if(typeof queryOrder === 'function'){
               queryOrder(searchtype, qq, 1);
           } else {
               console.error('queryOrder函数未定义');
           }
-          
+
           // 恢复原始设置
           setTimeout(function() {
               window.querymode = tempQuerymode;

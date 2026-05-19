@@ -230,7 +230,7 @@ $codepay_html=$codepay_back_data['codepay_html'];
         <div class="inner">
             <p>手机用户可保存上方二维码到手机中</p>
             <p>在<?php echo $typeName ?>扫一扫中选择“相册”即可</p>
-           
+
         </div>
     </div>
 

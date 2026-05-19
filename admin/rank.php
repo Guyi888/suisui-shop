@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-xs-12 col-md-10 center-block" style="float: none;">
-<?php 
+<?php
 if ($_GET["my"] == "setdo" && $_POST["do"] == "submit") {
 	$rank_reward = $_POST["rank_reward"];
 	$rank_percentage = $_POST["rank_percentage"];
@@ -59,10 +59,10 @@ if ($_GET["my"] == "setdo" && $_POST["do"] == "submit") {
 	</tbody>
 </table>
 <div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span>
+<span class="fa fa-info-circle"></span>
 监控地址：<a href="./set.php?mod=cron">点此查看</a>
 </div>
-<?php 
+<?php
 } else {
 	$thtime = date("Y-m-d") . " 00:00:00";
 	$lastday = date("Y-m-d", strtotime("-1 day")) . " 00:00:00";
@@ -86,7 +86,7 @@ if ($_GET["my"] == "setdo" && $_POST["do"] == "submit") {
         <table class="table table-striped">
           <thead><tr><th class="text-center">排名</th><th class="text-center">站点ID</th><th class="text-center">站点名称</th><th class="text-center">订单数</th><th class="text-center">销售金额</th><?php echo $conf["rank_reward"] > 0 ? "<th class=\"text-center\">" . $addstr . "</th>" : null;?></tr></thead>
           <tbody>
-<?php 
+<?php
 	$rs = $DB->query($sql);
 	$i = 1;
 	while ($res = $rs->fetch()) {
@@ -106,7 +106,7 @@ if ($_GET["my"] == "setdo" && $_POST["do"] == "submit") {
         </table>
       </div>
     </div>
-<?php 
+<?php
 }
 ?> </div>
 </div>

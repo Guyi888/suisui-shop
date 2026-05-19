@@ -94,7 +94,7 @@ if(!defined('IN_CRONLITE'))exit();
                 </div>
             </div>
             <button type="button" id="submit_query" class="query-btn">立即查询</button>
-            
+
             <div id="result" class="query-result">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
@@ -162,7 +162,7 @@ if(!defined('IN_CRONLITE'))exit();
                         });
                         $('#list').html(item);
                         $('#result').slideDown();
-                        
+
                         // 自动点击第一个订单的查看卡密按钮
                         if(data.data && data.data.length > 0){
                             setTimeout(function(){
@@ -207,4 +207,4 @@ if(!defined('IN_CRONLITE'))exit();
     });
     </script>
 </body>
-</html> 
+</html>

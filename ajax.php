@@ -1,7 +1,7 @@
 <?php
-/* 
-QQ群915043052
-个人博客6v6.ren
+/*
+QQ群qqfaka
+岁岁 @qqfaka
 */
 include("./includes/common.php");
 $act = isset($_GET['act']) ? daddslashes($_GET['act']) : null;
@@ -33,6 +33,61 @@ if ($conf['cjmsg'] != '') {
 	$cjmsg = '您今天的抽奖次数已经达到上限！';
 }
 switch ($act) {
+	case 'getshuoshuo':
+		$uin = isset($_GET['uin']) ? daddslashes($_GET['uin']) : exit('{"code":-1,"msg":"参数错误"}');
+		$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+
+		if (empty($conf['sslist_api'])) {
+			exit('{"code":-1,"msg":"未配置说说列表接口"}');
+		}
+
+		$api_url = $conf['sslist_api'] . $uin . '&page=' . $page;
+		$result = get_curl($api_url);
+		$data = json_decode($result, true);
+
+		if ($data && isset($data['code']) && $data['code'] == 0) {
+			exit(json_encode($data));
+		} else {
+			exit('{"code":-1,"msg":"获取说说列表失败"}');
+		}
+		break;
+	case 'getRecommend':
+		try {
+			$DB->query("SELECT * FROM pre_recommend LIMIT 1");
+		} catch (Exception $e) {
+			exit('{"code":-1,"msg":"推荐功能未启用"}');
+		}
+
+		$rs = $DB->query("SELECT r.tid, t.name, t.cid, t.price FROM pre_recommend r LEFT JOIN pre_tools t ON r.tid = t.tid WHERE r.active=1 AND t.active=1 ORDER BY r.sort DESC, r.id DESC");
+		$recommend_list = array();
+		while ($res = $rs->fetch()) {
+			$recommend_list[] = array(
+				'tid' => $res['tid'],
+				'cid' => $res['cid'],
+				'name' => $res['name'],
+				'price' => $res['price']
+			);
+		}
+		exit(json_encode(array("code" => 0, "msg" => "success", "data" => $recommend_list)));
+		break;
+	case 'getrizhi':
+		$uin = isset($_GET['uin']) ? daddslashes($_GET['uin']) : exit('{"code":-1,"msg":"参数错误"}');
+		$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+
+		if (empty($conf['rzlist_api'])) {
+			exit('{"code":-1,"msg":"未配置日志列表接口"}');
+		}
+
+		$api_url = $conf['rzlist_api'] . $uin . '&page=' . $page;
+		$result = get_curl($api_url);
+		$data = json_decode($result, true);
+
+		if ($data && isset($data['code']) && $data['code'] == 0) {
+			exit(json_encode($data));
+		} else {
+			exit('{"code":-1,"msg":"获取日志列表失败"}');
+		}
+		break;
 	case 'payrmb':
 		if (!$islogin2) exit('{"code":-4,"msg":"你还未登录"}');
 		$orderid = isset($_POST['orderid']) ? daddslashes($_POST['orderid']) : exit('{"code":-1,"msg":"订单号未知"}');
@@ -42,7 +97,7 @@ switch ($act) {
 		if (!preg_match('/^[0-9.]+$/', $srow['money'])) exit('{"code":-1,"msg":"订单金额不合法"}');
 		if ($srow['status'] == 0) {
 			if ($srow['money'] > $userrow['rmb']) exit('{"code":-3,"msg":"你的余额不足，请充值！"}');
-			
+
 			// 对于批量购买订单(tid=-3)，需要特殊处理
 			if ($srow['tid'] == -3) {
 				// 先扣费
@@ -51,7 +106,7 @@ switch ($act) {
 				$DB->exec("UPDATE `pre_pay` SET `type`='rmb',`status`='1',`endtime`=NOW() WHERE `trade_no`=:orderid", [':orderid' => $orderid]);
 					$srow['type'] = 'rmb';
 					$srow['status'] = 1;
-					
+
 					// 处理批量订单
 					if (processOrder($srow)) {
 						addPointRecord($userrow['zid'], $srow['money'], '消费', '批量购买 ' . $srow['name']);
@@ -163,7 +218,7 @@ switch ($act) {
 		while ($res = $rs->fetch(PDO::FETCH_ASSOC)) {
 			if ($is_fenzhan && in_array($res['cid'], $classhide)) continue;
 			$html .= '<option value="' . $res['cid'] . '">' . $res['name'] . '</option>';
-			// 收集二级分类的提示语 - 教主修改，博客地址：6v6.ren Q群：941535592
+			// 收集二级分类的提示语 - 岁岁 @qqfaka修改，岁岁 @qqfaka
 			if(!empty($res['notice'])) {
 				$notices[$res['cid']] = $res['notice'];
 			}
@@ -214,13 +269,15 @@ switch ($act) {
 				$invitegift_money = $invite_row['money'];
 				$invite_gift = $invite_row['gift'];
 			}
-			$data[] = array('tid' => $res['tid'], 'cid' => $res['cid'], 'sort' => $res['sort'], 'name' => $res['name'], 'value' => $res['value'], 'price' => $price, 'input' => $res['input'], 'inputs' => $res['inputs'], 'desc' => $res['desc'], 'alert' => $res['alert'], 'shopimg' => $res['shopimg'], 'repeat' => $res['repeat'], 'multi' => $res['multi'], 'close' => $res['close'], 'prices' => $res['prices'], 'min' => $res['min'], 'max' => $res['max'], 'sales' => $res['sales'], 'isfaka' => $isfaka, 'stock' => $res['stock'], 'isinvitegift' => $isinvitegift, 'invitegift_money' => $invitegift_money, 'invite_gift' => $invite_gift, 'goods_sid' => $res['goods_sid']);
+			// 计算销量 - 通过查询pre_pay表中status=1的订单数量
+			$sales = $DB->getColumn("SELECT COUNT(*) FROM pre_pay WHERE tid=:tid AND status=1", array(':tid' => $res['tid']));
+			$data[] = array('tid' => $res['tid'], 'cid' => $res['cid'], 'sort' => $res['sort'], 'name' => $res['name'], 'value' => $res['value'], 'price' => $price, 'input' => $res['input'], 'inputs' => $res['inputs'], 'desc' => $res['desc'], 'alert' => $res['alert'], 'shopimg' => $res['shopimg'], 'repeat' => $res['repeat'], 'multi' => $res['multi'], 'close' => $res['close'], 'prices' => $res['prices'], 'min' => $res['min'], 'max' => $res['max'], 'sales' => $sales, 'isfaka' => $isfaka, 'stock' => $res['stock'], 'isinvitegift' => $isinvitegift, 'invitegift_money' => $invitegift_money, 'invite_gift' => $invite_gift, 'goods_sid' => $res['goods_sid']);
 		}
 		$result = array("code" => 0, "msg" => "succ", "data" => $data, "info" => $info);
 		exit(json_encode($result));
 		break;
 	case 'gettoolnew':
-			// 设置脚本执行时间，避免超时 - 作者：教主 博客：zhonguo.ren
+			// 设置脚本执行时间，避免超时 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
 			set_time_limit(30);
 			$page = $_POST['page'] ? intval(trim(daddslashes($_POST['page']))) : 1;
 			$limit = $_POST['limit'] ? intval(trim(daddslashes($_POST['limit']))) : 9;
@@ -248,10 +305,10 @@ switch ($act) {
 				$params[':kw'] = '%' . $kw . '%';
 			}
 			if ($cid) {
-			// 如果是一级分类视图，查询所有属于该一级分类下的二级分类的商品
+			// 如果是一级分类视图，查询所有属于该一级分类下的二级分类的商品，以及直接属于该一级分类的商品
 			if ($is_primary_cat == 1) {
-				// 优化查询：直接使用子查询，避免多次数据库操作 - 作者：教主 博客：zhonguo.ren
-				$where .= " AND cid IN (SELECT cid FROM pre_class WHERE pid=:cid AND active=1)";
+				// 优化查询：直接使用子查询，同时包含直接属于一级分类的商品和属于其子分类的商品
+				$where .= " AND (cid=:cid OR cid IN (SELECT cid FROM pre_class WHERE pid=:cid AND active=1))";
 				$params[':cid'] = $cid;
 			} else {
 				// 普通分类视图，只查询指定分类的商品
@@ -260,7 +317,7 @@ switch ($act) {
 			}
 		}
 
-			// 优化查询性能 - 作者：教主 博客：zhonguo.ren
+			// 优化查询性能 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
 			$num = $DB->getColumn("SELECT count(tid) FROM pre_tools WHERE $where", $params);
 			$rs = $DB->query("SELECT * FROM pre_tools WHERE $where ORDER BY $orderBy LIMIT $page,$limit", $params);
 
@@ -317,13 +374,12 @@ switch ($act) {
 		break;
 	case 'pay':
 		$method = $_GET['method'];
-		$inputvalue = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue']))));
-		$inputvalue2 = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue2']))));
-		$inputvalue3 = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue3']))));
-		$inputvalue4 = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue4']))));
-		$inputvalue5 = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue5']))));
-		// 动态获取收货地址 - 博客地址：zhonguo.ren QQ群：915043052
-		$address = isset($_POST['address']) ? htmlspecialchars(trim(strip_tags(daddslashes($_POST['address'])))) : '';
+		$inputvalue = trim(daddslashes($_POST['inputvalue']));
+		$inputvalue2 = trim(daddslashes($_POST['inputvalue2']));
+		$inputvalue3 = trim(daddslashes($_POST['inputvalue3']));
+		$inputvalue4 = trim(daddslashes($_POST['inputvalue4']));
+		$inputvalue5 = trim(daddslashes($_POST['inputvalue5']));
+		$address = isset($_POST['address']) ? trim(daddslashes($_POST['address'])) : '';
 		if (empty($address)) {
 			// 如果没有直接提交address，则从inputvalue2-5中查找包含"地址"或"收货地址"的值
 			$address_inputs = [$inputvalue2, $inputvalue3, $inputvalue4, $inputvalue5];
@@ -366,14 +422,14 @@ switch ($act) {
 				unset($_SESSION['addsalt']);
 			}
 			$inputs = explode('|', $tool['inputs']);
-			// 检查哪些输入框是收货地址 - 博客地址：zhonguo.ren QQ群：915043052
+			// 检查哪些输入框是收货地址 - 博客地址：zhonguo.ren QQ群：qqfaka
 			$address_input_indices = [];
 			foreach ($inputs as $index => $input_name) {
 				if (strpos($input_name, '收货地址') !== false || strpos($input_name, '地址') !== false) {
 					$address_input_indices[] = $index;
 				}
 			}
-			
+
 			// 验证必填字段（排除收货地址）
 			$validation_failed = false;
 			if (empty($inputvalue)) {
@@ -398,11 +454,11 @@ switch ($act) {
 					}
 				}
 			}
-			
+
 			if ($validation_failed) {
 				exit('{"code":-1,"msg":"请确保各项不能为空"}');
 			}
-			
+
 			// 验证字段匹配（排除收货地址）
 			$match_validation_failed = false;
 			foreach ($inputs as $index => $input_name) {
@@ -422,7 +478,7 @@ switch ($act) {
 					}
 				}
 			}
-			
+
 			if ($match_validation_failed) {
 				exit('{"code":-1,"msg":"验证失败"}');
 			}
@@ -479,8 +535,8 @@ switch ($act) {
 				$price = $price_obj->getToolPrice($tid);
 				$price = $price_obj->getFinalPrice($price, $num);
 				if (!$price) exit('{"code":-1,"msg":"当前商品批发价格优惠设置不正确"}');
-				
-				// 地区加价计算 - 博客地址：zhonguo.ren QQ群：915043052
+
+				// 地区加价计算 - 博客地址：zhonguo.ren QQ群：qqfaka
 				if (!empty($address)) {
 					$regionPrice = new \lib\RegionPrice();
 					$region_result = $regionPrice->calculatePrice($price, $address, $tid, $tool['name']);
@@ -665,7 +721,7 @@ switch ($act) {
 
 			$trade_no = date("YmdHis") . mt_rand(111, 999);
 			$input = $inputvalue . ($inputvalue2 ? '|' . $inputvalue2 : null) . ($inputvalue3 ? '|' . $inputvalue3 : null) . ($inputvalue4 ? '|' . $inputvalue4 : null) . ($inputvalue5 ? '|' . $inputvalue5 : null);
-			// 地区加价计算 - 博客地址：zhonguo.ren QQ群：915043052
+			// 地区加价计算 - 博客地址：zhonguo.ren QQ群：qqfaka
 			$region_order_id = $trade_no;
 			if ($method == 'cart_add') {
 				$sql = "INSERT INTO `pre_cart` (`userid`,`zid`,`tid`,`input`,`num`,`money`,`addtime`,`blockdj`,`status`,`address`) VALUES (:userid, :zid, :tid, :input, :num, :money, NOW(), :blockdj, 0, :address)";
@@ -887,11 +943,11 @@ switch ($act) {
 	case 'card_pay':
 		if ($conf['iskami'] == 0) exit('{"code":-1,"msg":"当前站点未开启卡密下单"}');
 		$km = trim(daddslashes($_POST['km']));
-		$inputvalue = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue']))));
-		$inputvalue2 = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue2']))));
-		$inputvalue3 = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue3']))));
-		$inputvalue4 = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue4']))));
-		$inputvalue5 = htmlspecialchars(trim(strip_tags(daddslashes($_POST['inputvalue5']))));
+		$inputvalue = trim(daddslashes($_POST['inputvalue']));
+		$inputvalue2 = trim(daddslashes($_POST['inputvalue2']));
+		$inputvalue3 = trim(daddslashes($_POST['inputvalue3']));
+		$inputvalue4 = trim(daddslashes($_POST['inputvalue4']));
+		$inputvalue5 = trim(daddslashes($_POST['inputvalue5']));
 		$hashsalt = isset($_POST['hashsalt']) ? $_POST['hashsalt'] : null;
 		$myrow = $DB->getRow("SELECT * FROM pre_kms WHERE km='$km' AND type=1 LIMIT 1");
 		if (!$myrow) exit('{"code":-1,"msg":"此卡密不存在！"}');
@@ -1057,7 +1113,7 @@ switch ($act) {
 		$page = isset($_POST['page']) ? intval($_POST['page']) : 1;
 		$limit = 10;
 		$start = $limit * ($page - 1);
-		
+
 		if ($type == 1 && !empty($qq)) {
 			if (strlen($qq) == 17 && is_numeric($qq)) {
 				$rs = $DB->query("SELECT A.*,B.`name` FROM `pre_orders` A LEFT JOIN `pre_tools` B ON A.`tid`=B.`tid` WHERE A.`tradeno`=:qq ORDER BY A.`id` DESC LIMIT $start,$limit", array(':qq' => $qq));
@@ -1075,7 +1131,7 @@ switch ($act) {
 		} else {
 			$rs = $DB->query("SELECT A.*,B.`name` FROM `pre_orders` A LEFT JOIN `pre_tools` B ON A.`tid`=B.`tid` WHERE A.`userid`=:cookiesid ORDER BY A.`id` DESC LIMIT $start,$limit", array(':cookiesid' => $cookiesid));
 		}
-		
+
 		$data = array();
 		$count = 0;
 		while ($res = $rs->fetch(PDO::FETCH_ASSOC)) {
@@ -1089,7 +1145,7 @@ switch ($act) {
 	case 'apply_refund':
 		// 确保所有输出都是JSON格式
 		header('Content-Type: application/json; charset=UTF-8');
-		
+
 		try {
 			// 1. 初始化变量
 			$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
@@ -1098,34 +1154,34 @@ switch ($act) {
 			$cookiesid = isset($cookiesid) ? $cookiesid : 0;
 			$userrow = isset($userrow) ? $userrow : array();
 			$conf['selfrefund'] = isset($conf['selfrefund']) ? $conf['selfrefund'] : 0;
-			
+
 			// 2. 基本参数验证
 			if (empty($id) || empty($skey)) {
 				throw new Exception('参数错误');
 			}
-			
+
 			// 3. 验证skey
 			$expected_skey = md5($id . SYS_KEY . $id);
 			if ($skey !== $expected_skey) {
 				throw new Exception('验证失败');
 			}
-			
+
 			// 4. 检查登录状态
 			if (!$islogin2) {
 				throw new Exception('请先登录');
 			}
-			
+
 			// 5. 检查自助退款功能是否开启
 			if ($conf['selfrefund'] != 1) {
 				throw new Exception('当前站点未开启自助退款功能');
 			}
-			
+
 			// 6. 查询订单信息
 			$row = $DB->getRow("SELECT * FROM pre_orders WHERE id=:id AND userid=:userid LIMIT 1", array(':id' => $id, ':userid' => $cookiesid));
 			if (!$row) {
 				throw new Exception('订单不存在或无权限操作');
 			}
-			
+
 			// 7. 检查订单状态
 			if ($row['status'] == 4) {
 				throw new Exception('该订单已经退款');
@@ -1133,13 +1189,13 @@ switch ($act) {
 			if ($row['status'] == 1) {
 				throw new Exception('已完成的订单无法退款');
 			}
-			
+
 			// 8. 更新订单状态为已退款
 			$update_result = $DB->exec("UPDATE pre_orders SET status=4, result='用户自助申请退款' WHERE id=:id", array(':id' => $id));
 			if (!$update_result) {
 				throw new Exception('更新订单状态失败');
 			}
-			
+
 			// 9. 退还金额到用户余额
 			$money = $row['money'];
 			if (isset($userrow['zid'])) {
@@ -1150,14 +1206,14 @@ switch ($act) {
 			} else {
 				throw new Exception('用户信息错误');
 			}
-			
+
 			// 10. 返回成功结果
 			exit(json_encode(array(
 				'code' => 0,
 				'msg' => '退款成功',
 				'money' => $money
 			)));
-			
+
 		} catch (Exception $e) {
 			// 异常处理
 			$error_msg = $e->getMessage();
@@ -1170,7 +1226,7 @@ switch ($act) {
 	case 'order': //订单进度查询
 		// 确保所有输出都是JSON格式
 		header('Content-Type: application/json; charset=UTF-8');
-		
+
 		try {
 			// 1. 初始化变量
 			$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
@@ -1178,24 +1234,24 @@ switch ($act) {
 			$islogin2 = isset($islogin2) ? $islogin2 : 0;
 			$conf['show_complain'] = isset($conf['show_complain']) ? $conf['show_complain'] : 0;
 			$conf['selfrefund'] = isset($conf['selfrefund']) ? $conf['selfrefund'] : 0;
-			
+
 			// 2. 基本参数验证
 			if (empty($id) || empty($skey)) {
 				throw new Exception('参数错误');
 			}
-			
+
 			// 3. 验证skey
 			$expected_skey = md5($id . SYS_KEY . $id);
 			if ($skey !== $expected_skey) {
 				throw new Exception('验证失败');
 			}
-			
+
 			// 4. 查询订单基本信息
 			$row = $DB->getRow("SELECT * FROM pre_orders WHERE id=:id LIMIT 1", array(':id' => $id));
 			if (!$row) {
 				throw new Exception('当前订单不存在！');
 			}
-			
+
 			// 5. 查询工具信息
 			$tool = array(
 				'name' => '未知商品',
@@ -1203,7 +1259,7 @@ switch ($act) {
 				'alert' => '',
 				'desc' => ''
 			);
-			
+
 			$tool_row = null;
 			if (isset($row['tid'])) {
 				$tool_row = $DB->getRow("SELECT * FROM pre_tools WHERE tid=:tid LIMIT 1", array(':tid' => $row['tid']));
@@ -1216,7 +1272,7 @@ switch ($act) {
 					);
 				}
 			}
-			
+
 			// 6. 处理div对接商品的实时状态查询
 			$list = false;
 			if ($tool_row && $tool_row['is_curl'] == 2 && !empty($row['djorder'])) {
@@ -1231,7 +1287,7 @@ switch ($act) {
 					}
 				}
 			}
-			
+
 			// 7. 查询卡密信息
 			$kminfo = '';
 			if (isset($row['status']) && $row['status'] == 1) {
@@ -1250,7 +1306,7 @@ switch ($act) {
 						$kminfo .= '</div>';
 					}
 				}
-				
+
 				// 如果没有卡密信息，检查订单的result字段是否包含卡密信息
 				if (empty($kminfo) && !empty($row['result'])) {
 					// 检查result字段是否包含卡密信息
@@ -1261,7 +1317,7 @@ switch ($act) {
 					}
 				}
 			}
-			
+
 			// 8. 构建返回结果
 			$return_data = array(
 				'code' => 0,
@@ -1280,9 +1336,9 @@ switch ($act) {
 				'islogin' => $islogin2,
 				'selfrefund' => $conf['selfrefund']
 			);
-			
+
 			exit(json_encode($return_data));
-			
+
 		} catch (Exception $e) {
 			// 异常处理
 			$error_msg = $e->getMessage();
@@ -1295,19 +1351,19 @@ switch ($act) {
 	case 'cart_list':
 		// 确保所有输出都是JSON格式
 		header('Content-Type: application/json; charset=UTF-8');
-		
+
 		try {
 			// 1. 初始化变量
 			$cookiesid = isset($cookiesid) ? $cookiesid : 0;
-			
+
 			// 2. 查询购物车数据
 			$cart_list = $DB->query("SELECT * FROM pre_cart WHERE userid=:cookiesid AND status<=1 ORDER BY addtime DESC", array(':cookiesid' => $cookiesid));
-			
+
 			// 3. 处理购物车数据
 			$cart_data = array();
 			$total_price = 0;
 			$total_count = 0;
-			
+
 			while ($row = $cart_list->fetch(PDO::FETCH_ASSOC)) {
 				// 查询商品信息
 				$tool_row = $DB->getRow("SELECT * FROM pre_tools WHERE tid=:tid LIMIT 1", array(':tid' => $row['tid']));
@@ -1328,7 +1384,7 @@ switch ($act) {
 					$total_count += $row['num'];
 				}
 			}
-			
+
 			// 4. 返回结果
 			$result = array(
 				'code' => 0,
@@ -1337,9 +1393,9 @@ switch ($act) {
 				'total_price' => $total_price,
 				'total_count' => $total_count
 			);
-			
+
 			exit(json_encode($result));
-			
+
 		} catch (Exception $e) {
 			// 异常处理
 			$error_msg = $e->getMessage();
@@ -1350,26 +1406,26 @@ switch ($act) {
 		}
 		break;
 	case 'gift_start':
-		// 抽奖功能 - 博客地址：6v6.ren QQ群：941535592
+		// 抽奖功能 - 岁岁 @qqfaka QQ群：qqfaka
 		if ($conf['gift_open'] != 1) {
 			exit('{"code":-1,"msg":"抽奖功能未开启"}');
 		}
-		
+
 		// 检查每日抽奖次数
 		$today = date("Y-m-d");
 		$today_count = $DB->getColumn("SELECT count(*) FROM pre_giftlog WHERE userid=:cookiesid AND DATE(addtime)=:today", array(':cookiesid' => $cookiesid, ':today' => $today));
-		
+
 		if ($today_count >= $conf['cjcishu']) {
 			exit('{"code":-1,"msg":"' . $cjmsg . '"}');
 		}
-		
+
 		// 如果是action=ok，生成token
 		if (isset($_GET['action']) && $_GET['action'] == 'ok') {
 			$token = md5(SYS_KEY . time() . rand(1000, 9999));
 			$_SESSION['gift_token'] = $token;
 			exit('{"code":0,"token":"' . $token . '"}');
 		}
-		
+
 		// 获取所有奖项
 		$gift_list = $DB->query("SELECT a.*,b.cid FROM pre_gift AS a LEFT JOIN pre_tools AS b ON a.tid=b.tid WHERE a.ok=0");
 		$data = array();
@@ -1381,52 +1437,52 @@ switch ($act) {
 				'rate' => $row['rate']
 			);
 		}
-		
+
 		if (empty($data)) {
 			exit('{"code":-1,"msg":"暂无可用奖项"}');
 		}
-		
+
 		exit(json_encode(array("code" => 0, "data" => $data)));
 		break;
 	case 'gift_stop':
-		// 抽奖停止确认 - 博客地址：6v6.ren QQ群：941535592
+		// 抽奖停止确认 - 岁岁 @qqfaka QQ群：qqfaka
 		if ($conf['gift_open'] != 1) {
 			exit('{"code":-1,"msg":"抽奖功能未开启"}');
 		}
-		
+
 		// 验证token
 		$token = isset($_POST['token']) ? $_POST['token'] : '';
 		if (!$token || !isset($_SESSION['gift_token']) || $token != $_SESSION['gift_token']) {
 			exit('{"code":-1,"msg":"验证失败"}');
 		}
-		
+
 		// 检查每日抽奖次数
 		$today = date("Y-m-d");
 		$today_count = $DB->getColumn("SELECT count(*) FROM pre_giftlog WHERE userid=:cookiesid AND DATE(addtime)=:today", array(':cookiesid' => $cookiesid, ':today' => $today));
-		
+
 		if ($today_count >= $conf['cjcishu']) {
 			exit('{"code":-1,"msg":"' . $cjmsg . '"}');
 		}
-		
+
 		// 获取所有奖项
 		$gift_list = $DB->query("SELECT a.*,b.cid FROM pre_gift AS a LEFT JOIN pre_tools AS b ON a.tid=b.tid WHERE a.ok=0");
 		$gifts = array();
 		$total_rate = 0;
-		
+
 		while ($row = $gift_list->fetch(PDO::FETCH_ASSOC)) {
 			$gifts[] = $row;
 			$total_rate += $row['rate'];
 		}
-		
+
 		if (empty($gifts)) {
 			exit('{"code":-1,"msg":"暂无可用奖项"}');
 		}
-		
+
 		// 根据概率计算中奖结果
 		$rand_num = mt_rand(1, $total_rate);
 		$current_rate = 0;
 		$win_gift = null;
-		
+
 		foreach ($gifts as $gift) {
 			$current_rate += $gift['rate'];
 			if ($rand_num <= $current_rate) {
@@ -1434,12 +1490,12 @@ switch ($act) {
 				break;
 			}
 		}
-		
+
 		if (!$win_gift) {
 			// 如果没有中奖，随机选择一个
 			$win_gift = $gifts[array_rand($gifts)];
 		}
-		
+
 		// 记录中奖信息
 		$insert_data = array(
 			':zid' => $siterow['zid'] ? $siterow['zid'] : 1,
@@ -1449,17 +1505,17 @@ switch ($act) {
 			':ip' => $clientip,
 			':addtime' => date('Y-m-d H:i:s')
 		);
-		
+
 		$sql = "INSERT INTO pre_giftlog (zid, tid, gid, userid, ip, addtime) VALUES (:zid, :tid, :gid, :userid, :ip, :addtime)";
-		
+
 		if ($DB->exec($sql, $insert_data)) {
 			$gift_id = $DB->lastInsertId();
 			$_SESSION['gift_id'] = $gift_id;
 			$_SESSION['gift_tid'] = $win_gift['tid'];
-			
+
 			// 清除token
 			unset($_SESSION['gift_token']);
-			
+
 			exit('{"code":0,"name":"' . $win_gift['name'] . '","tid":"' . $win_gift['tid'] . '","cid":"' . $win_gift['cid'] . '"}');
 		} else {
 			exit('{"code":-1,"msg":"抽奖失败，请重试"}');

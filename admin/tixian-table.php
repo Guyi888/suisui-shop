@@ -28,7 +28,7 @@ $numrows = $DB->getColumn("SELECT count(*) from pre_tixian WHERE" . $sql);
         <table class="table table-striped">
           <thead><tr><th><input type="checkbox" id="checkbox" value="" /></th><th>ID</th><th>ZID</th><th>金额</th><th>实际到账</th><th>提现方式</th><th>提现账号</th><th>姓名</th><?php echo $conf["fenzhan_skimg"] == 1 ? "<th>收款图</th>" : null;?><th>申请时间</th><th>完成时间</th><th>状态</th><th>信息</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -46,7 +46,7 @@ while ($res = $rs->fetch()) {
 ?>          </tbody>
         </table>
       </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;
@@ -77,7 +77,7 @@ if ($page < $pages) {
 ?></ul>  <script type="text/html" id="config">
 	<div class="panel-body">
 	  <form action="" id="editform" method="post" class="" role="form">
-		<div class="alert alert-success">平台地址：<a href="http://blog.6v6.ren" target="_blank" rel="noreferrer">blog.6v6.ren</a><br>安全起见 每次重启打开浏览器都需重新设置支付密码</div>
+		<div class="alert alert-success">安全提示：每次重启或重新打开浏览器后，请重新设置支付密码。</div>
 		<div class="form-group">
 		  <label class="control-label">Api_Id</label>
 		  <input type="text" name="id" value="<?php echo isset($conf["transfer_id"]) ? $conf["transfer_id"] : "";?>" class="form-control" placeholder="对接ID"/>
@@ -161,16 +161,16 @@ var pl_config = function () {
 	}
 	if(confirm('确认批量转账？不可取消')){
 		var id='';
-		var arrChk=$("input[name='data']:checked"); 
+		var arrChk=$("input[name='data']:checked");
 		if(arrChk.length<=0){
 			alert('请先勾选数据');
 			return false;
 		}
-		$(arrChk).each(function(){ 
+		$(arrChk).each(function(){
 			var id = this.id;
 			$("table").find('tr[data-id="'+id+'"]').find('.transfer_info').html('<font color="red">转账中....</font>');
 		});
-		$(arrChk).each(function(){ 
+		$(arrChk).each(function(){
 			var id = this.id;
 			$.ajax({
 				type: "POST",
@@ -213,7 +213,7 @@ $(document).ready(function(){
 		}
 	});
 })
-</script><?php 
+</script><?php
 function display_zt($zt, $id)
 {
 	if ($zt == 2) {

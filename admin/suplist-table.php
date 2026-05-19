@@ -28,7 +28,7 @@ $numrows = $DB->getColumn("SELECT count(*) from pre_supplier where" . $sql);
         <table class="table table-striped">
           <thead><tr><th>UID</th><th>用户名</th><th>QQ</th><th>余额</th><th>注册时间</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -40,7 +40,7 @@ while ($res = $rs->fetch()) {
 ?>          </tbody>
         </table>
       </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;

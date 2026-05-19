@@ -13,11 +13,11 @@ if(!defined('IN_CRONLITE'))exit();
   <link rel="icon" href="<?php echo $conf['favicon']?>" type="image/x-icon" />
   <link rel="shortcut icon" href="<?php echo $conf['favicon']?>" type="image/x-icon" />
   <?php }?>
-  
+
   <!-- 预加载关键资源 -->
   <link rel="preload" href="<?php echo $cdnpublic?>jquery/1.12.4/jquery.min.js" as="script">
   <link rel="preload" href="assets/js/main.js" as="script">
-  
+
   <!-- 关键CSS优先加载 -->
   <link href="<?php echo $cdnpublic?>twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
@@ -25,14 +25,121 @@ if(!defined('IN_CRONLITE'))exit();
   <link href="<?php echo $cdnserver?>assets/css/magic-check.min.css" rel="stylesheet">
   <link href="<?php echo $cdnserver?>assets/css/pace.min.css" rel="stylesheet">
   <link rel="stylesheet" href="<?php echo $cdnserver?>assets/css/common.css?ver=<?php echo VERSION ?>">
-  
-  <!-- 关键JavaScript立即加载 - 来自6v6.ren -->
+
+  <!-- 关键JavaScript立即加载 - 岁岁 @qqfaka -->
   <script src="<?php echo $cdnpublic?>jquery/1.12.4/jquery.min.js"></script>
   <script src="<?php echo $cdnpublic?>jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
   <script src="<?php echo $cdnpublic?>twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="<?php echo $cdnpublic?>layer/2.3/layer.js"></script>
+  <!-- ============================================ -->
+  <!-- 🔥 课程查询强制修复 - 纯原生 JavaScript + 终极防护 -->
+  <!-- ============================================ -->
+  <script>
+  console.log('🔥 课程查询强制修复加载...');
+
+  // 1. 定义真正的查询函数
+  function doQuery() {
+    console.log('🚀 执行查询...');
+
+    // 纯原生获取值
+    var input1 = document.getElementById('inputvalue');
+    var input2 = document.getElementById('inputvalue2');
+    var input3 = document.getElementById('inputvalue3');
+
+    var user = input1 ? input1.value || '' : '';
+    var pwd = input2 ? input2.value || '' : '';
+    var school = input3 ? input3.value || '' : '';
+
+    user = user.trim();
+    pwd = pwd.trim();
+    school = school.trim();
+
+    console.log('获取的值:', {user, pwd, school});
+
+    if (!user || !pwd || !school) {
+      var msg = '请完整填写信息！';
+      if (!user) msg += ' 登录账号';
+      if (!pwd) msg += ' 登录密码';
+      if (!school) msg += ' 学校名字';
+      if (typeof layer !== 'undefined') {
+        layer.alert(msg, {icon: 2, title: '提示'});
+      } else {
+        alert(msg);
+      }
+      return;
+    }
+
+    var url = 'cx.php?user=' + encodeURIComponent(user) + '&pwd=' + encodeURIComponent(pwd) + '&school=' + encodeURIComponent(school);
+    console.log('跳转URL:', url);
+
+    window.open(url, '_blank');
+  }
+
+  // 2. 立即定义 dzb_ck
+  window.dzb_ck = doQuery;
+
+  // 3. 持续启用输入框 + 绑定点击事件
+  function fixAndBind() {
+    // 启用输入框
+    ['inputvalue', 'inputvalue2', 'inputvalue3', 'inputvalue4'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.disabled) {
+        el.disabled = false;
+        el.removeAttribute('disabled');
+      }
+    });
+
+    // 找到查询按钮并强绑定
+    var btn = document.getElementById('dzb_ck');
+    if (btn) {
+      if (btn.disabled) {
+        btn.disabled = false;
+        btn.removeAttribute('disabled');
+      }
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+
+      // 终极防护：覆盖 onclick 属性并直接绑定事件
+      btn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🔥 按钮被点击，执行查询');
+        doQuery();
+        return false;
+      };
+
+      // 同时也用 addEventListener
+      if (!btn._queryBound) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('🔥 addEventListener 触发');
+          doQuery();
+          return false;
+        });
+        btn._queryBound = true;
+      }
+    }
+
+    // 持续覆盖 dzb_ck 函数，防止被加密代码覆盖
+    window.dzb_ck = doQuery;
+  }
+
+  // 页面加载完成后立即启动
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('✅ 启用输入框...');
+      setInterval(fixAndBind, 100); // 更频繁检查
+    });
+  } else {
+    console.log('✅ 启用输入框...');
+    setInterval(fixAndBind, 100); // 更频繁检查
+  }
+
+  console.log('✅ 强制修复完成！');
+  </script>
   <script src="assets/js/main.js?ver=<?php echo VERSION ?>"></script>
-  
+
   <!-- 分类点击功能优化 -->
   <script>
   $(document).ready(function(){
@@ -40,23 +147,23 @@ if(!defined('IN_CRONLITE'))exit();
       $(document).on('click', '.goodTypeChange', function(e){
           e.preventDefault();
           e.stopPropagation();
-          
+
           var id = $(this).data('id');
           console.log('分类点击事件触发，ID:', id);
-          
+
           // 立即响应，不等待AJAX
           $("#cid").val(id);
           $("#goodType").hide('fast');
           $("#goodTypeContent").show('fast');
-          
+
           // 异步加载商品数据
           setTimeout(function(){
               $("#cid").trigger('change');
           }, 100);
-          
+
           return false;
       });
-      
+
       // 返回按钮
       $(document).on('click', '.backType', function(e){
           e.preventDefault();
@@ -65,16 +172,16 @@ if(!defined('IN_CRONLITE'))exit();
           $("#goodTypeContent").hide('fast');
           return false;
       });
-      
+
       console.log('关键JavaScript已加载完成');
   });
   </script>
-  
+
   <!--[if lt IE 9]>
     <script src="<?php echo $cdnpublic?>html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="<?php echo $cdnpublic?>respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
-  
+
   <style>
   /* 优化分类点击区域 */
   .goodTypeChange {
@@ -115,7 +222,7 @@ if(!defined('IN_CRONLITE'))exit();
       height: auto;
   }
   </style>
-  
+
 <?php echo $background_css?>
   <!-- 鼠标美化效果 -->
   <?php if($conf['mouse_beautify'] == 1){
@@ -220,7 +327,7 @@ document.write("❤晚上好 下一单醒来有惊喜哟~");
 					<select class="form-control" id="searchtype" style="padding: 6px 4px;width:90px"><option value="0">下单账号</option><option value="1">订单号</option></select>
 				</div>
 				<input type="text" name="qq" id="qq3" value="<?php echo $qq?>" class="form-control" placeholder="请输入要查询的内容（留空则显示最新订单）" onkeydown="if(event.keyCode==13){submit_query.click()}" required/>
-				<span class="input-group-btn"><a tabindex="0" class="btn btn-default" role="button" data-container="body" data-toggle="popover" data-trigger="focus" data-placement="top" title="查询内容是什么？" data-content="请输入您下单时，在第一个输入框内填写的信息。如果您不知道下单账号是什么，可以不填写，直接点击查询，则会根据浏览器缓存查询！"><i class="glyphicon glyphicon-exclamation-sign"></i></a></span>
+				<span class="input-group-btn"><a tabindex="0" class="btn btn-default" role="button" data-container="body" data-toggle="popover" data-trigger="focus" data-placement="top" title="查询内容是什么？" data-content="请输入您下单时，在第一个输入框内填写的信息。如果您不知道下单账号是什么，可以不填写，直接点击查询，则会根据浏览器缓存查询！"><i class="fa fa-exclamation-circle"></i></a></span>
 			</div></div>
 			<input type="submit" id="submit_query" class="btn btn-primary btn-block" value="立即查询">
 			<div id="result2" class="form-group" style="display:none;">
@@ -240,7 +347,7 @@ document.write("❤晚上好 下一单醒来有惊喜哟~");
 			<p>
 			<a class="btn btn-info" id="start" style="display:block;">开始抽奖</a>
 			<a class="btn btn-danger" id="stop" style="display:none;">停止</a>
-			</p> 
+			</p>
 			<div id="result"></div><br/>
 			<div class="giftlist" style="display:none;"><strong>最近中奖记录</strong><ul id="pst_1"></ul></div>
 			</div>
@@ -249,7 +356,7 @@ document.write("❤晚上好 下一单醒来有惊喜哟~");
 	</div>
 </div>
 </div>
-	
+
 </div>
 
 <?php if($conf['articlenum']>0){
@@ -347,7 +454,7 @@ window.addEventListener('load', function() {
             threshold: 200
         });
     }
-    
+
     // 延迟加载其他功能
     setTimeout(function() {
         console.log('页面完全加载完成');
@@ -362,7 +469,7 @@ var modalShowType = <?php echo isset($conf['modal_show_type']) ? $conf['modal_sh
 var homepage = true;
 var hashsalt = <?php echo $addsalt_js; ?>;
 
-// 弹出公告控制 - 来自6v6.ren
+// 弹出公告控制 - 岁岁 @qqfaka
 $(document).ready(function() {
     if (isModal) {
         // 检查是否需要显示公告
@@ -378,7 +485,7 @@ $(document).ready(function() {
             }
         }
     }
-    
+
     // 购买成功后自动显示订单详情弹窗
     function getUrlParam(name) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -386,11 +493,11 @@ $(document).ready(function() {
         if (r != null) return decodeURIComponent(r[2]);
         return '';
     }
-    
+
     if(getUrlParam('buyok') == '1'){
         // 切换到查询标签页
         $("#tab-query").tab("show");
-        
+
         // 延迟执行查询，确保标签页已切换
         setTimeout(function(){
             $("#submit_query").click();

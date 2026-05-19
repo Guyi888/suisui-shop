@@ -27,7 +27,7 @@ if (isset($_GET["kw"])) {
         <table class="table table-striped">
           <thead><tr><th>商品ID</th><th>商品名称</th><th title="数字越小越靠前">排序</th><th>奖励条件</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = isset($_GET["num"]) ? intval($_GET["num"]) : 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -49,7 +49,7 @@ while ($res = $rs->fetch()) {
 ?>          </tbody>
         </table>
 </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;

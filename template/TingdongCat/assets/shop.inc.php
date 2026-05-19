@@ -197,7 +197,7 @@ if($select_count==0)$hideclass = true;
 .form-control, select, #cid, #tid {
   height: 40px;
   padding: 8px 16px;
-  
+
   background: rgba(246, 250, 255, 0.95) !important;
   transition: all 0.2s ease;
 }
@@ -228,7 +228,7 @@ if($select_count==0)$hideclass = true;
   background: rgba(126, 177, 255, 0.1) !important;
   border: 1px dashed rgba(126, 177, 255, 0) !important;
   color: var(--primary-blue) !important;
-  
+
 }
 
 #num_min:hover, #num_add:hover {
@@ -259,16 +259,16 @@ select {
     --light-blue: #1a2a40;
     --border-blue: rgba(93, 156, 255, 0.3);
   }
-  
+
   .form-control, select {
     background: rgba(26, 42, 64, 0.9) !important;
     color: #b3d1ff;
   }
-  
+
   .input-group {
     background: rgba(20, 35, 55, 0.9);
   }
-  
+
   #num_min, #num_add {
     background: rgba(93, 156, 255, 0.1) !important;
   }
@@ -277,11 +277,28 @@ select {
 
 		<div id="goodTypeContents">
 			<?php echo $conf['alert']?>
+			<?php
+			$hasRecommend = false;
+			try {
+				$count = $DB->getColumn("SELECT COUNT(*) FROM pre_recommend WHERE active=1");
+				if($count > 0) $hasRecommend = true;
+			} catch (Exception $e) {
+				$hasRecommend = false;
+			}
+			if($hasRecommend){
+			?>
+			<!-- 商品推荐按钮 -->
+			<div class="form-group" style="margin-bottom: 10px;">
+				<button type="button" id="recommendBtn" class="btn btn-block btn-warning" style="background: rgb(158, 211, 249); color: white; font-weight: bold; border-radius: 12px; padding: 12px; box-shadow: 0 4px 15px rgba(158, 211, 249, 0.3);">
+					<i class="fa fa-star" style="margin-right: 8px;"></i> 商品推荐
+				</button>
+			</div>
+			<?php } ?>
 			<?php if($conf['search_open']==1){?>
 			<div class="form-group" id="display_searchBar">
 				<div class="input-group"><div class="input-group-addon">搜索商品</div>
 				<input type="text" id="searchkw" class="form-control" placeholder="搜索商品" onkeydown="if(event.keyCode==13){$('#doSearch').click()}"/>
-				<div class="input-group-addon"><span class="glyphicon glyphicon-search onclick" title="搜索" id="doSearch"></span></div>
+				<div class="input-group-addon"><span class="fa fa-search onclick" title="搜索" id="doSearch"></span></div>
 			</div></div>
 			<?php }?>
 			<div class="form-group" id="display_selectclass"<?php if($hideclass){?> style="display:none;"<?php }?>>
@@ -310,7 +327,7 @@ select {
 			<div id="inputsname"></div>
 			<div id="alert_frame" class="alert alert-success animated rubberBand" style="display:none;background: linear-gradient(to right,#70b9eb,#dc87ff);font-weight: bold;color:white;border-radius: 12px;box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.2);"></div>
 			<?php if($conf['shoppingcart']==1){?>
-	    
+
 		<div class="btn-group btn-group-justified form-group">
 		    <a class="btn btn-block" type="button" id="submit_cart_shop" style="background-color: #71D7A2; color: white;">加入购物车</a>
 			<a type="submit" id="submit_buy" class="btn btn-block" style="background-color: #9ED3F9; color: white;">立即购买</a>

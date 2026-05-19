@@ -119,7 +119,7 @@ if(strpos($_SERVER['HTTP_USER_AGENT'], 'QQ/')!==false){
         });
     }
     window.onload = function(){
-		document.getElementById("openUrl").href = url_scheme; 
+		document.getElementById("openUrl").href = url_scheme;
 		window.location.href = url_scheme;
 		setTimeout("loadmsg()", 2000);
 	}

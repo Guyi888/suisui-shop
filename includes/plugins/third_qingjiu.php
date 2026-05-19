@@ -44,7 +44,7 @@ class third_qingjiu{
 			'coupon' => '-2',
 		];
 		if (is_array($input)){
-			$i = 1; 
+			$i = 1;
 			foreach ($input as $val) {
 				if($val){
 					$param[ 'value' . $i ] = $val;
@@ -131,7 +131,7 @@ class third_qingjiu{
 			return $return;
 		}
 	}
-	
+
 	public function query_order($orderid, $goodsid, $value = []){
 		$order_state = array(0=>'待处理',1=>'已完成',2=>'待处理',3=>'异常中',4=>'处理中',5=>'已退款',6=>'售后中',7=>'已评价');
 		$url = '/api.php';

@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script>window.location.href='./login.php';</script>");
 }
 ?><div class="col-md-12 center-block" style="float: none;">
-    <?php 
+    <?php
 adminpermission("site", 1);
 $zid = isset($_GET["zid"]) ? intval($_GET["zid"]) : showmsg("参数不完整");
 ?>    <div class="block">

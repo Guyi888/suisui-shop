@@ -5,6 +5,7 @@ if (defined('IN_CRONLITE')) {
 	return;
 }
 define('CACHE_FILE', 0);
+define('VERSION', '20260519');
 define('IN_CRONLITE', true);
 define('tingdong', '3530793519');
 define('SYSTEM_ROOT', dirname(__FILE__) . '/');
@@ -48,7 +49,7 @@ define('DBQZ', $dbconfig['dbqz']);
 function checkDatabaseError($dbconfig, $exception = null)
 {
 	$error_info = array();
-	
+
 	if (!defined('SQLITE') && (!$dbconfig['user'] || !$dbconfig['pwd'] || !$dbconfig['dbname'])) {
 		$error_info[] = '数据库配置信息不完整，请检查config.php文件中的数据库配置';
 		if (!$dbconfig['user']) {
@@ -62,10 +63,10 @@ function checkDatabaseError($dbconfig, $exception = null)
 		}
 		return $error_info;
 	}
-	
+
 	if ($exception) {
 		$error_msg = $exception->getMessage();
-		
+
 		if (strpos($error_msg, 'Access denied') !== false || strpos($error_msg, '1045') !== false) {
 			$error_info[] = '数据库账号或密码错误';
 			$error_info[] = '请检查config.php文件中的数据库用户名和密码是否正确';
@@ -104,7 +105,7 @@ function checkDatabaseError($dbconfig, $exception = null)
 		$error_info[] = '请检查MySQL服务是否已启动';
 		$error_info[] = '请检查config.php文件中的数据库配置是否正确';
 	}
-	
+
 	return $error_info;
 }
 
@@ -112,17 +113,17 @@ function checkMySQLService($dbconfig)
 {
 	$host = $dbconfig['host'];
 	$port = isset($dbconfig['port']) ? $dbconfig['port'] : 3306;
-	
+
 	if ($host == 'localhost' || $host == '127.0.0.1') {
 		$os = strtoupper(substr(PHP_OS, 0, 3));
-		
+
 		if ($os === 'WIN') {
 			$port_check = @fsockopen($host, $port, $errno, $errstr, 2);
 			if ($port_check) {
 				fclose($port_check);
 				return 'running';
 			}
-			
+
 			$service_names = array('MySQL', 'MySQL80', 'MySQL57', 'MySQL56', 'mariadb');
 			foreach ($service_names as $service_name) {
 				@exec('sc query "' . $service_name . '" 2>&1', $output, $return_var);
@@ -142,17 +143,17 @@ function checkMySQLService($dbconfig)
 				fclose($port_check);
 				return 'running';
 			}
-			
+
 			@exec('systemctl is-active mysql 2>&1', $output, $return_var);
 			if (isset($output[0]) && $output[0] == 'active') {
 				return 'running';
 			}
-			
+
 			@exec('systemctl is-active mariadb 2>&1', $output, $return_var);
 			if (isset($output[0]) && $output[0] == 'active') {
 				return 'running';
 			}
-			
+
 			@exec('service mysql status 2>&1', $output, $return_var);
 			if (is_array($output) && count($output) > 0) {
 				$output_str = implode(' ', $output);
@@ -160,7 +161,7 @@ function checkMySQLService($dbconfig)
 					return 'running';
 				}
 			}
-			
+
 			return 'not_running';
 		}
 	} else {
@@ -179,9 +180,9 @@ function showDatabaseError($error_info)
 	foreach ($error_info as $tip) {
 		$tips_html .= '<div>' . htmlspecialchars($tip) . '</div>';
 	}
-	
+
 	$install_lock_exists = file_exists(ROOT . 'install/install.lock');
-	
+
 	if ($install_lock_exists) {
 		$tips_html .= '<div style="color:red;margin-top:15px;padding-top:15px;border-top:1px solid #eee;"> 检测到install.lock文件存在，说明系统已安装过。<br> 诺第一次安装请删掉install\install.lock</div>';
 		$tips_html .= '<div style="color:red;">请直接修改网站根目录config.php文件内的数据库配置</div>';
@@ -191,7 +192,7 @@ function showDatabaseError($error_info)
 		$tips_html .= '<div style="margin-top:15px;padding-top:15px;border-top:1px solid #eee;">如果数据库配置正确但仍无法连接，请检查MySQL服务是否正常运行</div>';
 		$btn_html = '<a href="/install/" class="btn">立即安装</a>';
 	}
-	
+
 	header('Content-type:text/html;charset=utf-8');
 	echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>数据库连接失败</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:#f5f5f5;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.container{background:#fff;border-radius:8px;padding:40px;max-width:600px;width:100%;box-shadow:0 2px 10px rgba(0,0,0,0.1)}h1{color:#333;font-size:24px;margin-bottom:20px;text-align:center}.tips{color:#666;font-size:14px;line-height:1.8;margin-bottom:30px}.tips div{margin-bottom:10px}.btn{display:block;width:100%;padding:12px;background:#12b7f5;color:#fff;text-decoration:none;text-align:center;border-radius:4px;font-size:16px;transition:background 0.3s}.btn:hover{background:#0a96d8}</style></head><body><div class="container"><h1>数据库连接失败</h1><div class="tips">' . $tips_html . '</div>' . $btn_html . '</div></body></html>';
 	exit;
@@ -249,7 +250,7 @@ if (isset($_COOKIE['invite'])) {
 	$invite_id = intval($_COOKIE['invite']);
 }
 $domain = addslashes($_SERVER['HTTP_HOST']);
-$siterow = $DB->getRow("SELECT * FROM pre_site WHERE domain=:domain OR domain2=:domain LIMIT 1", array(':domain' => $domain));
+$siterow = $DB->getRow("SELECT * FROM pre_site WHERE domain=:domain OR domain2=:domain OR domain3=:domain OR domain4=:domain OR domain5=:domain OR domain6=:domain LIMIT 1", array(':domain' => $domain));
 if ($siterow && $siterow['status'] == 1) {
 	$is_fenzhan = true;
 	if ($siterow['template'] == NULL || $conf['fenzhan_template'] == 0) {
@@ -450,11 +451,14 @@ function rmdirs($dir, $rmself = true)
 define('API_URL', 'https://sq.6v6.ren');
 
 // 防墙引导页功能检测
-if($conf['wall_guide_open'] == 1 && empty($_COOKIE['wall_guide_skip'])) {
+if($conf['wall_guide_open'] == 1) {
     $is_system_file = strpos($_SERVER['PHP_SELF'], 'admin/') !== false || strpos($_SERVER['PHP_SELF'], 'install/') !== false || strpos($_SERVER['PHP_SELF'], 'api/') !== false || strpos($_SERVER['PHP_SELF'], 'api.php') !== false || strpos($_SERVER['PHP_SELF'], 'cron.php') !== false;
     if(!$is_system_file) {
-        include TEMPLATE_ROOT . 'wall_guide.php';
-        exit;
+        // 只检查 cookie 是否存在，浏览器会自动处理过期
+        if(!isset($_COOKIE['wall_guide_skip'])) {
+            include TEMPLATE_ROOT . 'wall_guide.php';
+            exit;
+        }
     }
 }
 
@@ -468,25 +472,25 @@ if($conf['wall_guide_open'] == 1 && empty($_COOKIE['wall_guide_skip'])) {
 
 /**
  * 域名落地页跳转功能
- * 博客地址：6v6.ren
- * Q群：941535592
- * 作者：教主
+ * 岁岁 @qqfaka
+ * Q群：qqfaka
+ * 作者：岁岁 @qqfaka
  * 功能说明：根据配置的域名跳转规则，自动将旧域名跳转到新域名
  * 支持通配符匹配，如 *.old.com -> *.new.com
  */
 if(!$is_fenzhan && !strpos($_SERVER['PHP_SELF'], 'admin/') && !strpos($_SERVER['PHP_SELF'], 'install/') && !strpos($_SERVER['PHP_SELF'], 'api/') && !strpos($_SERVER['PHP_SELF'], 'cron.php')) {
     $current_host = strtolower($_SERVER['HTTP_HOST']);
     $current_host = preg_replace('/^www\./', '', $current_host);
-    
+
     $landing_rules = $DB->getAll("SELECT * FROM pre_domain_landing ORDER BY id DESC");
-    
+
     foreach($landing_rules as $rule) {
         $old_domain = $rule['old_domain'];
         $new_domain = $rule['new_domain'];
-        
+
         $is_match = false;
         $wildcard_value = '';
-        
+
         if(strpos($old_domain, '*') !== false) {
             $pattern = str_replace('\*', '([^\.]+)', preg_quote($old_domain, '/'));
             if(preg_match('/^' . $pattern . '$/i', $current_host, $matches)) {
@@ -498,25 +502,25 @@ if(!$is_fenzhan && !strpos($_SERVER['PHP_SELF'], 'admin/') && !strpos($_SERVER['
                 $is_match = true;
             }
         }
-        
+
         if($is_match) {
             $redirect_domain = $new_domain;
             if($wildcard_value && strpos($new_domain, '*') !== false) {
                 $redirect_domain = str_replace('*', $wildcard_value, $new_domain);
             }
-            
+
             $redirect_domain = preg_replace('/^www\./', '', $redirect_domain);
-            
+
             if($redirect_domain !== $current_host) {
                 $request_uri = $_SERVER['REQUEST_URI'];
                 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
                 $redirect_url = $protocol . '://' . $redirect_domain . $request_uri;
-                
+
                 header('HTTP/1.1 301 Moved Permanently');
                 header('Location: ' . $redirect_url);
                 exit;
             }
-            
+
             break;
         }
     }

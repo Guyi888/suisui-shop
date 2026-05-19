@@ -329,7 +329,7 @@ select.form-control option {
         box-shadow: 4px 4px 8px var(--neumorphic-shadow-dark),
                     -4px -4px 8px var(--neumorphic-shadow-light);
     }
-    
+
     .neumorphic-inset,
     .form-control:focus,
     .active > .neumorphic,

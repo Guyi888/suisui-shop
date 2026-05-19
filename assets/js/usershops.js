@@ -160,7 +160,7 @@ function dopay(type,orderid){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}else{
 		window.location.href='../other/submit.php?type='+type+'&orderid='+orderid;
@@ -308,7 +308,7 @@ $("#cid").change(function () {
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	});
 

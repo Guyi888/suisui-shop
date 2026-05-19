@@ -165,26 +165,26 @@ class Price {
 		global $DB,$CACHE;
 
 		if(!$row)$row=$this->getToolInfo($tid);
-		
+
 		// 保存原始价格，用于后续计算
 		$original_price = $row['price'];
 
-		if($row['prid']==0){ 
+		if($row['prid']==0){
 			// 不加价，保持原始价格
-		} elseif($price_rules = $this->getPriceRules($row['prid'])){ 
+		} elseif($price_rules = $this->getPriceRules($row['prid'])){
 			// 应用加价模板
-			if($price_rules['kind']==1){ 
+			if($price_rules['kind']==1){
 				// 固定金额加价
 				$row['price'] = round($original_price + $price_rules['p_0'], 2);
 				$row['cost'] = round($original_price + $price_rules['p_1'], 2);
 				$row['cost2'] = round($original_price + $price_rules['p_2'], 2);
-			} else { 
+			} else {
 				// 倍数加价
 				$row['price'] = round($original_price * $price_rules['p_0'], 2);
 				$row['cost'] = round($original_price * $price_rules['p_1'], 2);
 				$row['cost2'] = round($original_price * $price_rules['p_2'], 2);
 			}
-		} else { 
+		} else {
 			// 对应加价模板被删除或不存在
 			$row['cost'] = $row['price'];
 			$row['cost2'] = $row['price'];
@@ -423,28 +423,28 @@ class Price {
 
 	public function setPriceInfo($tid,$del,$price,$cost=0){
 		global $DB;
-		
+
 		// 确保price_array[$tid]存在
 		if(!isset($this->price_array[$tid])) {
 			$this->price_array[$tid] = array();
 		}
-		
+
 		// 更新内存中的价格数据
 		$this->price_array[$tid]['price'] = $price;
 		if($this->power==2) {
 			$this->price_array[$tid]['cost'] = $cost;
 		}
 		$this->price_array[$tid]['del'] = $del;
-		
+
 		// 将价格数据保存到新表中
 		$cost2 = isset($this->price_array[$tid]['cost2']) ? $this->price_array[$tid]['cost2'] : 0;
-		
+
 		// 使用INSERT ON DUPLICATE KEY UPDATE语法，确保数据的唯一性
-		$sql = "INSERT INTO pre_site_price (zid, tid, price, cost, cost2, del, create_time, update_time) 
-		       VALUES (:zid, :tid, :price, :cost, :cost2, :del, NOW(), NOW()) 
-		       ON DUPLICATE KEY UPDATE 
+		$sql = "INSERT INTO pre_site_price (zid, tid, price, cost, cost2, del, create_time, update_time)
+		       VALUES (:zid, :tid, :price, :cost, :cost2, :del, NOW(), NOW())
+		       ON DUPLICATE KEY UPDATE
 		       price = :price, cost = :cost, cost2 = :cost2, del = :del, update_time = NOW()";
-		
+
 		$data = [
 			':zid' => $this->zid,
 			':tid' => $tid,
@@ -453,7 +453,7 @@ class Price {
 			':cost2' => $cost2,
 			':del' => $del
 		];
-		
+
 		return $DB->exec($sql, $data);
 	}
 

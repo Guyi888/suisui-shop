@@ -33,7 +33,7 @@ td{overflow: hidden;text-overflow: ellipsis;white-space: nowrap;max-width:360px;
     </div>
   </div>
 </div>
-<?php 
+<?php
 $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 order by sort asc");
 $select = "<option value=\"0\">请选择商品分类</option>";
 while ($res = $rs->fetch()) {
@@ -91,13 +91,13 @@ if ($my == "add") {
 </form>
 </div>
 <div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span>
+<span class="fa fa-info-circle"></span>
 注意：卡密格式：卡号+空格+密码，一行一张卡，如：ABCDEFG 123456789<br/>
 只有商品设置里面购买成功后的动作选择自动发卡，该商品才会显示在当前列表
 </div>
 </div>
 <a href="<?php echo isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : "fakalist.php";?>" class="btn btn-default btn-panel panel-default">>>返回发卡库存列表</a>
-<?php 
+<?php
 } elseif ($my == "add_submit") {
 	if (!checkRefererHost()) {
 		exit;
@@ -161,7 +161,7 @@ if ($my == "add") {
 	$tid = intval($_GET["tid"]);
 	?><div class="panel panel-default">
 <div class="panel-heading"><h3 class="panel-title">清空卡密</h3></div>
-<div class="panel-body"><?php 
+<div class="panel-body"><?php
 	if ($DB->exec("DELETE FROM pre_faka WHERE tid='" . $tid . "' and sid='" . $suprow["sid"] . "'") !== false) {
 		echo "<div class=\"panel-body\">清空成功.</div>";
 	} else {
@@ -181,7 +181,7 @@ if ($my == "add") {
 	$tid = intval($_GET["tid"]);
 	?><div class="panel panel-default">
 <div class="panel-heading"><h3 class="panel-title">清空卡密</h3></div>
-<div class="panel-body"><?php 
+<div class="panel-body"><?php
 	if ($DB->exec("DELETE FROM pre_faka WHERE tid='" . $tid . "' and sid='" . $suprow["sid"] . "' and orderid!=0") !== false) {
 		echo "<div class=\"panel-body\">清空成功.</div>";
 	} else {
@@ -243,7 +243,7 @@ if ($my == "add") {
 				<option value="1">同时改为已使用</option>
 			</select>
 		</span>
-		
+
 	</div>
 </div>
 <input type="submit" class="btn btn-primary btn-panel panel-default" value="导出"></form>
@@ -281,7 +281,7 @@ if ($my == "add") {
         <table class="table table-striped">
           <thead><tr><th>卡号</th><th>密码</th><th>状态</th><th>添加时间</th><th>使用时间</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 	$pagesize = 30;
 	$pages = ceil($numrows / $pagesize);
 	$page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -301,7 +301,7 @@ if ($my == "add") {
 <input type="submit" name="Submit" value="删除选中">
 </div>
 </form>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 	$first = 1;
 	$prev = $page - 1;
 	$next = $page + 1;
@@ -329,7 +329,7 @@ if ($my == "add") {
 		echo "<li class=\"disabled\"><a>&raquo;</a></li>";
 		echo "<li class=\"disabled\"><a>尾页</a></li>";
 	}
-	?></ul><?php 
+	?></ul><?php
 }
 ?></div>
     </div>

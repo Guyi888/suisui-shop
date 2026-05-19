@@ -14,7 +14,7 @@ if ($islogin == 1) {
 <table class="table table-striped">
 <thead><tr><th>站点ID</th><th>中奖商品ID</th><th>奖品名称</th><th>订单号</th><th>中奖时间</th></tr></thead>
 <tbody>
-<?php 
+<?php
 $list = $DB->query("SELECT a.*,(select b.name from pre_gift as b where a.gid=b.id) as name FROM pre_giftlog as a WHERE status=1 ORDER BY id DESC");
 while ($cjlist = $list->fetch()) {
 	?><tr>
@@ -24,7 +24,7 @@ while ($cjlist = $list->fetch()) {
 <td><a href="./list.php?kw=<?php echo $cjlist["tradeno"];?>&type=0" target="_blank"><?php echo $cjlist["tradeno"];?></a></td>
 <td><?php echo $cjlist["addtime"];?></td>
 </tr>
-<?php 
+<?php
 }
 ?></tbody>
 </table>

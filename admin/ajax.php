@@ -2,7 +2,7 @@
 include("../includes/common.php");
 $act=isset($_GET['act'])?daddslashes($_GET['act']):null;
 
-// 无需管理员权限的操作例外 - 博客地址:6v6.ren q群941535592
+// 无需管理员权限的操作例外 - 岁岁 @qqfaka
 $noAdminActions = ['create_chat_session'];
 if(!in_array($act, $noAdminActions) && $islogin==1){}else if(in_array($act, $noAdminActions)){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 
@@ -65,16 +65,16 @@ case 'getcount':
 		}
 
 		$count17=$DB->getColumn("SELECT count(*) FROM pre_workorder where status=0 or status=1");
-	
+
 	// 获取访问统计数据
 	$today = date('Y-m-d');
 	$visit_today = $DB->getColumn("SELECT visits FROM shua_visit_statistics WHERE date = :date", array(':date' => $today));
 	$ip_today = $DB->getColumn("SELECT ip_count FROM shua_visit_statistics WHERE date = :date", array(':date' => $today));
-	
+
 	// 如果今天还没有访问记录，设置默认值
 	if($visit_today === false) $visit_today = 0;
 	if($ip_today === false) $ip_today = 0;
-	
+
 	// 获取过去7天的访问统计数据
 	$visit_chart = array('date' => array(), 'visits' => array(), 'ips' => array());
 	try {
@@ -82,7 +82,7 @@ case 'getcount':
 			$date = date('Y-m-d', strtotime("-$i days"));
 			$short_date = date('m-d', strtotime("-$i days"));
 			$visit_chart['date'][] = $short_date;
-			
+
 			$stat = $DB->getRow("SELECT visits, ip_count FROM shua_visit_statistics WHERE date = :date", array(':date' => $date));
 			if($stat) {
 				$visit_chart['visits'][] = array($i, $stat['visits']);
@@ -139,44 +139,44 @@ case 'uploadimg':
 	}
 	if($_POST['do']=='upload'){
 		$type = isset($_POST['type']) ? $_POST['type'] : 'product';
-		
+
 		// 检查文件是否存在
 		if(!isset($_FILES['file']) || $_FILES['file']['error'] != UPLOAD_ERR_OK){
 			exit(json_encode(array('code'=>-1,'msg'=>'请选择要上传的文件')));
 		}
-		
+
 		// 检查文件类型和大小
 		$allowed_types = array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
 		$file_type = $_FILES['file']['type'];
 		$file_ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
 		$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 		$max_size = 5 * 1024 * 1024; // 5MB
-		
+
 		// 检查文件类型和扩展名
 		if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 			exit(json_encode(array('code'=>-1,'msg'=>'只允许上传JPG、PNG、GIF、WEBP格式的图片文件！')));
 		}
-		
+
 		// 检查文件大小
 		if ($_FILES['file']['size'] > $max_size) {
 			exit(json_encode(array('code'=>-1,'msg'=>'文件大小不能超过5MB！')));
 		}
-		
+
 		// 检查文件是否为真实图片
 		$image_info = getimagesize($_FILES['file']['tmp_name']);
 		if (!$image_info) {
 			exit(json_encode(array('code'=>-1,'msg'=>'请上传真实的图片文件！')));
 		}
-		
+
 		// 生成更安全的文件名：结合时间戳、随机数和文件内容哈希
 		$filename = $type.'_'.md5(uniqid(mt_rand(), true) . time() . file_get_contents($_FILES['file']['tmp_name'])).'.'.$file_ext;
 		$fileurl = 'assets/img/Product/'.$filename;
-		
+
 		// 确保上传目录存在
 		if (!is_dir(ROOT.'assets/img/Product/')) {
 			mkdir(ROOT.'assets/img/Product/', 0755, true);
 		}
-		
+
 		// 使用move_uploaded_file更安全
 		if(move_uploaded_file($_FILES['file']['tmp_name'], ROOT.'assets/img/Product/'.$filename)){
 			exit(json_encode(array('code'=>0,'msg'=>'succ','url'=>$fileurl)));
@@ -197,13 +197,13 @@ case 'article_upload':
 	if (in_array($file_ext, array('gif', 'jpg', 'jpeg', 'png', 'bmp', 'webp')) === false) {
 		exit('{"error":1,"message":"上传文件扩展名是不允许的扩展名。"}');
 	}
-	
+
 	// 检查文件是否为真实图片
 	$image_info = getimagesize($tmp_name);
 	if (!$image_info) {
 		exit('{"error":1,"message":"请上传真实的图片文件！"}');
 	}
-	
+
 	$filename = md5_file($tmp_name).'.'.$file_ext;
 	$fileurl = '/assets/img/article/'.$filename;
 	if(copy($tmp_name, ROOT.'assets/img/article/'.$filename)){
@@ -229,7 +229,7 @@ case 'upload_favicon':
 	if (!in_array($file_ext, $allowed_ext)) {
 		exit('{"code":-1,"msg":"上传文件扩展名不允许，仅支持ico、png、jpg、jpeg、gif格式"}');
 	}
-	
+
 	// 检查文件是否为真实图片或图标
 	if($file_ext != 'ico'){
 		$image_info = getimagesize($tmp_name);
@@ -237,7 +237,7 @@ case 'upload_favicon':
 			exit('{"code":-1,"msg":"请上传真实的图片文件！"}');
 		}
 	}
-	
+
 	//创建目录
 	$favicon_dir = ROOT.'assets/img/favicon/';
 	if(!is_dir($favicon_dir)){
@@ -621,7 +621,7 @@ case 'map':
 		exit('{"code":-1,"msg":"生成链接规则不能为空！"}');
 	} else {
 		$fileName = explode('spider/', $filePath)[1];
-		
+
 		$xml =<<<'xml'
 <?xml version="1.0" encoding="utf-8"?>
 	<urlset>
@@ -806,13 +806,13 @@ break;
 case 'create_chat_session':
     // 创建聊天会话（无需管理员权限，用户端调用）
     // 博客地址：zhonguo.ren
-    // Q群：915043052
+    // Q群：qqfaka
     $user_ip = isset($_POST['user_ip']) ? daddslashes($_POST['user_ip']) : '';
     if(empty($user_ip)) $user_ip = real_ip(1);
-    
+
     $user_id = 0;
     $username = '';
-    
+
     // 从cookie中获取用户信息
     if(isset($_COOKIE['user_token'])){
         $token = authcode(daddslashes($_COOKIE['user_token']), 'DECODE', SYS_KEY);
@@ -825,53 +825,37 @@ case 'create_chat_session':
             }
         }
     }
-    
-    // 检查是否已有相同IP的活跃会话
-    $existing_session = $DB->getRow("SELECT id FROM shua_chat_session WHERE user_ip=? AND status=1 LIMIT 1", [$user_ip]);
-    
+
+    // 检查是否已有相同zid的活跃会话（登录用户），或相同IP的活跃会话（游客）
+    if($user_id > 0){
+        $existing_session = $DB->getRow("SELECT id FROM shua_chat_session WHERE zid=? AND status=1 LIMIT 1", [$user_id]);
+    }else{
+        $existing_session = $DB->getRow("SELECT id FROM shua_chat_session WHERE zid=0 AND user_ip=? AND status=1 LIMIT 1", [$user_ip]);
+    }
+
     if($existing_session){
-        // 已有活跃会话，更新用户信息
-        if($user_id > 0){
-            $DB->exec("UPDATE shua_chat_session SET user_id=?, username=? WHERE id=?", [$user_id, $username, $existing_session['id']]);
-        }
-        // 直接返回
         exit(json_encode(['code'=>1,'data'=>['session_id'=>$existing_session['id']]]));
     }
-    
+
     // 创建新会话
-    $DB->exec("INSERT INTO shua_chat_session (user_ip, user_id, username, status, create_time, last_msg_time) VALUES (?, ?, ?, 1, NOW(), NOW())", [$user_ip, $user_id, $username]);
+    $DB->exec("INSERT INTO shua_chat_session (zid, user_ip, user_agent, status, create_time, last_msg_time) VALUES (?, ?, ?, 1, NOW(), NOW())", [$user_id, $user_ip, $user_agent]);
     $session_id = $DB->lastInsertId();
-    
+
     exit(json_encode(['code'=>1,'data'=>['session_id'=>$session_id]]));
     break;
 case 'chat_session_list':
-    // 获取会话列表 - 博客地址:6v6.ren q群941535592
+    // 获取会话列表 - 岁岁 @qqfaka
     adminpermission('chat', 2);
-    $sessions = $DB->getAll("SELECT * FROM shua_chat_session ORDER BY last_msg_time DESC LIMIT 100");
+    $sessions = $DB->getAll("SELECT s.*, u.user as username FROM shua_chat_session s LEFT JOIN pre_site u ON s.zid=u.zid ORDER BY s.last_msg_time DESC LIMIT 100");
     $data = [];
     foreach($sessions as $row){
-        // 检查是否需要更新用户信息
-        if($row['user_id'] == 0 && isset($_COOKIE['user_token'])){
-            $token = authcode(daddslashes($_COOKIE['user_token']), 'DECODE', SYS_KEY);
-            list($zid, $sid) = explode("\t", $token);
-            if($userrow = $DB->getRow("SELECT * FROM pre_site WHERE zid=:zid LIMIT 1", [':zid' => intval($zid)])){
-                $session = md5($userrow['user'].$userrow['pwd'].$password_hash);
-                if($session === $sid && $userrow['status'] == 1){
-                    $user_id = $userrow['zid'];
-                    $username = $userrow['user'];
-                    $DB->exec("UPDATE shua_chat_session SET user_id=?, username=? WHERE id=?", [$user_id, $username, $row['id']]);
-                    $row['user_id'] = $user_id;
-                    $row['username'] = $username;
-                }
-            }
-        }
-        
         $unread = $DB->getColumn("SELECT COUNT(*) FROM shua_chat_message WHERE session_id=? AND sender='user' AND id>(SELECT IFNULL(MAX(id),0) FROM shua_chat_message WHERE session_id=? AND sender='admin')", [$row['id'],$row['id']]);
         $data[] = [
             'id' => $row['id'],
-            'user_ip' => $row['user_ip'],
-            'user_id' => $row['user_id'],
+            'zid' => $row['zid'],
             'username' => $row['username'],
+            'user_ip' => $row['user_ip'],
+            'user_agent' => $row['user_agent'],
             'status' => $row['status'],
             'last_msg_time' => $row['last_msg_time'],
             'create_time' => $row['create_time'],
@@ -881,7 +865,7 @@ case 'chat_session_list':
     exit(json_encode(['code'=>0,'data'=>$data]));
     break;
 case 'chat_message_list':
-    // 获取指定会话消息 - 博客地址:6v6.ren q群941535592
+    // 获取指定会话消息 - 岁岁 @qqfaka
     adminpermission('chat', 2);
     $session_id = intval($_GET['session_id']);
     $messages = $DB->getAll("SELECT * FROM shua_chat_message WHERE session_id=? ORDER BY id ASC LIMIT 100", [$session_id]);
@@ -898,31 +882,15 @@ case 'chat_message_list':
     exit(json_encode(['code'=>0,'data'=>$data]));
     break;
 case 'chat_send_message':
-    // 发送消息（支持图片）- 博客地址:6v6.ren q群941535592
+    // 发送消息（支持图片）- 岁岁 @qqfaka
     $session_id = intval($_POST['session_id']);
     $content = trim($_POST['content']);
     $type = isset($_POST['type']) ? intval($_POST['type']) : 0;
     $sender = isset($_POST['sender']) && in_array($_POST['sender'], ['user', 'admin']) ? $_POST['sender'] : 'admin';
-    
-    // 安全修复：强制验证管理员权限，防止伪造sender参数 - 博客地址:6v6.ren q群941535592
+
+    // 安全修复：强制验证管理员权限，防止伪造sender参数 - 岁岁 @qqfaka
     adminpermission('chat', 2);
-    
-    // 更新会话用户信息
-    if($sender == 'user'){
-        if(isset($_COOKIE['user_token'])){
-            $token = authcode(daddslashes($_COOKIE['user_token']), 'DECODE', SYS_KEY);
-            list($zid, $sid) = explode("\t", $token);
-            if($userrow = $DB->getRow("SELECT * FROM pre_site WHERE zid=:zid LIMIT 1", [':zid' => intval($zid)])){
-                $session = md5($userrow['user'].$userrow['pwd'].$password_hash);
-                if($session === $sid && $userrow['status'] == 1){
-                    $user_id = $userrow['zid'];
-                    $username = $userrow['user'];
-                    $DB->exec("UPDATE shua_chat_session SET user_id=?, username=? WHERE id=?", [$user_id, $username, $session_id]);
-                }
-            }
-        }
-    }
-    
+
     if(isset($_FILES['image']) && $_FILES['image']['size']>0){
         // 检查文件类型和大小
         $allowed_types = array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
@@ -930,22 +898,22 @@ case 'chat_send_message':
         $file_ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
         $allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
         $max_size = 2 * 1024 * 1024; // 2MB
-        
+
         if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
             exit(json_encode(['code'=>-1,'msg'=>'只允许上传JPG、PNG、GIF、WEBP格式的图片文件！']));
         }
-        
+
         if ($_FILES['image']['size'] > $max_size) {
             exit(json_encode(['code'=>-1,'msg'=>'文件大小不能超过2MB！']));
-            
+
         }
-        
+
         // 检查文件是否为真实图片
         $image_info = getimagesize($_FILES['image']['tmp_name']);
         if (!$image_info) {
             exit(json_encode(['code'=>-1,'msg'=>'请上传真实的图片文件！']));
         }
-        
+
         $filename = 'chat_'.date('YmdHis').'_'.rand(1000,9999).'.'.$file_ext;
         $filepath = ROOT.'assets/img/chat/'.$filename;
         if(!is_dir(ROOT.'assets/img/chat/')) mkdir(ROOT.'assets/img/chat/',0777,true);
@@ -963,22 +931,22 @@ case 'chat_send_message':
         if($chat_video_enable != 1){
             exit(json_encode(['code'=>-10,'msg'=>'视频上传功能已关闭']));
         }
-        
+
         // 检查文件类型和大小
         $allowed_types = array('video/mp4');
         $file_type = $_FILES['video']['type'];
         $file_ext = strtolower(pathinfo($_FILES['video']['name'], PATHINFO_EXTENSION));
         $allowed_exts = array('mp4');
         $max_size = ($conf['chat_video_max_size'] ?? 10) * 1024 * 1024; // 默认10MB
-        
+
         if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
             exit(json_encode(['code'=>-1,'msg'=>'只允许上传MP4格式的视频文件！']));
         }
-        
+
         if ($_FILES['video']['size'] > $max_size) {
             exit(json_encode(['code'=>-1,'msg'=>'视频大小不能超过'.($max_size/1024/1024).'MB！']));
         }
-        
+
         $filename = 'chat_video_'.date('YmdHis').'_'.rand(1000,9999).'.'.$file_ext;
         $filepath = ROOT.'assets/img/chat/'.$filename;
         if(!is_dir(ROOT.'assets/img/chat/')) mkdir(ROOT.'assets/img/chat/',0777,true);
@@ -990,20 +958,20 @@ case 'chat_send_message':
         }
     }
     if(empty($content)) exit(json_encode(['code'=>-1,'msg'=>'消息内容不能为空']));
-    
+
     // 插入消息
     $DB->exec("INSERT INTO shua_chat_message (session_id,sender,content,type,create_time) VALUES (?,?,?,?,NOW())", [$session_id,$sender,$content,$type]);
     $DB->exec("UPDATE shua_chat_session SET last_msg_time=NOW() WHERE id=?", [$session_id]);
-    
+
     // 如果是图片消息，返回图片URL
     if($type == 1 && $sender == 'user'){
         exit(json_encode(['code'=>0,'msg'=>'发送成功','data'=>['image_url'=>$content]]));
     }
-    
+
     exit(json_encode(['code'=>0,'msg'=>'发送成功']));
     break;
 case 'chat_close_session':
-    // 关闭会话 - 博客地址:6v6.ren q群941535592
+    // 关闭会话 - 岁岁 @qqfaka
     adminpermission('chat', 2);
     $session_id = intval($_POST['session_id']);
     $DB->exec("UPDATE shua_chat_session SET status=0 WHERE id=?", [$session_id]);
@@ -1045,26 +1013,39 @@ case 'delSeckill': //删除秒杀商品
 	$DB->exec("DELETE FROM pre_seckillshop WHERE id=:id limit 1", array(':id' => $id));
 	exit('{"code":0,"msg":"删除成功！"}');
 break;
+case 'setRecommend': //设置推荐商品状态
+	adminpermission('shop', 2);
+	$id=intval($_GET['id']);
+	$active=intval($_GET['active']);
+	$DB->exec("update pre_recommend set active=:active where id=:id", array(':active' => $active, ':id' => $id));
+	exit('{"code":0,"msg":"succ"}');
+break;
+case 'delRecommend': //删除推荐商品
+	adminpermission('shop', 2);
+	$id=intval($_GET['id']);
+	$DB->exec("DELETE FROM pre_recommend WHERE id=:id limit 1", array(':id' => $id));
+	exit('{"code":0,"msg":"删除成功！"}');
+break;
 case 'upload_favicon':
 	adminpermission('set', 2);
 	if(!isset($_FILES['favicon'])){
 		exit(json_encode(['code' => -1, 'msg' => '请选择要上传的图标文件']));
 	}
-	
+
 	$file = $_FILES['favicon'];
 	$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
 	$allowed_exts = ['ico', 'png', 'jpg', 'jpeg', 'gif'];
-	
+
 	// 检查文件类型
 	if(!in_array(strtolower($ext), $allowed_exts)){
 		exit(json_encode(['code' => -1, 'msg' => '不支持的文件格式，仅支持ico、png、jpg、jpeg、gif格式']));
 	}
-	
+
 	// 检查文件大小（限制为2MB）
 	if($file['size'] > 2 * 1024 * 1024){
 		exit(json_encode(['code' => -1, 'msg' => '文件大小超过限制（2MB）']));
 	}
-	
+
 	// 检查文件是否为真实图片或图标
 	if(strtolower($ext) != 'ico'){
 		$image_info = getimagesize($file['tmp_name']);
@@ -1072,17 +1053,17 @@ case 'upload_favicon':
 			exit(json_encode(['code' => -1, 'msg' => '请上传真实的图片文件！']));
 		}
 	}
-	
+
 	// 创建保存目录
 	$upload_dir = ROOT.'assets/img/favicon/';
 	if(!is_dir($upload_dir)){
 		mkdir($upload_dir, 0777, true);
 	}
-	
+
 	// 生成唯一文件名
 	$filename = 'favicon_'.date('YmdHis').'_'.rand(1000,9999).'.'.$ext;
 	$file_path = $upload_dir.$filename;
-	
+
 	// 保存文件
 	if(move_uploaded_file($file['tmp_name'], $file_path)){
 		// 生成可访问的URL
@@ -1093,9 +1074,9 @@ case 'upload_favicon':
 	}
 break;
 case 'system_info':
-	// 获取系统资源使用情况 - 教主 zhonguo.ren
+	// 获取系统资源使用情况 - 岁岁 @qqfaka zhonguo.ren
 	// 修复版本：使用更可靠的方法生成系统资源数据，并确保平滑波动
-	
+
 	// 获取数据库大小
 	function get_db_size() {
 		global $DB;
@@ -1111,55 +1092,55 @@ case 'system_info':
 			return rand(1, 50);
 		}
 	}
-	
-	// 获取系统运行时间 - 教主 zhonguo.ren
+
+	// 获取系统运行时间 - 岁岁 @qqfaka zhonguo.ren
 	function uptime() {
 		try {
 			// 使用静态变量保存基础运行天数
 			static $base_days = 911; // 固定的基础值，不再随机
-			
+
 			// 获取当前时间戳的小时部分，用于模拟每天的小时变化
 			$hour_offset = date('H');
-			
+
 			// 计算分钟部分，用于更精确的模拟
 			$minute_offset = date('i') / 60; // 0-1之间的值
-			
+
 			// 基于当前日期的小时和分钟计算一个稳定增长的值
 			// 这样系统运行时间会随时间缓慢增长，而不是随机波动
 			$time_factor = $hour_offset * 0.001 + $minute_offset * 0.00001;
-			
+
 			// 最终运行天数 = 基础天数 + 时间因子（非常缓慢增长）
 			$final_days = floor($base_days + $time_factor);
-			
+
 			// 为了更真实，每天固定增加一点（基于日期）
 			$day_increment = floor(date('z') / 30); // 每月增加1天
-			
+
 			return $base_days + $day_increment; // 返回稳定增长的天数
 		} catch (Exception $e) {
 			return 911; // 默认值
 		}
 	}
-	
-	// 获取内存使用情况 - 教主 zhonguo.ren
+
+	// 获取内存使用情况 - 岁岁 @qqfaka zhonguo.ren
 	function get_memory_usage() {
 		// 静态变量保存内存使用百分比，确保波动平滑
 		static $last_memory_percent = null;
-		
+
 		// 确定总内存大小
 		$memory = ini_get('memory_limit');
 		$memory_unit = strtolower(substr($memory, -1));
 		$memory_value = intval($memory);
-		
+
 		switch($memory_unit) {
 			case 'g': $total = $memory_value * 1024; break;
 			case 'm': $total = $memory_value; break;
 			case 'k': $total = $memory_value / 1024; break;
 			default: $total = $memory_value / 1024 / 1024; break;
 		}
-		
+
 		// 确保总内存有合理值
 		if($total < 100) $total = 512;
-		
+
 		// 根据上次的值计算本次内存使用率，确保平滑波动
 		if($last_memory_percent === null) {
 			$last_memory_percent = rand(30, 70); // 初始化为30%-70%之间的随机值
@@ -1168,22 +1149,22 @@ case 'system_info':
 			$fluctuation = rand(-20, 20) / 10; // -2.0% 到 2.0%
 			$last_memory_percent = max(10, min(90, $last_memory_percent + $fluctuation));
 		}
-		
+
 		// 计算使用量
 		$used = ($total * $last_memory_percent) / 100;
-		
+
 		return array(
 			'used' => round($used, 2),
 			'total' => round($total, 2),
 			'percent' => round($last_memory_percent, 2)
 		);
 	}
-	
-	// 获取CPU使用率 - 教主 zhonguo.ren
+
+	// 获取CPU使用率 - 岁岁 @qqfaka zhonguo.ren
 	function get_cpu_usage() {
 		// 静态变量保存CPU使用率，确保波动平滑
 		static $last_cpu_usage = null;
-		
+
 		if($last_cpu_usage === null) {
 			// 初始化一个合理的值（10%-70%之间）
 			$last_cpu_usage = rand(10, 70);
@@ -1192,10 +1173,10 @@ case 'system_info':
 			$fluctuation = rand(-30, 30) / 10; // -3.0 到 3.0
 			$last_cpu_usage = max(5, min(95, $last_cpu_usage + $fluctuation));
 		}
-		
+
 		return round($last_cpu_usage, 2);
 	}
-	
+
 	// 获取磁盘使用情况
 	function get_disk_usage() {
 		try {
@@ -1209,14 +1190,14 @@ case 'system_info':
 			return array('used' => rand(50, 200), 'total' => 600, 'percent' => rand(10, 80));
 		}
 	}
-	
+
 	// 组装返回数据
 	$db_size = get_db_size();
 	$system_days = uptime();
 	$memory_info = get_memory_usage();
 	$cpu_usage = get_cpu_usage();
 	$disk_info = get_disk_usage();
-	
+
 	// 构建最终结果数组
 	$result = array(
 		'code' => 0,
@@ -1230,7 +1211,7 @@ case 'system_info':
 		'disk_used' => $disk_info['used'],
 		'disk_total' => $disk_info['total']
 	);
-	
+
 	// 设置JSON响应头
 	header('Content-Type: application/json');
 	// 输出JSON格式数据
@@ -1241,7 +1222,7 @@ case 'get_visit_details':
 	$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 	$pageSize = isset($_GET['pageSize']) ? intval($_GET['pageSize']) : 20;
 	$offset = ($page - 1) * $pageSize;
-	
+
 	// 查询访问记录
 	try {
 		// 检查shua_visit_ips表是否存在
@@ -1249,13 +1230,13 @@ case 'get_visit_details':
 		if(!$tableExists) {
 			exit(json_encode(['code' => 1, 'msg' => '访问记录表不存在']));
 		}
-		
+
 		// 查询总记录数
 		$total = $DB->getColumn("SELECT COUNT(*) FROM shua_visit_ips");
-		
+
 		// 查询当前页数据（使用表中实际存在的字段）
 		$visits = $DB->getAll("SELECT * FROM shua_visit_ips ORDER BY updated_at DESC LIMIT $offset, $pageSize");
-		
+
 		// 格式化数据
 		$visitList = array();
 		foreach($visits as $visit) {
@@ -1268,7 +1249,7 @@ case 'get_visit_details':
 				'visits' => $visit['visits']
 			);
 		}
-		
+
 		exit(json_encode([
 			'code' => 0,
 			'total' => $total,
@@ -1278,6 +1259,173 @@ case 'get_visit_details':
 		]));
 	} catch (Exception $e) {
 		exit(json_encode(['code' => -1, 'msg' => '查询失败: ' . $e->getMessage()]));
+	}
+	break;
+
+case 'ban_ip':
+	adminpermission('site', 1);
+
+	$ip = isset($_POST['ip']) ? daddslashes($_POST['ip']) : null;
+	$zid = isset($_POST['zid']) ? intval($_POST['zid']) : 0;
+	$duration = isset($_POST['duration']) ? intval($_POST['duration']) : 24;
+	$reason = isset($_POST['reason']) ? daddslashes($_POST['reason']) : '';
+	$block_user = isset($_POST['block_user']) ? intval($_POST['block_user']) : 1;
+
+	if(empty($ip)) {
+		exit(json_encode(['code' => -1, 'msg' => 'IP地址不能为空']));
+	}
+
+	if($zid <= 0) {
+		exit(json_encode(['code' => -1, 'msg' => '用户ID无效']));
+	}
+
+	try {
+		$result = $DB->query("DESCRIBE pre_site");
+		$columns = [];
+		while ($row = $result->fetch()) {
+			$columns[] = $row['Field'];
+		}
+
+		if(in_array('reg_ip', $columns)) {
+			$reg_ip_field = 'reg_ip';
+		} else {
+			$reg_ip_field = null;
+		}
+
+		$result = $DB->query("DESCRIBE shua_site");
+		$shua_columns = [];
+		while ($row = $result->fetch()) {
+			$shua_columns[] = $row['Field'];
+		}
+
+		if(in_array('reg_ip', $shua_columns)) {
+			$shua_reg_ip_field = 'reg_ip';
+		} else {
+			$shua_reg_ip_field = null;
+		}
+
+		$now = date('Y-m-d H:i:s');
+
+		if($block_user == 1) {
+			$DB->exec("UPDATE pre_site SET status=0 WHERE zid=:zid", [':zid' => $zid]);
+
+			if($shua_reg_ip_field !== null) {
+				$DB->exec("UPDATE shua_site SET status=0 WHERE zid=:zid", [':zid' => $zid]);
+			}
+		}
+
+		$expire_time = 0;
+		if($duration > 0) {
+			$expire_time = time() + ($duration * 3600);
+			$expire_time = date('Y-m-d H:i:s', $expire_time);
+		}
+
+		$ban_sql = "INSERT INTO `shua_ip_ban` (`ip`, `zid`, `reason`, `duration`, `expire_time`, `addtime`, `status`) VALUES (:ip, :zid, :reason, :duration, :expire_time, :addtime, 1)";
+		$ban_data = [
+			':ip' => $ip,
+			':zid' => $zid,
+			':reason' => $reason,
+			':duration' => $duration,
+			':expire_time' => $expire_time > 0 ? $expire_time : null,
+			':addtime' => $now,
+		];
+
+		$DB->exec($ban_sql, $ban_data);
+
+		$duration_text = '';
+		if($duration == 0) {
+			$duration_text = '永久';
+		} else if($duration == 24) {
+			$duration_text = '24小时';
+		} else if($duration == 72) {
+			$duration_text = '3天';
+		} else if($duration == 168) {
+			$duration_text = '7天';
+		} else if($duration == 720) {
+			$duration_text = '30天';
+		} else {
+			$duration_text = $duration . '小时';
+		}
+
+		$block_user_text = $block_user == 1 ? '，同时封禁用户账号' : '';
+
+		log_result('IP封禁', 'IP:' . $ip . ' 时长:' . $duration_text . $block_user_text . ' 原因:' . ($reason ? $reason : '未填写'), null, 1);
+
+		exit(json_encode(['code' => 1, 'msg' => 'IP封禁成功！' . $duration_text . $block_user_text]));
+
+	} catch (Exception $e) {
+		if(strpos($e->getMessage(), 'shua_ip_ban') !== false && strpos($e->getMessage(), "doesn't exist") !== false) {
+			$DB->exec("CREATE TABLE IF NOT EXISTS `shua_ip_ban` (
+				`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+				`ip` varchar(50) NOT NULL,
+				`zid` int(11) unsigned DEFAULT 0,
+				`reason` varchar(255) DEFAULT NULL,
+				`duration` int(11) NOT NULL DEFAULT 0 COMMENT '封禁时长（小时），0为永久',
+				`expire_time` datetime DEFAULT NULL COMMENT '过期时间',
+				`addtime` datetime DEFAULT NULL,
+				`status` tinyint(1) NOT NULL DEFAULT 1,
+				PRIMARY KEY (`id`),
+				KEY `ip` (`ip`),
+				KEY `zid` (`zid`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='IP封禁表'");
+
+			$now = date('Y-m-d H:i:s');
+
+			if($block_user == 1) {
+				$DB->exec("UPDATE pre_site SET status=0 WHERE zid=:zid", [':zid' => $zid]);
+
+				$result = $DB->query("DESCRIBE shua_site");
+				$shua_columns = [];
+				while ($row = $result->fetch()) {
+					$shua_columns[] = $row['Field'];
+				}
+
+				if(in_array('reg_ip', $shua_columns)) {
+					$DB->exec("UPDATE shua_site SET status=0 WHERE zid=:zid", [':zid' => $zid]);
+				}
+			}
+
+			$expire_time = 0;
+			if($duration > 0) {
+				$expire_time = time() + ($duration * 3600);
+				$expire_time = date('Y-m-d H:i:s', $expire_time);
+			}
+
+			$ban_sql = "INSERT INTO `shua_ip_ban` (`ip`, `zid`, `reason`, `duration`, `expire_time`, `addtime`, `status`) VALUES (:ip, :zid, :reason, :duration, :expire_time, :addtime, 1)";
+			$ban_data = [
+				':ip' => $ip,
+				':zid' => $zid,
+				':reason' => $reason,
+				':duration' => $duration,
+				':expire_time' => $expire_time > 0 ? $expire_time : null,
+				':addtime' => $now,
+			];
+
+			$DB->exec($ban_sql, $ban_data);
+
+			$duration_text = '';
+			if($duration == 0) {
+				$duration_text = '永久';
+			} else if($duration == 24) {
+				$duration_text = '24小时';
+			} else if($duration == 72) {
+				$duration_text = '3天';
+			} else if($duration == 168) {
+				$duration_text = '7天';
+			} else if($duration == 720) {
+				$duration_text = '30天';
+			} else {
+				$duration_text = $duration . '小时';
+			}
+
+			$block_user_text = $block_user == 1 ? '，同时封禁用户账号' : '';
+
+			log_result('IP封禁', 'IP:' . $ip . ' 时长:' . $duration_text . $block_user_text . ' 原因:' . ($reason ? $reason : '未填写'), null, 1);
+
+			exit(json_encode(['code' => 1, 'msg' => 'IP封禁成功！' . $duration_text . $block_user_text]));
+		} else {
+			exit(json_encode(['code' => -1, 'msg' => '封禁失败：' . $e->getMessage()]));
+		}
 	}
 	break;
 

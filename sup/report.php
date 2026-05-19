@@ -43,7 +43,7 @@ if (!empty($conf["staticurl"])) {
             <h3 class="panel-title">联系方式</h3>
         </div>
         <div class="panel-body">
-            <?php 
+            <?php
 if (!$conf["sup_report"]) {
 	exit("<script>alert(\"站长暂未设置联系方式\");location.href=\"/\";</script>");
 }

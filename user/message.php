@@ -24,13 +24,12 @@ while($res = $rs->fetch()){
 $title = '消息列表';
 include 'head.php';
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <style>
 .msg-head{text-align: center;min-width: 360px;padding: 7px;background-color: #f9f9f9 !important;}
 .msg-body{padding: 15px;margin-bottom: 20px;}
 </style>
 <div class="wrapper">
-<div class="col-sm-12">	
+<div class="col-sm-12">
 <div class="panel panel-default">
 <div class="panel-heading font-bold">消息列表</div>
 <div class="panel-body"><a href="javascript:msg_read_all();" class="btn btn-primary">一键已读</a></div>
@@ -50,7 +49,7 @@ echo '
 if($msgcount==0){
 	echo '<tr><td class="text-center"><font color="grey">消息列表空空如也</font></td></tr>';
 }
-?>	
+?>
           <tbody>
           </tbody>
         </table>
@@ -80,7 +79,7 @@ function msg_read_all()
 			layer.msg('服务器错误');
 			return false;
 		}
-	});        	
+	});
 }
 function show(id) {
 	$.ajax({

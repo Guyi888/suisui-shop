@@ -49,8 +49,8 @@ while ($res = $rs->fetch()) {
     class="goods_list"
     style="max-height: 380px; overflow-x: auto"
   >
-      
-      
+
+
 <?php
 $idcid = $conf['indexClass_ID'] == '' ? '1' : $conf['indexClass_ID'];
 $shop_cid = $_GET['shop_cid'] == '' ? $idcid : $_GET['shop_cid'];
@@ -129,12 +129,12 @@ while ($res = $rs2->fetch()) {
 
                 <div class="info_box">
                     <div class="info_left">
-                        <span>*</span> 
-                        <span>购买数量</span> 
-                    </div> 
+                        <span>*</span>
+                        <span>购买数量</span>
+                    </div>
                     <div class="count_right">
-                        <span @click="countoper('reduce')"  style="cursor:pointer"><p></p></span> 
-                        <input v-model="num_val"  data-max="" id="num" type="text" value="1"  name="quantity" value="1"  title="本商品最少购买数量为1件！"> 
+                        <span @click="countoper('reduce')"  style="cursor:pointer"><p></p></span>
+                        <input v-model="num_val"  data-max="" id="num" type="text" value="1"  name="quantity" value="1"  title="本商品最少购买数量为1件！">
                         <span  @click="countoper('add')" style="cursor:pointer"><p></p> <p></p></span>
                     </div>
                 </div>
@@ -142,9 +142,9 @@ while ($res = $rs2->fetch()) {
 
                 <div class="info_box">
                     <div class="info_left">
-                        <span>*</span> 
-                        <span>{{ info.input || '联系方式:(填写邮箱)' }}</span> 
-                    </div> 
+                        <span>*</span>
+                        <span>{{ info.input || '联系方式:(填写邮箱)' }}</span>
+                    </div>
                     <div class="input_right opt">
 <input id="inputvalue" name="contact" class="phone_num" type="text" :placeholder="'[必填]' + (info.input || '推荐填写邮箱')" required="" style="
 float: left !important;
@@ -158,10 +158,10 @@ float: left !important;
                         联系方式特别重要,可用来查询订单
                     </div>
                 </div>
-             
+
                 <style>
                     .order_info .info_box .opt {
-                        
+
                      display: inline-block !important;
                      margin-right: 0.213333rem;
                      width: 5.5rem;
@@ -170,13 +170,13 @@ float: left !important;
                      padding: 10px,5px,10px,5px !important;
                         }
                 </style>
-                
-                <!-- 动态显示商品设置的输入框 - 博客地址：zhonguo.ren QQ群：915043052 -->
+
+                <!-- 动态显示商品设置的输入框 - 博客地址：zhonguo.ren QQ群：qqfaka -->
                 <div v-for="(input, index) in inputs" :key="index" class="info_box">
                     <div class="info_left">
-                        <span>*</span> 
-                        <span>{{ input }}</span> 
-                    </div> 
+                        <span>*</span>
+                        <span>{{ input }}</span>
+                    </div>
                     <div class="input_right opt">
 <input :id="'inputvalue' + (index + 2)" :name="'inputvalue' + (index + 2)" class="phone_num" type="text" :placeholder="'[必填]' + input" required="" style="
 float: left !important;
@@ -209,7 +209,7 @@ float: left !important;
                 <div class="pay_list">
                                         <div style="cursor:pointer" class="pay_box  active" data-pid="2" data-rate="0.04">
                         <div>
-                            <span>在线支付</span> 
+                            <span>在线支付</span>
                             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAwCAMAAABdTmjTAAABU1BMVEUzaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf8zaf////9hi//b5f/d5v/z9v81av84bf9Acv9Bc/9Edf9Jef9Me/9NfP9Wg/9Xg/81a/9rkv9tlP9ulf92mv99oP9/of+Gpv+Nq/+Qrf+UsP+fuP+huv+uxP+vxP+yx//B0f/C0v/J2P/M2f83bP8+cf/i6v/t8v/u8//x9P88b//5+v/6+//8/f/9/f/+/v89cf+QnoDYAAAAQHRSTlMAAQIDBgoMDxMVFhwfIiQsLS83PkJDTlFUW2Nma3Z4f4KHiJSWmZykq66xtLy9wcPEyNDS09vg4+rs8PP1+fz+e7c8kwAAATpJREFUeF6V0ldPAlEYhGGRRcQu9t7FrqgIImUO1d672Hv3/1cP0Q3Z8EGG9/q5mkxZCblKsJWzvHV4g7Q1pkBj+xhobBsBjwfA4x7wuDPK47YIaNwcBo3dK6BxfQA0rvGDxi4faOycB40dM6CxMQEa2zzg8RB43Aced4PHHVEet4ZB46YQaNwYBI3rAhaTXi2Cq5dg6TKxVRC7Fq32VKnnWAFc4bXa/S+l1LGMjWmr3U5qm4GI7eOmekS29Sdtb3ZFbBs17cHrHoD0vbbxH4h40LQ7SfV5Alxp+7IJEffC7FbpMmfafsQg4q7cedbu1H9HEHF7BLkerv/sBUTcEoal8+/sECkRu/OOdviu4m+QcMMy8oolNiDhWj+EUpBwlQ9iEnYugCmUtY45cGlrTILG5R7weBg87gffL8pDCUuj0TqxAAAAAElFTkSuQmCC" class="icon">
                         </div>
                     </div>
@@ -218,15 +218,15 @@ float: left !important;
             </section>
 
             <section class="copyright">
-                <p>Copyright © JFmao.art 2025 </p>
+                <p>Copyright © 岁岁 @qqfaka 2025 </p>
             </section>
 
             <footer class="footer">
                 <div class="to_pay" @click="PayGoods()" id="check_pay">
                     <span><span>立即支付￥{{total || '请选择商品' }}</span>
-       
-                    </span> 
+
+                    </span>
                 </div>
             </footer>
-                
+
 </div>

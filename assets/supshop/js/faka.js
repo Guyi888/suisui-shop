@@ -63,7 +63,7 @@ function getPoint() {
 			inputnametype = inputname.split('[')[1].split(']')[0];
 			inputname = inputname.split('[')[0];
 		}
-		
+
 		$('#inputsname').append('<div data-v-291b0d74="" class="ant-row ant-form-item"> <div class="ant-col ant-col-24 ant-form-item-label ant-form-item-label-left"> <label title="'+inputname+'" class="ant-form-item-required ant-form-item-no-colon">'+inputname+'：</label></div> <div class="ant-col ant-col-24 ant-form-item-control-wrapper"> <div class="ant-form-item-control"> <span class="ant-form-item-children"> <span data-v-291b0d74="" class="ant-input-affix-wrapper ant-input-affix-wrapper-textarea-with-clear-btn">  <input type="text" name="inputvalue" id="inputvalue" value="'+($_GET['qq']?$_GET['qq']:'')+'"  class="ant-input" onblur="checkInput()" style="height: 31px; min-height: 31px; max-height: 94px; overflow-y: hidden;"/> </span> </span> </div> </div> </div>');
 	}
 	var inputsname = $('#tid').attr('inputsname');
@@ -99,7 +99,7 @@ function getPoint() {
 				var addstr='<div class="from_in_2 yanzheng onclick" onclick="getCity(\'inputvalue'+(i+2)+'\')">点此选择</div>';
 			else
 				var addstr='';
-    			$('#inputsname').append('<div data-v-291b0d74="" class="ant-row ant-form-item"><div class="ant-col ant-col-24 ant-form-item-label ant-form-item-label-left"><label title="'+value+'" class="ant-form-item-required ant-form-item-no-colon">'+value+':</label></div><div class="ant-col ant-col-24 ant-form-item-control-wrapper"><div class="ant-form-item-control"><span class="ant-form-item-children"><span data-v-291b0d74="" class="ant-input-affix-wrapper ant-input-affix-wrapper-textarea-with-clear-btn"><input type="text" name="inputvalue'+(i+2)+'" id="inputvalue'+(i+2)+'" value="" class="ant-input" style="height: 31px; min-height: 31px; max-height: 94px; overflow-y: hidden;"/></span></span>'+addstr+'</div></div></div>');
+			$('#inputsname').append('<div data-v-291b0d74="" class="ant-row ant-form-item"><div class="ant-col ant-col-24 ant-form-item-label ant-form-item-label-left"><label title="'+value+'" class="ant-form-item-required ant-form-item-no-colon">'+value+':</label></div><div class="ant-col ant-col-24 ant-form-item-control-wrapper"><div class="ant-form-item-control"><span class="ant-form-item-children"><span data-v-291b0d74="" class="ant-input-affix-wrapper ant-input-affix-wrapper-textarea-with-clear-btn"><input type="text" name="inputvalue'+(i+2)+'" id="inputvalue'+(i+2)+'" value="" class="ant-input" style="height: 31px; min-height: 31px; max-height: 94px; overflow-y: hidden;"/></span></span>'+addstr+'</div></div></div>');
 			}
 		});
 	}
@@ -166,7 +166,7 @@ function get_shuoshuo(id,uin,km,page){
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function set_shuoshuo(id){
@@ -202,7 +202,7 @@ function get_rizhi(id,uin,km,page){
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function set_rizhi(id){
@@ -300,7 +300,7 @@ var handlerEmbed = function (captchaObj) {
 					layer.alert(data.msg);
 					captchaObj.reset();
 				}
-			} 
+			}
 		});
 	});
 };
@@ -323,7 +323,7 @@ var handlerEmbed2 = function (token) {
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 };
 var handlerEmbed3 = function (vaptchaObj) {
@@ -391,7 +391,7 @@ function dopay(type,orderid){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}else{
 		window.location.href='other/submit.php?type='+type+'&orderid='+orderid;
@@ -484,7 +484,7 @@ function openCart(){
 	window.location.href='./?mod=cart';
 }
 $(document).ready(function(){
-    
+
 	$("#submit_cart_shop").click(function(){
 		var tid=$("#tid").val();
 		if(tid==0){layer.alert('请选择商品！');return false;}
@@ -542,10 +542,10 @@ $(document).ready(function(){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	});
-	
+
 	$("#submit_buy").click(function(){
 		var tid=$("#tid").val();
 		if(tid==0){layer.alert('请选择商品！');return false;}
@@ -675,10 +675,10 @@ $(document).ready(function(){
 				}else{
 					layer.alert(data.msg,{icon:2});
 				}
-			} 
+			}
 		});
 	});
-	
+
 $("#num").keyup(function () {
 	var i = parseInt($("#num").val());
 	if(isNaN(i))return false;
@@ -695,7 +695,7 @@ $("#num").keyup(function () {
 	}
 	price = price * i;
 	count = count * i;
-	
+
 });
 
 getPoint();

@@ -3,19 +3,19 @@ if (!defined('IN_CRONLITE')) die();
 $tid=intval($_GET['tid']);
 $tool=$DB->getRow("select * from pre_tools where tid='$tid' limit 1");
 if(!$tool)sysmsg('没有找到商品熬！');
-function escape($string, $in_encoding = 'UTF-8',$out_encoding = 'UCS-2') { 
-    $return = ''; 
-    if (function_exists('mb_get_info')) { 
-        for($x = 0; $x < mb_strlen ( $string, $in_encoding ); $x ++) { 
-            $str = mb_substr ( $string, $x, 1, $in_encoding ); 
-            if (strlen ( $str ) > 1) { // 多字节字符 
-                $return .= '%u' . strtoupper ( bin2hex ( mb_convert_encoding ( $str, $out_encoding, $in_encoding ) ) ); 
-            } else { 
-                $return .= '%' . strtoupper ( bin2hex ( $str ) ); 
-            } 
-        } 
-    } 
-    return $return; 
+function escape($string, $in_encoding = 'UTF-8',$out_encoding = 'UCS-2') {
+    $return = '';
+    if (function_exists('mb_get_info')) {
+        for($x = 0; $x < mb_strlen ( $string, $in_encoding ); $x ++) {
+            $str = mb_substr ( $string, $x, 1, $in_encoding );
+            if (strlen ( $str ) > 1) { // 多字节字符
+                $return .= '%u' . strtoupper ( bin2hex ( mb_convert_encoding ( $str, $out_encoding, $in_encoding ) ) );
+            } else {
+                $return .= '%' . strtoupper ( bin2hex ( $str ) );
+            }
+        }
+    }
+    return $return;
 }
 
 $level = '<font color="#48d1cc">普通用户售价</font>';
@@ -431,7 +431,7 @@ if($tool['prices']){
                 <p>
                     <br>
                 </p>
-                
+
                 <section class="_135editor" data-tools="135编辑器" data-id="85548">
                     <section style="margin: 5px 0px 10px; line-height: 24px; color: #6c653b; border-color: #e0dcc6; background-color: #e0dcc6;">
                         <section style=" margin: 0px; clear: both; box-sizing: border-box; padding: 0px; color: inherit;">
@@ -490,7 +490,7 @@ if($tool['prices']){
                         $msg_fun = "$('#paymentmethod').show();";
 
                     }
-                
+
                 ?>
                 <a class="middle" href="javascript:<?php echo $msg_fun; ?>"
                    style="background-color: <?php echo $msg_style; ?> !important;width: 50%">

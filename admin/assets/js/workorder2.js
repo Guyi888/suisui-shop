@@ -17,7 +17,7 @@ function unselectall1()
     if(document.form1.chkAll1.checked){
 	document.form1.chkAll1.checked = document.form1.chkAll1.checked&0;
 	checkflag1 = "false";
-    } 	
+    }
 }
 
 function listTable(query){

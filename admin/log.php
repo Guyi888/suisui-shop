@@ -13,7 +13,7 @@ if ($islogin == 1) {
       <div class="table-responsive">
         <table class="table table-striped">
           <tbody>
-<?php 
+<?php
 $numrows = $DB->getColumn("SELECT count(*) from pre_logs WHERE action='社区对接' OR action='自动访问URL'");
 $pagesize = 30;
 $pages = ceil($numrows / $pagesize);
@@ -26,7 +26,7 @@ while ($res = $rs->fetch()) {
 ?>          </tbody>
         </table>
       </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;

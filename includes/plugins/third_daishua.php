@@ -36,19 +36,19 @@ class third_daishua{
 		$result['code'] = -1;
 		$url = '/api.php?act=pay';
 		$param = array();
-		
+
 		// 如果goods_id为0，尝试从goods_param中提取gid
 		if($goods_id == 0 && !empty($goods_param)){
 			$goods_param_parts = explode('#', $goods_param);
 			$goods_id = isset($goods_param_parts[0]) ? $goods_param_parts[0] : 0;
 		}
-		
+
 		$param['tid'] = $goods_id;
 		$param['user'] = $this->config['username'];
 		$param['pass'] = $this->config['password'];
 		$param['num'] = $num;
 		if(is_array($input) && $input) {
-			$i = 1; 
+			$i = 1;
 			foreach ($input as $val) {
 				if($val){
 					$param[ 'input' . $i ] = $val;
@@ -57,9 +57,9 @@ class third_daishua{
 			}
 		}
 		$post = http_build_query($param);
-		
+
 		$data = $this->get_curl($url,$post);
-		
+
 		$json = json_decode($data,true);
 		if (isset($json['orderid'])) {
 			$result = array(
@@ -115,8 +115,8 @@ class third_daishua{
 			return $ret['message'];
 		} else {
 			if($ret['data']['shopimg']&&substr($ret['data']['shopimg'],0,4)!='http'&&substr($ret['data']['shopimg'],0,2)!='//')$ret['data']['shopimg'] = ($this->config['protocol']==1?'https://':'http://') . $this->config['url'] .'/'.$ret['data']['shopimg'];
-			
-			// 获取分类名称 - 教主修改，博客地址：6v6.ren Q群：941535592
+
+			// 获取分类名称 - 岁岁 @qqfaka修改，岁岁 @qqfaka
 			if(isset($ret['data']['cid']) && !empty($ret['data']['cid'])){
 				$class_list = $this->class_list();
 				if(is_array($class_list)){
@@ -129,11 +129,11 @@ class third_daishua{
 					}
 				}
 			}
-			
+
 			return $ret['data'];
 		}
 	}
-	
+
 	public function query_order($orderid, $goodsid, $value = []){
 		$order_state = array(0=>'待处理',1=>'已完成',2=>'正在处理',3=>'异常',4=>'已退单');
 		$url = '/api.php?act=search&id='.$orderid;
@@ -206,9 +206,9 @@ class third_daishua{
 				if($res2['price']==='0.00')continue;
 				if(isset($price_arr[$res2['goods_id']]) && $price_arr[$res2['goods_id']]>0){
 					$price = ceil($price_arr[$res2['goods_id']] * $res2['value'] * 100)/100;
-					
+
 					$has_custom_price = $DB->getColumn("SELECT COUNT(*) FROM pre_site_price WHERE tid='{$res2['tid']}'");
-					
+
 					if($conf['pricejk_edit']==1 && $price>$res2['price']){
 						if($has_custom_price > 0){
 							$DB->exec("UPDATE pre_site_price SET price ='{$price}', update_time = NOW() WHERE tid='{$res2['tid']}'");
@@ -246,7 +246,7 @@ class third_daishua{
 			return $list;
 		}
 	}
-	
+
 	public function batch_goods_list(){
 		$url = '/api.php?act=goodslist';
 		$post = 'user='.urlencode($this->config['username']).'&pass='.urlencode($this->config['password']);

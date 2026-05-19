@@ -51,7 +51,7 @@ function checkProhibitedWords($message) {
     if(empty($prohibitedWords)) {
         return false; // 没有违禁词配置，允许发送
     }
-    
+
     foreach($prohibitedWords as $word) {
         if(stripos($message, $word) !== false) {
             return true; // 包含违禁词
@@ -84,7 +84,7 @@ function getAutoReply($question) {
             ];
         }
     }
-    
+
     // 如果没有匹配，返回null
     return null;
 }

@@ -53,7 +53,7 @@ if(file_exists(__DIR__ . "/alipay/AlipayTradeService.php")) {
 }
 
 //计算得出通知验证结果
-$alipaySevice = new AlipayTradeService($config); 
+$alipaySevice = new AlipayTradeService($config);
 fwrite($log, 'AlipayTradeService实例化成功\n');
 
 // 记录详细的验证过程

@@ -1,13 +1,13 @@
 <?php
 /**
- * 
+ *
  * 小程序支付实现类
  *
  */
 class MiniAppPay
 {
 	/**
-	 * 
+	 *
 	 * 网页授权接口微信服务器返回的数据，返回样例如下
 	 * {
 	 *  "access_token":"ACCESS_TOKEN",
@@ -22,13 +22,13 @@ class MiniAppPay
 	 * @var array
 	 */
 	public $data = null;
-	
+
 	/**
-	 * 
+	 *
 	 * 通过跳转获取用户的openid，跳转流程如下：
 	 * 1、设置自己需要调回的url及其其他参数，跳转到微信服务器https://open.weixin.qq.com/connect/oauth2/authorize
 	 * 2、微信服务处理完成之后会跳转回用户redirect_uri地址，此时会带上一些参数，如：code
-	 * 
+	 *
 	 * @return 用户的openid
 	 */
 	public function GetOpenid($code)
@@ -36,13 +36,13 @@ class MiniAppPay
 		$openid = $this->GetOpenidFromMp($code);
 		return $openid;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * 获取jsapi支付的参数
 	 * @param array $UnifiedOrderResult 统一支付接口返回的数据
 	 * @throws WxPayException
-	 * 
+	 *
 	 * @return json数据，可直接填入js函数作为参数
 	 */
 	public function GetJsApiParameters($UnifiedOrderResult)
@@ -64,12 +64,12 @@ class MiniAppPay
 		$parameters = $jsapi->GetValues();
 		return $parameters;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * 通过code从工作平台获取openid机器access_token
 	 * @param string $code 微信跳转回来带上的code
-	 * 
+	 *
 	 * @return openid
 	 */
 	public function GetOpenidFromMp($code)
@@ -89,7 +89,7 @@ class MiniAppPay
 		curl_setopt($ch, CURLOPT_USERAGENT, $ua);
 		curl_setopt($ch, CURLOPT_HEADER, FALSE);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		if(WxPayConfig::CURL_PROXY_HOST != "0.0.0.0" 
+		if(WxPayConfig::CURL_PROXY_HOST != "0.0.0.0"
 			&& WxPayConfig::CURL_PROXY_PORT != 0){
 			curl_setopt($ch,CURLOPT_PROXY, WxPayConfig::CURL_PROXY_HOST);
 			curl_setopt($ch,CURLOPT_PROXYPORT, WxPayConfig::CURL_PROXY_PORT);
@@ -103,12 +103,12 @@ class MiniAppPay
 		$openid = $data['openid'];
 		return $openid;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * 拼接签名字符串
 	 * @param array $urlObj
-	 * 
+	 *
 	 * @return 返回已经拼接好的字符串
 	 */
 	private function ToUrlParams($urlObj)
@@ -120,16 +120,16 @@ class MiniAppPay
 				$buff .= $k . "=" . $v . "&";
 			}
 		}
-		
+
 		$buff = trim($buff, "&");
 		return $buff;
 	}
 
 	/**
-	 * 
+	 *
 	 * 构造获取open和access_toke的url地址
 	 * @param string $code，微信跳转带回的code
-	 * 
+	 *
 	 * @return 请求的url
 	 */
 	private function __CreateOauthUrlForOpenid($code)

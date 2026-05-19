@@ -46,7 +46,7 @@ if (isset($_GET["column"]) && isset($_GET["kw"]) && !empty($_GET["kw"])) {
         <table class="table table-striped table-bordered table-vcenter orderList">
           <thead><tr><th>支付订单号<br/>支付接口订单号</th><th>支付接口</th><th>订单名称<br/>订单金额</th><th>下单内容<br/>用户IP</th><th>站点ID<br/>用户ID</th><th>商品ID</th><th>创建时间<br/>完成时间</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = isset($_GET["num"]) ? intval($_GET["num"]) : 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -64,7 +64,7 @@ while ($res = $rs->fetch()) {
 ?>          </tbody>
         </table>
 </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;

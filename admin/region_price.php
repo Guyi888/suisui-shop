@@ -8,10 +8,10 @@ if ($islogin == 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 
-// 自动创建数据库表和字段 - 博客地址：zhonguo.ren QQ群：915043052
+// 自动创建数据库表和字段 - 博客地址：zhonguo.ren QQ群：qqfaka
 function autoCreateTables() {
     global $DB;
-    
+
     // 检查并创建地区加价规则表
     $check_rules_table = $DB->getColumn("SHOW TABLES LIKE 'pre_region_price_rules'");
     if (!$check_rules_table) {
@@ -33,7 +33,7 @@ function autoCreateTables() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区加价规则表'";
         $DB->exec($sql_rules);
     }
-    
+
     // 检查并创建价格计算日志表
     $check_logs_table = $DB->getColumn("SHOW TABLES LIKE 'pre_region_price_logs'");
     if (!$check_logs_table) {
@@ -59,19 +59,19 @@ function autoCreateTables() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区加价计算日志表'";
         $DB->exec($sql_logs);
     }
-    
+
     // 检查并添加pre_pay表的address字段
     $check_pay_address = $DB->getColumn("SHOW COLUMNS FROM `pre_pay` LIKE 'address'");
     if (!$check_pay_address) {
         $DB->exec("ALTER TABLE `pre_pay` ADD COLUMN `address` VARCHAR(500) DEFAULT '' COMMENT '收货地址' AFTER `input`");
     }
-    
+
     // 检查并添加pre_orders表的address字段
     $check_orders_address = $DB->getColumn("SHOW COLUMNS FROM `pre_orders` LIKE 'address'");
     if (!$check_orders_address) {
         $DB->exec("ALTER TABLE `pre_orders` ADD COLUMN `address` VARCHAR(500) DEFAULT '' COMMENT '收货地址' AFTER `input5`");
     }
-    
+
     // 检查并添加pre_cart表的address字段
     $check_cart_address = $DB->getColumn("SHOW COLUMNS FROM `pre_cart` LIKE 'address'");
     if (!$check_cart_address) {
@@ -106,7 +106,7 @@ if ($my == 'add') {
         }
 
         if ($regionPrice->addRule($data) !== false) {
-            // 清除缓存 - 博客地址：zhonguo.ren QQ群：915043052
+            // 清除缓存 - 博客地址：zhonguo.ren QQ群：qqfaka
             $regionPrice->clearCache();
             exit("<script language='javascript'>alert('添加成功！');window.location.href='region_price.php';</script>");
         } else {
@@ -138,7 +138,7 @@ if ($my == 'add') {
         }
 
         if ($regionPrice->updateRule($id, $data) !== false) {
-            // 清除缓存 - 博客地址：zhonguo.ren QQ群：915043052
+            // 清除缓存 - 博客地址：zhonguo.ren QQ群：qqfaka
             $regionPrice->clearCache();
             exit("<script language='javascript'>alert('修改成功！');window.location.href='region_price.php';</script>");
         } else {

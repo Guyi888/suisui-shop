@@ -61,7 +61,7 @@ a:hover{
                             <div class="form-group">
                                 <div class="input-group">
                                     <div class="input-group-addon">
-                                        <span class="glyphicon glyphicon-user"></span>
+                                        <span class="fa fa-user"></span>
                                     </div>
                                   <input type="text" name="user" value="" class="form-control" required="required" placeholder="用户名"/>
                                 </div>
@@ -70,13 +70,13 @@ a:hover{
                             <div class="form-group">
                                 <div class="input-group">
                                     <div class="input-group-addon">
-                                        <span class="glyphicon glyphicon-lock"></span>
+                                        <span class="fa fa-lock"></span>
                                     </div>
                                   <input type="password" name="pass" class="form-control" required="required" placeholder="密码"/>
                                 </div>
                                 <font style="color:red;"><i class="fa fa-info-circle"></i>&nbsp;<a href="findpwd.php">忘记密码?</a></font>
                             </div>
-                                
+
 
                             <?php if($conf['captcha_open_login']==1 && $conf['captcha_open']>=1){?>
                             <input type="hidden" name="captcha_type" value="<?php echo $conf['captcha_open']?>"/>
@@ -100,11 +100,11 @@ a:hover{
                         <div style="text-align:center">
                             <i class="fa fa-user-plus"></i>&nbsp;没有账号？<a href="reg.php" style="color:red;">免费注册</a>
                         </div>
-                        
-                        <div style="text-align: center;margin-bottom: 5px;color:#999;margin-top: 15px;"> 
+
+                        <div style="text-align: center;margin-bottom: 5px;color:#999;margin-top: 15px;">
                         <?php if($conf['login_qq']>=1 || $conf['login_wx']>=1){?>
-                        <div style="text-align: center;margin-bottom: 5px;color:#999;margin-top: 15px;"> 
-                            <hr style="border-top: 1px solid rgba(0,0,0,.1);">   
+                        <div style="text-align: center;margin-bottom: 5px;color:#999;margin-top: 15px;">
+                            <hr style="border-top: 1px solid rgba(0,0,0,.1);">
                             <div style="color:#999;position: relative;top: -12px;width: 100px;background-color: white;margin: auto">            第三方登录</div>
                             <?php if($conf['login_qq']>=1){?><div onclick="javascript:connect('qq')" style="width: 42px;height:42px; border: 1px solid rgba(213, 213, 213, 1); border-radius: 21px;  margin: 15px ; margin-top: 10px;   background-image: url(../assets/img/logo2.png);background-size: 100%;display: inline-block;"></div><?php }?>
 							<?php if($conf['login_wx']>=1){?><div onclick="javascript:connect('wx')" style=" width: 42px;height:42px; border: 1px solid rgba(213, 213, 213, 1); border-radius: 21px;  margin: 15px ; margin-top: 10px;   background-image: url(../assets/img/wx.png);background-size: 100%;display: inline-block;"></div><?php }?>

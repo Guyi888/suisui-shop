@@ -2,9 +2,9 @@
 /**
  * 系统概况模块
  * 功能：展示系统核心数据统计、资源使用情况、健康状态等
- * 作者：教主
+ * 作者：岁岁 @qqfaka
  * 博客：zhonguo.ren
- * QQ群：915043052
+ * QQ群：qqfaka
  */
 
 // 启动会话以支持$_SESSION变量
@@ -23,12 +23,12 @@ function get_session_uptime() {
         $_SESSION['start_time'] = time();
         $startTime = $_SESSION['start_time'];
     }
-    
+
     $seconds = time() - $startTime;
     $minutes = floor($seconds / 60);
     $hours = floor($minutes / 60);
     $days = floor($hours / 24);
-    
+
     if ($days > 0) {
         return $days . '天 ' . ($hours % 24) . '小时 ' . ($minutes % 60) . '分钟';
     } else if ($hours > 0) {
@@ -43,37 +43,37 @@ function get_session_uptime() {
 // 表完整性检测函数
 function check_table_integrity() {
     global $DB;
-    
+
     // 系统核心表（必须存在的表）
     $core_tables = [
-        'shua_account', 'shua_apps', 'shua_article', 'shua_cache', 'shua_cart', 
-        'shua_class', 'shua_config', 'shua_faka', 'shua_gift', 'shua_giftlog', 
-        'shua_invite', 'shua_invitelog', 'shua_inviteshop', 'shua_kms', 'shua_logs', 
-        'shua_message', 'shua_orders', 'shua_pay', 'shua_points', 'shua_price', 
-        'shua_qiandao', 'shua_sendcode', 'shua_shequ', 'shua_site', 'shua_site_price', 
-        'shua_supplier', 'shua_suppoints', 'shua_suptixian', 'shua_tixian', 'shua_toollogs', 
-        'shua_tools', 'shua_workorder', 'shua_coupons', 'shua_user_coupons', 
-        'shua_coupon_logs', 'shua_coupon_rules', 'shua_visit_ips', 'shua_visit_statistics', 
+        'shua_account', 'shua_apps', 'shua_article', 'shua_cache', 'shua_cart',
+        'shua_class', 'shua_config', 'shua_faka', 'shua_gift', 'shua_giftlog',
+        'shua_invite', 'shua_invitelog', 'shua_inviteshop', 'shua_kms', 'shua_logs',
+        'shua_message', 'shua_orders', 'shua_pay', 'shua_points', 'shua_price',
+        'shua_qiandao', 'shua_sendcode', 'shua_shequ', 'shua_site', 'shua_site_price',
+        'shua_supplier', 'shua_suppoints', 'shua_suptixian', 'shua_tixian', 'shua_toollogs',
+        'shua_tools', 'shua_workorder', 'shua_coupons', 'shua_user_coupons',
+        'shua_coupon_logs', 'shua_coupon_rules', 'shua_visit_ips', 'shua_visit_statistics',
         'shua_chat_session', 'shua_chat_message'
     ];
-    
+
     $existing_tables = [];
     $missing_core_tables = [];
-    
+
     try {
         // 查询数据库中实际存在的表
         $result = $DB->query("SHOW TABLES");
         while ($row = $result->fetch()) {
             $existing_tables[] = $row[0];
         }
-        
+
         // 检查哪些核心表缺失
         foreach ($core_tables as $table) {
             if (!in_array($table, $existing_tables)) {
                 $missing_core_tables[] = $table;
             }
         }
-        
+
     } catch (Exception $e) {
         // 如果查询失败，返回错误信息
         return [
@@ -84,7 +84,7 @@ function check_table_integrity() {
             'existing_tables' => 0
         ];
     }
-    
+
     return [
         'status' => empty($missing_core_tables) ? 'complete' : 'incomplete',
         'message' => empty($missing_core_tables) ? '所有核心表都已存在' : count($missing_core_tables) . ' 个核心表缺失',
@@ -101,7 +101,7 @@ $table_integrity = check_table_integrity();
 // 检测功能模块状态
 function check_module_status() {
     global $DB, $conf;
-    
+
     $modules = [
         'database' => [
             'name' => '数据库连接',
@@ -132,7 +132,7 @@ function check_module_status() {
             'link' => './set.php?mod=pay'
         ]
     ];
-    
+
     // 检测数据库连接
     try {
         $DB->query("SELECT 1");
@@ -140,7 +140,7 @@ function check_module_status() {
         $modules['database']['status'] = 'error';
         $modules['database']['message'] = '失败';
     }
-    
+
     // 检测文件系统权限
     $test_file = ROOT . 'test_permission.txt';
     if (@file_put_contents($test_file, 'test') === false) {
@@ -149,17 +149,17 @@ function check_module_status() {
     } else {
         @unlink($test_file);
     }
-    
+
     // 检测邮件发送功能（简单检测配置）
     // 即使配置了，也显示为未配置，以便测试跳转功能
     $modules['email']['status'] = 'warning';
     $modules['email']['message'] = '未配置';
-    
+
     // 检测支付接口状态
     // 即使配置了，也显示为未配置，以便测试跳转功能
     $modules['payment']['status'] = 'warning';
     $modules['payment']['message'] = '未配置';
-    
+
     return $modules;
 }
 
@@ -185,7 +185,7 @@ try {
         $disk_used = $disk_total - $disk_free;
         $disk_percent = round(($disk_used / $disk_total) * 100, 2);
     }
-    
+
     // 获取内存使用情况
     $used_memory = memory_get_usage(true) / (1024 * 1024); // MB
     $memory_info = [
@@ -220,7 +220,7 @@ try {
 		font-size: 13px;
 		color: #7f8c8d;
 	}
-	
+
 	/* 卡片样式 */
 	.neumorphic-card {
 		background: #ffffff;
@@ -235,28 +235,28 @@ try {
 		border: 1px solid #e0e0e0;
 		padding: 15px;
 	}
-	
+
 	/* 企业配色方案 */
 	.gradient-primary { background: #1890ff; color: white; }
 	.gradient-success { background: #52c41a; color: white; }
 	.gradient-warning { background: #faad14; color: white; }
 	.gradient-danger { background: #f5222d; color: white; }
 	.gradient-info { background: #13c2c2; color: white; }
-	
+
 	/* 文本颜色类 */
 	.text-gradient-primary { color: #1890ff; }
 	.text-gradient-success { color: #52c41a; }
 	.text-gradient-warning { color: #faad14; }
 	.text-gradient-danger { color: #f5222d; }
 	.text-gradient-info { color: #13c2c2; }
-	
+
 	/* 响应式优化 */
 	@media (max-width: 767px) {
 		.stat-card { padding: 12px; min-width: auto; }
 		.stat-content h3 { font-size: 14px; }
 		.stat-content p { font-size: 12px; }
 	}
-	
+
 	/* 进度条样式 */
 	.progress-info {
 		display: flex;
@@ -299,7 +299,7 @@ try {
             </div>
         </div>
     </div>
-    
+
     <div class="col-sm-6">
         <div class="neumorphic-card">
             <h3 class="text-center mb-4 text-gradient-primary"><i class="fa fa-database"></i> 表完整性检测</h3>
@@ -336,7 +336,7 @@ try {
     <div class="col-sm-12">
         <div class="neumorphic-card">
             <h3 class="text-center mb-4 text-gradient-primary"><i class="fa fa-microchip"></i> 系统资源使用情况</h3>
-            
+
             <!-- CPU使用率 -->
             <div class="progress-info">
                 <span><i class="fa fa-microchip text-gradient-info"></i> CPU使用率</span>
@@ -345,7 +345,7 @@ try {
             <div class="progress-bar-container">
                 <div class="progress-bar progress-success" id="cpu-progress" style="width: <?php echo $cpu_usage ?>%"></div>
             </div>
-            
+
             <!-- 内存使用率 -->
             <div class="progress-info">
                 <span><i class="fa fa-memory text-gradient-info"></i> 内存使用率</span>
@@ -354,7 +354,7 @@ try {
             <div class="progress-bar-container">
                 <div class="progress-bar progress-success" id="memory-progress" style="width: <?php echo $memory_info['percent'] ?>%"></div>
             </div>
-            
+
             <!-- 磁盘使用率 -->
             <div class="progress-info">
                 <span><i class="fa fa-hdd-o text-gradient-info"></i> 磁盘使用率</span>
@@ -390,7 +390,7 @@ try {
                         <ul class="list-unstyled mb-0">
                               <li class="mb-2"><i class="fa fa-microchip text-danger"></i> 内存使用: <span id="memory-usage" class="font-medium"><?php echo $memory_info['used'] . '/' . $memory_info['total'] . ' (' . $memory_info['percent'] . '%)'; ?></span></li>
                               <li class="mb-2"><i class="fa fa-microchip text-purple"></i> CPU使用率: <span id="cpu-usage" class="font-medium"><?php echo $cpu_usage ?></span></li>
-                              <li class="mb-2"><i class="fa fa-hdd-o text-secondary"></i> 磁盘空间: <span class="font-medium"><?php echo "{$disk_used}GB/{$disk_total}GB ({$disk_percent}%)"; ?></span></li>
+                              <li class="mb-2"><i class="fa fa-hdd-o text-secondary"></i> 磁盘空间: <span id="disk-usage-detail" class="font-medium"><?php echo round($disk_used, 2) ?>GB/<?php echo round($disk_total, 2) ?>GB (<?php echo round($disk_percent, 2) ?>%)</span></li>
                               <li><i class="fa fa-tachometer text-info"></i> 系统负载: <span class="font-medium"><?php echo function_exists('sys_getloadavg') ? implode(' ', array_map('round', sys_getloadavg(), array_fill(0, 3, 2))) : 'Windows系统暂不支持'; ?></span></li>
                             </ul>
                     </div>
@@ -412,8 +412,8 @@ try {
                         <ul class="list-group">
                             <?php foreach ($module_status as $module): ?>
                             <li class="list-group-item bg-transparent border-0">
-                                <i class="fa <?php echo $module['icon']; ?> text-<?php echo $module['status'] == 'success' ? 'success' : ($module['status'] == 'warning' ? 'warning' : 'danger'); ?>"></i> 
-                                <?php echo $module['name']; ?>: 
+                                <i class="fa <?php echo $module['icon']; ?> text-<?php echo $module['status'] == 'success' ? 'success' : ($module['status'] == 'warning' ? 'warning' : 'danger'); ?>"></i>
+                                <?php echo $module['name']; ?>:
                                 <?php if ($module['status'] != 'success' && $module['link'] != '#'): ?>
                                 <a href="<?php echo $module['link']; ?>" class="text-<?php echo $module['status'] == 'warning' ? 'warning' : 'danger'; ?> font-bold" target="_blank">
                                     <?php echo $module['message']; ?> (点击配置)
@@ -443,7 +443,7 @@ try {
         </div>
     </div>
 </div>
-  
+
   <script>
     $(document).ready(function() {
         // 获取统计数据
@@ -459,7 +459,7 @@ try {
                     $('#pending-orders').text(data.count3 || 0);
                     $('#today-visits').text(data.count4 || 0);
                     $('#today-ips').text(data.count5 || '0.00');
-                    
+
                     // 如果有额外数据则更新
                     if(data.visit_today) $('#visit_today').text(data.visit_today);
                     if(data.ip_today) $('#ip_today').text(data.ip_today);
@@ -469,7 +469,7 @@ try {
                 }
             }
         });
-        
+
         // 更新系统资源使用情况的函数
         function updateSystemInfo() {
             $.getJSON("ajax.php?act=system_info", function(data) {
@@ -482,36 +482,37 @@ try {
                     var diskPercent = data.disk_percent || 0;
                     var diskUsed = data.disk_used || 0;
                     var diskTotal = data.disk_total || 0;
-                    
+
                     // 更新CPU使用率
                     $('#cpu-usage-value').text(cpuUsage + '%');
                     $('#cpu-progress').css('width', cpuUsage + '%').removeClass('progress-danger progress-warning progress-success').addClass(cpuUsage > 80 ? 'progress-danger' : (cpuUsage > 50 ? 'progress-warning' : 'progress-success'));
-                    
+
                     // 更新内存使用率
                     var memoryText = memoryUsage + '% (' + memoryUsed + ' / ' + memoryTotal + ')';
                     $('#memory-usage-value').text(memoryText);
                     $('#memory-progress').css('width', memoryUsage + '%').removeClass('progress-danger progress-warning progress-success').addClass(memoryUsage > 80 ? 'progress-danger' : (memoryUsage > 50 ? 'progress-warning' : 'progress-success'));
                     $('#memory-usage').text(memoryUsed + '/' + memoryTotal + ' (' + memoryUsage + '%)');
-                    
+
                     // 更新磁盘使用率
                     var diskText = diskPercent + '% (' + diskUsed + 'GB / ' + diskTotal + 'GB)';
                     $('#disk-usage-value').text(diskText);
                     $('#disk-progress').css('width', diskPercent + '%').removeClass('progress-danger progress-warning progress-success').addClass(diskPercent > 80 ? 'progress-danger' : (diskPercent > 50 ? 'progress-warning' : 'progress-success'));
-                    
+                    $('#disk-usage-detail').text(diskUsed + 'GB/' + diskTotal + 'GB (' + diskPercent + '%)');
+
                     // 更新系统详细信息卡片中的数据
                     if(data.db_size) $('#db-size').text(data.db_size + ' MB');
                     if(data.cpu_usage) $('#cpu-usage').text(data.cpu_usage + '%');
                 }
             });
         }
-        
+
         // 设置定时器，每5秒更新一次系统资源信息
         updateSystemInfo();
         setInterval(updateSystemInfo, 5000);
     });
   </script>
 
-<?php 
+<?php
 include './foot.php';
 ?></body>
 </html>

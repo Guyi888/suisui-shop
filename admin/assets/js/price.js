@@ -40,12 +40,12 @@ function unselectall() {
 function batchOperation() {
 	var aid = $("select[name='aid']").val();
 	var checkbox = $("input[name='checkbox[]']:checked");
-	
+
 	if(checkbox.length == 0){
 		layer.msg('请至少选择一个模板', {icon: 2});
 		return false;
 	}
-	
+
 	if(aid == 1){
 		layer.confirm('确定要删除选中的 ' + checkbox.length + ' 个加价模板吗？删除后将无法恢复！', {
 			btn: ['确定', '取消'],
@@ -117,12 +117,12 @@ function changeTest(obj){
 	p_2 = p_2 == '' ? 0 : parseFloat(p_2);
 	p_1 = p_1 == '' ? 0 : parseFloat(p_1);
 	p_0 = p_0 == '' ? 0 : parseFloat(p_0);
-	
+
 	// 确保计算结果正确
 	var result_p2 = kind==1 ? price+p_2 : price*p_2;
 	var result_p1 = kind==1 ? price+p_1 : price*p_1;
 	var result_p0 = kind==1 ? price+p_0 : price*p_0;
-	
+
 	$("#test_p_2").html(getFloat(isNaN(result_p2) ? 0 : result_p2, 2));
 	$("#test_p_1").html(getFloat(isNaN(result_p1) ? 0 : result_p1, 2));
 	$("#test_p_0").html(getFloat(isNaN(result_p0) ? 0 : result_p0, 2));

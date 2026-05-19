@@ -29,7 +29,7 @@ class third_kayixin{
 	{
 		$this->config = $config;
 	}
-	
+
 	public function do_goods($goods_id, $goods_type, $goods_param, $num = 1, $input = array(), $money, $tradeno, $inputsname)
 	{
 		$result['code'] = -1;
@@ -182,7 +182,7 @@ class third_kayixin{
 			return $ret['msg'];
 		}
 	}
-	
+
 	public function query_order($orderid, $goodsid, $value = []){
 		$url = '/api/getOrder.htm';
 		$order_stats = [0=>'待支付', 1=>'待处理', 2=>'正在处理', 3=>'充值成功', 4=>'充值失败', 5=>'已退款', 6=>'订单异常', 7=>'待同步', 8=>'退单中', 9=>'退款中'];

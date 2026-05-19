@@ -8,14 +8,13 @@ if ($islogin == 1) {
 adminpermission("site", 1);
 if (isset($_GET["kw"])) {
 	$kw = trim(daddslashes($_GET["kw"]));
-	$sql = " B.name LIKE '%" . $kw . "%'";
-	$numrows = $DB->getColumn("SELECT count(*) FROM pre_sitetask A LEFT JOIN pre_tools B ON A.tid=B.tid WHERE" . $sql);
-	$con = "包含 <b>" . $kw . "</b> 的共有 <b>" . $numrows . "</b> 个商品";
-	$link = "&kw=" . $kw;
+	$numrows = $DB->getColumn("SELECT count(*) FROM pre_sitetask A LEFT JOIN pre_tools B ON A.tid=B.tid WHERE B.name LIKE :kw", array(':kw' => '%' . $kw . '%'));
+	$con = "包含 <b>" . htmlspecialchars($kw) . "</b> 的共有 <b>" . $numrows . "</b> 个商品";
+	$link = "&kw=" . urlencode($kw);
 } elseif (isset($_GET["id"])) {
 	$id = intval($_GET["id"]);
-	$numrows = $DB->getColumn("SELECT count(*) from pre_sitetask where id='" . $id . "'");
-	$sql = " id='" . $id . "'";
+	$numrows = $DB->getColumn("SELECT count(*) from pre_sitetask where id=:id", array(':id' => $id));
+	$sql = " id=:id";
 	$con = "分站任务列表";
 	$link = "&id=" . $id;
 } else {
@@ -27,19 +26,25 @@ if (isset($_GET["kw"])) {
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>任务名称</th><th>任务类型</th><th title="数字越小越靠前">排序</th><th>任务条件</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = isset($_GET["num"]) ? intval($_GET["num"]) : 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
 $offset = $pagesize * ($page - 1);
-$rs = $DB->query("SELECT * FROM pre_sitetask WHERE" . $sql . " ORDER BY sort ASC LIMIT " . $offset . "," . $pagesize);
+if (isset($_GET["kw"])) {
+	$rs = $DB->query("SELECT A.* FROM pre_sitetask A LEFT JOIN pre_tools B ON A.tid=B.tid WHERE B.name LIKE :kw ORDER BY A.sort ASC LIMIT " . $offset . "," . $pagesize, array(':kw' => '%' . $kw . '%'));
+} elseif (isset($_GET["id"])) {
+	$rs = $DB->query("SELECT * FROM pre_sitetask WHERE id=:id ORDER BY sort ASC LIMIT " . $offset . "," . $pagesize, array(':id' => $id));
+} else {
+	$rs = $DB->query("SELECT * FROM pre_sitetask ORDER BY sort ASC LIMIT " . $offset . "," . $pagesize);
+}
 while ($res = $rs->fetch()) {
 	$type = "今日";
-	if ($row["task"] == 1) {
+	if ($res["task"] == 1) {
 		$type = "总计";
 	}
-	$tasktype = sitetask_type($row["task"]);
-	if ($row["task"] == 5) {
+	$tasktype = sitetask_type($res["task"]);
+	if ($res["task"] == 5) {
 		$tasktype = $tasktype . "任务";
 	} else {
 		$tasktype = $type . $tasktype . "任务";
@@ -50,7 +55,7 @@ while ($res = $rs->fetch()) {
 ?>          </tbody>
         </table>
 </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;

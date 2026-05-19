@@ -39,7 +39,7 @@ function searchItem(){
 function setActive(id,active) {
 	$.ajax({
 		type : 'GET',
-		url : 'ajax_site.php?act=setTask&id='+id+'&active='+active,
+		url : 'ajax_site.php?act=setTask&id='+id+'&active='+active+'&csrf_token='+encodeURIComponent(csrfToken),
 		dataType : 'json',
 		success : function(data) {
 			listTable();
@@ -55,7 +55,7 @@ function delTask(id) {
 	}, function(){
 	  $.ajax({
 		type : 'GET',
-		url : 'ajax_site.php?act=delTask&id='+id,
+		url : 'ajax_site.php?act=delTask&id='+id+'&csrf_token='+encodeURIComponent(csrfToken),
 		dataType : 'json',
 		success : function(data) {
 			if(data.code == 0){

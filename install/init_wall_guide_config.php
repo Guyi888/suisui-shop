@@ -7,7 +7,8 @@ $configs = [
     'wall_guide_title' => ['type' => 'text', 'value' => '欢迎访问', 'name' => '引导页标题', 'sort' => 2],
     'wall_guide_content' => ['type' => 'textarea', 'value' => '点击下方按钮继续访问网站', 'name' => '引导页内容', 'sort' => 3],
     'wall_guide_btn' => ['type' => 'text', 'value' => '继续访问', 'name' => '按钮文字', 'sort' => 4],
-    'wall_guide_interval' => ['type' => 'number', 'value' => '24', 'name' => '显示间隔(小时)', 'sort' => 5],
+    'wall_guide_interval' => ['type' => 'number', 'value' => '24', 'name' => '显示间隔', 'sort' => 5],
+    'wall_guide_interval_unit' => ['type' => 'select', 'value' => 'hour', 'name' => '时间单位', 'sort' => 5.1],
     'wall_guide_theme_color' => ['type' => 'text', 'value' => '#2193b0', 'name' => '主题颜色', 'sort' => 6]
 ];
 

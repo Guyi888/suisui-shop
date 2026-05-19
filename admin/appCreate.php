@@ -60,7 +60,7 @@ if($islogin==1){}else exit("<script language='javascript'>window.location.href='
 	  <div class="col-sm-offset-3 col-sm-9"><input type="submit" name="submit" value="修改" class="btn btn-primary btn-block"/>
 	 </div>
 	</div>
-	<div class="panel-footer"><span class="glyphicon glyphicon-info-sign"></span>APP自动化打包平台：<a href="https://app.51zhihuigu.com/" target="_blank" rel="noreferrer">点此进入</a></div>
+	<div class="panel-footer"><span class="fa fa-info-circle"></span>APP自动化打包平台：<a href="https://app.51zhihuigu.com/" target="_blank" rel="noreferrer">点此进入</a></div>
   </form>
 </div>
 		<div class="tab-pane fade in" id="create">
@@ -88,7 +88,7 @@ if($islogin==1){}else exit("<script language='javascript'>window.location.href='
 						应用图标
 					</div>
 					<input name="icon" class="form-control" value="" placeholder="不上传则使用默认应用图标" data-fileid="" disabled/>
-                    <div class="input-group-btn"><a href="javascript:fileSelect('file_icon')" class="btn btn-success" title="上传图片"><i class="glyphicon glyphicon-upload"></i></a></div>
+                    <div class="input-group-btn"><a href="javascript:fileSelect('file_icon')" class="btn btn-success" title="上传图片"><i class="fa fa-upload"></i></a></div>
 				</div>
 			</div>
             <div class="form-group">
@@ -98,7 +98,7 @@ if($islogin==1){}else exit("<script language='javascript'>window.location.href='
 						应用启动图
 					</div>
 					<input name="background" class="form-control" value="" placeholder="不上传则使用默认应用启动图" data-fileid="" disabled/>
-                    <div class="input-group-btn"><a href="javascript:fileSelect('file_background')" class="btn btn-success" title="上传图片"><i class="glyphicon glyphicon-upload"></i></a></div>
+                    <div class="input-group-btn"><a href="javascript:fileSelect('file_background')" class="btn btn-success" title="上传图片"><i class="fa fa-upload"></i></a></div>
 				</div>
 			</div>
 			<div class="form-group">
@@ -235,7 +235,7 @@ function fileUpload(obj, des){
                     $("#result").html(item);
                     $("#result").show();
                 }else{
-                    item = '<div class="alert alert-danger"><i class="glyphicon glyphicon-info-sign"></i>&nbsp;'+data.msg+'</div>';
+                    item = '<div class="alert alert-danger"><i class="fa fa-info-circle"></i>&nbsp;'+data.msg+'</div>';
                     $("#result").html(item);
                     $("#result").show();
                 }

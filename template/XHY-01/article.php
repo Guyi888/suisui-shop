@@ -124,7 +124,7 @@ echo "<!-- 调试: 数据库前缀=" . DBQZ . ", 文章ID=" . $id . ", 文章标
 </ol>
 <div class="text-center" style="margin: 20px;">
 <h3><strong style="color: #8B0000;"><?php echo $row['title']?></strong></h3>
-<span class="text-muted"><i class="glyphicon glyphicon-time"></i>&nbsp;<?php echo $row['addtime']?>&nbsp;&nbsp;&nbsp;<i class="fa fa-mouse-pointer" aria-hidden="true"></i>&nbsp;<?php echo $row['count']?></span>
+<span class="text-muted"><i class="fa fa-clock-o"></i>&nbsp;<?php echo $row['addtime']?>&nbsp;&nbsp;&nbsp;<i class="fa fa-mouse-pointer" aria-hidden="true"></i>&nbsp;<?php echo $row['count']?></span>
 </div><hr/>
 <div class="article-content">
 <?php echo $row['content']?>

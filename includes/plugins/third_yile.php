@@ -2,15 +2,15 @@
 /**
  * 亿乐社区对接插件
  * 博客地址：zhonguo.ren
- * QQ群：915043052
- * 开发者：教主
- * 
+ * QQ群：qqfaka
+ * 开发者：岁岁 @qqfaka
+ *
  * 功能说明：
  * 1. 对接亿乐SUP新版API，支持商品列表、商品详情、订单查询等功能
  * 2. 使用SHA1签名认证，符合亿乐SUP API文档规范
  * 3. 支持批量商品上架和价格监控
  * 4. 防止SQL注入、XSS攻击、CSRF攻击
- * 
+ *
  * 更新日志：
  * v2.0 - 适配亿乐SUP新版API，使用SHA1签名认证
  * v1.0 - 初始版本
@@ -63,19 +63,19 @@ class third_yile{
 	{
 		$result['code'] = -1;
 		$url = '/openapi/customer/Goods/Buy';
-		
+
 		// 如果goods_id为0，尝试从goods_param中提取gid
 		if($goods_id == 0 && !empty($goods_param)){
 			$goods_param_parts = explode('#', $goods_param);
 			$goods_id = isset($goods_param_parts[0]) ? intval($goods_param_parts[0]) : 0;
 		}
-		
+
 		// 构建购买参数
 		$param = array(
 			'goods_id' => intval($goods_id),
 			'buy_number' => intval($num)
 		);
-		
+
 		// 处理下单参数
 		if (is_array($input) && $input){
 			$buy_params = array();
@@ -86,12 +86,12 @@ class third_yile{
 			}
 			$param['buy_params'] = $buy_params;
 		}
-		
+
 		// 添加客户单号，防止重复下单
 		if(!empty($tradeno)){
 			$param['customer_order_id'] = strval($tradeno);
 		}
-		
+
 		// 使用新版API认证
 		$timestamp = time();
 		$token = $this->generateToken($url, $timestamp);
@@ -100,11 +100,11 @@ class third_yile{
 			'AppTimestamp: ' . $timestamp,
 			'AppToken: ' . $token
 		);
-		
+
 		$post = json_encode($param);
 		$data = $this->get_curl_with_headers($url, $post, $headers);
 		$json = json_decode($data,true);
-		
+
 		if (isset($json['code']) && $json['code']==0) {
 			$result = array(
 				'code' => 0,
@@ -231,7 +231,7 @@ class third_yile{
 			$result['paramname'] = trim($paramname, '|');
 			$result['input'] = isset($result['buy_params'][0]['name']) ? $result['buy_params'][0]['name'] : '';
 			$result['inputs'] = trim($paramname, '|');
-			
+
 			// 映射API字段到前端期望的字段名
 			$result['price'] = $result['price'] ?? 0;
 			$result['desc'] = $result['particulars'] ?? '';
@@ -239,8 +239,8 @@ class third_yile{
 			$result['limit_max'] = $result['buy_max_limit'] ?? 0;
 			$result['name'] = $result['name'] ?? '';
 			$result['image'] = isset($result['image_urls'][0]) ? $result['image_urls'][0] : '';
-			
-			// 获取分类名称 - 教主修改，博客地址：6v6.ren Q群：941535592
+
+			// 获取分类名称 - 岁岁 @qqfaka修改，岁岁 @qqfaka
 			if(isset($result['category_id']) && !empty($result['category_id'])){
 				// 调用分类列表接口获取分类名称
 				$class_list = $this->class_list();
@@ -264,11 +264,11 @@ class third_yile{
 					}
 				}
 			}
-			
+
 			return $result;
 		}
 	}
-	
+
 	/**
      * 订单查询
 	 * @param int $orderid 订单ID
@@ -321,10 +321,10 @@ class third_yile{
 			{
 				if($res2['price']==='0.00')continue;
 				$price = ceil($details['price'] * $res2['value'] * 100)/100;
-				
+
 				// 检查是否有自定义价格记录
 				$has_custom_price = $DB->getColumn("SELECT COUNT(*) FROM pre_site_price WHERE tid='{$res2['tid']}'");
-				
+
 				if(($conf['pricejk_edit']==1 && $price>$res2['price']) || ($conf['pricejk_edit']==0 && $price!=$res2['price'])){
 				if($has_custom_price > 0){
 					// 更新自定义价格表
@@ -368,7 +368,7 @@ class third_yile{
 				$goods_status_arr[$row['id']] = $row['close']; //商品状态 1为禁止下单
 				$price_arr[$row['id']] = $row['price']; //商品价格
 			}
-			
+
 			// 更新商品价格
 			$rs2=$DB->query("SELECT * FROM pre_tools WHERE is_curl=2 AND shequ='{$shequid}' AND active=1 AND cid IN ({$conf['pricejk_cid']})");
 			while($res2 = $rs2->fetch())
@@ -377,10 +377,10 @@ class third_yile{
 				// 更新商品价格
 				if(isset($price_arr[$res2['goods_id']]) && $price_arr[$res2['goods_id']]>0){
 					$price = ceil($price_arr[$res2['goods_id']] * $res2['value'] * 100)/100;
-					
+
 					// 检查是否有自定义价格记录
 					$has_custom_price = $DB->getColumn("SELECT COUNT(*) FROM pre_site_price WHERE tid='{$res2['tid']}'");
-					
+
 					if(($conf['pricejk_edit']==1 && $price>$res2['price']) || ($conf['pricejk_edit']==0 && $price!=$res2['price'])){
 				if($has_custom_price > 0){
 					// 更新自定义价格表
@@ -393,7 +393,7 @@ class third_yile{
 			}
 				}
 			}
-			
+
 			// 更新商品状态
 			$rs2=$DB->query("SELECT * FROM pre_tools WHERE is_curl=2 AND shequ='{$shequid}' AND active=1 AND cid IN ({$conf['pricejk_cid']})");
 			while($res2 = $rs2->fetch())
@@ -477,7 +477,7 @@ class third_yile{
 			$inputs = trim($inputs, '|');
 			$result['input'] = $input;
 			$result['inputs'] = $inputs;
-			
+
 			// 映射API字段到前端期望的字段名
 			$result['price'] = $result['price'] ?? 0;
 			$result['desc'] = $result['particulars'] ?? '';
@@ -485,7 +485,7 @@ class third_yile{
 			$result['limit_max'] = $result['buy_max_limit'] ?? 0;
 			$result['name'] = $result['name'] ?? '';
 			$result['image'] = isset($result['image_urls'][0]) ? $result['image_urls'][0] : '';
-			
+
 			return $result;
 		}
 	}
@@ -501,13 +501,13 @@ class third_yile{
 		$base_url = $this->config['url'];
 		$base_url = preg_replace('/^(https?:\/\/)/i', '', $base_url);
 		$url = 'http://' . $base_url . $path;
-		
+
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		
+
 		$httpheader = array(
 			'Accept: */*',
 			'Accept-Encoding: gzip,deflate',
@@ -515,25 +515,25 @@ class third_yile{
 			'Connection: close',
 			'Content-Type: application/json; charset=UTF-8'
 		);
-		
+
 		if($headers && is_array($headers)){
 			$httpheader = array_merge($httpheader, $headers);
 		}
-		
+
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
-		
+
 		if($post){
 			curl_setopt($ch, CURLOPT_POST, 1);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 		}
-		
+
 		curl_setopt($ch, CURLOPT_ENCODING, "gzip");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
-		
+
 		$ret = curl_exec($ch);
 		curl_close($ch);
-		
+
 		return $ret;
 	}
 

@@ -42,7 +42,7 @@ $numrows=$DB->getColumn("SELECT count(*) from pre_class");
 $rs=$DB->query("SELECT * FROM pre_class WHERE 1 order by sort asc");
 while($res = $rs->fetch())
 {
-	echo '<tr><td>'.$res['name'].'</td><td><div class="input-group"><input type="file" id="file'.$res['cid'].'" onchange="fileUpload('.$res['cid'].')" style="display:none;"/><input type="text" class="form-control input-sm" name="img['.$res['cid'].']" value="'.$res['shopimg'].'" placeholder="填写图片URL" required><span class="input-group-btn"><a href="javascript:fileSelect('.$res['cid'].')" class="btn btn-success btn-sm" title="上传图片"><i class="glyphicon glyphicon-upload"></i></a><a href="javascript:getImage('.$res['cid'].')" class="btn btn-info btn-sm" title="自动获取图片"><i class="glyphicon glyphicon-search"></i></a><a href="javascript:fileView('.$res['cid'].')" class="btn btn-warning btn-sm" title="查看图片"><i class="glyphicon glyphicon-picture"></i></a></span></div></td></tr>';
+	echo '<tr><td>'.$res['name'].'</td><td><div class="input-group"><input type="file" id="file'.$res['cid'].'" onchange="fileUpload('.$res['cid'].')" style="display:none;"/><input type="text" class="form-control input-sm" name="img['.$res['cid'].']" value="'.$res['shopimg'].'" placeholder="填写图片URL" required><span class="input-group-btn"><a href="javascript:fileSelect('.$res['cid'].')" class="btn btn-success btn-sm" title="上传图片"><i class="fa fa-upload"></i></a><a href="javascript:getImage('.$res['cid'].')" class="btn btn-info btn-sm" title="自动获取图片"><i class="fa fa-search"></i></a><a href="javascript:fileView('.$res['cid'].')" class="btn btn-warning btn-sm" title="查看图片"><i class="fa fa-picture-o"></i></a></span></div></td></tr>';
 }
 echo '</form><tr><td></td><td><span class="btn btn-primary btn-sm btn-block" onclick="saveAllImages()">保存全部</span></td></tr>';
 ?>
@@ -51,7 +51,7 @@ echo '</form><tr><td></td><td><span class="btn btn-primary btn-sm btn-block" onc
         </table>
       </div>
 	  <div class="panel-footer">
-	  <span class="glyphicon glyphicon-info-sign"></span>当前图片仅适用于部分首页模板
+	  <span class="fa fa-info-circle"></span>当前图片仅适用于部分首页模板
 	  </div>
 	</div>
 <?php

@@ -38,7 +38,7 @@ function dopay(type,orderid){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}else{
 		top.location.href='other/submit.php?type='+type+'&orderid='+orderid;
@@ -519,7 +519,7 @@ var GoodsCart = {
 					}else{
 						layer.alert(data.msg);
 					}
-				} 
+				}
 			});
 		}else{
 			window.location.href='other/submit.php?type='+paytype+'&orderid='+orderid;

@@ -83,7 +83,7 @@ function saveOrderPwd(id,skey) {
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function scollgift(){
@@ -243,7 +243,7 @@ function getPoint() {
 }
 function getshop(tid,cid,name,price,input,inputs,multi,isfaka,isinvitegift,invitegift_money,invite_gift,value,desc,alert,shopimg,close,prices,max,min,stock){
 	$('#display_selectclass').hide();
-	$('#shoplist').hide(); 
+	$('#shoplist').hide();
 	$('#shopinfo').show();
 	$("#selected").html('填写商品信息 <select name="tid" id="tid"><option value="'+tid+'" cid="'+cid+'" price="'+price+'" inputname="'+input+'" inputsname="'+inputs+'" multi="'+multi+'" isfaka="'+isfaka+'" isinvitegift="'+isinvitegift+'" invitegift_money="'+invitegift_money+'" invite_gift="'+invite_gift+'" count="'+value+'" alert="'+alert+'" shopimg="'+shopimg+'" close="'+close+'" prices="'+prices+'" max="'+max+'" min="'+min+'" stock="'+stock+'">'+name+'</option></select><a class="btn btn-success btn-xs pull-right" href="./?cid='+cid+'">返回重选</a>');
 	$("#infoshop").html('<div class="form-group text-center"><img src="'+shopimg+'" width="120" height="120" style="border-radius: 8px" id="shoptypes" onerror="this.src=\'/assets/img/Product/default.png\'"><hr class="layui-bg-blue"><b>当前商品：'+generate(name)+(desc!=''?'<hr class="layui-bg-orange">'+unescape(desc):'')+'</b>');
@@ -319,7 +319,7 @@ function get_shuoshuo(id,uin,km,page){
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function set_shuoshuo(id){
@@ -359,7 +359,7 @@ function get_rizhi(id,uin,km,page){
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function set_rizhi(id){
@@ -464,12 +464,12 @@ function getpddinput() {
     var pattresult6 = (/([0-9]{8})/).exec(pddinput);
     var pattresult7 = (/[a-zA-Z0-9=_\&\?\-\/]?[a-zA-Z0-9]{15}[a-zA-Z0-9=_\&\?\-\/]?/).exec(pddinput);
     var pattresult12 = (/^[a-zA-Z0-9]{16}/).exec(pddinput);
-    
+
     var pattresult10 = (/[\ud83a-\ud83f][\u0000-\uFFFF]/).exec(pddinput);
     var no_emoji_input = pddinput.replace(/[\ud83a-\ud83f][\u0000-\uFFFF]/g, "");
     no_emoji_input = no_emoji_input.replace(/[\ufe00-\ufe0f]/g, "");
     no_emoji_input = no_emoji_input.replace(/[\u0000-\uffff][\u20aa-\u20ff]/g, "");
-    
+
     var pattresult13 = (/[a-zA-Z0-9]{13}/).exec(no_emoji_input);
     var pattresult14 = (/[a-zA-Z0-9]{14}/).exec(no_emoji_input);
     var status = false;
@@ -603,7 +603,7 @@ function queryOrder(type,content,page){
 				layer.alert(data.msg);
 			}
 			$('#submit_query').val('立即查询');
-		} 
+		}
 	});
 }
 function showOrder(id,skey){
@@ -708,7 +708,7 @@ var handlerEmbed = function (captchaObj) {
 					layer.alert(data.msg);
 					captchaObj.reset();
 				}
-			} 
+			}
 		});
 	});
 };
@@ -731,7 +731,7 @@ var handlerEmbed2 = function (token) {
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 };
 var handlerEmbed3 = function (vaptchaObj) {
@@ -829,7 +829,7 @@ function dopay(type,orderid){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}else{
 		window.location.href='other/submit.php?type='+type+'&orderid='+orderid;
@@ -941,15 +941,15 @@ function checklogin(islogin){
 }
 var audio_init = {
 	changeClass: function (target,id) {
-       	var className = $(target).attr('class');
-       	var ids = document.getElementById(id);
-       	(className == 'on')
-           	? $(target).removeClass('on').addClass('off')
-           	: $(target).removeClass('off').addClass('on');
-       	(className == 'on')
-           	? ids.pause()
-           	: ids.play();
-   	},
+	var className = $(target).attr('class');
+	var ids = document.getElementById(id);
+	(className == 'on')
+	? $(target).removeClass('on').addClass('off')
+	: $(target).removeClass('off').addClass('on');
+	(className == 'on')
+	? ids.pause()
+	: ids.play();
+	},
 	play:function(){
 		document.getElementById('media').play();
 	}
@@ -1190,7 +1190,7 @@ $("#cid").change(function () {
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	});
 	$("#submit_cart_shop").click(function(){
@@ -1253,7 +1253,7 @@ $("#cid").change(function () {
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	});
 	//获取商品返利链接
@@ -1385,8 +1385,8 @@ $("#num_add").click(function () {
 $("#num_min").click(function (){
 	var i = parseInt($("#num").val());
 	if(i<=1){
-    	layer.msg('最低下单一份哦！'); 
-      	return false;
+	layer.msg('最低下单一份哦！');
+	return false;
     }
 	if ($("#need").val() == ''){
 		layer.alert('请先选择商品');
@@ -1447,7 +1447,7 @@ $("#num").keyup(function () {
 	else $('#need').val('￥'+price.toFixed(2) +"元");
 });
 
-var gogo; 
+var gogo;
 $("#start").click(function(){
 	ii=layer.load(1,{shade:0.3});
 	$.ajax({
@@ -1546,7 +1546,7 @@ if( !$.cookie('op') && isModal==true){
 	$('#myModal').modal({
 		keyboard: true
 	});
-	var cookietime = new Date(); 
+	var cookietime = new Date();
 	cookietime.setTime(cookietime.getTime() + (60*60*1000));
 	$.cookie('op', false, { expires: cookietime });
 }
@@ -1571,12 +1571,12 @@ function MakeHex(x) {
 		return x;
 	}else{
 		switch(x) {
-		case 10: return "A"; 
-		case 11: return "B";  
-		case 12: return "C";  
-		case 13: return "D";  
-		case 14: return "E";  
-		case 15: return "F";  
+		case 10: return "A";
+		case 11: return "B";
+		case 12: return "C";
+		case 13: return "D";
+		case 14: return "E";
+		case 15: return "F";
 		  }
 	}
 }

@@ -27,7 +27,7 @@ function connect(type){
 			}else{
 				layer.alert(data.msg, {icon: 7});
 			}
-		} 
+		}
 	});
 }
 function quickreg(type){
@@ -68,7 +68,7 @@ function quickreg(type){
 			}else{
 				layer.alert(data.msg, {icon: 7});
 			}
-		} 
+		}
 	});
 }
 var handlerEmbed = function (captchaObj) {
@@ -159,7 +159,7 @@ $(document).ready(function(){
 				}else{
 					layer.alert(data.msg, {icon: 2});
 				}
-			} 
+			}
 		});
 	});
 	if(captcha_type == 1){

@@ -69,7 +69,7 @@ $cid = isset($_GET['cid'])?intval($_GET['cid']):0;
     </div>
 <?php if(!isset($_GET['cid']))echo '<font color="grey">提示：查看单个分类的商品列表可进行商品排序操作';?>
   </div>
-      
+
 <script src="<?php echo $cdnpublic?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/supshoplist2.js?ver=<?php echo VERSION ?>"></script>
 </body>

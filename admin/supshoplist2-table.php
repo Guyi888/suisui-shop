@@ -71,7 +71,7 @@ if (isset($_GET["kw"])) {
         <table class="table table-striped" id="supshoplist2">
           <thead><tr><th>商品名称</th><th>商品价格设置</th><th>供货商成本价</th><th>商品类型</th><th class="<?php echo isset($_GET["cid"]) ? "hide" : "";?>">所属分类</th><th class="<?php echo isset($_GET["cid"]) ? "" : "hide";?>">排序操作</th><th>库存</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
 $offset = $pagesize * ($page - 1);
@@ -85,7 +85,7 @@ while ($res = $rs->fetch()) {
 	} else {
 		$stock = $res["stock"];
 	}
-	
+
 	echo "<tr><td style=\"word-break:break-word;width:42%\"><input type=\"checkbox\" name=\"checkbox[]\" id=\"list1\" value=\"" . $res["tid"] . "\" onClick=\"unselectall1()\">&nbsp;<a href=\"javascript:show(" . $res["tid"] . ")\" style=\"color:#000\">" . $res["name"] . "</a></td>" . ($res["prid"] > 0 ? "<td><span onclick=\"getPrice(" . $res["tid"] . ")\"><font color=\"blue\">" . $price_class[$res["prid"]] . "</font>&nbsp;(成本:" . $res["price"] . ")</span></td>" : "<td><span onclick=\"getPrice(" . $res["tid"] . ")\">" . $res["price"] . "｜" . $res["cost"] . "｜" . $res["cost2"] . "</span></td>") . "<td>" . $res["sup_price"] . "</td><td>" . display_shoptype($res["is_curl"], $res["shequ"]) . "\r\n</td><td class=\"" . (isset($_GET["cid"]) ? "hide" : "") . "\"><a href=\"./supshoplist2.php?cid=" . $res["cid"] . "\">" . ($res["classname"] ?: "未分类") . "</a></td><td class=\"" . (isset($_GET["cid"]) ? "" : "hide") . "\"><a class=\"btn btn-xs sort_btn\" title=\"移到顶部\" onclick=\"sort(" . $res["cid"] . "," . $res["tid"] . ",0)\"><i class=\"fa fa-long-arrow-up\"></i></a><a class=\"btn btn-xs sort_btn\" title=\"移到上一行\" onclick=\"sort(" . $res["cid"] . "," . $res["tid"] . ",1)\"><i class=\"fa fa-chevron-circle-up\"></i></a><a class=\"btn btn-xs sort_btn\" title=\"移到下一行\" onclick=\"sort(" . $res["cid"] . "," . $res["tid"] . ",2)\"><i class=\"fa fa-chevron-circle-down\"></i></a><a class=\"btn btn-xs sort_btn\" title=\"移到底部\" onclick=\"sort(" . $res["cid"] . "," . $res["tid"] . ",3)\"><i class=\"fa fa-long-arrow-down\"></i></a></td><td><a href=\"javascript:setStock(" . $res["tid"] . ",'" . $stock . "')\">" . $stock . "</a></td><td>" . ($res["close"] == 1 ? "<span class=\"btn btn-xs btn-warning\" onclick=\"setClose(" . $res["tid"] . ",0)\">已下架</span>" : "<span class=\"btn btn-xs btn-success\" onclick=\"setClose(" . $res["tid"] . ",1)\">上架中</span>") . "&nbsp;" . ($res["active"] == 1 ? "<span class=\"btn btn-xs btn-success\" onclick=\"setActive(" . $res["tid"] . ",0)\">显示</span>" : "<span class=\"btn btn-xs btn-warning\" onclick=\"setActive(" . $res["tid"] . ",1)\">隐藏</span>") . "</td><td><a href=\"./shopedit.php?my=edit&tid=" . $res["tid"] . "\" class=\"btn btn-info btn-xs\">编辑</a>&nbsp;<a href=\"./list.php?tid=" . $res["tid"] . "\" class=\"btn btn-warning btn-xs\">订单</a>&nbsp;<span href=\"./shopedit.php?my=delete&tid=" . $res["tid"] . "\" class=\"btn btn-xs btn-danger\" onclick=\"delTool(" . $res["tid"] . ")\">删除</span></td></tr>\r\n";
 }
 ?>          </tbody>
@@ -97,7 +97,7 @@ while ($res = $rs->fetch()) {
 <select name="cid"><option selected>将选定商品移动到分类</option><?php echo $select;?></select><button type="button" onclick="move()">确定移动</button>
 </div>
 </form>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;
@@ -127,7 +127,7 @@ if ($page < $pages) {
 }
 ?></ul><script>
 $("#blocktitle").html('<?php echo $con;?>');
-</script><?php 
+</script><?php
 function display_shoptype($type, $shequ = 0)
 {
 	global $shequurls;

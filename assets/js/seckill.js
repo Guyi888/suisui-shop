@@ -164,7 +164,7 @@ function get_shuoshuo(id,uin,km,page){
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function set_shuoshuo(id){
@@ -200,7 +200,7 @@ function get_rizhi(id,uin,km,page){
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function set_rizhi(id){

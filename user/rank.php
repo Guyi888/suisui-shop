@@ -27,7 +27,7 @@ if($_GET['last']==1){
 
 ?>
 <div class="panel panel-default">
-     <div class="panel-heading font-bold" style="background-color: #9999CC;color: white;">分站排行</div>
+     <div class="panel-heading font-bold" style="background-color: #9ee2ff;color: white;">分站排行</div>
 <ul class="nav nav-tabs">
 <li class="<?php echo $_GET['last']!=1?'active':null;?>" style="width:50%"><a href="rank.php"><center>今日销售排行</center></a></li>
 <li class="<?php echo $_GET['last']==1?'active':null;?>" style="width:50%"><a href="rank.php?last=1"><center>昨日销售排行</center></a></li>
@@ -55,7 +55,7 @@ $i++;
         </table>
       </div>
 <div class="panel-footer" <?php if(!$conf['rank_reward']){?>style="display:none;"<?php }?>>
-<span class="glyphicon glyphicon-info-sign"></span>&nbsp;站长排行榜奖励会在每天0点后发放前一天的，奖励对象为销量排行榜前<?php echo $conf['rank_reward']?>名，当前额外提成奖励为销量的 <?php echo $conf['rank_percentage']?>%！
+<span class="fa fa-info-circle"></span>&nbsp;站长排行榜奖励会在每天0点后发放前一天的，奖励对象为销量排行榜前<?php echo $conf['rank_reward']?>名，当前额外提成奖励为销量的 <?php echo $conf['rank_percentage']?>%！
 </div>
     </div>
  </div>

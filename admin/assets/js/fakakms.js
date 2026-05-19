@@ -17,12 +17,64 @@ function unselectall1()
     if(document.form1.chkAll1.checked){
 	document.form1.chkAll1.checked = document.form1.chkAll1.checked&0;
 	checkflag1 = "false";
-    } 	
+    }
 }
 
 function showkms(obj) {
 	$(obj).css("white-space","normal");
 	$(obj).css("word-break","break-all");
+}
+
+function generateRandomString(length, options) {
+	var chars = '';
+	if (options.useNum) chars += '0123456789';
+	if (options.useLow) chars += 'abcdefghijklmnopqrstuvwxyz';
+	if (options.useUp) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	if (options.useSpec) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+	if (chars === '') chars = '0123456789';
+	var result = '';
+	for (var i = 0; i < length; i++) {
+		result += chars.charAt(Math.floor(Math.random() * chars.length));
+	}
+	return result;
+}
+
+function generatekms() {
+	var num = parseInt($("#gen_num").val()) || 10;
+	var kmLen = parseInt($("#gen_km_len").val()) || 16;
+	var pwLen = parseInt($("#gen_pw_len").val()) || 16;
+	var split = $("#gen_split").val() || " ";
+	var useNum = $("#gen_use_num").prop("checked");
+	var useLow = $("#gen_use_low").prop("checked");
+	var useUp = $("#gen_use_up").prop("checked");
+	var useSpec = $("#gen_use_spec").prop("checked");
+	if (num < 1 || num > 1000) {
+		layer.msg('数量必须在1-1000之间', {icon: 2});
+		return;
+	}
+	if (kmLen < 4 || kmLen > 64 || pwLen < 4 || pwLen > 64) {
+		layer.msg('卡号和密码长度必须在4-64之间', {icon: 2});
+		return;
+	}
+	var kmOptions = {useNum: useNum, useLow: useLow, useUp: useUp, useSpec: useSpec};
+	var kms = [];
+	for (var i = 0; i < num; i++) {
+		var km = generateRandomString(kmLen, kmOptions);
+		var pw = generateRandomString(pwLen, kmOptions);
+		kms.push(km + split + pw);
+	}
+	var existing = $("#kms").val();
+	if (existing.trim()) {
+		$("#kms").val(existing + "\n" + kms.join("\n"));
+	} else {
+		$("#kms").val(kms.join("\n"));
+	}
+	$("input[name='split']").val(split);
+	layer.msg('成功生成 ' + num + ' 张卡密', {icon: 1});
+}
+
+function clearkms() {
+	$("#kms").val('');
 }
 
 function checkAdd(){

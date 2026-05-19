@@ -1,2 +1,3 @@
 <?php
-define('DB_VERSION',1012);
+define('DB_VERSION',1013);
+define('VERSION', '20260519');

@@ -42,7 +42,7 @@
             return cookieValue;
         }
     };
-    
+
     // 添加removeCookie函数
     $.removeCookie = function(name, options) {
         if ($.cookie(name) !== null) {
@@ -57,7 +57,7 @@
 if (typeof jQuery !== 'undefined') {
     jQuery.cookie = $.cookie;
     jQuery.removeCookie = $.removeCookie;
-    
+
     // 添加简单的modal方法实现，避免TypeError: $(...).modal is not a function错误
     $.fn.modal = function(options) {
         // 简单实现：不做任何事，只是防止报错

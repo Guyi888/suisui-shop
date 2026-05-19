@@ -33,7 +33,7 @@
 <div class="row">
     <div class="col-sm-12 col-md-10 center-block" style="float: none;">
 
-<?php 
+<?php
 include "../includes/common.php";
 if ($islogin == 1) {
 } else {
@@ -66,7 +66,7 @@ if ($my == "view") {
 			订单编号：<?php echo $rows["orderid"] ? "<a href=\"./list.php?id=" . $rows["orderid"] . " target=\"_blank\">" . htmlspecialchars($rows["orderid"], ENT_QUOTES | ENT_HTML5, 'UTF-8') . "</a>" : "无订单号";?><br/>
 			问题类型：<?php echo display_type($rows["type"]);?>			<?php echo $rows["picurl"] ? "<p>问题图片：[<a href=\"../" . htmlspecialchars($rows["picurl"]) . "\" target=\"_blank\">点此查看</a>]" : null;?>		</div>
 	</div>
-<?php 
+<?php
 	for ($i = 1; $i < count($contents); $i++) {
 		$content = explode("^", $contents[$i]);
 		if (count($content) == 3) {
@@ -75,7 +75,7 @@ if ($my == "view") {
 	}
 	if ($rows["status"] == 2) {
 		?><div class="gdan_jied">此投诉已经结单</div>
-<?php 
+<?php
 	} else {
 		?><div class="gdan_huifu">
 <form action="./workorder-item.php?my=reply&id=<?php echo $id;?>" method="POST">
@@ -89,13 +89,13 @@ if ($my == "view") {
 		<button type="button" class="btn btn-xs btn-danger pull-right" data-type="0" id="delSpeedy" title="删除快捷回复列表内容">删除</button>
 	</div>
 	<div class="form-group" id="speedyList" data-ids="" style="margin: 1%;padding: 5px;border: 1px solid #dedede;min-height: 50px;">
-		<?php 
+		<?php
 		$speedy_list = explode("^", $conf["speedy_list"]);
 		foreach ($speedy_list as $ikey => $icontent) {
 			?>		<span class="speedy-text">
 			<span class="label label-info" data-id="<?php echo $ikey;?>" title="<?php echo htmlspecialchars($icontent);?>"><?php echo htmlspecialchars($icontent);?></span>
 		</span>
-		<?php 
+		<?php
 		}
 		?>	</div>
 </form>
@@ -186,11 +186,11 @@ $('#delSpeedy').on('click', function () {
 	}
 });
 </script>
-<?php 
+<?php
 	}
 	?></div>
 </div>
-<?php 
+<?php
 } elseif ($my == "reply") {
 	$id = intval($_GET["id"]);
 	$rows = $DB->getRow("SELECT * FROM pre_workorder WHERE id=:id LIMIT 1", array(":id" => $id));

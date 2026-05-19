@@ -58,9 +58,9 @@ class RegionPrice {
 
         foreach ($this->rules as $rule) {
             $keywords = explode(',', $rule['region_keywords']);
-            // 将地区名称也作为关键词进行匹配 - 博客地址：zhonguo.ren QQ群：915043052
+            // 将地区名称也作为关键词进行匹配 - 博客地址：zhonguo.ren QQ群：qqfaka
             $keywords[] = $rule['region_name'];
-            
+
             foreach ($keywords as $keyword) {
                 $keyword = trim($keyword);
                 if (!empty($keyword) && strpos($address, $keyword) !== false) {
@@ -128,10 +128,10 @@ class RegionPrice {
 
         $user_ip = x_real_ip();
 
-        $sql = "INSERT INTO pre_region_price_logs 
-                (order_id, tid, tool_name, original_price, region_id, region_name, 
+        $sql = "INSERT INTO pre_region_price_logs
+                (order_id, tid, tool_name, original_price, region_id, region_name,
                  add_price_type, add_price_value, add_price_amount, final_price, address, user_ip, create_time)
-                VALUES 
+                VALUES
                 (:order_id, :tid, :tool_name, :original_price, :region_id, :region_name,
                  :add_price_type, :add_price_value, :add_price_amount, :final_price, :address, :user_ip, NOW())";
 
@@ -172,9 +172,9 @@ class RegionPrice {
     }
 
     public function addRule($data) {
-        $sql = "INSERT INTO pre_region_price_rules 
+        $sql = "INSERT INTO pre_region_price_rules
                 (region_name, region_keywords, add_price_type, add_price_value, min_price, max_price, status, sort_order, create_time, update_time)
-                VALUES 
+                VALUES
                 (:region_name, :region_keywords, :add_price_type, :add_price_value, :min_price, :max_price, :status, :sort_order, NOW(), NOW())";
 
         $params = [
@@ -197,7 +197,7 @@ class RegionPrice {
     }
 
     public function updateRule($id, $data) {
-        $sql = "UPDATE pre_region_price_rules SET 
+        $sql = "UPDATE pre_region_price_rules SET
                 region_name = :region_name,
                 region_keywords = :region_keywords,
                 add_price_type = :add_price_type,

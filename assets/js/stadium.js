@@ -6,7 +6,7 @@ window.stadium = {
   init: function() {
     console.log('stadium initialized');
   },
-  
+
   getVersion: function() {
     return '1.0.0';
   }

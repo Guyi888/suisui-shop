@@ -123,22 +123,22 @@ if(checkmobile()){include TEMPLATE_ROOT.'Agod/mquery.php';exit;}
 
     </div>
         <script src="./assets/Agod/jquery-3.6.0.min.js"></script>
-    
+
     <script>
       const _URLT = new URL(location.href)
 
       const _SEARCHT = _URLT.search
       const _QueryT = '?mod=query&type=0&qq=&page=1'
-      
-    
-    
-    
+
+
+
+
 
     </script>
 
 
     <script src="./assets/Agod/layer.js"></script>
-    
+
 
       <script>
         const app = new Vue({
@@ -159,11 +159,11 @@ if(checkmobile()){include TEMPLATE_ROOT.'Agod/mquery.php';exit;}
             const _SEARCH = _URL.search
             const _Query = '?mod=query&type=0&qq=&page=1'
             // 判断参数是否一样
-            
+
             if (_SEARCH == _Query) {
               // 如果一样 则请求getALLQuery
               this.Query_order('')
-             
+
             }
           },
           methods: {

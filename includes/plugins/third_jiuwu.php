@@ -88,7 +88,7 @@ class third_jiuwu{
 		}
 		return false;
 	}
-	
+
 	public function goods_list_old(){
 		$url = '/index.php?m=home&c=api&a=get_goods_lists';
 		$ret = $this->get_curl($url);
@@ -214,7 +214,7 @@ class third_jiuwu{
 		}
 		return $result;
 	}
-	
+
 	public function query_order($orderid, $goodsid, $value = []){
 		$order_state = array('未开始','未开始','进行中','已完成','已退单','退单中','续费中','补单中','改密中','登录失败');
 		$url = '/index.php?m=Home&c=Order&a=query_orders_detail';
@@ -251,10 +251,10 @@ class third_jiuwu{
 				if($res2['price']==='0.00')continue;
 				if(isset($price_arr[$res2['goods_id']]) && $price_arr[$res2['goods_id']]>0 && $res2['prid']>0){
 					$price = ceil($price_arr[$res2['goods_id']] * $res2['value'] * 100)/100;
-					
+
 					// 检查是否有自定义价格记录
 					$has_custom_price = $DB->getColumn("SELECT COUNT(*) FROM pre_site_price WHERE tid='{$res2['tid']}'");
-					
+
 					if($conf['pricejk_edit']==1 && $price>$res2['price']){
 						if($has_custom_price > 0){
 							// 更新自定义价格表

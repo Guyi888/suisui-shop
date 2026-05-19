@@ -1,7 +1,7 @@
 <?php
-/* 
-QQ群915043052
-个人博客blog.6v6.ren
+/*
+QQ群qqfaka
+岁岁 @qqfaka
 */
 /*支付接口订单监控文件
 说明：用于请求支付接口订单列表，同步未通知到本站的订单，防止漏单。
@@ -35,7 +35,7 @@ if($_GET['do']=='pricejk'){
 		$pricejk_time = $conf['pricejk_time'] ? $conf['pricejk_time'] : 50;
 		// 确保时间间隔不会小于1秒
 		$pricejk_time = max(1, $pricejk_time);
-		
+
 		// 检查是否需要更新
 		if(!isset($_GET['test'])) {
 			// 如果上次更新时间不存在或时间差大于设置的时间间隔，则执行更新
@@ -58,24 +58,24 @@ if($_GET['do']=='pricejk'){
 	$allowType[] = 'third_yile';
 	// 去重
 	$allowType = array_unique($allowType);
-	
+
 	if(count($allowType) == 0)exit('没有支持价格监控的对接网站类型');
 	$rs=$DB->query("SELECT * FROM pre_shequ ORDER BY id ASC");
 	while($res = $rs->fetch())
 	{
 		// 调试信息：输出对接站点类型
 		if(isset($_GET['test'])) echo '对接站点 '.$res['name'].' 类型: '.$res['type'].'，允许的类型: '.implode(',', $allowType).'<br/>';
-		
+
 		if(!in_array($res['type'], $allowType)) continue;
 		// 调试信息：输出查询条件
 		if(isset($_GET['test'])) echo '查询商品数量：SELECT count(*) FROM pre_tools WHERE is_curl=2 AND shequ='.$res['id'].' AND cid IN ('.$conf['pricejk_cid'].') AND active=1<br/>';
-		
+
 		$tcount = $DB->getColumn("SELECT count(*) FROM pre_tools WHERE is_curl=2 AND shequ='{$res['id']}' AND cid IN ({$conf['pricejk_cid']}) AND active=1");
 		if($tcount>0 && $res['username'] && $res['password'] && $res['type']){
 			$is_need++;
 			// 调试信息：输出调用 third_call 前的信息
 			if(isset($_GET['test'])) echo '调用 third_call 方法，对接站点ID: '.$res['id'].'，类型: '.$res['type'].'<br/>';
-			
+
 			$results = third_call($res['type'], $res, 'pricejk', [$res['id'], &$success]);
 			if($results === false) continue;
 			if($results===true){

@@ -10,7 +10,6 @@ if ($islogin2 == 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <style>
     td.wbreak {
         max-width: 420px;
@@ -199,10 +198,10 @@ if ($islogin2 == 1) {
 								' . $res['id'] . '
 							</td>
 							<td>
-								' . $res['name'] . '
+								' . htmlspecialchars($res['name']) . '
 							</td>
 							<td class="wbreak">
-								' . $input . '
+								' . htmlspecialchars($input) . '
 							</td>
 							<td>
 								' . $res['value'] . '

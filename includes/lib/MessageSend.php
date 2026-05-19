@@ -42,7 +42,7 @@ class MessageSend {
 			// 如果设置为"开启（不包括免费商品）"，且商品金额为0，则不发送提醒
 			return;
 		}
-		
+
 		$input=$inputname?$inputname:'下单账号';
 		$inputs=explode('|',$inputnames);
 		$inputsdata='  '.$input.'：'.$array[0];

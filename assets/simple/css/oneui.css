@@ -1,5 +1,5 @@
 /*!
-* OneUI - v1.0 - Auto-compiled on 2015-06-12 - Copyright 2015 
+* OneUI - v1.0 - Auto-compiled on 2015-06-12 - Copyright 2015
 * @author pixelcave
 */
 /*
@@ -14064,21 +14064,21 @@ img.full-bg.full-bg-bottom {
 100% {padding: 8px 10px;width: 95%}
 }
 
-@-moz-keyframes btnframes 
+@-moz-keyframes btnframes
 {
 0% {padding: 8px 10px;width: 95%}
 50% {padding: 10px 10px;width: 100%}
 100% {padding: 8px 10px;width: 95%}
 }
 
-@-webkit-keyframes btnframes 
+@-webkit-keyframes btnframes
 {
 0% {padding: 8px 10px;width: 95%}
 50% {padding: 10px 10px;width: 100%}
 100% {padding: 8px 10px;width: 95%}
 }
 
-@-o-keyframes btnframes 
+@-o-keyframes btnframes
 {
 0% {padding: 8px 10px;width: 95%}
 50% {padding: 10px 10px;width: 100%}
@@ -14179,7 +14179,7 @@ img.full-bg.full-bg-bottom {
 .cut-btn.active
 {
   text-decoration: none;
-}  
+}
 
 .cut-btn-success{
 	color: #ffffff;

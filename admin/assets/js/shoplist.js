@@ -18,7 +18,7 @@ function unselectall1()
     if(document.form1.chkAll1.checked){
 	document.form1.chkAll1.checked = document.form1.chkAll1.checked&0;
 	checkflag1 = "false";
-    } 	
+    }
 }
 
 function checkAll() {
@@ -356,7 +356,7 @@ function editPrice(tid) {
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function getFloat(number, n) {

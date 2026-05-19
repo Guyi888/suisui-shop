@@ -169,7 +169,7 @@ $(document).ready(function() {
         background: "#ffffff",
         typeNumber: -1
     });
-    
+
     // 订单详情切换
     $('#orderDetail .arrow').click(function() {
         if ($('#orderDetail').hasClass('detail-open')) {
@@ -182,7 +182,7 @@ $(document).ready(function() {
             });
         }
     });
-    
+
     // 检查支付状态
     function checkPayment() {
         $.ajax({
@@ -203,7 +203,7 @@ $(document).ready(function() {
             }
         });
     }
-    
+
     // 开始检查支付状态
     setTimeout(checkPayment, 3000);
 });

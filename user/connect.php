@@ -156,10 +156,10 @@ if($_SESSION['Oauth_back'])$addstr = '&back='.$_SESSION['Oauth_back'];
 			</div>
 <?php }elseif($_GET['act'] == 'bind'){?>
           <form>
-            <div class="input-group"><div class="input-group-addon"><span class="glyphicon glyphicon-user"></span></div>
+            <div class="input-group"><div class="input-group-addon"><span class="fa fa-user"></span></div>
               <input type="text" name="user" value="" class="form-control" required="required" placeholder="用户名"/>
             </div><br/>
-            <div class="input-group"><div class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></div>
+            <div class="input-group"><div class="input-group-addon"><span class="fa fa-lock"></span></div>
               <input type="password" name="pass" class="form-control" required="required" placeholder="密码"/>
             </div><br/>
 			<?php if($conf['captcha_open_login']==1 && $conf['captcha_open']>=1){?>

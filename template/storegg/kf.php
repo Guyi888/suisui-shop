@@ -20,7 +20,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: #f5f5f5;
@@ -31,14 +31,14 @@ $conf['chat_window_color'] = '#FFFFFF';
             max-width: 650px;
             overflow-x: hidden;
         }
-        
+
         .chat-wrapper {
             width: 100%;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
-        
+
         .chat-container {
             width: 100%;
             display: flex;
@@ -48,7 +48,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             flex: 1;
         }
-        
+
         #chat-widget-box {
             display: flex;
             flex-direction: column;
@@ -56,7 +56,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             background: <?php echo htmlspecialchars($conf['chat_window_color'] ?? '#FFFFFF'); ?>;
             border: none;
         }
-        
+
         #chat-widget-header {
             background: <?php echo htmlspecialchars($conf['chat_btn_color'] ?? '#2196F3'); ?>;
             color: #fff;
@@ -69,7 +69,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             box-shadow: 0 2px 10px rgba(<?php echo hexdec(substr($conf['chat_btn_color'] ?? '#2196F3', 1, 2)); ?>, <?php echo hexdec(substr($conf['chat_btn_color'] ?? '#2196F3', 3, 2)); ?>, <?php echo hexdec(substr($conf['chat_btn_color'] ?? '#2196F3', 5, 2)); ?>, 0.3);
             flex-shrink: 0;
         }
-        
+
         #chat-widget-avatar {
             width: 40px;
             height: 40px;
@@ -80,16 +80,16 @@ $conf['chat_window_color'] = '#FFFFFF';
             justify-content: center;
             font-size: 16px;
         }
-        
+
         #chat-widget-info {
             flex: 1;
         }
-        
+
         #chat-widget-name {
             font-weight: bold;
             font-size: 16px;
         }
-        
+
         #chat-widget-subtitle {
             font-size: 12px;
             opacity: 0.9;
@@ -97,12 +97,12 @@ $conf['chat_window_color'] = '#FFFFFF';
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         #chat-widget-controls {
             display: flex;
             gap: 10px;
         }
-        
+
         #chat-widget-controls i {
             cursor: pointer;
             font-size: 16px;
@@ -110,11 +110,11 @@ $conf['chat_window_color'] = '#FFFFFF';
             border-radius: 50%;
             transition: background 0.3s ease;
         }
-        
+
         #chat-widget-controls i:hover {
             background: rgba(255,255,255,0.2);
         }
-        
+
         #chat-widget-messages {
             flex: 1;
             padding: 15px;
@@ -122,17 +122,17 @@ $conf['chat_window_color'] = '#FFFFFF';
             background: #f8f9fa;
             min-height: 300px;
         }
-        
+
         .chat-msg-user {
             text-align: right;
             margin-bottom: 12px;
         }
-        
+
         .chat-msg-admin {
             text-align: left;
             margin-bottom: 12px;
         }
-        
+
         .chat-msg-bubble {
             display: inline-block;
             padding: 10px 16px;
@@ -144,7 +144,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
             position: relative;
         }
-        
+
         .chat-msg-admin .chat-msg-bubble {
             background: #fff;
             color: #333;
@@ -152,13 +152,13 @@ $conf['chat_window_color'] = '#FFFFFF';
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             border-radius: 15px;
         }
-        
+
         .chat-msg-user .chat-msg-bubble {
             background: #2196f3;
             color: #fff;
             border-radius: 15px;
         }
-        
+
         .chat-msg-time {
             font-size: 11px;
             color: #6c757d;
@@ -167,7 +167,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             vertical-align: middle;
             opacity: 0.8;
         }
-        
+
         #chat-widget-input {
             padding: 15px;
             border-top: 1px solid #e9ecef;
@@ -177,7 +177,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             gap: 8px;
             flex-shrink: 0;
         }
-        
+
         #chat-widget-input input[type=text] {
             flex: 1;
             border: 1px solid #e9ecef;
@@ -188,12 +188,12 @@ $conf['chat_window_color'] = '#FFFFFF';
             outline: none;
             background: #f8f9fa;
         }
-        
+
         #chat-widget-input input[type=text]:focus {
             border-color: #2196f3;
             background: #fff;
         }
-        
+
         #chat-widget-input button, #chat-widget-input label {
             background: #f0f0f0;
             color: #666;
@@ -208,21 +208,21 @@ $conf['chat_window_color'] = '#FFFFFF';
             transition: all 0.3s ease;
             font-size: 14px;
         }
-        
+
         #chat-widget-input button:hover, #chat-widget-input label:hover {
             background: #e0e0e0;
             transform: scale(1.05);
         }
-        
+
         #chat-widget-input button:hover {
             transform: scale(1.1);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
-        
+
         #chat-widget-input input[type=file] {
             display: none;
         }
-        
+
         .chat-quick-questions {
             margin: 15px 0;
             padding: 10px;
@@ -230,19 +230,19 @@ $conf['chat_window_color'] = '#FFFFFF';
             border-radius: 10px;
             border: 1px solid #e9ecef;
         }
-        
+
         .chat-quick-questions h4 {
             font-size: 12px;
             color: #6c757d;
             margin-bottom: 8px;
         }
-        
+
         .question-list {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
         }
-        
+
         .question-item {
             background: #f8f9fa;
             border: 1px solid #e9ecef;
@@ -253,12 +253,12 @@ $conf['chat_window_color'] = '#FFFFFF';
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .question-item:hover {
             background: #e9ecef;
             border-color: #dee2e6;
         }
-        
+
         /* 简化的快捷操作按钮 */
         .chat-quick-actions {
             margin: 15px 0;
@@ -266,7 +266,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             flex-wrap: wrap;
             gap: 8px;
         }
-        
+
         .action-btn {
             background: #f8f9fa;
             border: 1px solid #e9ecef;
@@ -280,12 +280,12 @@ $conf['chat_window_color'] = '#FFFFFF';
             min-width: 80px;
             text-align: center;
         }
-        
+
         .action-btn:hover {
             background: #e0e0e0;
             transform: translateY(-1px);
         }
-        
+
         /* 确保按钮图标可见的样式 */
         #chat-widget-input label i,
         #chat-widget-input button i {
@@ -296,7 +296,7 @@ $conf['chat_window_color'] = '#FFFFFF';
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
-        
+
         /* 导航栏样式 */
         .fui-navbar {
             position: fixed;
@@ -313,7 +313,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             max-width: 650px;
             margin: 0 auto;
         }
-        
+
         .nav-item {
             display: flex;
             flex-direction: column;
@@ -323,16 +323,16 @@ $conf['chat_window_color'] = '#FFFFFF';
             text-decoration: none;
             font-size: 12px;
         }
-        
+
         .nav-item.active {
             color: #2196f3;
         }
-        
+
         .nav-item .icon {
             font-size: 18px;
             margin-bottom: 2px;
         }
-        
+
         /* 响应式设计 */
         @media (max-width: 768px) {
             .chat-container {
@@ -341,21 +341,21 @@ $conf['chat_window_color'] = '#FFFFFF';
                 border-radius: 0;
                 box-shadow: none;
             }
-            
+
             #chat-widget-messages {
                 min-height: 300px;
             }
-            
+
             #chat-widget-input {
                 padding: 12px;
             }
         }
-        
+
         /* 确保输入框不被底部导航栏遮挡 */
         .chat-wrapper {
             padding-bottom: 60px;
         }
-        
+
         /* 移动端适配优化 */
         @media (max-width: 768px) {
             #chat-widget-input {
@@ -363,7 +363,7 @@ $conf['chat_window_color'] = '#FFFFFF';
                 z-index: 999;
                 background-color: white;
             }
-            
+
             .chat-wrapper {
                 padding-bottom: 50px;
             }
@@ -386,14 +386,14 @@ $conf['chat_window_color'] = '#FFFFFF';
                         <i class="fa fa-volume-up" title="静音"></i>
                     </div>
                 </div>
-                
+
                 <div id="chat-widget-messages">
                     <!-- 欢迎消息 -->
                     <div class="chat-msg-admin">
                         <span class="chat-msg-bubble"><?php echo htmlspecialchars($conf['chat_welcome']); ?></span>
                         <span class="chat-msg-time"><?php echo date('m-d H:i'); ?></span>
                     </div>
-                    
+
                     <!-- 快捷问题 -->
                     <div class="chat-quick-questions">
                         <h4>猜你想问:</h4>
@@ -406,12 +406,12 @@ $conf['chat_window_color'] = '#FFFFFF';
                             <div class="question-item" data-question="不想等了,如何退款?">不想等了,如何退款?</div>
                         </div>
                     </div>
-                    
+
                     <div class="chat-msg-admin">
                         <span class="chat-msg-bubble">请您直接提供订单号哦,提供订单号+问题优先回复</span>
                         <span class="chat-msg-time"><?php echo date('m-d H:i'); ?></span>
                     </div>
-                    
+
                     <!-- 快捷操作按钮 -->
                     <div class="chat-quick-actions">
                         <button class="action-btn" data-action="如何查询订单">如何查询订单</button>
@@ -420,7 +420,7 @@ $conf['chat_window_color'] = '#FFFFFF';
                         <button class="action-btn" data-action="申请退款">申请退款</button>
                     </div>
                 </div>
-                
+
                 <form id="chat-widget-input" enctype="multipart/form-data" autocomplete="off">
                     <input type="text" name="content" placeholder="请输入" autocomplete="off" />
                     <label for="chat-widget-upload" title="发送图片" style="background:#e0e0e0;">
@@ -432,7 +432,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             </div>
         </div>
     </div>
-    
+
     <!-- 底部导航栏 -->
     <div class="fui-navbar">
         <a href="./" class="nav-item">
@@ -464,12 +464,12 @@ $conf['chat_window_color'] = '#FFFFFF';
     var chatSessionId = null;
     var chatPollingTimer = null;
     var lastMessageId = 0;
-    
+
     // 初始化会话
     function initChatSession() {
         // 检查是否有已存在的会话ID存储在cookie中
         var savedSessionId = getCookie('chat_session_id');
-        
+
         if (savedSessionId) {
             // 验证会话是否有效
             checkSessionValid(savedSessionId);
@@ -478,7 +478,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             createNewSession();
         }
     }
-    
+
     // 检查会话是否有效
     function checkSessionValid(sessionId) {
         // 修正相对路径
@@ -494,7 +494,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             createNewSession();
         });
     }
-    
+
     // 创建新会话
     function createNewSession() {
         $.ajax({
@@ -510,10 +510,10 @@ $conf['chat_window_color'] = '#FFFFFF';
                     chatSessionId = res.data.session_id;
                     // 将会话ID保存到cookie，有效期24小时
                     setCookie('chat_session_id', chatSessionId, 24);
-                    
+
                     // 初始化欢迎消息
                     initWelcomeMessage();
-                    
+
                     // 开始轮询
                     startPolling();
                 } else {
@@ -532,7 +532,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             }
         });
     }
-    
+
     // 初始化欢迎消息
     function initWelcomeMessage() {
         var welcomeMsg = {
@@ -541,20 +541,20 @@ $conf['chat_window_color'] = '#FFFFFF';
             content: '您好，欢迎使用在线客服，有什么可以帮助您的？',
             create_time: new Date().toLocaleString('zh-CN', {month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})
         };
-        
+
         var html = '<div class="chat-msg-admin">'+
             '<span class="chat-msg-bubble">'+welcomeMsg.content+'</span>'+
             '<span class="chat-msg-time">'+welcomeMsg.create_time+'</span>'+
             '</div>';
-        
+
         $('#chat-widget-messages').html(html);
         $('#chat-widget-messages').scrollTop($('#chat-widget-messages')[0].scrollHeight);
     }
-    
+
     // 加载消息
     function loadMessages() {
         if (!chatSessionId) return;
-        
+
         // 修正相对路径
         $.get('../../admin/ajax.php?act=chat_message_list&session_id=' + chatSessionId, function(res) {
             if (res.code === 0) {
@@ -567,7 +567,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             console.error('加载消息失败');
         });
     }
-    
+
     // 渲染聊天消息
     function renderChatMessages(list) {
         var html = '';
@@ -575,7 +575,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             initWelcomeMessage();
             return;
         }
-        
+
         list.forEach(function(msg){
             var time = '<span class="chat-msg-time">'+msg.create_time+'</span>';
             if(msg.sender==='user'){
@@ -588,15 +588,15 @@ $conf['chat_window_color'] = '#FFFFFF';
                     time+'</div>';
             }
         });
-        
+
         $('#chat-widget-messages').html(html);
         $('#chat-widget-messages').scrollTop($('#chat-widget-messages')[0].scrollHeight);
     }
-    
+
     // 发送消息
     function sendMessage(content, type) {
         if (!chatSessionId || !content) return;
-        
+
         var formData = new FormData();
         formData.append('session_id', chatSessionId);
         formData.append('content', content);
@@ -604,7 +604,7 @@ $conf['chat_window_color'] = '#FFFFFF';
         if (type !== undefined) {
             formData.append('type', type);
         }
-        
+
         $.ajax({
             // 修正相对路径
             url: '../../admin/ajax.php?act=chat_send_message',
@@ -623,16 +623,16 @@ $conf['chat_window_color'] = '#FFFFFF';
             }
         });
     }
-    
+
     // 发送图片消息
     function sendImage(file) {
         if (!chatSessionId || !file) return;
-        
+
         var formData = new FormData();
         formData.append('session_id', chatSessionId);
         formData.append('image', file);
         formData.append('sender', 'user');  // 明确指定发送者为用户
-        
+
         $.ajax({
             url: '../admin/ajax.php?act=chat_send_message',
             type: 'POST',
@@ -661,22 +661,22 @@ $conf['chat_window_color'] = '#FFFFFF';
             }
         });
     }
-    
+
     // 开始轮询接收新消息
     function startPolling() {
         if (chatPollingTimer) clearInterval(chatPollingTimer);
-        
+
         // 每3秒轮询一次
         chatPollingTimer = setInterval(function() {
             if (!chatSessionId) return;
-            
+
             // 修正相对路径
             $.get('../../admin/ajax.php?act=chat_message_list&session_id=' + chatSessionId, function(res) {
                 if (res.code === 0 && res.data.length > 0) {
                     var newMessages = res.data.filter(function(msg) {
                         return msg.id > lastMessageId && msg.sender === 'admin';
                     });
-                    
+
                     if (newMessages.length > 0) {
                         // 添加新消息到界面
                         newMessages.forEach(function(msg){
@@ -686,7 +686,7 @@ $conf['chat_window_color'] = '#FFFFFF';
                                 time+'</div>';
                             $('#chat-widget-messages').append(msgHtml);
                         });
-                        
+
                         $('#chat-widget-messages').scrollTop($('#chat-widget-messages')[0].scrollHeight);
                         lastMessageId = res.data[res.data.length - 1].id;
                     }
@@ -694,7 +694,7 @@ $conf['chat_window_color'] = '#FFFFFF';
             }, 'json');
         }, 3000);
     }
-    
+
     // 使用模拟数据初始化（当无法连接到后端时）
     function initWithMockData() {
         console.log('使用模拟数据初始化聊天');
@@ -702,14 +702,14 @@ $conf['chat_window_color'] = '#FFFFFF';
             '<span class="chat-msg-bubble">您好，欢迎使用在线客服，有什么可以帮助您的？</span>'+
             '<span class="chat-msg-time">'+new Date().toLocaleString('zh-CN', {month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})+'</span>'+
             '</div>';
-        
+
         $('#chat-widget-messages').html(mockHtml);
-        
+
         // 添加一个提示，说明当前使用模拟模式
         var tipsHtml = '<div class="text-center text-muted text-xs" style="margin-top:10px;">当前为离线模式，消息不会发送到客服</div>';
         $('#chat-widget-messages').append(tipsHtml);
     }
-    
+
     // Cookie操作辅助函数
     function setCookie(name, value, hours) {
         var expires = '';
@@ -720,7 +720,7 @@ $conf['chat_window_color'] = '#FFFFFF';
         }
         document.cookie = name + '=' + (value || '')  + expires + '; path=/';
     }
-    
+
     function getCookie(name) {
         var nameEQ = name + '=';
         var ca = document.cookie.split(';');
@@ -731,22 +731,22 @@ $conf['chat_window_color'] = '#FFFFFF';
         }
         return null;
     }
-    
+
     $(function(){
         // 初始化聊天会话
         initChatSession();
-        
+
         // 聚焦到输入框
         setTimeout(function() {
             $('#chat-widget-input [name=content]').focus();
         }, 350);
-        
+
         // 发送消息
         $('#chat-widget-input').submit(function(e){
             e.preventDefault();
             var content = $(this).find('[name=content]').val().trim();
             if(!content) return;
-              
+
             // 显示用户消息
             var userMsg = {
                 sender: 'user',
@@ -754,17 +754,17 @@ $conf['chat_window_color'] = '#FFFFFF';
                 content: content,
                 create_time: new Date().toLocaleString('zh-CN', {month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})
             };
-              
+
             var userHtml = '<div class="chat-msg-user">'+
                 '<span class="chat-msg-time">'+userMsg.create_time+'</span>'+
                 '<span class="chat-msg-bubble">'+userMsg.content+'</span>'+
                 '</div>';
             $('#chat-widget-messages').append(userHtml);
             $('#chat-widget-messages').scrollTop($('#chat-widget-messages')[0].scrollHeight);
-              
+
             // 清空输入框
             $('#chat-widget-input [name=content]').val('').focus();
-              
+
             // 发送消息到后端
             if (chatSessionId) {
                 sendMessage(content);
@@ -777,7 +777,7 @@ $conf['chat_window_color'] = '#FFFFFF';
                         content: '感谢您的咨询，我们的人工客服正在处理您的问题，请稍候...',
                         create_time: new Date().toLocaleString('zh-CN', {month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})
                     };
-                      
+
                     var adminHtml = '<div class="chat-msg-admin">'+
                         '<span class="chat-msg-bubble">'+adminMsg.content+'</span>'+
                         '<span class="chat-msg-time">'+adminMsg.create_time+'</span>'+
@@ -787,7 +787,7 @@ $conf['chat_window_color'] = '#FFFFFF';
                 }, 1500);
             }
         });
-        
+
         // 图片上传处理
         $('#chat-widget-upload').change(function(){
             if(this.files.length>0){
@@ -801,7 +801,7 @@ $conf['chat_window_color'] = '#FFFFFF';
                             '</div>';
                         $('#chat-widget-messages').append(imgHtml);
                         $('#chat-widget-messages').scrollTop($('#chat-widget-messages')[0].scrollHeight);
-                        
+
                         // 发送图片到服务器
                         sendImage(this.files[0]);
                     }.bind(this);
@@ -812,7 +812,7 @@ $conf['chat_window_color'] = '#FFFFFF';
                 $(this).val('');
             }
         });
-        
+
         // 回车发送
         $('#chat-widget-input [name=content]').keypress(function(e) {
             if(e.which == 13 && !e.shiftKey) {
@@ -820,29 +820,29 @@ $conf['chat_window_color'] = '#FFFFFF';
                 $('#chat-widget-input').submit();
             }
         });
-        
+
         // 快捷问题点击，直接填充输入框
         $(document).on('click', '.question-item', function() {
             var question = $(this).data('question');
             $('#chat-widget-input [name=content]').val(question).focus();
         });
-        
+
         // 快捷操作按钮点击，直接填充输入框
         $(document).on('click', '.action-btn', function() {
             var action = $(this).data('action');
             $('#chat-widget-input [name=content]').val(action).focus();
         });
-        
+
         // 静音按钮
         $('#chat-widget-controls .fa-volume-up').click(function() {
             $(this).toggleClass('fa-volume-up fa-volume-off');
         });
-        
+
         // 添加模拟消息函数
         function getMockChatMessages() {
             return [];
         }
-        
+
         // 初始渲染模拟消息
         renderChatMessages(getMockChatMessages());
     });

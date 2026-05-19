@@ -9,7 +9,6 @@ if($islogin2==1){}else exit("<script language='javascript'>window.location.href=
 
 unset($islogin2);
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <div class="wrapper">
   <div class="col-sm-12">
 <?php
@@ -251,7 +250,7 @@ echo '<tr>
 			<td>'.($price_obj->getToolDel($res['tid'])==1 || $res['close']==1?'<font color=red>已下架</font>':'<font color=green>上架中</font>').'</td>
 		</tr>';}
 ?>
-		          
+
           </tbody>
         </table>
 <?php
@@ -287,7 +286,7 @@ echo'</ul>';
 #分页
 }?></div>
 <div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span>
+<span class="fa fa-info-circle"></span>
 修改价格之后首页价格没变化？退出当前登录的账号后首页才能看到你设定的售价，否则看到的都是成本价。
 </div>
 </div>
@@ -308,7 +307,7 @@ echo'</ul>';
         <div class="alert alert-info">
           <strong>提示：</strong>商品价格为0或商品名带"免费"字样不参与运算
         </div>
-        
+
         <div class="form-group">
           <label for="operationType">操作类型：</label>
           <select class="form-control" id="operationType">
@@ -316,14 +315,14 @@ echo'</ul>';
             <option value="subtract">降价</option>
           </select>
         </div>
-        
+
         <div class="form-group">
           <label for="priceType">调整价格：</label>
           <select class="form-control" id="priceType">
             <option value="price">销售价格</option>
           </select>
         </div>
-        
+
         <div class="form-group">
           <label for="batchType">批量类型：</label>
           <select class="form-control" id="batchType">
@@ -331,12 +330,12 @@ echo'</ul>';
             <option value="percent">百分比</option>
           </select>
         </div>
-        
+
         <div class="form-group">
           <label for="modifyValue">修改值：</label>
           <input type="text" class="form-control" id="modifyValue" placeholder="填写百分比或固定值">
         </div>
-        
+
         <div class="form-group">
           <label for="goodsCategory">所属分类：</label>
           <select class="form-control" id="goodsCategory" multiple="multiple" size="5">
@@ -344,12 +343,12 @@ echo'</ul>';
             <?php echo $select; ?>
           </select>
         </div>
-        
+
         <div class="form-group">
           <label for="goodsName">商品名称：</label>
           <input type="text" class="form-control" id="goodsName" placeholder="填写商品名的关键词，留空则为全部商品">
         </div>
-        
+
         <div class="form-group">
           <label for="goodsStatus">商品状态：</label>
           <select class="form-control" id="goodsStatus">
@@ -381,7 +380,7 @@ echo'</ul>';
         <div class="alert alert-info">
           <strong>提示：</strong>恢复价格将清除所有自定义价格设定，恢复到最初状态
         </div>
-        
+
         <div class="form-group">
           <label for="resetGoodsCategory">所属分类</label>
           <select class="form-control" id="resetGoodsCategory">
@@ -389,12 +388,12 @@ echo'</ul>';
             <?php echo $select; ?>
           </select>
         </div>
-        
+
         <div class="form-group">
           <label for="resetGoodsName">商品名称</label>
           <input type="text" class="form-control" id="resetGoodsName" placeholder="输入商品名称关键词，留空则为全部商品">
         </div>
-        
+
         <div class="form-group">
           <label for="resetGoodsStatus">商品状态</label>
           <select class="form-control" id="resetGoodsStatus">
@@ -466,14 +465,14 @@ function resetPrice() {
     var goodsCategory = $('#resetGoodsCategory').val();
     var goodsName = $('#resetGoodsName').val();
     var goodsStatus = $('#resetGoodsStatus').val();
-    
+
     // 确认操作
     layer.confirm('确定要恢复符合条件的商品价格吗？', {icon: 3, title: '确认'}, function(index) {
         layer.close(index);
-        
+
         // 显示加载层
         var loadingIndex = layer.load(1, {shade: [0.1,'#fff']});
-        
+
         // 发送AJAX请求
         $.ajax({
             type: "post",
@@ -486,7 +485,7 @@ function resetPrice() {
             dataType: "json",
             success: function(data) {
                 layer.close(loadingIndex);
-                
+
                 if (data.code == 0) {
                     layer.alert(data.msg, {icon: 1}, function() {
                         window.location.reload();
@@ -509,7 +508,7 @@ function up_price(cid){
     if(urlParams.has('kw')){
         kw = urlParams.get('kw');
     }
-    
+
     layer.prompt({title: '价格提升百分比 例如5 最好不要超过10', formType: 0}, function(text, index){
 	layer.close(index);
 	$.ajax({
@@ -541,35 +540,35 @@ function batchUpdatePrice() {
     var goodsCategory = $('#goodsCategory').val();
     var goodsName = $('#goodsName').val();
     var goodsStatus = $('#goodsStatus').val();
-    
+
     // 处理多选分类值，转换为逗号分隔的字符串
     if (Array.isArray(goodsCategory)) {
         goodsCategory = goodsCategory.join(',');
     }
-    
+
     // 验证输入
     if (!modifyValue) {
         layer.alert('请填写修改值', {icon: 5});
         return;
     }
-    
+
     if (batchType == 'percent' && (isNaN(modifyValue) || parseFloat(modifyValue) <= 0)) {
         layer.alert('百分比必须为正数', {icon: 5});
         return;
     }
-    
+
     if (batchType == 'fixed' && isNaN(modifyValue)) {
         layer.alert('固定值必须为数字', {icon: 5});
         return;
     }
-    
+
     // 确认修改
     layer.confirm('确定要执行批量价格修改吗？', {icon: 3, title: '确认'}, function(index) {
         layer.close(index);
-        
+
         // 显示加载层
         var loadingIndex = layer.load(1, {shade: [0.1,'#fff']});
-        
+
         // 发送AJAX请求
         $.ajax({
             type: "post",
@@ -586,7 +585,7 @@ function batchUpdatePrice() {
             dataType: "json",
             success: function(data) {
                 layer.close(loadingIndex);
-                
+
                 if (data.code == 0) {
                     layer.alert(data.msg, {icon: 1}, function() {
                         window.location.reload();
@@ -611,10 +610,10 @@ function restoreLastPrice() {
         btn: ['确定', '取消']
     }, function(index) {
         layer.close(index);
-        
+
         // 显示加载层
         var loadingIndex = layer.load(1, {shade: [0.1,'#fff']});
-        
+
         // 发送AJAX请求
         $.ajax({
             type: "post",
@@ -622,7 +621,7 @@ function restoreLastPrice() {
             dataType: "json",
             success: function(data) {
                 layer.close(loadingIndex);
-                
+
                 if (data.code == 0) {
                     layer.alert(data.msg, {icon: 1}, function() {
                         window.location.reload();
@@ -643,7 +642,7 @@ function restoreLastPrice() {
 function showPriceHistory() {
     // 显示历史记录模态框
     $('#priceHistoryModal').modal('show');
-    
+
     // 加载历史记录
     loadHistoryList();
 }
@@ -651,10 +650,10 @@ function showPriceHistory() {
 // 加载历史记录列表
 function loadHistoryList(page) {
     page = page || 1;
-    
+
     // 显示加载提示
     $('#historyList').html('<div class="text-center"><i class="fa fa-spinner fa-spin"></i> 加载中...</div>');
-    
+
     // 发送AJAX请求
     $.ajax({
         type: "post",
@@ -679,12 +678,12 @@ function loadHistoryList(page) {
 // 渲染历史记录列表
 function renderHistoryList(data) {
     var html = '';
-    
+
     if (data.data.length > 0) {
         html += '<table class="table table-striped b-t b-light">';
         html += '<thead><tr><th>操作描述</th><th>修改时间</th><th>涉及商品数量</th><th>操作</th></tr></thead>';
         html += '<tbody>';
-        
+
         $.each(data.data, function(index, item) {
             html += '<tr>';
             html += '<td>' + item.description + '</td>';
@@ -693,23 +692,23 @@ function renderHistoryList(data) {
             html += '<td><button class="btn btn-primary btn-xs" onclick="restoreFromHistory(' + item.id + ')">恢复此版本</button></td>';
             html += '</tr>';
         });
-        
+
         html += '</tbody>';
         html += '</table>';
-        
+
         // 分页
         var totalPages = Math.ceil(data.total / data.pagesize);
         if (totalPages > 1) {
             html += '<nav aria-label="Page navigation" style="margin-top: 15px;">';
             html += '<ul class="pagination pagination-sm">';
-            
+
             // 上一页
             if (data.page > 1) {
                 html += '<li><a href="javascript:void(0)" onclick="loadHistoryList(' + (data.page - 1) + ')">&laquo;</a></li>';
             } else {
                 html += '<li class="disabled"><a href="javascript:void(0)">&laquo;</a></li>';
             }
-            
+
             // 页码
             for (var i = 1; i <= totalPages; i++) {
                 if (i == data.page) {
@@ -718,21 +717,21 @@ function renderHistoryList(data) {
                     html += '<li><a href="javascript:void(0)" onclick="loadHistoryList(' + i + ')">' + i + '</a></li>';
                 }
             }
-            
+
             // 下一页
             if (data.page < totalPages) {
                 html += '<li><a href="javascript:void(0)" onclick="loadHistoryList(' + (data.page + 1) + ')">&raquo;</a></li>';
             } else {
                 html += '<li class="disabled"><a href="javascript:void(0)">&raquo;</a></li>';
             }
-            
+
             html += '</ul>';
             html += '</nav>';
         }
     } else {
         html += '<div class="alert alert-info text-center">暂无价格修改历史记录</div>';
     }
-    
+
     $('#historyList').html(html);
 }
 
@@ -744,10 +743,10 @@ function restoreFromHistory(id) {
         btn: ['确定', '取消']
     }, function(index) {
         layer.close(index);
-        
+
         // 显示加载层
         var loadingIndex = layer.load(1, {shade: [0.1,'#fff']});
-        
+
         // 发送AJAX请求
         $.ajax({
             type: "post",
@@ -758,7 +757,7 @@ function restoreFromHistory(id) {
             dataType: "json",
             success: function(data) {
                 layer.close(loadingIndex);
-                
+
                 if (data.code == 0) {
                     layer.alert(data.msg, {icon: 1}, function() {
                         // 关闭历史记录模态框

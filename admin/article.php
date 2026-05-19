@@ -1,5 +1,5 @@
 <?php
-// 文章管理页面 - 教主 zhonguo.ren
+// 文章管理页面 - 岁岁 @qqfaka zhonguo.ren
 // 功能：文章的添加、编辑、删除和列表展示
 // 安全措施：使用PDO预处理语句防止SQL注入，使用daddslashes函数过滤用户输入
 
@@ -12,7 +12,7 @@ if ($islogin == 1) {
 }
 ?>
 <div class="col-sm-12 col-md-10 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("article", 1);
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 if ($my == "add") {
@@ -68,7 +68,7 @@ if ($my == "add") {
 				});
         });
 </script>
-<?php 
+<?php
 } elseif ($my == "edit") {
 	$id = intval($_GET["id"]);
 	$row = $DB->getRow("select * from " . DBQZ . "article where id=:id limit 1", array(':id' => $id));
@@ -130,7 +130,7 @@ for (i = 0; i < items.length; i++) {
 				});
         });
 </script>
-<?php 
+<?php
 } elseif ($my == "add_submit") {
 	// 直接创建表，不使用异常捕获，确保表一定存在
 	$createTableSql = "CREATE TABLE IF NOT EXISTS " . DBQZ . "article (
@@ -146,7 +146,7 @@ for (i = 0; i < items.length; i++) {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	)";
 	$DB->exec($createTableSql);
-	
+
 	$title = daddslashes($_POST["title"]);
 	$keywords = daddslashes($_POST["keywords"]);
 	$description = daddslashes($_POST["description"]);
@@ -183,7 +183,7 @@ for (i = 0; i < items.length; i++) {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	)";
 	$DB->exec($createTableSql);
-	
+
 	$id = intval($_GET["id"]);
 	$rows = $DB->getRow("select * from " . DBQZ . "article where id=:id limit 1", array(':id' => $id));
 	if (!$rows) {
@@ -221,7 +221,7 @@ for (i = 0; i < items.length; i++) {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	)";
 	$DB->exec($createTableSql);
-	
+
 	$id = intval($_GET["id"]);
 	$sql = "DELETE FROM " . DBQZ . "article WHERE id=:id";
 	if ($DB->exec($sql, array(':id' => $id)) !== false) {
@@ -244,7 +244,7 @@ for (i = 0; i < items.length; i++) {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	)";
 	$DB->exec($createTableSql);
-	
+
 	if (isset($_GET["kw"])) {
 		$kw = trim(daddslashes($_GET["kw"]));
 		$numrows = $DB->getColumn("SELECT count(*) from " . DBQZ . "article where title LIKE :title", array(':title' => '%' . $kw . '%'));
@@ -255,7 +255,7 @@ for (i = 0; i < items.length; i++) {
 		$numrows = $DB->getColumn("SELECT count(*) from " . DBQZ . "article");
 		$con = "系统共有 <b>" . $numrows . "</b> 个文章";
 	}
-	
+
 	// 调试信息
 
 echo "<!-- 调试: 数据库前缀=" . DBQZ . ", 文章总数=" . $numrows . " -->";
@@ -275,7 +275,7 @@ echo "<!-- 调试: 数据库前缀=" . DBQZ . ", 文章总数=" . $numrows . " -
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>文章标题</th><th>发布时间</th><th>浏览量</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -285,14 +285,14 @@ $offset = $pagesize * ($page - 1);
 try {
     // 首先检查表是否存在
     $DB->getColumn("SELECT count(*) FROM " . DBQZ . "article");
-    
+
     // 表存在，查询数据
     $has_data = false;
     try {
         $pagesize = 30;
         $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
         $offset = $pagesize * ($page - 1);
-        
+
         // 使用直接的SQL查询，避免复杂的参数绑定
         if($kw){
             $kw_escaped = addslashes($kw);
@@ -300,10 +300,10 @@ try {
         } else {
             $sql = "SELECT * FROM " . DBQZ . "article ORDER BY id DESC LIMIT {$offset}, {$pagesize}";
         }
-        
+
         // 执行查询
         $rows = $DB->query($sql);
-        
+
         // 检查是否有数据
         while ($row = $rows->fetch()) {
             $has_data = true;
@@ -312,7 +312,7 @@ try {
             $addtime = $row['addtime'];
             $count = $row['count'] ?? 0;
             $active = $row['active'];
-            
+
             // 输出表格行
             echo "<tr>";
             echo "<td><b>{$id}</b></td>";
@@ -323,7 +323,7 @@ try {
             echo "<td><a class=\"btn btn-xs btn-success\" href=\"../?mod=article&id={$id}\" target=\"_blank\">查看</a>&nbsp;<a href=\"./article.php?my=edit&id={$id}\" class=\"btn btn-info btn-xs\">编辑</a>&nbsp;<a href=\"./article.php?my=delete&id={$id}\" class=\"btn btn-xs btn-danger\" onclick=\"return confirm('你确实要删除此记录吗？');\">删除</a></td>";
             echo "</tr>";
         }
-        
+
         // 如果没有数据，显示提示
         if (!$has_data) {
             echo "<tr><td colspan=6 class=\"text-center text-warning\">暂无文章数据，请点击'添加文章'按钮添加</td></tr>";
@@ -349,7 +349,7 @@ try {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )";
         $DB->exec($createTableSql);
-        
+
         // 插入示例数据
         $sampleData = [
             [
@@ -369,7 +369,7 @@ try {
                 'addtime' => date('Y-m-d')
             ]
         ];
-        
+
         foreach ($sampleData as $data) {
             $sql = "INSERT INTO " . DBQZ . "article (title, keywords, description, content, top, addtime, active) VALUES (:title, :keywords, :description, :content, :top, :addtime, '1')";
             $DB->exec($sql, [
@@ -381,14 +381,14 @@ try {
                 ':addtime' => $data['addtime']
             ]);
         }
-        
+
         // 重新查询数据
         if($kw){
             $reslist = $DB->query("SELECT * FROM " . DBQZ . "article WHERE title LIKE :title order by id desc limit :offset,:pagesize", array(':title' => '%' . $kw . '%', ':offset' => $offset, ':pagesize' => $pagesize))->fetchAll();
         } else {
             $reslist = $DB->query("SELECT * FROM " . DBQZ . "article WHERE 1=1 order by id desc limit :offset,:pagesize", array(':offset' => $offset, ':pagesize' => $pagesize))->fetchAll();
         }
-        
+
         // 显示示例数据
         $has_data = false;
         if (is_array($reslist) && count($reslist) > 0) {
@@ -409,7 +409,7 @@ try {
           </tbody>
         </table>
       </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 	$first = 1;
 	$prev = $page - 1;
 	$next = $page + 1;
@@ -437,7 +437,7 @@ try {
 		echo "<li class=\"disabled\"><a>&raquo;</a></li>";
 		echo "<li class=\"disabled\"><a>尾页</a></li>";
 	}
-	?></ul><?php 
+	?></ul><?php
 }
 ?>
 </div>

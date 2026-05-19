@@ -60,7 +60,7 @@ a:hover{
                         <div class="account-title">找　回　密　码</div>
                         <div class="form-group" style="text-align: center;">
                                 <br/><span id="loginmsg" style="font-weight: bold;">请使用QQ手机版扫描二维码</span><span id="loginload" style="padding-left: 10px;color: #790909;">.</span><br/><br/>
-                            
+
                             <div id="qrimg">
                             </div><br>
                             <div class="list-group-item" id="mobile" style="display:none;"><button type="button" id="mlogin" onclick="mloginurl()" class="btn btn-warning btn-block">跳转QQ快捷登录</button><br/><button type="button" onclick="qrlogin()" class="btn btn-success btn-block">我已完成登录</button></div>
@@ -71,7 +71,7 @@ a:hover{
                     <br/>
                 </div>
             </div>
-        </form>    
+        </form>
     </div>
     <div class="fui-navbar" style="z-index: 100000;max-width: 650px;">
         <a href="../" class="nav-item  "> <span class="icon icon-home"></span> <span class="label">首页</span> </a>

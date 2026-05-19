@@ -30,7 +30,7 @@ if ($conf['alipay_api']!=5 && $conf['qqpay_api']!=5 && $conf['wxpay_api']!=5) {
 
     //支付宝交易号
     $trade_no = daddslashes($_POST['pay_no']);
-    
+
     //实付金额
     $total_amount = isset($_POST['money']) ? floatval($_POST['money']) : 0;
 

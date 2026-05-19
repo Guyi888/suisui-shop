@@ -9,7 +9,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-md-12 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("shop", 1);
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 order by sort asc");
@@ -90,7 +90,7 @@ if ($my == "add") {
 </div>
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/seckilledit.js?ver=<?php echo VERSION;?>"></script>
-<?php 
+<?php
 } elseif ($my == "edit") {
 	$id = $_GET["id"];
 	$row = $DB->getRow("select * from pre_seckillshop where id='" . $id . "' limit 1");
@@ -172,7 +172,7 @@ if ($my == "add") {
 </div>
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/seckilledit.js?ver=<?php echo VERSION;?>"></script>
-<?php 
+<?php
 } elseif ($my == "add_submit") {
 	$tid = intval($_POST["tid"]);
 	$price = $_POST["price"];
@@ -240,7 +240,7 @@ if ($my == "add") {
 </div>
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/seckill.js?ver=<?php echo VERSION;?>"></script>
-<?php 
+<?php
 }
 ?></body>
 </html>

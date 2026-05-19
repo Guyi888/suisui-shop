@@ -18,7 +18,7 @@ class third_kakayun_new{
 		'pricejk'     => 1,
 		'batchgoods'  => true,
 		'input' => [
-			'url' => '网站域名',
+			'url' => 'API地址',
 			'username' => '用户ID',
 			'password' => '对接密钥',
 			'paypwd' => false,
@@ -31,7 +31,16 @@ class third_kakayun_new{
 		$this->config = $config;
 	}
 
-	private $api_base = 'http://public.kky.v3.api.kakayun.vip';
+	private function getApiBase() {
+		if (!empty($this->config['url'])) {
+			$url = $this->config['url'];
+			if (!preg_match('/^https?:\/\//', $url)) {
+				$url = 'http://' . $url;
+			}
+			return rtrim($url, '/');
+		}
+		return 'http://public.kky.v3.api.kakayun.vip';
+	}
 
 	private function getSign($param, $token) {
 		ksort($param);
@@ -55,8 +64,8 @@ class third_kakayun_new{
 	}
 
 	private function httpRequest($path, $data) {
-		$url = $this->api_base . $path;
-		
+		$url = $this->getApiBase() . $path;
+
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
@@ -69,10 +78,10 @@ class third_kakayun_new{
 		curl_setopt($ch, CURLOPT_HTTPHEADER, [
 			'Content-Type: application/json;charset=utf-8'
 		]);
-		
+
 		$result = curl_exec($ch);
 		curl_close($ch);
-		
+
 		return $result;
 	}
 
@@ -84,10 +93,10 @@ class third_kakayun_new{
 			'limit' => 50
 		];
 		$param['sign'] = $this->getSign($param, $this->config['password']);
-		
+
 		$data = $this->httpRequest('/dockapiv3/goods/all', $param);
 		$json = json_decode($data, true);
-		
+
 		if (isset($json['code']) && $json['code'] == 1 && isset($json['data'])) {
 			$list = [];
 			if (is_array($json['data'])) {
@@ -122,12 +131,12 @@ class third_kakayun_new{
 			'goodsid' => (string)$goods_id
 		];
 		$param['sign'] = $this->getSign($param, $this->config['password']);
-		
-		$data = $this->httpRequest('/dockapiv3/goods/all', $param);
+
+		$data = $this->httpRequest('/dockapiv3/goods/detail', $param);
 		$json = json_decode($data, true);
-		
-		if (isset($json['code']) && $json['code'] == 1 && isset($json['data'][0])) {
-			$row = $json['data'][0];
+
+		if (isset($json['code']) && $json['code'] == 1 && isset($json['data'])) {
+			$row = $json['data'];
 			return [
 				'id' => $row['goodsid'],
 				'name' => $row['goodsname'],
@@ -146,27 +155,96 @@ class third_kakayun_new{
 		}
 	}
 
-	public function do_goods($goods_id, $buy_num, $out_order_no, $price, $buyer, $remark = '') {
+	public function do_goods($goods_id, $goods_type, $goods_param, $buy_num, $buyer, $price = 0, $out_order_no = '', $remark = '') {
+		if ($buy_num <= 0) {
+			return [
+				'code' => -1,
+				'message' => '下单失败: 购买数量必须大于0'
+			];
+		}
+
 		$param = [
 			'userid' => $this->config['username'],
 			'timestamp' => time(),
 			'goodsid' => (string)$goods_id,
-			'buynum' => (int)$buy_num,
-			'outorderno' => $out_order_no,
-			'attach' => $buyer
+			'buynum' => (int)$buy_num
 		];
+
+		if (!empty($out_order_no)) {
+			$param['usorderno'] = $out_order_no;
+		}
+
+		if (is_array($buyer)) {
+			$buyer = trim($buyer[0] ?? '');
+		}
+		$buyer = trim((string)$buyer);
+
+		if (!empty($buyer) && $buyer !== '0' && $buyer !== '1') {
+			$param['attach'] = $buyer;
+		}
+
 		$param['sign'] = $this->getSign($param, $this->config['password']);
-		
+
 		$data = $this->httpRequest('/dockapiv3/order/create', $param);
-		$json = json_decode($data, true);
-		
-		if (isset($json['code']) && $json['code'] == 1 && isset($json['data'])) {
+
+		if (empty($data)) {
 			return [
-				'status' => 'ok',
-				'order' => $json['data']['orderid']
+				'code' => -1,
+				'message' => '下单失败: 接口返回为空'
 			];
+		}
+
+		$json = json_decode($data, true);
+
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			return [
+				'code' => -1,
+				'message' => '下单失败: 接口返回非JSON格式,原始数据: ' . substr($data, 0, 200)
+			];
+		}
+
+		if (isset($json['code']) && $json['code'] == 1 && isset($json['data'])) {
+			$orderno = $json['data']['orderno'];
+			$result = [
+				'code' => 0,
+				'id' => $orderno
+			];
+
+			if (!empty($json['data']['cardlist']) || !empty($json['data']['cards'])) {
+				$result['faka'] = true;
+				$result['kmdata'] = [];
+
+				if (!empty($json['data']['cards']) && is_array($json['data']['cards'])) {
+					foreach ($json['data']['cards'] as $card) {
+						$result['kmdata'][] = [
+							'card' => $card['card_no'] ?? '',
+							'pass' => $card['card_pwd'] ?? ''
+						];
+					}
+				} elseif (!empty($json['data']['cardlist']) && is_array($json['data']['cardlist'])) {
+					foreach ($json['data']['cardlist'] as $card) {
+						$result['kmdata'][] = [
+							'card' => $card,
+							'pass' => ''
+						];
+					}
+				}
+			} else {
+				usleep(500000);
+
+				$query_result = $this->query_order($orderno);
+				if (is_array($query_result) && (!empty($query_result['faka']) || !empty($query_result['kmdata']))) {
+					$result['faka'] = true;
+					$result['kmdata'] = $query_result['kmdata'] ?? [];
+				}
+			}
+
+			return $result;
 		} else {
-			return '下单失败: ' . ($json['msg'] ?? '未知错误');
+			return [
+				'code' => -1,
+				'message' => '下单失败: ' . ($json['msg'] ?? '未知错误,原始数据: ' . substr($data, 0, 200))
+			];
 		}
 	}
 
@@ -174,25 +252,57 @@ class third_kakayun_new{
 		$param = [
 			'userid' => $this->config['username'],
 			'timestamp' => time(),
-			'orderid' => $order_id
+			'orderno' => $order_id
 		];
 		$param['sign'] = $this->getSign($param, $this->config['password']);
-		
-		$data = $this->httpRequest('/dockapiv3/order/query', $param);
+
+		$data = $this->httpRequest('/dockapiv3/order/get', $param);
 		$json = json_decode($data, true);
-		
+
 		if (isset($json['code']) && $json['code'] == 1 && isset($json['data'])) {
 			$row = $json['data'];
-			switch ($row['orderstatus']) {
-				case 0: $status = '处理中'; break;
-				case 1: $status = '成功'; break;
-				case 2: $status = '失败'; break;
+			switch ($row['status']) {
+				case 2: $status = '未付款'; break;
+				case 3: $status = '进行中'; break;
+				case 4: $status = '失败'; break;
+				case 5: $status = '成功'; break;
 				default: $status = '未知'; break;
 			}
+
+			$result = '';
+			if (!empty($row['receipt'])) {
+				$result = $row['receipt'];
+			} elseif (!empty($row['cardlist']) && is_array($row['cardlist'])) {
+				foreach ($row['cardlist'] as $card) {
+					$result .= $card . '<br/>';
+				}
+			} elseif (!empty($row['cards']) && is_array($row['cards'])) {
+				foreach ($row['cards'] as $card) {
+					if (!empty($card['card_no'])) {
+						$result .= '卡号：' . $card['card_no'];
+						if (!empty($card['card_pwd'])) {
+							$result .= ' 密码：' . $card['card_pwd'];
+						}
+						if (!empty($card['card_denomination'])) {
+							$result .= ' 面额：' . $card['card_denomination'];
+						}
+						$result .= '<br/>';
+					}
+				}
+			}
+
 			return [
-				'status' => $status,
-				'order' => $order_id,
-				'result' => $row['attach'] ?? ''
+				'order_state' => $status,
+				'订单状态' => $status,
+				'order' => $row['orderno'],
+				'result' => $result,
+				'faka' => !empty($row['cardlist']) || !empty($row['cards']),
+				'kmdata' => !empty($row['cards']) ? array_map(function($card) {
+					return [
+						'card' => $card['card_no'] ?? '',
+						'pass' => $card['card_pwd'] ?? ''
+					];
+				}, $row['cards']) : []
 			];
 		} else {
 			return '查询订单失败: ' . ($json['msg'] ?? '未知错误');
@@ -211,10 +321,10 @@ class third_kakayun_new{
 			'limit' => 50
 		];
 		$param['sign'] = $this->getSign($param, $this->config['password']);
-		
+
 		$data = $this->httpRequest('/dockapiv3/goods/all', $param);
 		$json = json_decode($data, true);
-		
+
 		if (isset($json['code']) && $json['code'] == 1 && isset($json['data'])) {
 			$goods = [];
 			foreach ($json['data'] as $row) {
@@ -242,7 +352,7 @@ class third_kakayun_new{
 	// 缓存和频率限制
 	private static $cache = [];
 	private static $lastRequestTime = [];
-	
+
 	// 检查请求频率
 	private function checkRequestRate($key, $minInterval) {
 		$now = time();
@@ -252,7 +362,7 @@ class third_kakayun_new{
 		self::$lastRequestTime[$key] = $now;
 		return true;
 	}
-	
+
 	// 获取缓存数据
 	private function getCache($key, $expire = 300) {
 		if (isset(self::$cache[$key]) && (time() - self::$cache[$key]['time']) < $expire) {
@@ -260,7 +370,7 @@ class third_kakayun_new{
 		}
 		return false;
 	}
-	
+
 	// 设置缓存数据
 	private function setCache($key, $data) {
 		self::$cache[$key] = [
@@ -276,21 +386,21 @@ class third_kakayun_new{
 		if ($cachedData) {
 			return $cachedData;
 		}
-		
+
 		// 检查请求频率（2秒1次）
 		if (!$this->checkRequestRate('group', 2)) {
 			return '获取分类列表失败: 请求过于频繁，请稍后重试';
 		}
-		
+
 		$param = [
 			'userid' => $this->config['username'],
 			'timestamp' => time()
 		];
 		$param['sign'] = $this->getSign($param, $this->config['password']);
-		
+
 		$data = $this->httpRequest('/dockapiv3/goods/group', $param);
 		$json = json_decode($data, true);
-		
+
 		if (isset($json['code']) && $json['code'] == 1 && isset($json['data'])) {
 			$categories = [];
 			foreach ($json['data'] as $row) {
@@ -299,7 +409,7 @@ class third_kakayun_new{
 					'name' => $row['groupname']
 				];
 			}
-			
+
 			// 设置缓存
 			$this->setCache($cacheKey, $categories);
 			return $categories;
@@ -315,7 +425,7 @@ class third_kakayun_new{
 		if (!$this->checkRequestRate('goods', 5)) {
 			return '获取商品列表失败: 请求过于频繁，请稍后重试';
 		}
-		
+
 		$param = [
 			'userid' => $this->config['username'],
 			'timestamp' => time(),
@@ -324,14 +434,14 @@ class third_kakayun_new{
 			'groupid' => $cid
 		];
 		$param['sign'] = $this->getSign($param, $this->config['password']);
-		
+
 		$data = $this->httpRequest('/dockapiv3/goods/all', $param);
 		$json = json_decode($data, true);
-		
+
 		if (isset($json['code']) && $json['code'] == 1 && isset($json['data'])) {
 			$list = [];
 			$categoryName = '';
-			
+
 			foreach ($json['data'] as $row) {
 				$list[] = [
 					'tid' => $row['goodsid'],
@@ -357,7 +467,7 @@ class third_kakayun_new{
 					'original_cname' => $row['groupname'] ?? '未分类'
 				];
 			}
-			
+
 			return $list;
 		} elseif (isset($json['msg'])) {
 			return '获取商品列表失败: ' . $json['msg'];

@@ -9,7 +9,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-sm-12 col-md-10 col-lg-8 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("super", 1);
 if (isset($_POST["submit"])) {
 	$url = trim($_POST["url"]);
@@ -105,7 +105,7 @@ if (isset($_POST["submit"])) {
 		  <input type="hidden" name="url" value="<?php echo $url;?>">
 		  <input type="hidden" name="key" value="<?php echo $key;?>">
 		  <input type="hidden" name="type" value="1">
-		  <?php 
+		  <?php
 				foreach ($arr["class"] as $row) {
 					?>		  <a class="panel-title" data-toggle="collapse" data-parent="#class" href="#class<?php echo $row["cid"];?>"><div class="list-group-item list-group-item-success">
 		  <span class="pull-right"><i class="fa fa-chevron-down"></i></span><?php echo $row["name"];?></div></a>
@@ -113,7 +113,7 @@ if (isset($_POST["submit"])) {
 			<table class="table table-bordered" style="table-layout: fixed;">
 			<tbody>
 			<tr><td><label class="csscheckbox csscheckbox-primary">全选<input type="checkbox" onclick="SelectAll(<?php echo $row["cid"];?>,this)"><span></span></label>&nbsp;ID</td><td>商品名称</td><td>状态</td></tr>
-			<?php 
+			<?php
 					foreach ($arr["tools"] as $rows) {
 						if ($row["cid"] == $rows["cid"]) {
 							echo "<tr><td><label class=\"csscheckbox csscheckbox-primary\"><input name=\"tid[]\" type=\"checkbox\" class=\"class" . $rows["cid"] . "\" id=\"tid\" value=\"" . $rows["tid"] . "\"><span></span>&nbsp;" . $rows["tid"] . "<label></label></label></td><td>" . $rows["name"] . "</td><td>" . ($rows["close"] == 1 ? "<span class=\"btn btn-xs btn-warning\">已下架</span>" : "<span class=\"btn btn-xs btn-success\">上架中</span>") . "&nbsp;" . ($rows["active"] == 1 ? "<span class=\"btn btn-xs btn-success\">显示</span>" : "<span class=\"btn btn-xs btn-warning\">隐藏</span>") . "</td></tr>";
@@ -122,13 +122,13 @@ if (isset($_POST["submit"])) {
 					?>			</tbody>
 			</table>
 		</div>
-		  <?php 
+		  <?php
 				}
 				?>            <p><input type="submit" name="submit" value="确定克隆" class="btn btn-primary form-control"/></p>
           </form>
         </div>
       </div>
-<?php 
+<?php
 			}
 		} else {
 			$DB->exec("TRUNCATE TABLE `pre_class`");
@@ -193,10 +193,10 @@ if (isset($_POST["submit"])) {
           </form>
         </div>
 		<div class="panel-footer">
-          <span class="glyphicon glyphicon-info-sign"></span> 本站克隆密钥<a href="./set.php?mod=cloneset">点此获取</a>
+          <span class="fa fa-info-circle"></span> 本站克隆密钥<a href="./set.php?mod=cloneset">点此获取</a>
         </div>
       </div>
-<?php 
+<?php
 }
 ?>    </div>
   </div>

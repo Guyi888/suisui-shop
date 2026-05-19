@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-md-12 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("shop", 1);
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 order by sort asc");
@@ -62,7 +62,7 @@ if ($my == "add") {
   <br/><a href="./invite.php">>>返回商品列表</a>
 </div>
 <div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span>奖励条件说明：<br/>
+<span class="fa fa-info-circle"></span>奖励条件说明：<br/>
 【下单金额】被推广用户打开链接下单达到该金额值，推广用户获得该商品奖励<br/>
 【累计访问】打开推广链接的IP数量达到该数值，推广用户获得该商品奖励<br/><br/>
 奖励次数说明：<br/>
@@ -73,7 +73,7 @@ if ($my == "add") {
 </div>
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/inviteedit.js?ver=<?php echo VERSION;?>"></script>
-<?php 
+<?php
 } elseif ($my == "edit") {
 	$id = $_GET["id"];
 	$row = $DB->getRow("select * from pre_inviteshop where id='" . $id . "' limit 1");
@@ -122,7 +122,7 @@ if ($my == "add") {
   <br/><a href="./invite.php">>>返回商品列表</a>
 </div>
 <div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span>奖励条件说明：<br/>
+<span class="fa fa-info-circle"></span>奖励条件说明：<br/>
 【下单金额】被推广用户打开链接下单达到该金额值，推广用户获得该商品奖励<br/>
 【累计访问】打开推广链接的IP数量达到该数值，推广用户获得该商品奖励<br/><br/>
 奖励次数说明：<br/>
@@ -133,7 +133,7 @@ if ($my == "add") {
 </div>
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/inviteedit.js?ver=<?php echo VERSION;?>"></script>
-<?php 
+<?php
 } elseif ($my == "add_submit") {
 	$tid = intval($_POST["tid"]);
 	$type = intval($_POST["type"]);
@@ -189,7 +189,7 @@ if ($my == "add") {
 </div>
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/invite.js?ver=<?php echo VERSION;?>"></script>
-<?php 
+<?php
 }
 ?></body>
 </html>

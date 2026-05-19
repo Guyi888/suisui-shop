@@ -170,12 +170,12 @@ include './head.php';
     --login-bg-light: rgba(255, 255, 255, 0.95);
     --login-bg-dark: rgba(20, 20, 30, 0.95);
   }
-  
+
   /* 移除原有的背景图片和样式，使用3D效果的背景 */
   .admin-bg-img {
     display: none;
   }
-  
+
   /* 修改body样式以支持3D效果 */
   body.login-page {
     background: #f5f7fa;
@@ -188,7 +188,7 @@ include './head.php';
     min-height: 100vh;
     overflow: hidden;
   }
-  
+
   /* 3D跳转效果的关键样式 */
   ::view-transition-new(body),
   ::view-transition-old(body) {
@@ -249,7 +249,7 @@ include './head.php';
         translate3d(0, 0, calc(50vw * var(--depth-end)));
     }
   }
-  
+
   /* 3D背景效果 - 使用实际div替代伪元素 */
   .bg-layer {
     position: absolute;
@@ -268,12 +268,12 @@ include './head.php';
     background-image: url('https://assets.codepen.io/605876/clouds.svg');
     filter: brightness(1.2) saturate(1.1);
   }
-  
+
   .bg-layer.stars {
     background-image: url('https://assets.codepen.io/605876/stars.svg');
     filter: brightness(1.5) saturate(1.2);
   }
-  
+
   /* 背景浮动动画 */
   @keyframes float {
     0%, 100% {
@@ -293,7 +293,7 @@ include './head.php';
       transform: scale(1.02);
     }
   }
-  
+
   /* 确保登录表单区域在3D背景上方 */
   .container-fluid {
     position: relative;
@@ -301,14 +301,14 @@ include './head.php';
     background: transparent;
     padding: 2rem 0;
   }
-  
+
   /* 登录卡片增强样式 */
   .login-container {
     transition: all 0.6s var(--ease);
     transform-style: preserve-3d;
     perspective: 1000px;
   }
-  
+
   .login-form-section {
     backdrop-filter: blur(10px);
     border-radius: 16px;
@@ -317,13 +317,13 @@ include './head.php';
     transition: all 0.4s ease;
     background: var(--login-bg-light);
   }
-  
+
   @media (prefers-color-scheme: dark) {
     .login-form-section {
       background: var(--login-bg-dark);
     }
   }
-  
+
   /* 输入框动画效果 */
   .form-control {
     position: relative;
@@ -333,19 +333,19 @@ include './head.php';
     border: 1px solid rgba(200, 200, 220, 0.5);
     padding: 12px 16px;
   }
-  
+
   .form-control:focus {
     box-shadow: 0 0 0 3px rgba(100, 149, 237, 0.3);
     transform: translateY(-1px);
     border-color: #6495ed;
   }
-  
+
   /* 移除了旧的#loginButton样式，现在使用通用的button样式 */
-  
+
   @keyframes spin {
     to { transform: translate(-50%, -50%) rotate(360deg); }
   }
-  
+
   /* 登录标题动画 */
   .login-title {
     position: relative;
@@ -355,7 +355,7 @@ include './head.php';
     font-size: 1.75rem;
     color: #2d3748;
   }
-  
+
   .login-title::after {
     content: '';
     position: absolute;
@@ -369,18 +369,18 @@ include './head.php';
     transform-origin: right;
     transition: transform 0.4s ease;
   }
-  
+
   .login-form-section:hover .login-title::after {
     transform: scaleX(1);
     transform-origin: left;
   }
-  
+
   /* 响应式优化 */
   @media (max-width: 768px) {
     .login-form-section {
       margin: 0 1rem;
     }
-    
+
     :root {
       --perspective: 300vmax;
     }
@@ -671,7 +671,7 @@ button:hover::before {
         <!-- 背景层 -->
         <div class="bg-layer clouds"></div>
         <div class="bg-layer stars"></div>
-        
+
         <!-- 右侧图片区域 -->
         <div class="col-xl-7 bglogo">
             <div class="auth-full-bg pt-lg-5 p-4">
@@ -686,7 +686,7 @@ button:hover::before {
                                             <div>
                                             <div>
                                                     <p class="text-white-50 text-left">
-                                                        系统为6v6云商城后台独家后台模板，可在csdn博客找到</p>
+                                                        系统为岁岁云商城后台独家后台模板，可在csdn博客找到</p>
 
                                                 </div>
                                             </div>
@@ -795,44 +795,44 @@ button:hover::before {
         }
         // 自动更新年份
         document.getElementById('year-copy').textContent = new Date().getFullYear();
-        
+
         // 添加动态背景效果
         const body = document.querySelector('body.login-page');
         let mouseX = 0, mouseY = 0;
-        
+
         // 鼠标移动产生视差效果
         document.addEventListener('mousemove', function(e) {
             mouseX = e.clientX / window.innerWidth - 0.5;
             mouseY = e.clientY / window.innerHeight - 0.5;
-            
+
             // 应用视差效果到背景
             body.style.setProperty('--mouse-x', mouseX);
             body.style.setProperty('--mouse-y', mouseY);
-            
+
             // 动态调整背景位置 - 使用实际div元素
             const cloudsLayer = document.querySelector('.bg-layer.clouds');
             const starsLayer = document.querySelector('.bg-layer.stars');
-            
+
             if (cloudsLayer) {
                 cloudsLayer.style.backgroundPosition = `${50 + mouseX * 2}% ${50 + mouseY * 2}%`;
             }
-            
+
             if (starsLayer) {
                 starsLayer.style.backgroundPosition = `${50 - mouseX * 3}% ${50 - mouseY * 3}%`;
             }
         });
-        
+
         // 3D登录跳转效果增强版
         document.getElementById('loginButton').addEventListener('click', function() {
             // 验证表单（基本验证）
             const username = document.querySelector('input[name="user"]').value;
             const password = document.querySelector('input[name="pass"]').value;
-            
+
             if (!username || !password) {
                 alert('请输入用户名和密码');
                 return;
             }
-            
+
             // 使用View Transitions API实现3D跳转效果
             if (document.startViewTransition) {
                 // 创建预加载动画
@@ -854,7 +854,7 @@ button:hover::before {
                         opacity: 0;
                         transition: opacity 0.3s ease;
                     `;
-                    
+
                     const spinner = document.createElement('div');
                     spinner.style.cssText = `
                         width: 60px;
@@ -865,20 +865,20 @@ button:hover::before {
                         animation: spin 1s linear infinite;
                         box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
                     `;
-                    
+
                     preloader.appendChild(spinner);
                     document.body.appendChild(preloader);
-                    
+
                     // 触发重排后显示预加载器
                     setTimeout(() => {
                         preloader.style.opacity = '1';
                     }, 10);
-                    
+
                     return preloader;
                 };
-                
+
                 const preloader = createPreloader();
-                
+
                 // 延迟启动View Transition，给用户更明显的反馈
                 setTimeout(() => {
                     document.startViewTransition(function() {
@@ -895,33 +895,33 @@ button:hover::before {
                 }, 500);
             }
         });
-        
+
         // 为输入框添加焦点动画效果
         const inputs = document.querySelectorAll('.form-control');
         inputs.forEach(input => {
             input.addEventListener('focus', function() {
                 this.parentElement.style.transform = 'translateZ(20px)';
             });
-            
+
             input.addEventListener('blur', function() {
                 this.parentElement.style.transform = 'translateZ(0)';
             });
         });
-        
+
         // 添加页面进入动画 - 使用正确的选择器
         const loginFormSection = document.querySelector('.auth-full-page-content');
         if (loginFormSection) {
             loginFormSection.style.opacity = '0';
             loginFormSection.style.transform = 'translateY(30px) scale(0.95)';
             loginFormSection.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-            
+
             // 页面加载后显示登录表单
             setTimeout(() => {
                 loginFormSection.style.opacity = '1';
                 loginFormSection.style.transform = 'translateY(0) scale(1)';
             }, 300);
         }
-        
+
         // 延迟加载bg-overlay背景图片（最后加载）
         setTimeout(() => {
             const bgOverlay = document.querySelector('.bg-overlay');

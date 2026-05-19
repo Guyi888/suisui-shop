@@ -3,7 +3,30 @@
  * 分站管理
 **/
 include("../includes/common.php");
-$title='分站管理';
+
+function addDomainColumnsIfNotExists() {
+    global $DB;
+    $columns = ['domain3', 'domain4', 'domain5', 'domain6'];
+
+    try {
+        $result = $DB->query("DESCRIBE `pre_site`");
+        $existingColumns = [];
+        while($row = $result->fetch()) {
+            $existingColumns[] = $row['Field'];
+        }
+
+        foreach($columns as $col) {
+            if(!in_array($col, $existingColumns)) {
+                $DB->exec("ALTER TABLE `pre_site` ADD COLUMN `{$col}` VARCHAR(255) NULL DEFAULT NULL AFTER `domain2`");
+            }
+        }
+    } catch(Exception $e) {
+        // 忽略错误
+    }
+}
+addDomainColumnsIfNotExists();
+
+$title='用户/分站管理';
 include './head.php';
 if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
@@ -209,14 +232,29 @@ echo '<form action="./sitelist.php?my=edit_submit&zid='.$zid.'" method="POST">
 <input type="text" class="form-control" name="domain" value="'.$row['domain'].'" required>
 </div>
 <div class="form-group">
-<label>额外域名:</label><br>
+<label>额外域名1:</label><br>
 <input type="text" class="form-control" name="domain2" value="'.$row['domain2'].'">
+</div>
+<div class="form-group">
+<label>额外域名2:</label><br>
+<input type="text" class="form-control" name="domain3" value="'.$row['domain3'].'">
+</div>
+<div class="form-group">
+<label>额外域名3:</label><br>
+<input type="text" class="form-control" name="domain4" value="'.$row['domain4'].'">
+</div>
+<div class="form-group">
+<label>额外域名4:</label><br>
+<input type="text" class="form-control" name="domain5" value="'.$row['domain5'].'">
+</div>
+<div class="form-group">
+<label>额外域名5:</label><br>
+<input type="text" class="form-control" name="domain6" value="'.$row['domain6'].'">
 </div>
 <div class="form-group">
 <label>站点总余额:</label><br>
 <input type="text" class="form-control" name="rmb" value="'.$row['rmb'].'" required>
-</div>
-'.($conf['tixian_limit']?'<div class="form-group">
+</div>'.($conf['tixian_limit']?'<div class="form-group">
 <label>其中可提现余额:</label><br>
 <input type="text" class="form-control" value="'.($row['rmbtc']>$row['rmb']?$row['rmb']:$row['rmbtc']).'" disabled>
 </div>':null).'
@@ -320,6 +358,10 @@ if(!$rows)
 $power=intval($_POST['power']);
 $domain=trim(strtolower($_POST['domain']));
 $domain2=trim(strtolower($_POST['domain2']));
+$domain3=trim(strtolower($_POST['domain3']));
+$domain4=trim(strtolower($_POST['domain4']));
+$domain5=trim(strtolower($_POST['domain5']));
+$domain6=trim(strtolower($_POST['domain6']));
 $rmb=$_POST['rmb'];
 $qq=trim($_POST['qq']);
 $endtime=$_POST['endtime'];
@@ -332,7 +374,7 @@ showmsg('保存错误,请确保每项都不为空!',3);
 } else {
 if($rmb<$rows['rmbtc'])$rmbtc=$rmb;
 else $rmbtc=$rows['rmbtc'];
-if($DB->exec("update pre_site set power='$power',domain='$domain',domain2='$domain2',rmb='$rmb',rmbtc='$rmbtc',qq='$qq',sitename='$sitename',pay_account='$pay_account',pay_name='$pay_name',endtime='$endtime'{$sql} where zid='{$zid}'")!==false)
+if($DB->exec("update pre_site set power='$power',domain='$domain',domain2='$domain2',domain3='$domain3',domain4='$domain4',domain5='$domain5',domain6='$domain6',rmb='$rmb',rmbtc='$rmbtc',qq='$qq',sitename='$sitename',pay_account='$pay_account',pay_name='$pay_name',endtime='$endtime'{$sql} where zid='{$zid}'")!==false)
 	showmsg('修改分站成功！<br/><br/><a href="./sitelist.php">>>返回分站列表</a>',1);
 else
 	showmsg('修改分站失败！'.$DB->error(),4);

@@ -67,7 +67,7 @@ if ($_GET["act"] == "thaw") {
         </div>
     </div>
 </div>
-<?php 
+<?php
 } else {
 	?><div class="col-md-12 center-panel panel-default" style="float: none;">
     <div class="panel panel-default">
@@ -101,5 +101,5 @@ if ($_GET["act"] == "thaw") {
         </div>
     </div>
 </div>
-<?php 
+<?php
 }

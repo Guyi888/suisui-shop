@@ -14,7 +14,7 @@ if ($islogin == 1) {
 .orderList tbody tr>td:nth-child(7){min-width:150px;text-align:center}
 </style>
     <div class="col-md-12 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("shop", 1);
 ?><div class="block">
 <div class="block-title clearfix">
@@ -53,7 +53,7 @@ adminpermission("shop", 1);
 <div id="listTable"></div>
     </div>
   </div>
-      
+
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/payorder.js?ver=<?php echo VERSION;?>"></script>
 </body>

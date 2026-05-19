@@ -26,7 +26,7 @@ if ($islogin == 1) {
     </div>
   </div>
 </div>
-<?php 
+<?php
 adminpermission("site", 1);
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 if ($my == "add") {
@@ -53,7 +53,7 @@ if ($my == "add") {
 	}
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">删除卡密</h3></div>
-<div class=" box"><?php 
+<div class=" box"><?php
 	$id = $_GET["id"];
 	$sql = $DB->exec("DELETE FROM pre_kms WHERE kid='" . $id . "'");
 	if ($sql) {
@@ -69,20 +69,20 @@ if ($my == "add") {
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">清空卡密</h3></div>
 <div class=" box">
-您确认要清空所有卡密吗？清空后无法恢复！<br><a href="./kmlist.php?my=qk2">确认</a> | <a href="javascript:history.back();">返回</a></div></div><?php 
+您确认要清空所有卡密吗？清空后无法恢复！<br><a href="./kmlist.php?my=qk2">确认</a> | <a href="javascript:history.back();">返回</a></div></div><?php
 } elseif ($my == "qk2") {
 	if (!checkRefererHost()) {
 		exit;
 	}
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">清空卡密</h3></div>
-<div class=" box"><?php 
+<div class=" box"><?php
 	if ($DB->exec("DELETE FROM pre_kms WHERE type=0") !== false) {
-		?><div class="box">清空成功.</div><?php 
+		?><div class="box">清空成功.</div><?php
 	} else {
-		?><div class="box">清空失败.</div><?php 
+		?><div class="box">清空失败.</div><?php
 	}
-	?><hr/><a href="./kmlist.php">>>返回卡密列表</a></div></div><?php 
+	?><hr/><a href="./kmlist.php">>>返回卡密列表</a></div></div><?php
 } elseif ($my == "qkuse") {
 	if (!checkRefererHost()) {
 		exit;
@@ -90,14 +90,14 @@ if ($my == "add") {
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">清空卡密</h3></div>
 <div class=" box">
-您确认要清空所有卡密吗？清空后无法恢复！<br><a href="./kmlist.php?my=qkuse2">确认</a> | <a href="javascript:history.back();">返回</a></div></div><?php 
+您确认要清空所有卡密吗？清空后无法恢复！<br><a href="./kmlist.php?my=qkuse2">确认</a> | <a href="javascript:history.back();">返回</a></div></div><?php
 } elseif ($my == "qkuse2") {
 	if (!checkRefererHost()) {
 		exit;
 	}
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">清空卡密</h3></div>
-<div class=" box"><?php 
+<div class=" box"><?php
 	if ($DB->exec("DELETE FROM pre_kms WHERE type=0 AND status=1") !== false) {
 		echo "<div class=\"box\">清空成功.</div>";
 	} else {
@@ -136,7 +136,7 @@ if ($my == "add") {
         <table class="table table-striped">
           <thead><tr><th>卡密</th><th>面额</th><th>状态</th><th>添加时间</th><th>使用时间</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 	$pagesize = 30;
 	$pages = ceil($numrows / $pagesize);
 	$page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -153,7 +153,7 @@ if ($my == "add") {
 	?>          </tbody>
         </table>
       </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 	$first = 1;
 	$prev = $page - 1;
 	$next = $page + 1;
@@ -181,10 +181,10 @@ if ($my == "add") {
 		echo "<li class=\"disabled\"><a>&raquo;</a></li>";
 		echo "<li class=\"disabled\"><a>尾页</a></li>";
 	}
-	?></ul><?php 
+	?></ul><?php
 }
 ?>    </div>
-  </div><?php 
+  </div><?php
 function getkm($len = 18)
 {
 	$_var_0 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

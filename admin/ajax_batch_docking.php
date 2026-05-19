@@ -2,14 +2,14 @@
 /**
  * 批量对接商品处理文件
  * 博客地址：zhonguo.ren
- * QQ群：915043052
- * 开发者：教主
- * 
+ * QQ群：qqfaka
+ * 开发者：岁岁 @qqfaka
+ *
  * 功能说明：
  * 1. 处理批量对接商品的各种操作
  * 2. 支持亿乐SUP新版API对接
  * 3. 防止SQL注入、XSS攻击、CSRF攻击
- * 
+ *
  * 更新日志：
  * v2.0 - 适配亿乐SUP新版API，使用SHA1签名认证
  */
@@ -27,7 +27,7 @@ case 'upInputTitle':	//获取商品介绍里面的网络图片并下载到本地
 	$title=$_POST['title'];
 	$ret = $DB->exec("UPDATE pre_tools SET `input` = '{$title}' WHERE shequ='{$id}' AND `desc` LIKE '%{$keyword}%'");
 	exit('{"code":1,"msg":"替换了 '.$ret.' 个"}');
-break;	
+break;
 case 'downloaddescimg':	//获取商品介绍里面的网络图片并下载到本地
 	$id=$_POST['shequ'];
 	$sum=isset($_POST['sum'])?daddslashes($_POST['sum']):1;
@@ -63,7 +63,7 @@ case 'downloaddescimg':	//获取商品介绍里面的网络图片并下载到本
 		}
 	}
 	exit('{"code":1,"msg":"成功 '.$ok.' 个，失败 '.$no.' 个"}');
-break;	
+break;
 case 'downloadimg':
 	$id=$_POST['shequ'];
 	$sum=isset($_POST['sum'])?daddslashes($_POST['sum']):1;
@@ -72,32 +72,32 @@ case 'downloadimg':
     $is = true;
     $i=0;
     do{
-    	// 使用参数化查询 - 修复SQL注入漏洞
+	// 使用参数化查询 - 修复SQL注入漏洞
 	$row=$DB->getRow("SELECT * FROM pre_tools WHERE shequ=:id AND `shopimg` like :pattern limit 1", [':id'=>$id, ':pattern'=>'%http%']);
-    	if($row){
-    		// 使用参数化查询 - 修复SQL注入漏洞
+	if($row){
+		// 使用参数化查询 - 修复SQL注入漏洞
 		$re=$DB->query("SELECT * FROM pre_tools WHERE shequ=:id AND shopimg=:shopimg", [':id'=>$id, ':shopimg'=>$row['shopimg']]);
-    		$tidArr =array();
-    		while($res = $re->fetch()){   			
+		$tidArr =array();
+		while($res = $re->fetch()){
 				$tidArr[] = $res['tid'];
-    		}
-	    	$file_name = 'assets/img/Product/shop_tid_'.$row['tid'].'_shequ_'.$id.'.png';
+		}
+		$file_name = 'assets/img/Product/shop_tid_'.$row['tid'].'_shequ_'.$id.'.png';
 		    $file_name2 = '../'.$file_name;
 		    $ret = file_download($row['shopimg'],$file_name2);
 		    if($ret){
-		    	$DB->exec("update pre_tools set `shopimg`='{$file_name}' WHERE tid in(".implode(',',$tidArr).")");
-		    	$ok++;
+			$DB->exec("update pre_tools set `shopimg`='{$file_name}' WHERE tid in(".implode(',',$tidArr).")");
+			$ok++;
 		    }else{
-		    	//$DB->exec("update pre_tools set `shopimg`='{$row['shopimg']}?is' WHERE tid in(".implode(',',$tidArr).")");
-		    	$no++;
-		    }    		
+			//$DB->exec("update pre_tools set `shopimg`='{$row['shopimg']}?is' WHERE tid in(".implode(',',$tidArr).")");
+			$no++;
+		    }
 		    if($i>$sum){
-		    	break;
+			break;
 		    }
 		    $i++;
-    	}else{
-    		$is = false;
-    	}
+	}else{
+		$is = false;
+	}
 
     }while($is);
 	exit('{"code":1,"msg":"成功 '.$ok.' 个，失败 '.$no.' 个"}');
@@ -110,28 +110,28 @@ case 'downloadimg2':
     $i=0;
 	// 使用参数化查询 - 修复SQL注入漏洞
 	$re=$DB->query("SELECT * FROM pre_tools WHERE shequ=:id AND `shopimg` like :pattern", [':id'=>$id, ':pattern'=>'%http%']);
-	while($res = $re->fetch()){   
+	while($res = $re->fetch()){
 		if(stripos($res['shopimg'].']','?is=xbc')){continue;}
 
 		// 使用参数化查询 - 修复SQL注入漏洞
 	$re2=$DB->query("SELECT * FROM pre_tools WHERE shequ=:id AND shopimg=:shopimg", [':id'=>$id, ':shopimg'=>$res['shopimg']]);
 		$tidArr =array();
-		while($res2 = $re2->fetch()){   			
+		while($res2 = $re2->fetch()){
 			$tidArr[] = $res2['tid'];
 		}
 		if(count($tidArr)==0){continue;}
-    	$file_name = 'assets/img/Product/shop_tid_'.$res['tid'].'_shequ_'.$id.'.png';
+	$file_name = 'assets/img/Product/shop_tid_'.$res['tid'].'_shequ_'.$id.'.png';
 	    $file_name2 = '../'.$file_name;
 	    $ret = file_download($res['shopimg'],$file_name2);
 	    if($ret){
-	    	$DB->exec("update pre_tools set `shopimg`='{$file_name}' WHERE tid in(".implode(',',$tidArr).")");
-	    	$ok++;
+		$DB->exec("update pre_tools set `shopimg`='{$file_name}' WHERE tid in(".implode(',',$tidArr).")");
+		$ok++;
 	    }else{
-	    	$DB->exec("update pre_tools set `shopimg`='{$res['shopimg']}?is=xbc' WHERE tid in(".implode(',',$tidArr).")");
-	    	$no++;
-	    }    		
+		$DB->exec("update pre_tools set `shopimg`='{$res['shopimg']}?is=xbc' WHERE tid in(".implode(',',$tidArr).")");
+		$no++;
+	    }
 	    if($i>$sum){
-	    	break;
+		break;
 	    }
 	    $i++;
 	}
@@ -163,7 +163,7 @@ case 'batchUpDesc':	//更新商品介绍
 						$data = [':desc'=>$desc, ':shequ'=>$shequ, ':goods_id'=>$value['tid']];
 				$DB->exec($sql, $data);
 			$update_success++;
-			}	
+			}
 			$result=['code'=>1, 'msg'=>$DB->error().'成功更新'.$update_success.'个商品'];
 			exit(json_encode($result));
 		}else{
@@ -185,10 +185,10 @@ case 'batchAddGoods_ds2':	//获取彩虹社区版系统商品
         $add_class_one=0;
         $add_class=0;
         if($list['code'] == 1){
-        	$tidArr =array();
+	$tidArr =array();
 			// 使用参数化查询 - 修复SQL注入漏洞
 						$re=$DB->query("SELECT tid,goods_id FROM pre_tools WHERE shequ=:shequ_id", [':shequ_id'=>$row['id']]);
-			while($res = $re->fetch()){   			
+			while($res = $re->fetch()){
 				$tidArr[] = $res['goods_id'];
 			}
 			$class_sort = $DB->getRow("SELECT sort FROM `pre_class` order by sort desc limit 1");
@@ -202,112 +202,112 @@ case 'batchAddGoods_ds2':	//获取彩虹社区版系统商品
 			if($is){//社区版的
 				$class_one_sort = $DB->getRow("SELECT sort FROM `pre_class_one` order by sort desc limit 1");
 				$class_one_sort = $class_one_sort['sort'] + 1;
-	        	foreach ($list['data'] as $one) {
-	        		
-	        		// 使用参数化查询 - 修复SQL注入漏洞
+		foreach ($list['data'] as $one) {
+
+			// 使用参数化查询 - 修复SQL注入漏洞
 								$class_one_row = $DB->getRow("SELECT * FROM pre_class_one WHERE `name` = :name limit 1", [':name'=>$one['one_name']]);
-	        		if($class_one_row){
-	        			$oneid=$class_one_row['cid'];
-	        		}else{
-		        		//添加一级分类
-	      				if(stripos('['.$one['shopimg'],'assets/img/')){
-	      					$shopimg = $url.'/'.$one['shopimg'];
-	      				}else{
-	      					$shopimg = $one['shopimg'];
-	      				}
+			if($class_one_row){
+				$oneid=$class_one_row['cid'];
+			}else{
+				//添加一级分类
+					if(stripos('['.$one['shopimg'],'assets/img/')){
+						$shopimg = $url.'/'.$one['shopimg'];
+					}else{
+						$shopimg = $one['shopimg'];
+					}
 						$sql="INSERT INTO `pre_class_one` (`sort`,`name`,`active`,`shopimg`) VALUES ('".$class_one_sort."' ,'".$one['one_name']."' ,'1','".$shopimg."')";
 						$DB->exec($sql);
-						$oneid=$DB->lastInsertId();	  
-						$add_class_one++;      			
-	        		}
+						$oneid=$DB->lastInsertId();
+						$add_class_one++;
+			}
 					$class_one_sort++;
-	        		foreach ($one['two'] as $two) {
+			foreach ($one['two'] as $two) {
 
-	        			// 使用参数化查询 - 修复SQL注入漏洞
+				// 使用参数化查询 - 修复SQL注入漏洞
 										$class_row = $DB->getRow("SELECT * FROM pre_class WHERE `name` = :name limit 1", [':name'=>$two['two_name']]);
-	        			if($class_row){
-	        				$cid=$class_row['cid'];
-	        			}else{
-			 				//添加二级分类
-		      				if(stripos('['.$two['shopimg'],'assets/img/')){
-		      					$shopimg = $url.'/'.$two['shopimg'];
-		      				}else{
-		      					$shopimg = $two['shopimg'];
-		      				}						
+				if($class_row){
+					$cid=$class_row['cid'];
+				}else{
+							//添加二级分类
+						if(stripos('['.$two['shopimg'],'assets/img/')){
+							$shopimg = $url.'/'.$two['shopimg'];
+						}else{
+							$shopimg = $two['shopimg'];
+						}
 							$sql="INSERT INTO `pre_class` (`sort`,`name`,`active`,`shopimg`,`oneid`) VALUES ('".$class_sort."' ,'".$two['two_name']."' ,'1' ,'".$shopimg."' ,'".$oneid."')";
 							$DB->exec($sql);
 							$cid=$DB->lastInsertId();
 							$add_class++;
-	        			}
+				}
 						$class_sort++;
-	          			foreach ($two['data'] as $v) {
+				foreach ($two['data'] as $v) {
 							if(in_array($v['tid'],$tidArr))continue;
-	          				if(stripos('['.$v['shopimg'],'assets/img/')){
-	          					$shopimg = $url.'/'.$v['shopimg'];
-	          				}else{
-	          					$shopimg = $v['shopimg'];
-	          				}
+					if(stripos('['.$v['shopimg'],'assets/img/')){
+						$shopimg = $url.'/'.$v['shopimg'];
+					}else{
+						$shopimg = $v['shopimg'];
+					}
 							$values[] = "('".$tools_sort."','".$cid."','".$v['name']."','".$v['price']."','0','0','".$prid."','','".$v['input']."','".$v['inputs']."','','".$v['alert']."','".$shopimg."','".$v['value']."','2','','".$row['id']."','".$v['tid']."','".($v['isfaka']?'1':'0')."','','".$v['repeat']."','".$v['multi']."','".$v['min']."','".$v['max']."','".$v['validate']."','".$v['valiserv']."','".$v['close']."','".$v['active']."',NOW())";
 							$tools_sort++;
 							$add_success++;
-	        			}
-	        		}
-	        	}
+				}
+			}
+		}
 
 			}else{
-	        	foreach ($list['data'] as $one) {
-	        		foreach ($one['two'] as $two) {
-	        			$class_row = $DB->getRow("SELECT * FROM pre_class WHERE `name` = '{$two['two_name']}' limit 1");
-	        			if($class_row){
-	        				$cid=$class_row['cid'];
-	        			}else{
-			 				//添加二级分类
-		      				if(stripos('['.$two['shopimg'],'assets/img/')){
-		      					$shopimg = $url.'/'.$two['shopimg'];
-		      				}else{
-		      					$shopimg = $two['shopimg'];
-		      				}						
+		foreach ($list['data'] as $one) {
+			foreach ($one['two'] as $two) {
+				$class_row = $DB->getRow("SELECT * FROM pre_class WHERE `name` = '{$two['two_name']}' limit 1");
+				if($class_row){
+					$cid=$class_row['cid'];
+				}else{
+							//添加二级分类
+						if(stripos('['.$two['shopimg'],'assets/img/')){
+							$shopimg = $url.'/'.$two['shopimg'];
+						}else{
+							$shopimg = $two['shopimg'];
+						}
 							$sql="INSERT INTO `pre_class` (`sort`,`name`,`active`,`shopimg`) VALUES ('".$class_sort."' ,'".$two['two_name']."' ,'1' ,'".$shopimg."')";
 							$DB->exec($sql);
 							$cid=$DB->lastInsertId();
-							$add_class++;	        				
-	        			}
+							$add_class++;
+				}
 						$class_sort++;
-	          			foreach ($two['data'] as $v) {
-	          				if(in_array($v['tid'],$tidArr))continue;
-	          				if(stripos('['.$v['shopimg'],'assets/img/')){
-	          					$shopimg = $url.'/'.$v['shopimg'];
-	          				}else{
-	          					$shopimg = $v['shopimg'];
-	          				}
+				foreach ($two['data'] as $v) {
+					if(in_array($v['tid'],$tidArr))continue;
+					if(stripos('['.$v['shopimg'],'assets/img/')){
+						$shopimg = $url.'/'.$v['shopimg'];
+					}else{
+						$shopimg = $v['shopimg'];
+					}
 							$values[] = "('".$tools_sort."','".$cid."','".$v['name']."','".$v['price']."','0','0','".$prid."','','".$v['input']."','".$v['inputs']."','','".$v['alert']."','".$shopimg."','".$v['min']."','2','','".$row['id']."','".$v['tid']."','".($v['isfaka']?'1':'0')."','','".$v['repeat']."','".$v['multi']."','1','".$v['max']."','".$v['validate']."','".$v['valiserv']."','".$v['close']."','".$v['active']."',NOW())";
 							$tools_sort++;
 							$add_success++;
-	        			}
-	        		}
-	        	}
+				}
+			}
+		}
 			}
 			if(count($values)==0){
-	        	$add_success=0;
+		$add_success=0;
 			}else{
-	        	$sql="INSERT INTO `pre_tools` (`sort`,`cid`,`name`,`price`,`cost`,`cost2`,`prid`,`prices`,`input`,`inputs`,`desc`,`alert`,`shopimg`,`value`,`is_curl`,`curl`,`shequ`,`goods_id`,`goods_type`,`goods_param`,`repeat`,`multi`,`min`,`max`,`validate`,`valiserv`,`close`,`active`,`addtime`) VALUES ".implode(',',$values);
-	        	$DB->exec($sql);
-	        	// 批量记录上架日志
-	        	foreach ($list['data'] as $one) {
-	        		foreach ($one['two'] as $two) {
-	        			foreach ($two['data'] as $v) {
-	        				if(in_array($v['tid'],$tidArr))continue;
-	        				$content = "商品上架：{$v['name']}";
-	        				$DB->exec("INSERT INTO `pre_toollogs` (`content`,`date`,`addtime`,`active`) VALUES (:content, CURDATE(), NOW(), 1)", array(':content' => $content));
-	        			}
-	        		}
-	        	}
+		$sql="INSERT INTO `pre_tools` (`sort`,`cid`,`name`,`price`,`cost`,`cost2`,`prid`,`prices`,`input`,`inputs`,`desc`,`alert`,`shopimg`,`value`,`is_curl`,`curl`,`shequ`,`goods_id`,`goods_type`,`goods_param`,`repeat`,`multi`,`min`,`max`,`validate`,`valiserv`,`close`,`active`,`addtime`) VALUES ".implode(',',$values);
+		$DB->exec($sql);
+		// 批量记录上架日志
+		foreach ($list['data'] as $one) {
+			foreach ($one['two'] as $two) {
+				foreach ($two['data'] as $v) {
+					if(in_array($v['tid'],$tidArr))continue;
+					$content = "商品上架：{$v['name']}";
+					$DB->exec("INSERT INTO `pre_toollogs` (`content`,`date`,`addtime`,`active`) VALUES (:content, CURDATE(), NOW(), 1)", array(':content' => $content));
+				}
+			}
+		}
 			}
 			$result=['code'=>1, 'msg'=>$DB->error().'成功添加'.$add_success.'个商品'];
 			exit(json_encode($result));
         }else{
-        	exit('{"code":-1,"msg":"获取社区失败"}');
-    	}
+	exit('{"code":-1,"msg":"获取社区失败"}');
+	}
 
     }else{
         exit('{"code":-1,"msg":"社区不存"}');
@@ -335,85 +335,85 @@ case 'batchAddGoods_ds':	//获取彩虹社区版系统商品
 			if($is){//社区版的
 				$class_one_sort = $DB->getRow("SELECT sort FROM `pre_class_one` order by sort desc limit 1");
 				$class_one_sort = $class_one_sort['sort'] + 1;
-	        	foreach ($list['data'] as $one) {
-	        		//添加一级分类
-      				if(stripos('['.$one['shopimg'],'assets/img/')){
-      					$shopimg = $url.'/'.$one['shopimg'];
-      				}else{
-      					$shopimg = $one['shopimg'];
-      				}
+		foreach ($list['data'] as $one) {
+			//添加一级分类
+				if(stripos('['.$one['shopimg'],'assets/img/')){
+					$shopimg = $url.'/'.$one['shopimg'];
+				}else{
+					$shopimg = $one['shopimg'];
+				}
 					$sql="INSERT INTO `pre_class_one` (`sort`,`name`,`active`,`shopimg`) VALUES ('".$class_one_sort."' ,'".$one['one_name']."' ,'1','".$shopimg."')";
 					$DB->exec($sql);
 					$oneid=$DB->lastInsertId();
 					$class_one_sort++;
-	        		foreach ($one['two'] as $two) {
+			foreach ($one['two'] as $two) {
 
-		 				//添加二级分类
-	      				if(stripos('['.$two['shopimg'],'assets/img/')){
-	      					$shopimg = $url.'/'.$two['shopimg'];
-	      				}else{
-	      					$shopimg = $two['shopimg'];
-	      				}						
+						//添加二级分类
+					if(stripos('['.$two['shopimg'],'assets/img/')){
+						$shopimg = $url.'/'.$two['shopimg'];
+					}else{
+						$shopimg = $two['shopimg'];
+					}
 						$sql="INSERT INTO `pre_class` (`sort`,`name`,`active`,`shopimg`,`oneid`) VALUES ('".$class_sort."' ,'".$two['two_name']."' ,'1' ,'".$shopimg."' ,'".$oneid."')";
 						$DB->exec($sql);
 						$cid=$DB->lastInsertId();
 						$class_sort++;
-	          			foreach ($two['data'] as $v) {
-	          				if(stripos('['.$v['shopimg'],'assets/img/')){
-	          					$shopimg = $url.'/'.$v['shopimg'];
-	          				}else{
-	          					$shopimg = $v['shopimg'];
-	          				}
+				foreach ($two['data'] as $v) {
+					if(stripos('['.$v['shopimg'],'assets/img/')){
+						$shopimg = $url.'/'.$v['shopimg'];
+					}else{
+						$shopimg = $v['shopimg'];
+					}
 							$values[] = "('".$tools_sort."','".$cid."','".$v['name']."','".$v['price']."','0','0','".$prid."','','".$v['input']."','".$v['inputs']."','','".$v['alert']."','".$shopimg."','".$v['value']."','2','','".$row['id']."','".$v['tid']."','".($v['isfaka']?'1':'0')."','','".$v['repeat']."','".$v['multi']."','".$v['min']."','".$v['max']."','".$v['validate']."','".$v['valiserv']."','".$v['close']."','".$v['active']."',NOW())";
 							$tools_sort++;
 							$add_success++;
-	        			}
-	        		}
-	        	}
+				}
+			}
+		}
 
 			}else{
-	        	foreach ($list['data'] as $one) {
-	        		foreach ($one['two'] as $two) {
-		 				//添加二级分类
-	      				if(stripos('['.$two['shopimg'],'assets/img/')){
-	      					$shopimg = $url.'/'.$two['shopimg'];
-	      				}else{
-	      					$shopimg = $two['shopimg'];
-	      				}						
+		foreach ($list['data'] as $one) {
+			foreach ($one['two'] as $two) {
+						//添加二级分类
+					if(stripos('['.$two['shopimg'],'assets/img/')){
+						$shopimg = $url.'/'.$two['shopimg'];
+					}else{
+						$shopimg = $two['shopimg'];
+					}
 						$sql="INSERT INTO `pre_class` (`sort`,`name`,`active`,`shopimg`) VALUES ('".$class_sort."' ,'".$two['two_name']."' ,'1' ,'".$shopimg."')";
 						$DB->exec($sql);
 						$cid=$DB->lastInsertId();
 						$class_sort++;
-	          			foreach ($two['data'] as $v) {
-	          				if(stripos('['.$v['shopimg'],'assets/img/')){
-	          					$shopimg = $url.'/'.$v['shopimg'];
-	          				}else{
-	          					$shopimg = $v['shopimg'];
-	          				}
+				foreach ($two['data'] as $v) {
+					if(stripos('['.$v['shopimg'],'assets/img/')){
+						$shopimg = $url.'/'.$v['shopimg'];
+					}else{
+						$shopimg = $v['shopimg'];
+					}
 							$values[] = "('".$tools_sort."','".$cid."','".$v['name']."','".$v['price']."','0','0','".$prid."','','".$v['input']."','".$v['inputs']."','','".$v['alert']."','".$shopimg."','".$v['min']."','2','','".$row['id']."','".$v['tid']."','".($v['isfaka']?'1':'0')."','','".$v['repeat']."','".$v['multi']."','1','".$v['max']."','".$v['validate']."','".$v['valiserv']."','".$v['close']."','".$v['active']."',NOW())";
 							$tools_sort++;
 							$add_success++;
-	        			}
-	        		}
-	        	}
+				}
+			}
+		}
 			}
 
-        	$sql="INSERT INTO `pre_tools` (`sort`,`cid`,`name`,`price`,`cost`,`cost2`,`prid`,`prices`,`input`,`inputs`,`desc`,`alert`,`shopimg`,`value`,`is_curl`,`curl`,`shequ`,`goods_id`,`goods_type`,`goods_param`,`repeat`,`multi`,`min`,`max`,`validate`,`valiserv`,`close`,`active`,`addtime`) VALUES ".implode(',',$values);
-        	$DB->exec($sql);
-        	// 批量记录上架日志
-        	foreach ($list['data'] as $one) {
-        		foreach ($one['two'] as $two) {
-        			foreach ($two['data'] as $v) {
-        				$content = "商品上架：{$v['name']}";
-        				$DB->exec("INSERT INTO `pre_toollogs` (`content`,`date`,`addtime`,`active`) VALUES (:content, CURDATE(), NOW(), 1)", array(':content' => $content));
-        			}
-        		}
-        	}
+	$sql="INSERT INTO `pre_tools` (`sort`,`cid`,`name`,`price`,`cost`,`cost2`,`prid`,`prices`,`input`,`inputs`,`desc`,`alert`,`shopimg`,`value`,`is_curl`,`curl`,`shequ`,`goods_id`,`goods_type`,`goods_param`,`repeat`,`multi`,`min`,`max`,`validate`,`valiserv`,`close`,`active`,`addtime`) VALUES ".implode(',',$values);
+	$DB->exec($sql);
+	// 批量记录上架日志
+	foreach ($list['data'] as $one) {
+		foreach ($one['two'] as $two) {
+			foreach ($two['data'] as $v) {
+				$content = "商品上架：{$v['name']}";
+				$DB->exec("INSERT INTO `pre_toollogs` (`content`,`date`,`addtime`,`active`) VALUES (:content, CURDATE(), NOW(), 1)", array(':content' => $content));
+			}
+		}
+	}
 			$result=['code'=>1, 'msg'=>$DB->error().'成功添加'.$add_success.'个商品'];
 			exit(json_encode($result));
         }else{
-        	exit('{"code":-1,"msg":"获取社区失败"}');
-    	}
+	exit('{"code":-1,"msg":"获取社区失败"}');
+	}
 
     }else{
         exit('{"code":-1,"msg":"社区不存"}');
@@ -423,25 +423,25 @@ case 'getdswgoods': //获取商品图片
 	$shequ=intval($_POST['shequ']);
     $re=$DB->query("SELECT * FROM `pre_tools` WHERE shequ='{$shequ}'");
     while($res = $re->fetch()){
-    	if(strpos('['.$res['shopimg'],'http://') || strpos('['.$res['shopimg'],'https://')){
-    		$data[] = array('tid' => $res['tid'] , 'cid' => $res['cid'], 'name' => $res['name'], 'shopimg' => $res['shopimg']);
-    	}
-    	
+	if(strpos('['.$res['shopimg'],'http://') || strpos('['.$res['shopimg'],'https://')){
+		$data[] = array('tid' => $res['tid'] , 'cid' => $res['cid'], 'name' => $res['name'], 'shopimg' => $res['shopimg']);
+	}
+
     }
     if(count($data)==0){
-    	$result['code'] = -1;
-    	$result['msg'] = '该社区的商品图，都在本地哦';
+	$result['code'] = -1;
+	$result['msg'] = '该社区的商品图，都在本地哦';
     }else{
-    	$result['code'] = '0';
+	$result['code'] = '0';
     }
     $result['data'] = $data;
 	exit(json_encode($result));
-break;	
+break;
 case 'getGoodsList': //获取对接商品列表
 	$shequ=intval($_POST['shequ']);
 	$is=intval($_POST['is']);
 	$goodscid=daddslashes($_POST['goodscid']);
-	
+
 	// 支持多个分类ID（逗号分隔）
 	$category_ids = null;
 	if(isset($_POST['category_id']) && !empty($_POST['category_id'])){
@@ -451,7 +451,7 @@ case 'getGoodsList': //获取对接商品列表
 			return is_numeric($val) && $val > 0;
 		});
 	}
-	
+
 	$row=$DB->getRow("select * from pre_shequ where id='$shequ' limit 1");
 	$url = ($row['protocol']==1?'https://':'http://') . $row['url'];
 	$idArr = array();
@@ -484,7 +484,7 @@ case 'getGoodsList': //获取对接商品列表
 		// 标准插件系统（如卡卡云、易客等）
 		// 获取插件配置
 		$getInfo = \lib\Plugin::getConfig("third_" . $row['type']);
-		
+
 		// 检查是否支持批量对接
 		if(isset($getInfo['batchgoods']) && $getInfo['batchgoods'] == true){
 			// 如果选择了分类，则获取指定分类的商品
@@ -556,7 +556,7 @@ case 'getGoodsParam': //获取对接参数名
 				}
 				$re=$DB->query("SELECT * FROM `pre_tools` WHERE shequ='{$row['id']}' and goods_param='694319649'{$sql}");
 			}
-		
+
 		}elseif($row['type'] =='zhike'){
 			$re=$DB->query("SELECT * FROM `pre_tools` WHERE shequ='{$row['id']}' and goods_id='694319649'{$sql}");
 		}else{
@@ -567,7 +567,7 @@ case 'getGoodsParam': //获取对接参数名
 		exit('{"code":-1,"msg":"没有商品需要同步的"}');
 	}
 
-	
+
 
 	//通过shua_orders里的xbc_start_num字段判断是否是社区版的彩虹系统
 	$issq=$DB->getRow("desc `shua_orders` `xbc_start_num`");
@@ -578,14 +578,14 @@ case 'getGoodsParam': //获取对接参数名
     $bbbbb = '';
     while($res = $re->fetch()){
 
-    	if($row['type'] == 'jiuwu'){
-	    	$urls = $url.'/index.php?m=Home&c=Goods&a=detail&id='.$res['goods_id'];
-	    	$param[] = array("url" => $urls ,"post" => "");
-    	}elseif($row['type'] == 'zhike'){
+	if($row['type'] == 'jiuwu'){
+		$urls = $url.'/index.php?m=Home&c=Goods&a=detail&id='.$res['goods_id'];
+		$param[] = array("url" => $urls ,"post" => "");
+	}elseif($row['type'] == 'zhike'){
 
-    		$result = third_call($row['type'], $row, 'goods_info', [$res['goods_param']]);
-    		$input = $result['input'];
-    		$inputs = $result['inputs'];
+		$result = third_call($row['type'], $row, 'goods_info', [$res['goods_param']]);
+		$input = $result['input'];
+		$inputs = $result['inputs'];
 			//通过shua_orders里的xbc_start_num字段判断是否是社区版的彩虹系统
 			if($issq['Field'] == 'xbc_start_num'){
 				//是社区
@@ -602,31 +602,31 @@ case 'getGoodsParam': //获取对接参数名
 			}else{
 				$goods_param = '';
 			}
-	    	$close=$result['close']==0?'0':'1';
-	    	$aaaaa .= 'id='.$result['gid'].'_'.$close;
-    		if($result['code'] == 0){
-    			$sql = "UPDATE `pre_tools` SET goods_id='0',shopimg='{$result['image']}',price='{$price}',value='{$value}',input='{$input}',inputs='{$inputs}',goods_param='{$goods_param}',min='{$result['min']}',max='{$result['max']}',close='{$close}',active='1',`desc`=:desc 
-    			WHERE shequ='{$row['id']}' AND tid='{$res['tid']}'";
-    			$desc = [':desc'=>$result['desc']];
-	    		$DB->exec($sql,$desc);
-	    		$bbbbb .= 'id='.$result['gid'].'_'.$DB->error();
-	    		$success++;
+		$close=$result['close']==0?'0':'1';
+		$aaaaa .= 'id='.$result['gid'].'_'.$close;
+		if($result['code'] == 0){
+			$sql = "UPDATE `pre_tools` SET goods_id='0',shopimg='{$result['image']}',price='{$price}',value='{$value}',input='{$input}',inputs='{$inputs}',goods_param='{$goods_param}',min='{$result['min']}',max='{$result['max']}',close='{$close}',active='1',`desc`=:desc
+			WHERE shequ='{$row['id']}' AND tid='{$res['tid']}'";
+			$desc = [':desc'=>$result['desc']];
+			$DB->exec($sql,$desc);
+			$bbbbb .= 'id='.$result['gid'].'_'.$DB->error();
+			$success++;
             }else{
-            	$n++;
+	$n++;
             }
-    	}elseif($row['type'] == 'yile'){
-    		$result = third_call($row['type'], $row, 'goods_info', [$res['goods_id']]);
-    		$param = explode('|',$result['paramname']);//paramname: "帐号|密码|学校名称|课程名称"
-    		$inputs = '';
-    		$input = '';
-			for ($i=0; $i < count($param); $i++) { 
-	    		if($i == 0){
-	    			$input = $param[$i];
-	    		}else{
-	    			$inputs .= $param[$i].'|';
-	    		}
-	    	}
-	    	$inputs = trim($inputs,'|');
+	}elseif($row['type'] == 'yile'){
+		$result = third_call($row['type'], $row, 'goods_info', [$res['goods_id']]);
+		$param = explode('|',$result['paramname']);//paramname: "帐号|密码|学校名称|课程名称"
+		$inputs = '';
+		$input = '';
+			for ($i=0; $i < count($param); $i++) {
+			if($i == 0){
+				$input = $param[$i];
+			}else{
+				$inputs .= $param[$i].'|';
+			}
+		}
+		$inputs = trim($inputs,'|');
 			//通过shua_orders里的xbc_start_num字段判断是否是社区版的彩虹系统
 			if($issq['Field'] == 'xbc_start_num'){
 				//是社区
@@ -636,37 +636,37 @@ case 'getGoodsParam': //获取对接参数名
 				$value = $result['limit_min'];
 				$result['limit_min'] = '1';
 				$price = $result['limit_min'] * $result['price'];
-			}	    	
-	    	$close=$result['close']==0?'0':'1';
-	    	$aaaaa .= 'id='.$result['gid'].'_'.$close;
-    		if($result['code'] == 0){
-    			$sql = "UPDATE `pre_tools` SET shopimg='{$result['image']}',price='{$price}',value='{$value}',input='{$input}',inputs='{$inputs}',goods_param='',min='{$result['limit_min']}',max='{$result['limit_max']}',close='{$close}',active='1',`desc`=:desc WHERE shequ='{$row['id']}' AND goods_id='{$result['gid']}' AND goods_param='694319649'";
-    			$desc = [':desc'=>$result['desc']];
-	    		$DB->exec($sql,$desc);
-	    		$bbbbb .= 'id='.$result['gid'].'_'.$DB->error();
-	    		$success++;
+			}
+		$close=$result['close']==0?'0':'1';
+		$aaaaa .= 'id='.$result['gid'].'_'.$close;
+		if($result['code'] == 0){
+			$sql = "UPDATE `pre_tools` SET shopimg='{$result['image']}',price='{$price}',value='{$value}',input='{$input}',inputs='{$inputs}',goods_param='',min='{$result['limit_min']}',max='{$result['limit_max']}',close='{$close}',active='1',`desc`=:desc WHERE shequ='{$row['id']}' AND goods_id='{$result['gid']}' AND goods_param='694319649'";
+			$desc = [':desc'=>$result['desc']];
+			$DB->exec($sql,$desc);
+			$bbbbb .= 'id='.$result['gid'].'_'.$DB->error();
+			$success++;
             }else{
-            	$n++;
+	$n++;
             }
-    	}elseif($row['type'] == 'shangzhanwl'){
-    		$result = third_call($row['type'], $row, 'goods_info', [$res['goods_id']]);
-    		if($result['code'] == 0){
+	}elseif($row['type'] == 'shangzhanwl'){
+		$result = third_call($row['type'], $row, 'goods_info', [$res['goods_id']]);
+		if($result['code'] == 0){
 				$close = $result['supply_state']==1?'0':'1';	-	//商品状态 1 上架 2 暂停 3 下架
 				$goods_type = $result['type']==1?'1':'0';	//1 卡密商品 2 代充商品
-    			$inputs = $result['inputs'] == ''?'':$result['inputs'];
-    			$info = $result['recharge_url']==''?$result['info']:'卡密激活地址：'.$result['recharge_url'].'<br>'.$result['info'];
-    			$sql = "UPDATE `pre_tools` SET shopimg='{$result['img']}',price='{$result['price']}',value='1',input='{$result['input']}',inputs='{$inputs}',goods_param='',min='1',max='{$result['quantity']}',close='{$close}',active='1',goods_type='{$goods_type}',`desc`=:desc WHERE shequ='{$row['id']}' AND goods_id='{$result['id']}' AND goods_param='694319649'";
-    			$desc = [':desc'=>$info];
-	    		$DB->exec($sql,$desc);
-	    		$success++;
+			$inputs = $result['inputs'] == ''?'':$result['inputs'];
+			$info = $result['recharge_url']==''?$result['info']:'卡密激活地址：'.$result['recharge_url'].'<br>'.$result['info'];
+			$sql = "UPDATE `pre_tools` SET shopimg='{$result['img']}',price='{$result['price']}',value='1',input='{$result['input']}',inputs='{$inputs}',goods_param='',min='1',max='{$result['quantity']}',close='{$close}',active='1',goods_type='{$goods_type}',`desc`=:desc WHERE shequ='{$row['id']}' AND goods_id='{$result['id']}' AND goods_param='694319649'";
+			$desc = [':desc'=>$info];
+			$DB->exec($sql,$desc);
+			$success++;
             }else{
-            	$n++;
+	$n++;
             }
 
-    	}else{
-    		exit('{"code":-1,"msg":"目前仅支持玖伍、亿乐、直客"}');
-    	}
-    	$i++;
+	}else{
+		exit('{"code":-1,"msg":"目前仅支持玖伍、亿乐、直客"}');
+	}
+	$i++;
     }
 
     //
@@ -674,17 +674,17 @@ case 'getGoodsParam': //获取对接参数名
 	    $ret = duo_curl_jiuwu($param,$cookie,$shequ,'50000');//100 毫秒=100000 微秒
 		exit('{"code":0,"msg":"'.$ret.'"}');
     }elseif ($row['type'] == 'yile') {
-    	exit('{"code":0,"msg":"亿乐，本次获取'.$i.'个，成功 '.$success.' 个，失败 '.$n.' 个"}');
+	exit('{"code":0,"msg":"亿乐，本次获取'.$i.'个，成功 '.$success.' 个，失败 '.$n.' 个"}');
     }elseif ($row['type'] == 'zhike') {
-    	exit('{"code":0,"msg":"直客，本次获取'.$i.'个，成功 '.$success.' 个，失败 '.$n.' 个"}');
+	exit('{"code":0,"msg":"直客，本次获取'.$i.'个，成功 '.$success.' 个，失败 '.$n.' 个"}');
     }elseif ($row['type'] == 'shangzhanwl') {
-    	exit('{"code":0,"msg":"商战网，本次获取'.$i.'个，成功 '.$success.' 个，失败 '.$n.' 个"}');
+	exit('{"code":0,"msg":"商战网，本次获取'.$i.'个，成功 '.$success.' 个，失败 '.$n.' 个"}');
     }else{
-    	exit('{"code":-1,"msg":"目前仅支持玖伍、亿乐"}');
+	exit('{"code":-1,"msg":"目前仅支持玖伍、亿乐"}');
     }
 
 
-break;	
+break;
 case 'batchaddgoods':
 	$shequ=isset($_POST['shequ'])?intval($_POST['shequ']):exit('{"code":-1,"msg":"no shequ"}');
 	$mcid=isset($_POST['mcid'])?$_POST['mcid']:exit('{"code":-1,"msg":"no mcid"}');
@@ -709,17 +709,17 @@ case 'batchaddgoods':
 	$update_success = 0;
 	$new_category_count = 0;
 	$category_map = array();
-	
+
 	foreach($_POST['list'] as $res){
 		$row = json_decode($res, true);
 		if(!$row || !$row['id'])continue;
-		
+
 		// 对于传统系统，调用对应的商品详情获取函数
 		if($row_shequ['type'] == 'yile'){
 			// 亿乐系统需要调用process_yile_goods_data函数获取完整信息
 			$url = ($row_shequ['protocol']==1?'https://':'http://') . $row_shequ['url'];
 			$goods_id = $row['id'];
-			
+
 			// 调用亿乐商品详情接口获取完整信息
 			$detail_url = 'http://' . $row_shequ['url'] . '/openapi/customer/Goods/Show';
 			$detail_param = array('goods_id' => intval($goods_id));
@@ -734,14 +734,14 @@ case 'batchaddgoods':
 			if ($detail_ret = json_decode($detail_ret, true)) {
 				if ($detail_ret['code'] === 0 && isset($detail_ret['data'])) {
 					$detail = $detail_ret['data'];
-					
+
 					// 确保价格是有效的数字
 					$price = isset($detail['price']) && is_numeric($detail['price']) ? floatval($detail['price']) : 0;
-					
+
 					// 确保最小和最大下单数量是有效的数字
 					$minnum = isset($detail['buy_min_limit']) && is_numeric($detail['buy_min_limit']) ? intval($detail['buy_min_limit']) : 1;
 					$maxnum = isset($detail['buy_max_limit']) && is_numeric($detail['buy_max_limit']) ? intval($detail['buy_max_limit']) : 0;
-					
+
 					// 获取商品图片
 					$shopimg = '';
 					if(isset($detail['image_urls']) && is_array($detail['image_urls']) && count($detail['image_urls']) > 0){
@@ -749,13 +749,13 @@ case 'batchaddgoods':
 					}elseif(isset($detail['thumb']) && !empty($detail['thumb'])){
 						$shopimg = $detail['thumb'];
 					}
-					
+
 					// 获取商品详细信息
 					$input = '';
 					$inputs = '';
 					$desc = isset($detail['particulars']) ? $detail['particulars'] : '';
 					$alert = isset($detail['alert']) ? $detail['alert'] : '';
-					
+
 					// 尝试从其他字段获取提示内容
 					if(empty($alert)){
 						$alert = isset($detail['notice']) ? $detail['notice'] : '';
@@ -769,7 +769,7 @@ case 'batchaddgoods':
 					if(empty($alert)){
 						$alert = isset($detail['remark']) ? $detail['remark'] : '';
 					}
-					
+
 					// 从buy_params获取输入框信息
 					if(isset($detail['buy_params']) && is_array($detail['buy_params']) && count($detail['buy_params']) > 0){
 						// 获取第一个输入框的标题
@@ -777,7 +777,7 @@ case 'batchaddgoods':
 						if(empty($input)){
 							$input = isset($detail['buy_params'][0]['key']) ? $detail['buy_params'][0]['key'] : '';
 						}
-						
+
 						// 如果有多个输入框，获取所有输入框的标题
 						if(count($detail['buy_params']) > 1){
 							$input_names = array();
@@ -790,7 +790,7 @@ case 'batchaddgoods':
 							$inputs = implode('|', $input_names);
 						}
 					}
-					
+
 					// 合并商品信息
 					$row['price'] = $price;
 					$row['minnum'] = $minnum;
@@ -821,20 +821,20 @@ case 'batchaddgoods':
 			// 商战网系统商品列表已经返回了完整信息
 			// 这里不需要额外调用
 		}
-		
+
 		// 确定当前商品要使用的分类ID
 		$current_mcid = $mcid;
-		
+
 		// 如果是"新建同名分类"，则为每个商品创建对应的原始分类
 		if($mcid=='new' && !empty($row['original_cname'])){
 			$original_cname = $row['original_cname'];
-			
+
 			// 检查分类是否已存在于映射中
 			if(!isset($category_map[$original_cname])){
 				// 检查数据库中是否已存在该分类
 				// 考虑父级分类ID，支持二级分类
 				$existing_cid = $DB->getColumn("SELECT cid FROM pre_class WHERE name=:name AND pid=:pid LIMIT 1", [':name'=>$original_cname, ':pid'=>$parent_cid]);
-				
+
 				if($existing_cid){
 					// 使用已存在的分类
 					$category_map[$original_cname] = $existing_cid;
@@ -850,21 +850,21 @@ case 'batchaddgoods':
 					$insert_sql = "INSERT INTO `pre_class` (`pid`, `name`, `sort`, `active`) VALUES (:pid, :name, :sort, 1)";
 					$insert_data = [':pid'=>$parent_cid, ':name'=>$original_cname, ':sort'=>$new_sort];
 					$DB->exec($insert_sql, $insert_data);
-					
+
 					// 获取新创建的分类ID
 					$new_cid = $DB->lastInsertId();
 					$category_map[$original_cname] = $new_cid;
 					$new_category_count++;
 				}
 			}
-			
+
 			// 使用映射中的分类ID
 			$current_mcid = $category_map[$original_cname];
 		} elseif(!is_numeric($mcid)) {
 			// 确保mcid是数字
 			$current_mcid = 0;
 		}
-		
+
 		// 通过shua_orders里的xbc_start_num字段判断是否是社区版的彩虹系统
 		if($issq['Field'] == 'xbc_start_num'){
 			//是社区
@@ -872,12 +872,12 @@ case 'batchaddgoods':
 		}else{
 			$value = $num_arr[$row['id']];
 		}
-		
+
 		// 直客系统使用与自动同步相同的价格计算和精度处理逻辑
 		if($row_shequ['type'] == 'zhike'){
 			// 获取成本价
 			$cost_price = isset($row['price']) ? floatval($row['price']) : 0;
-			
+
 			// 获取默认下单数量 - 使用商品自身的默认数量，支持不同字段名
 			$default_num = intval($row['value'] ?? $row['unitnum'] ?? $row['min'] ?? $row['limit_min'] ?? $row['minnum'] ?? 1);
 			// 确保默认下单数量至少为1
@@ -897,10 +897,10 @@ case 'batchaddgoods':
 			if($default_num < $min_num) {
 				$default_num = $min_num;
 			}
-			
+
 			// 计算后的价钱 = 成本价 × 默认下单数量
 			$price = $cost_price * $default_num;
-			
+
 			// 价格精度处理：当计算后的价格小于0.01时，调整下单数量
 			if($price < 0.01) {
 				// 计算需要的调整倍数
@@ -913,7 +913,7 @@ case 'batchaddgoods':
 				// 重新计算价格
 				$price = $cost_price * $default_num;
 			}
-			
+
 			// 更新商品信息
 			$row['price'] = $price;
 			$row['minnum'] = $min_num;
@@ -961,9 +961,9 @@ case 'batchaddgoods':
 		}
 
 		// 检查商品是否已存在 - 只使用goods_id检查，与自动同步保持一致
-		$existing_tool = $DB->getRow("SELECT * FROM pre_tools WHERE shequ=:shequ AND goods_id=:goods_id LIMIT 1", 
+		$existing_tool = $DB->getRow("SELECT * FROM pre_tools WHERE shequ=:shequ AND goods_id=:goods_id LIMIT 1",
 			[':shequ'=>$shequ, ':goods_id'=>$row['id']]);
-		
+
 		if($existing_tool){
 			// 更新现有商品
 			$sql = "UPDATE `pre_tools` SET `cid`=:cid, `sort`=:sort, `name`=:name, `price`=:price, `prid`=:prid, `value`=:value, `min`=:min, `max`=:max, `close`=:close, `input`=:input, `inputs`=:inputs, `desc`=:desc, `alert`=:alert, `shopimg`=:shopimg WHERE `tid`=:tid";
@@ -1001,7 +1001,7 @@ case 'batchaddgoods':
 			$DB->exec("INSERT INTO `pre_toollogs` (`content`,`date`,`addtime`,`active`) VALUES (:content, CURDATE(), NOW(), 1)", array(':content' => $content));
 		}
 	}
-	
+
 	// 生成结果消息
 	$msg = '成功添加'.$add_success.'个商品，更新'.$update_success.'个商品！';
 	if($new_category_count > 0){
@@ -1012,12 +1012,12 @@ case 'batchaddgoods':
 			$msg .= ' 新建了'.$new_category_count.'个一级分类！';
 		}
 	}
-	
+
 	// 针对玖伍社区添加特殊提示
 	if($row_shequ['type'] == 'jiuwu' && ($add_success > 0 || $update_success > 0)){
 		$msg .= '<br>注意：玖伍社区需要下单参数的，请初始化商品，会自动获取对接参数、商品介绍、下单标题>';
 	}
-	
+
 	$result=['code'=>0, 'msg'=>$msg];
 	exit(json_encode($result));
 
@@ -1026,7 +1026,7 @@ case 'getCategoryList': //获取对接站点商品分类
 	$shequ=intval($_POST['shequ']);
 	$row=$DB->getRow("select * from pre_shequ where id='$shequ' limit 1");
 	$url = ($row['protocol']==1?'https://':'http://') . $row['url'];
-	
+
 	if($row['type'] == 'yile'){
 		$list = get_yile_category_list($url,$row['username'],$row['password']);
 	}elseif($row['type'] == 'jiuwu'){
@@ -1044,6 +1044,16 @@ case 'getCategoryList': //获取对接站点商品分类
 	else $result=array('code'=>0,'msg'=>'succ','data'=>$list);
 	exit(json_encode($result));
 
+break;
+
+case 'getDockedTids': //获取指定对接站点已对接的商品ID列表及其上架时间
+	$shequ = intval($_GET['shequ']);
+	$rows = $DB->getAll("SELECT goods_id, addtime FROM pre_tools WHERE shequ=:shequ", array(':shequ' => $shequ));
+	$dockedData = array();
+	foreach ($rows as $row) {
+		$dockedData[$row['goods_id']] = $row['addtime'];
+	}
+	exit(json_encode(array('code' => 0, 'msg' => 'succ', 'data' => $dockedData)));
 break;
 
 default:
@@ -1076,7 +1086,7 @@ function get_yile_category_list($url,$user,$pwd){
 				'name' => $v['name'],
 				'parent_id' => $v['parent_id']
 			);
-			
+
 			// 添加二级分类
 			if(isset($v['parent_infos']) && is_array($v['parent_infos']) && count($v['parent_infos']) > 0){
 				foreach($v['parent_infos'] as $sub_v){
@@ -1095,10 +1105,10 @@ function get_yile_category_list($url,$user,$pwd){
 function get_yile_goods_list($url,$user,$pwd,$listid=array(),$category_ids=null){
 	// 移除URL中的http://或https://前缀，确保正确构建API路径
 	$url = preg_replace('/^(https?:\/\/)/i', '', $url);
-	
+
 	// 初始化商品列表
 	$list = array();
-	
+
 	// 获取所有分类信息，用于后续为商品添加分类名称
 	$categories = array();
 	$category_url = 'http://' . $url . '/openapi/customer/Goods/CategoryList';
@@ -1123,7 +1133,7 @@ function get_yile_goods_list($url,$user,$pwd,$listid=array(),$category_ids=null)
 			}
 		}
 	}
-	
+
 	// 如果没有指定分类或分类为空，获取所有商品
 	if($category_ids === null || !is_array($category_ids) || count($category_ids) == 0){
 		$api_url = 'http://' . $url . '/openapi/customer/Goods/List';
@@ -1165,7 +1175,7 @@ function get_yile_goods_list($url,$user,$pwd,$listid=array(),$category_ids=null)
 			}
 		}
 	}
-	
+
 	return $list;
 }
 
@@ -1176,7 +1186,7 @@ function process_yile_goods_data($data, $url, $user, $pwd, $listid, $categories 
 		if(count($listid)>0){
 			if(isset($listid[$v['id']]))continue;
 		}
-		
+
 		// 商品列表接口返回的字段有限，需要调用详情接口获取完整信息
 		$goods_id = $v['id'];
 		$detail_url = 'http://' . $url . '/openapi/customer/Goods/Show';
@@ -1192,14 +1202,14 @@ function process_yile_goods_data($data, $url, $user, $pwd, $listid, $categories 
 		if ($detail_ret = json_decode($detail_ret, true)) {
 			if ($detail_ret['code'] === 0 && isset($detail_ret['data'])) {
 				$detail = $detail_ret['data'];
-				
+
 				// 确保价格是有效的数字
 				$price = isset($detail['price']) && is_numeric($detail['price']) ? floatval($detail['price']) : 0;
-				
+
 				// 确保最小和最大下单数量是有效的数字
 				$minnum = isset($detail['buy_min_limit']) && is_numeric($detail['buy_min_limit']) ? intval($detail['buy_min_limit']) : 1;
 				$maxnum = isset($detail['buy_max_limit']) && is_numeric($detail['buy_max_limit']) ? intval($detail['buy_max_limit']) : 0;
-				
+
 				// 获取商品图片
 				$shopimg = '';
 				if(isset($detail['image_urls']) && is_array($detail['image_urls']) && count($detail['image_urls']) > 0){
@@ -1207,7 +1217,7 @@ function process_yile_goods_data($data, $url, $user, $pwd, $listid, $categories 
 				}elseif(isset($detail['thumb']) && !empty($detail['thumb'])){
 					$shopimg = $detail['thumb'];
 				}
-				
+
 				// 获取分类名称
 				$original_cname = '';
 				if(isset($detail['category_id']) && isset($categories[$detail['category_id']])){
@@ -1215,13 +1225,13 @@ function process_yile_goods_data($data, $url, $user, $pwd, $listid, $categories 
 				} elseif($current_category_id && isset($categories[$current_category_id])){
 					$original_cname = $categories[$current_category_id];
 				}
-				
+
 				// 获取商品详细信息
 				$input = '';
 				$inputs = '';
 				$desc = isset($detail['particulars']) ? $detail['particulars'] : '';
 				$alert = isset($detail['alert']) ? $detail['alert'] : '';
-				
+
 				// 尝试从其他字段获取提示内容
 				if(empty($alert)){
 					$alert = isset($detail['notice']) ? $detail['notice'] : '';
@@ -1235,7 +1245,7 @@ function process_yile_goods_data($data, $url, $user, $pwd, $listid, $categories 
 				if(empty($alert)){
 					$alert = isset($detail['remark']) ? $detail['remark'] : '';
 				}
-				
+
 				// 从buy_params获取输入框信息
 				if(isset($detail['buy_params']) && is_array($detail['buy_params']) && count($detail['buy_params']) > 0){
 					// 获取第一个输入框的标题
@@ -1243,7 +1253,7 @@ function process_yile_goods_data($data, $url, $user, $pwd, $listid, $categories 
 					if(empty($input)){
 						$input = isset($detail['buy_params'][0]['key']) ? $detail['buy_params'][0]['key'] : '';
 					}
-					
+
 					// 如果有多个输入框，获取所有输入框的标题
 					if(count($detail['buy_params']) > 1){
 						$input_names = array();
@@ -1256,7 +1266,7 @@ function process_yile_goods_data($data, $url, $user, $pwd, $listid, $categories 
 						$inputs = implode('|', $input_names);
 					}
 				}
-				
+
 				$list[] = array(
 					'id' => $v['id'],
 					'name' => $v['name'],
@@ -1283,7 +1293,7 @@ function get_curl_with_headers_yile($url,$post=0,$headers=array()){
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-	
+
 	$httpheader = array(
 		'Accept: */*',
 		'Accept-Encoding: gzip,deflate',
@@ -1291,25 +1301,25 @@ function get_curl_with_headers_yile($url,$post=0,$headers=array()){
 		'Connection: close',
 		'Content-Type: application/json; charset=UTF-8'
 	);
-	
+
 	if($headers && is_array($headers)){
 		$httpheader = array_merge($httpheader, $headers);
 	}
-	
+
 	curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
-	
+
 	if($post){
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 	}
-	
+
 	curl_setopt($ch, CURLOPT_ENCODING, "gzip");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
-	
+
 	$ret = curl_exec($ch);
 	curl_close($ch);
-	
+
 	return $ret;
 }
 function getSign_batch($param, $key){
@@ -1351,7 +1361,7 @@ function get_jiuwu_category_list($url,$user,$pwd){
 function get_jiuwu_goods_list($url,$user,$pwd,$listid=array(),$category_ids=null){
 	// 初始化商品列表
 	$list = array();
-	
+
 	// 获取所有分类信息，用于后续为商品添加分类名称
 	$categories = array();
 	$category_url = $url.'/index.php?m=home&c=api&a=user_get_goods_category&Api_UserName='.urlencode($user).'&Api_UserMd5Pass='.md5($pwd);
@@ -1363,7 +1373,7 @@ function get_jiuwu_goods_list($url,$user,$pwd,$listid=array(),$category_ids=null
 			}
 		}
 	}
-	
+
 	// 如果没有指定分类或分类为空，获取所有商品
 	if($category_ids === null || !is_array($category_ids) || count($category_ids) == 0){
 		$api_url = $url.'/index.php?m=home&c=api&a=user_get_goods_lists_details&Api_UserName='.urlencode($user).'&Api_UserMd5Pass='.md5($pwd);
@@ -1382,7 +1392,7 @@ function get_jiuwu_goods_list($url,$user,$pwd,$listid=array(),$category_ids=null
 				if(isset($v['cate_id']) && isset($categories[$v['cate_id']])){
 					$original_cname = $categories[$v['cate_id']];
 				}
-				
+
 				// 获取商品详细信息
 				$goods_info = array(
 					'id' => $v['id'],
@@ -1420,7 +1430,7 @@ function get_jiuwu_goods_list($url,$user,$pwd,$listid=array(),$category_ids=null
 						} elseif(isset($categories[$category_id])){
 							$original_cname = $categories[$category_id];
 						}
-						
+
 						// 获取商品详细信息
 						$goods_info = array(
 							'id' => $v['id'],
@@ -1443,7 +1453,7 @@ function get_jiuwu_goods_list($url,$user,$pwd,$listid=array(),$category_ids=null
 			}
 		}
 	}
-	
+
 	return $list;
 }
 function get_jiuwu_goods_info($url,$goods_id=0,$cookie=0){
@@ -1482,28 +1492,28 @@ function get_jiuwu_goods_info($url,$goods_id=0,$cookie=0){
 				$param .= $item.'|';
 			}
 			$param = trim($param, '|');
-	    	$input = explode('|',$param);
-	    	$param = "";
-	    	$zh = '';
-	    	for ($i=0; $i < count($input); $i++) { 
-	    		if($i == 0){
-	    			if($input[$i] == '掌心ID：' || $input[$i] == '作品链接：' || $input[$i] == '歌曲Id：'){
-	    				$zh = '作品链接';
-	    			}else{
-	    				$zh = $input[$i];
-	    			}
-	    			$result['input'] = str_replace('：', '', $zh);
-	    		}else{
-	    			if($input[$i] == '说说ID：'){
-	    				$zh = '说说ID';
-	    			}else{
-	    				$zh = $input[$i];
-	    			}
-	    			$param .= str_replace('：', '', $zh).'|';
-	    		}
-	    	}
-	    	$param = trim($param, '|');
-	    	$result['inputs'] = $param;
+		$input = explode('|',$param);
+		$param = "";
+		$zh = '';
+		for ($i=0; $i < count($input); $i++) {
+			if($i == 0){
+				if($input[$i] == '掌心ID：' || $input[$i] == '作品链接：' || $input[$i] == '歌曲Id：'){
+					$zh = '作品链接';
+				}else{
+					$zh = $input[$i];
+				}
+				$result['input'] = str_replace('：', '', $zh);
+			}else{
+				if($input[$i] == '说说ID：'){
+					$zh = '说说ID';
+				}else{
+					$zh = $input[$i];
+				}
+				$param .= str_replace('：', '', $zh).'|';
+			}
+		}
+		$param = trim($param, '|');
+		$result['inputs'] = $param;
 			//获取商品介绍
 			$start = strpos($data, '<div class="col-md-12 banner">');
 			$end = strpos($data, '<!--内容-->');
@@ -1536,7 +1546,7 @@ function duo_curl_jiuwu($param,$cookie,$shequid,$delay=0){
     $queue = curl_multi_init();
     $map = [];
     foreach ($param as $value) {
-    	$url = $value['url'];
+	$url = $value['url'];
         $ch = curl_init();
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -1547,7 +1557,7 @@ function duo_curl_jiuwu($param,$cookie,$shequid,$delay=0){
 		}
 		if($cookie){
 			curl_setopt($ch, CURLOPT_COOKIE, $cookie);
-		}		
+		}
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         curl_setopt($ch, CURLOPT_USERAGENT, $ua);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1557,7 +1567,7 @@ function duo_curl_jiuwu($param,$cookie,$shequid,$delay=0){
         $map[(string)$ch] = $url;
 
         if($delay){
-        	usleep($delay);
+	usleep($delay);
         }
     }
     $i = 0;
@@ -1578,14 +1588,14 @@ function duo_curl_jiuwu($param,$cookie,$shequid,$delay=0){
             $data = get_jiuwu_goods_info($results);
 
             if($data['code'] == 0){
-            	$id = getSubstr($urlarr['query'].'&','&id=','&');
-            	$string .= $data['desc'].'<br><hr><br>'.$id;
-	    		$sql = "UPDATE `pre_tools` SET input='{$data['input']}',inputs='{$data['inputs']}',goods_param='{$data['param']}',close='0',active='1',`desc`=:desc WHERE shequ='{$shequid}' AND goods_id='{$id}' AND goods_param='694319649'";
-	    		$desc = [':desc'=>$data['desc']];
-	    		$DB->exec($sql,$desc);
-	    		$success++;
+	$id = getSubstr($urlarr['query'].'&','&id=','&');
+	$string .= $data['desc'].'<br><hr><br>'.$id;
+			$sql = "UPDATE `pre_tools` SET input='{$data['input']}',inputs='{$data['inputs']}',goods_param='{$data['param']}',close='0',active='1',`desc`=:desc WHERE shequ='{$shequid}' AND goods_id='{$id}' AND goods_param='694319649'";
+			$desc = [':desc'=>$data['desc']];
+			$DB->exec($sql,$desc);
+			$success++;
             }else{
-            	$n++;
+	$n++;
             }
            $i++;
             curl_multi_remove_handle($queue, $done['handle']);
@@ -1602,21 +1612,21 @@ function duo_curl_jiuwu($param,$cookie,$shequid,$delay=0){
 function file_download($url,$path=0){
 	$state = @file_get_contents($url,0,null,0,1);//获取网络资源的字符内容
     if($state){
-    	if($path){
+	if($path){
 			$filename = $path;//文件名称生成
-    	}else{
-    		$filename = date("dMYHis").'.jpg';//文件名称生成
-    	}
+	}else{
+		$filename = date("dMYHis").'.jpg';//文件名称生成
+	}
 	    ob_start();//打开输出
 	    readfile($url);//输出图片文件
 	    $img = ob_get_contents();//得到浏览器输出
 	    ob_end_clean();//清除输出并关闭
 	    $size = strlen($img);//得到图片大小
-	    $fp2 = @fopen($filename, "a");       
+	    $fp2 = @fopen($filename, "a");
 	    fwrite($fp2, $img);//向当前目录写入图片文件，并重新命名
-	    fclose($fp2);       
+	    fclose($fp2);
 	    return true;
-    }else{       
+    }else{
        return false;
     }
 }
@@ -1624,7 +1634,7 @@ function file_download($url,$path=0){
 function goods_list_shangzhanwl_cate($url,$user,$pwd,$cid,$listid=array()){
 	// 初始化商品列表
 	$list = array();
-	
+
 	// 获取所有分类信息，用于后续为商品添加分类名称
 	$categories = array();
 	$category_url = $url.'/api.php/Client/categoryList';
@@ -1638,7 +1648,7 @@ function goods_list_shangzhanwl_cate($url,$user,$pwd,$cid,$listid=array()){
 			$categories[$cat['id']] = $cat['name'];
 		}
 	}
-	
+
 	// 如果没有指定分类或分类为空，获取所有商品
 	if($cid === null || !is_array($cid) || count($cid) == 0){
 		$api_url = $url.'/api.php/Client/goodsList';
@@ -1661,7 +1671,7 @@ function goods_list_shangzhanwl_cate($url,$user,$pwd,$cid,$listid=array()){
 				if(isset($v['cate_id']) && isset($categories[$v['cate_id']])){
 					$original_cname = $categories[$v['cate_id']];
 				}
-				
+
 				// 获取商品详细信息
 				$goods_info = array(
 					'id' => $v['id'],
@@ -1705,7 +1715,7 @@ function goods_list_shangzhanwl_cate($url,$user,$pwd,$cid,$listid=array()){
 						} elseif(isset($categories[$category_id])) {
 							$original_cname = $categories[$category_id];
 						}
-						
+
 						// 获取商品详细信息
 						$goods_info = array(
 							'id' => $v['id'],
@@ -1730,7 +1740,7 @@ function goods_list_shangzhanwl_cate($url,$user,$pwd,$cid,$listid=array()){
 			}
 		}
 	}
-	
+
 	return $list;
 }
 

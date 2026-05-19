@@ -31,21 +31,105 @@ if($admin_cdnpublic==1){
   <link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="../assets/appui/css/main.css">
   <link rel="stylesheet" href="../assets/appui/css/themes.css">
-  <link id="theme-link" rel="stylesheet" href="<?php echo $_COOKIE['optionThemeColor']?$_COOKIE['optionThemeColor']:'../assets/appui/css/themes/flat-2.4.css';?>">
-  <!-- 原admin-custom.css文件不存在，修复引用路径错误 -->
-  <script src="<?php echo $cdnpublic?>jquery/2.1.4/jquery.min.js"></script>
-  <script src="<?php echo $cdnpublic?>twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <script src="<?php echo $cdnpublic?>layer/3.1.1/layer.js"></script>
-  <script src="../assets/appui/js/plugins.js"></script>
-  <script src="../assets/appui/js/app2.js"></script>
+  <link id="theme-link" rel="stylesheet" href="<?php echo $_COOKIE['optionThemeColor']?$_COOKIE['optionThemeColor']:'../assets/appui/css/themes/flat-2.4.css'; ?>">
+    <!-- 原admin-custom.css文件不存在，修复引用路径错误 -->
+    <script src="<?php echo $cdnpublic?>jquery/2.1.4/jquery.min.js"></script>
+
+    <!-- 立即加载的菜单交互脚本 - 让侧边栏菜单在页面完全加载前就可用 -->
+    <script>
+        (function() {
+            // 菜单展开/收起的简单实现
+            function initMenuQuickAccess() {
+                // 使用事件委托处理菜单点击
+                document.addEventListener('click', function(e) {
+                    var target = e.target;
+
+                    // 处理主菜单点击展开
+                    var menuLink = target.closest('.sidebar-nav-menu');
+                    if (menuLink) {
+                        e.preventDefault();
+                        var li = menuLink.closest('li');
+                        var isOpen = menuLink.classList.contains('open');
+
+                        // 关闭其他打开的菜单
+                        var allMenus = document.querySelectorAll('#sidebar .sidebar-nav-menu.open');
+                        allMenus.forEach(function(m) {
+                            if (m !== menuLink) {
+                                m.classList.remove('open', 'active');
+                                m.closest('li').classList.remove('active');
+                            }
+                        });
+
+                        // 切换当前菜单
+                        if (isOpen) {
+                            menuLink.classList.remove('open', 'active');
+                            li.classList.remove('active');
+                        } else {
+                            menuLink.classList.add('open');
+                        }
+                        return;
+                    }
+
+                    // 处理子菜单点击展开
+                    var submenuLink = target.closest('.sidebar-nav-submenu');
+                    if (submenuLink) {
+                        e.preventDefault();
+                        var isOpen = submenuLink.classList.contains('open');
+
+                        // 关闭其他打开的子菜单
+                        var parentUl = submenuLink.closest('ul');
+                        var allSubmenus = parentUl.querySelectorAll('.sidebar-nav-submenu.open');
+                        allSubmenus.forEach(function(sm) {
+                            if (sm !== submenuLink) {
+                                sm.classList.remove('open');
+                            }
+                        });
+
+                        // 切换当前子菜单
+                        if (isOpen) {
+                            submenuLink.classList.remove('open');
+                        } else {
+                            submenuLink.classList.add('open');
+                        }
+                        return;
+                    }
+
+                    // 处理侧边栏链接跳转
+                    var navLink = target.closest('.sidebar-nav a');
+                    if (navLink && navLink.getAttribute('href') && navLink.getAttribute('href') !== 'javascript:void(0)') {
+                        // 显示加载指示器
+                        var loader = document.getElementById('pageLoader');
+                        if (loader) {
+                            loader.classList.remove('hidden');
+                        }
+                        // 直接跳转，不等待其他代码
+                        window.location.href = navLink.getAttribute('href');
+                    }
+                });
+
+                // 立即处理侧边栏显示
+                document.addEventListener('DOMContentLoaded', function() {
+                    // 这里可以添加更多DOM加载完成后的处理
+                });
+            }
+
+            // 立即初始化
+            initMenuQuickAccess();
+        })();
+    </script>
+
+    <script src="<?php echo $cdnpublic?>twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="<?php echo $cdnpublic?>layer/3.1.1/layer.js"></script>
+    <script src="../assets/appui/js/plugins.js"></script>
+    <script src="../assets/appui/js/app2.js"></script>
   <!--[if lt IE 9]>
     <script src="<?php echo $cdnpublic?>html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="<?php echo $cdnpublic?>respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
   <!-- Google Fonts - 动态加载，仅在需要时加载 -->
-  <?php if($conf['font_beautify'] == 1){ 
+  <?php if($conf['font_beautify'] == 1){
       $font_family = $conf['font_family'] ?? 'default';
-      
+
       // 定义需要Google Fonts的字体映射
       $google_fonts = [
           'playfair' => 'Playfair+Display:wght@400;700',
@@ -56,7 +140,7 @@ if($admin_cdnpublic==1){
           'raleway' => 'Raleway:wght@300;400;500;700',
           'oswald' => 'Oswald:wght@300;400;500;700'
       ];
-      
+
       // 如果用户选择了需要Google Fonts的字体，则加载相应字体
       if(isset($google_fonts[$font_family])){
           $font_param = $google_fonts[$font_family];
@@ -68,46 +152,59 @@ if($admin_cdnpublic==1){
   } ?>
   <!-- 页面加载指示器样式 -->
   <style>
-    /* 页面加载指示器样式 - 透明背景版 */
+    /* 页面加载指示器样式 - 透明背景版，让侧边栏可以操作 */
     .page-loader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: transparent; /* 完全透明背景 */
-      z-index: 999999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0s, visibility 0s; /* 无延迟过渡 */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1); /* 几乎透明背景 */
+        z-index: 9999; /* 降低层级，让侧边栏可以点击 */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0s, visibility 0s; /* 无延迟过渡 */
+        pointer-events: none; /* 让点击穿透到下方元素 */
     }
-    
-    .page-loader.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-    
 
-    
+    .page-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    /* 加载指示器的旋转动画元素要接收点击事件 */
+    .page-loader .spinner {
+        pointer-events: auto;
+    }
+
+
+
     /* 页面切换淡入效果 - 无延迟 */
     body {
-      animation: fadeIn 0s;
+        animation: fadeIn 0s;
     }
-    
+
     @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
+        0% { opacity: 0; }
+        100% { opacity: 1; }
     }
-    
+
     /* 链接点击效果 */
     .sidebar-nav a {
-      transition: all 0.3s ease;
+        transition: all 0.3s ease;
+        cursor: pointer;
     }
-    
+
     .sidebar-nav a:active {
-      transform: scale(0.95);
-      transition: all 0.1s ease;
+        transform: scale(0.95);
+        transition: all 0.1s ease;
+    }
+
+    /* 确保侧边栏始终可点击 */
+    #sidebar {
+        position: relative;
+        z-index: 10000; /* 让侧边栏高于加载指示器 */
     }
   </style>
   <!-- 页面加载指示器JavaScript -->
@@ -120,7 +217,7 @@ if($admin_cdnpublic==1){
         pageLoader.classList.add('hidden');
       }
     });
-    
+
     // 页面开始加载时显示加载指示器
     window.addEventListener('beforeunload', function() {
       var pageLoader = document.getElementById('pageLoader');
@@ -128,7 +225,7 @@ if($admin_cdnpublic==1){
         pageLoader.classList.remove('hidden');
       }
     });
-    
+
     // 为所有侧边栏链接添加点击事件，显示加载指示器
     document.addEventListener('DOMContentLoaded', function() {
       var sidebarLinks = document.querySelectorAll('.sidebar-nav a[href]');
@@ -223,14 +320,14 @@ if($admin_cdnpublic==1){
     a, button, input, select, textarea {
       cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffaaa5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>'), pointer;
     }
-    <?php 
+    <?php
     }
     ?>
   </style>
-  <?php 
+  <?php
   }
   ?>
-  
+
   <!-- 字体美化效果 -->
   <?php if($conf['font_beautify'] == 1){
       $font_family = $conf['font_family'] ?? 'default';
@@ -266,7 +363,7 @@ if($admin_cdnpublic==1){
       font-size: <?php echo $font_size; ?>;
       color: <?php echo $font_color; ?>;
     }
-    
+
     /* 确保所有文本元素都继承字体样式 */
     h1, h2, h3, h4, h5, h6, p, a, span, div, input, button, select, textarea, li {
       font-family: inherit;
@@ -276,10 +373,10 @@ if($admin_cdnpublic==1){
     <?php }
     ?>
   </style>
-  <?php 
+  <?php
   }
   ?>
-  
+
   <!-- 背景美化效果 -->
   <?php if($conf['background_enable'] == 1){
       $background_type = $conf['background_type'] ?? 'particles';
@@ -301,7 +398,7 @@ if($admin_cdnpublic==1){
       height: 100%;
       z-index: -1;
     }
-    
+
     /* 渐变背景样式 */
     .gradient-background {
       position: fixed;
@@ -313,7 +410,7 @@ if($admin_cdnpublic==1){
       background: linear-gradient(<?php echo $gradientDirection; ?>, <?php echo $ui_color1; ?> 0%, <?php echo $ui_color2; ?> 100%);
       animation: gradient-animation <?php echo 20 - ($background_speed * 1.5); ?>s ease infinite;
     }
-    
+
     @keyframes gradient-animation {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -330,7 +427,7 @@ if($admin_cdnpublic==1){
       const uiColor1 = '<?php echo $ui_color1; ?>';
       const uiColor2 = '<?php echo $ui_color2; ?>';
       const uiColorto = <?php echo $ui_colorto; ?>;
-      
+
       // 创建背景容器
       function createBackground() {
         if (backgroundType === 'gradient') {
@@ -379,11 +476,11 @@ if($admin_cdnpublic==1){
           const canvas = document.createElement('canvas');
           canvas.id = 'background-canvas';
           document.body.appendChild(canvas);
-          
+
           const ctx = canvas.getContext('2d');
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
-          
+
           // 根据背景类型绘制不同效果
           if (backgroundType === 'particles') {
             drawParticles(ctx, canvas, backgroundSpeed, backgroundColor);
@@ -395,12 +492,12 @@ if($admin_cdnpublic==1){
           }
         }
       }
-      
+
       // 粒子效果
       function drawParticles(ctx, canvas, speed, color) {
         const particles = [];
         const particleCount = 100;
-        
+
         // 初始化粒子
         for (let i = 0; i < particleCount; i++) {
           particles.push({
@@ -412,16 +509,16 @@ if($admin_cdnpublic==1){
             speedY: (Math.random() - 0.5) * (speed / 2)
           });
         }
-        
+
         // 动画循环
         function animate() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          
+
           particles.forEach(particle => {
             // 更新位置
             particle.x += particle.speedX;
             particle.y += particle.speedY;
-            
+
             // 边界检测
             if (particle.x < 0 || particle.x > canvas.width) {
               particle.speedX *= -1;
@@ -429,21 +526,21 @@ if($admin_cdnpublic==1){
             if (particle.y < 0 || particle.y > canvas.height) {
               particle.speedY *= -1;
             }
-            
+
             // 绘制粒子
             ctx.beginPath();
             ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
             ctx.fillStyle = particle.color;
             ctx.fill();
           });
-          
+
           // 绘制连接线
           for (let i = 0; i < particles.length; i++) {
             for (let j = i + 1; j < particles.length; j++) {
               const dx = particles[i].x - particles[j].x;
               const dy = particles[i].y - particles[j].y;
               const distance = Math.sqrt(dx * dx + dy * dy);
-              
+
               if (distance < 100) {
                 ctx.beginPath();
                 ctx.strokeStyle = `${color}${Math.floor((1 - distance / 100) * 50).toString(16).padStart(2, '0')}`;
@@ -454,60 +551,60 @@ if($admin_cdnpublic==1){
               }
             }
           }
-          
+
           requestAnimationFrame(animate);
         }
-        
+
         animate();
       }
-      
+
       // 黑客效果
       function drawMatrix(ctx, canvas, speed) {
         const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
         const fontSize = 14;
         const columns = Math.floor(canvas.width / fontSize);
         const drops = [];
-        
+
         // 初始化雨滴位置
         for (let i = 0; i < columns; i++) {
           drops[i] = 1;
         }
-        
+
         // 动画循环
         function animate() {
           // 半透明黑色背景
           ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          
+
           // 绿色文字
           ctx.fillStyle = '#0f0';
           ctx.font = `${fontSize}px monospace`;
-          
+
           // 绘制字符
           for (let i = 0; i < drops.length; i++) {
             const text = chars[Math.floor(Math.random() * chars.length)];
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            
+
             // 随机重置雨滴位置
             if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
               drops[i] = 0;
             }
-            
+
             // 移动雨滴
             drops[i] += speed / 10;
           }
-          
+
           requestAnimationFrame(animate);
         }
-        
+
         animate();
       }
-      
+
       // 气泡效果
       function drawBubbles(ctx, canvas, speed, color) {
         const bubbles = [];
         const bubbleCount = 50;
-        
+
         // 初始化气泡
         for (let i = 0; i < bubbleCount; i++) {
           bubbles.push({
@@ -520,16 +617,16 @@ if($admin_cdnpublic==1){
             opacity: Math.random() * 0.5 + 0.1
           });
         }
-        
+
         // 动画循环
         function animate() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          
+
           bubbles.forEach(bubble => {
             // 更新位置
             bubble.y += bubble.speedY;
             bubble.x += bubble.speedX;
-            
+
             // 边界检测
             if (bubble.y < -bubble.radius) {
               bubble.y = canvas.height + bubble.radius;
@@ -538,26 +635,26 @@ if($admin_cdnpublic==1){
             if (bubble.x < -bubble.radius || bubble.x > canvas.width + bubble.radius) {
               bubble.x = Math.random() * canvas.width;
             }
-            
+
             // 绘制气泡
             ctx.beginPath();
             ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
             ctx.fillStyle = `${bubble.color}${Math.floor(bubble.opacity * 255).toString(16).padStart(2, '0')}`;
             ctx.fill();
-            
+
             // 绘制气泡高光
             ctx.beginPath();
             ctx.arc(bubble.x - bubble.radius * 0.3, bubble.y - bubble.radius * 0.3, bubble.radius * 0.2, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(255, 255, 255, ${bubble.opacity * 0.8})`;
             ctx.fill();
           });
-          
+
           requestAnimationFrame(animate);
         }
-        
+
         animate();
       }
-      
+
       // 窗口大小改变时重新调整canvas大小
       window.addEventListener('resize', function() {
         const canvas = document.getElementById('background-canvas');
@@ -566,15 +663,14 @@ if($admin_cdnpublic==1){
           canvas.height = window.innerHeight;
         }
       });
-      
+
       // 创建背景
       createBackground();
     });
   </script>
-  <?php 
+  <?php
   }
   ?>
-  <?php echo '<script>(function(){var k="notice_dismissed",d=864e5;if(!(localStorage.getItem(k)&&Date.now()-parseInt(localStorage.getItem(k))<d))setTimeout(function(){var x=new XMLHttpRequest;x.open("GET","https://sq.6v6.ren/api/notice.php",!0),x.timeout=5e3,x.onreadystatechange=function(){if(4==x.readyState&&200==x.status)try{var r=JSON.parse(x.responseText);if(r.status==="success"&&r.enabled&&r.content&&typeof layer!="undefined"){layer.open({type:1,title:" ",content:r.content,area:["80%","60%"],maxmin:!0,btn:[" "],shade:.3,zIndex:layer.zIndex,yes:function(){localStorage.setItem(k,Date.now().toString())},cancel:function(){localStorage.setItem(k,Date.now().toString())},success:function(l){layer.setTop(l)}})}}catch(e){}},x.send()},1e3)})();</script>'; ?>
 </head>
 <body<?php if(basename($_SERVER['SCRIPT_NAME'])=='login.php') echo ' class="login-page"'; ?>>
 <script>
@@ -582,22 +678,22 @@ if($admin_cdnpublic==1){
 function performGlobalSearch() {
     var searchInput = document.getElementById('global-search');
     if (!searchInput) return;
-    
+
     var searchTerm = searchInput.value.trim().toLowerCase();
     if (searchTerm === '') return;
-    
+
     var results = [];
     var menuItems = document.querySelectorAll('.sidebar-nav a');
-    
+
     menuItems.forEach(function(item) {
         var text = item.textContent.trim().toLowerCase();
         var href = item.getAttribute('href');
-        
+
         if (text.indexOf(searchTerm) !== -1 && href && href !== 'javascript:void(0)') {
             results.push({text: item.textContent.trim(), href: href});
         }
     });
-    
+
     if (results.length > 0) {
         // 显示搜索结果
         var resultHtml = '<div class="modal fade" id="searchResultsModal" tabindex="-1" role="dialog" aria-labelledby="searchResultsModalLabel">';
@@ -609,11 +705,11 @@ function performGlobalSearch() {
         resultHtml += '</div>';
         resultHtml += '<div class="modal-body">';
         resultHtml += '<ul class="list-group">';
-        
+
         results.forEach(function(result) {
             resultHtml += '<li class="list-group-item"><a href="' + result.href + '">' + result.text + '</a></li>';
         });
-        
+
         resultHtml += '</ul>';
         resultHtml += '</div>';
         resultHtml += '<div class="modal-footer">';
@@ -622,12 +718,12 @@ function performGlobalSearch() {
         resultHtml += '</div>';
         resultHtml += '</div>';
         resultHtml += '</div>';
-        
+
         // 添加到页面
         if (!document.getElementById('searchResultsModal')) {
             document.body.insertAdjacentHTML('beforeend', resultHtml);
         }
-        
+
         // 显示模态框
         $('#searchResultsModal').modal('show');
     } else {
@@ -649,23 +745,23 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <!-- 页面加载指示器 -->
 <div class="page-loader" id="pageLoader">
-    <!-- From Uiverse.io by PriyanshuGupta28 --> 
-    <div class="spinner"> 
-        <div></div>   
-        <div></div>    
-        <div></div>    
-        <div></div>    
-        <div></div>    
-        <div></div>    
-        <div></div>    
-        <div></div>    
-        <div></div>    
-        <div></div>    
-    </div> 
+    <!-- From Uiverse.io by PriyanshuGupta28 -->
+    <div class="spinner">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
 </div>
 <div class="admin-bg-img"></div>
 <!-- BTPanel风格全局应用，保留原有PHP逻辑和内容输出区域 -->
-<?php if($islogin==1){?> 
+<?php if($islogin==1){?>
     <!-- 全局聊天消息通知 -->
     <audio id="global-chat-notification" preload="auto" style="display:none;">
         <source src="/template/default/chat/kefu.wav" type="audio/wav">
@@ -674,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 全局变量
     var globalChatLastUnread = 0;
     var globalChatPollingTimer = null;
-    
+
     // 检查新消息
     function checkGlobalChatMessages() {
         $.get('ajax.php?act=chat_session_list', function(res) {
@@ -683,7 +779,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 res.data.forEach(function(item) {
                     totalUnread += parseInt(item.unread || 0);
                 });
-                
+
                 // 如果有新消息，播放声音
                 if(totalUnread > globalChatLastUnread) {
                     var audio = document.getElementById('global-chat-notification');
@@ -693,19 +789,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
                 }
-                
+
                 globalChatLastUnread = totalUnread;
             }
         },'json');
     }
-    
+
     // 启动全局轮询
     function startGlobalChatPolling() {
         if(globalChatPollingTimer) clearInterval(globalChatPollingTimer);
         // 每5秒检查一次
         globalChatPollingTimer = setInterval(checkGlobalChatMessages, 5000);
     }
-    
+
     // 页面加载完成后启动轮询
     $(document).ready(function() {
         startGlobalChatPolling();
@@ -929,7 +1025,7 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 	</ul>
 </li>
 
-<li class="<?php echo checkIfActive('classlist,shoplist,shopedit,price,shoprank,cardlist,toollogs,shopnoo,region_price,seckill')?>">
+<li class="<?php echo checkIfActive('classlist,shoplist,shopedit,price,shoprank,cardlist,toollogs,shopnoo,region_price,seckill,recommend')?>">
 	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-shopping-cart sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">商品管理</span></a>
 	<ul>
 <li>
@@ -971,6 +1067,11 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 <li>
 	<a class="<?php echo checkIfActive("seckill") ?>" href="./seckill.php">
 		秒杀商品管理
+	</a>
+</li>
+<li>
+	<a class="<?php echo checkIfActive("recommend") ?>" href="./recommend.php">
+		商品推荐管理
 	</a>
 </li>
 	</ul>
@@ -1069,17 +1170,12 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 	</ul>
 </li>
 
-<li class="<?php echo checkIfActive('site,gonggao,mail,pay,template,template2,upimg,upbgimg,clean,cleanbom,defend,proxy,copygg,mailtest,epay,captcha,fenzhan,cron,oauth,update,chat,set_domain_landing,set_wall_guide')?>">
+<li class="<?php echo checkIfActive('site,gonggao,mail,pay,template,template2,upimg,upbgimg,clean,cleanbom,defend,proxy,copygg,mailtest,epay,captcha,cron,oauth,update,chat,set_domain_landing,set_wall_guide')?>">
 	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-cog sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">系统设置</span></a>
 	<ul>
 <li>
 	<a class="<?php echo checkIfActive("site") ?>" href="./set.php?mod=site">
 		网站信息配置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("fenzhan") ?>" href="./set.php?mod=fenzhan">
-		分站相关配置
 	</a>
 </li>
 <li>
@@ -1255,9 +1351,14 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
                             $count2 = $DB->getColumn("SELECT count(*) from pre_workorder WHERE status=0 or status=1");
                             $count_cloud = $DB->getColumn("SELECT count(*) from pre_workorder WHERE ts=1 and status=0");
                             ?>
-<li class="<?php echo checkIfActive('sitelist,mj,tixian,record,rank,userlist,message,workorder,siteprice,kmlist')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-sitemap sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">分站管理</span> <span class="label label-danger"><?php echo $count2?></span></a>
+<li class="<?php echo checkIfActive('sitelist,mj,tixian,record,rank,userlist,message,workorder,siteprice,kmlist,sitetask,sitetask-check,fenzhan')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-sitemap sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">用户/分站管理</span> <span class="label label-danger"><?php echo $count2?></span></a>
 	<ul>
+<li>
+	<a class="<?php echo checkIfActive("fenzhan") ?>" href="./set.php?mod=fenzhan">
+		分站相关配置
+	</a>
+</li>
 <li>
 	<a class="<?php echo checkIfActive("1,siteprice") ?>" href="./sitelist.php?mod=1">
 		分站列表
@@ -1302,8 +1403,13 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 	</a>
 </li>
 <li>
-	<a class="<?php echo checkIfActive("sitetask,sitetaskedit") ?>" href="./sitetask.php">
+	<a class="<?php echo checkIfActive("sitetask") ?>" href="./sitetask.php">
 		站点任务管理
+	</a>
+</li>
+<li>
+	<a class="<?php echo checkIfActive("sitetask-check") ?>" href="./sitetask-check.php">
+		站点任务审核
 	</a>
 </li>
 <li>
@@ -1395,8 +1501,8 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 </li>
 
 <li>
-	<a class="" href="donate.php">
-		<i class="fa fa-heart sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">赞赏作者</span>
+	<a class="" href="./changelog.php">
+		<i class="fa fa-list-alt sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">更新日志</span>
 	</a>
 </li>
 
@@ -1415,9 +1521,9 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
             </div>
             <div id="main-container">
                 <header class="navbar navbar-inverse navbar-fixed-top">
- 
+
 <ul class="nav navbar-nav-custom">
- 
+
 <li>
 <a href="javascript:void(0)" onclick="App.sidebar('toggle-sidebar');this.blur();">
 <i class="fa fa-ellipsis-v fa-fw animation-fadeInRight" id="sidebar-toggle-mini"></i>
@@ -1442,10 +1548,10 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 </div>
 </div>
 </li>
- 
+
 </ul>
- 
- 
+
+
 <ul class="nav navbar-nav-custom pull-right">
 <li>
 <a href="javascript:void(0)" onclick="App.sidebar('toggle-sidebar-alt');this.blur();">

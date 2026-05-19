@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-md-12 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("faka", 1);
 $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 order by sort asc");
 $select = "<option value=\"0\">所有</option>";
@@ -64,7 +64,7 @@ if ($my == "move") {
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>商品名称</th><th>剩余卡密</th><th>已售出</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 	$pagesize = 30;
 	$pages = ceil($numrows / $pagesize);
 	$page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -102,7 +102,7 @@ function unselectall1()
     if(document.form1.chkAll1.checked){
 	document.form1.chkAll1.checked = document.form1.chkAll1.checked&0;
 	checkflag1 = "false";
-    } 	
+    }
 }
 
 function setActive(tid,active) {
@@ -139,7 +139,7 @@ for (i = 0; i < items.length; i++) {
 }
 </script>
 
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 	$first = 1;
 	$prev = $page - 1;
 	$next = $page + 1;
@@ -167,7 +167,7 @@ for (i = 0; i < items.length; i++) {
 		echo "<li class=\"disabled\"><a>&raquo;</a></li>";
 		echo "<li class=\"disabled\"><a>尾页</a></li>";
 	}
-	?></ul><?php 
+	?></ul><?php
 }
 ?></div>
     </div>

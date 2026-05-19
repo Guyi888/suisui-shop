@@ -23,7 +23,7 @@ while ($res = $rs->fetch()) {
     <div class="row category">
       <div class="col-12">
         <div class="section__title-wrap">
-          <h2 class="section__title">商品分类    
+          <h2 class="section__title">商品分类
 </h2>
         </div>
       </div>
@@ -56,9 +56,9 @@ while ($res = $rs->fetch()) {
           <h2 class="section__title section__title--pre">选择商品</h2>
         </div>
       </div>
-      
+
       <div class="col-12 col-lg-12">
-        
+
         <div class="row goods_list" style="max-height: 420px;overflow-x: auto;">
 <?php
 $idcid = $conf['indexClass_ID'] == '' ? '1' : $conf['indexClass_ID'];
@@ -97,7 +97,7 @@ while ($res = $rs2->fetch()) {
                   <div class="card__wrap">
                     <div class="card__detail">
                       <h3>' . $res['name'] . '</h3>
-  
+
                     </div>
                     <div class="card__detail"><span class="card__detail_price">￥' . $price . '</span></div>
                                         <div class="card__detail"><span class="card__detail_stock"><span>' . $status . '</span></span></div>
@@ -151,7 +151,7 @@ while ($res = $rs2->fetch()) {
             <span>填写信息/购买方式</span>
           </div>
           <div class="ure_info" id="inputsname">
-              
+
             <div class="ure_info_input_box">
               <div class="ure_info_input_box_hide">
                 <p>*</p>
@@ -164,7 +164,7 @@ while ($res = $rs2->fetch()) {
                 联系邮箱特别重要,可用来查询订单
               </div>
             </div>
-            
+
           </div>
           <div class="pay_type">
             <div class="pay_type_hide">

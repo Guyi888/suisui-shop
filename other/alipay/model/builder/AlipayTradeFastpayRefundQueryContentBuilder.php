@@ -14,10 +14,10 @@ class AlipayTradeFastpayRefundQueryContentBuilder
     // 商户订单号.
     private $outTradeNo;
     // 支付宝交易号
-    private $tradeNo;  
+    private $tradeNo;
     // 请求退款接口时，传入的退款请求号，如果在退款请求时未传入，则该值为创建交易时的外部交易号
     private $outRequestNo;
-    
+
     private $bizContentarr = array();
 
     private $bizContent = NULL;
@@ -53,12 +53,12 @@ class AlipayTradeFastpayRefundQueryContentBuilder
     }
     public function getOutRequestNo()
     {
-    	return $this->outRequestNo;
+	return $this->outRequestNo;
     }
     public function setOutRequestNo($outRequestNo)
     {
-    	$this->outRequestNo = $outRequestNo;
-    	$this->bizContentarr['out_request_no'] = $outRequestNo;
+	$this->outRequestNo = $outRequestNo;
+	$this->bizContentarr['out_request_no'] = $outRequestNo;
     }
 }
 

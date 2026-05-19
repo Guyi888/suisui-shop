@@ -31,7 +31,7 @@ var submitVerity = function (postData, failfunc){
 				layer.alert(data.msg, {icon:2});
 				failfunc.call();
 			}
-		} 
+		}
 	});
 }
 var handlerEmbed = function (captchaObj) {

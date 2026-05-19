@@ -136,7 +136,7 @@ class third_shangzhanwl{
 			return $ret['info'];
 		}
 	}
-	
+
 	public function query_order($orderid, $goodsid, $value = []){
 		$url = '/api.php/Client/orderDetail';
 		$order_stats = [0=>'未知', 1=>'待处理', 2=>'正在处理', 3=>'交易成功', 4=>'处理失败', 5=>'成功退款', 6=>'订单异常'];

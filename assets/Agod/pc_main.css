@@ -1005,7 +1005,7 @@ footer p a{
 }
 
 
-::-webkit-input-placeholder { 
+::-webkit-input-placeholder {
     color: #999;
     font-size: 16px;
 }
@@ -1018,7 +1018,7 @@ footer p a{
 :-ms-input-placeholder {
     color: #999;
     font-size: 16px;
-} 
+}
 #order_box .btn_box .queding {
     display: inline-block;
     text-align: center;

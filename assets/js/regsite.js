@@ -65,7 +65,7 @@ function dopay(type,orderid){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}else{
 		window.location.href='../other/submit.php?type='+type+'&orderid='+orderid;
@@ -110,7 +110,7 @@ var handlerEmbed = function (captchaObj) {
 					layer.alert(data.msg);
 					captchaObj.reset();
 				}
-			} 
+			}
 		});
 	});
 };
@@ -146,7 +146,7 @@ var handlerEmbed2 = function (token) {
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 };
 var handlerEmbed3 = function (vaptchaObj) {
@@ -186,7 +186,7 @@ var handlerEmbed3 = function (vaptchaObj) {
 					layer.alert(data.msg);
 					vaptchaObj.reset();
 				}
-			} 
+			}
 		});
 	});
 };
@@ -352,7 +352,7 @@ $(document).ready(function(){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	});
 });

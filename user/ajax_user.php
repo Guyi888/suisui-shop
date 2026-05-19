@@ -49,14 +49,14 @@ switch ($act) {
         $up        = intval($_POST['up']);
         $cid       = intval($_POST['cid']);
         $kw        = trim(daddslashes($_POST['kw']));
-        
+
         if ($up <= 0) {
             exit('{"code":-1,"msg":"输入值不正确"}');
         }
         if ($conf['fenzhan_pricelimit'] == 1 && $up > 100) {
             exit('{"code":-1,"msg":"商品售价最高不能超过原售价的2倍"}');
         }
-        
+
         // 构建查询条件
         $where = "active=1";
         if ($cid > 0) {
@@ -65,7 +65,7 @@ switch ($act) {
         if (!empty($kw)) {
             $where .= " AND name LIKE '%{$kw}%'";
         }
-        
+
         $sql  = $DB->query("select * from pre_tools where {$where}");
         $data = [];
         while ($row = $sql->fetch()) {
@@ -80,7 +80,7 @@ switch ($act) {
             $a                          = (float)$up / 100;
             $data[$row['tid']]['price'] = round($price * ($a + 1), 2);
         }
-        
+
         // 保存历史记录
         $price_history = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$userrow['zid']}'");
         $original_price = [];
@@ -92,10 +92,10 @@ switch ($act) {
                 'del' => $row['del']
             ];
         }
-        
+
         $history_desc = "价格提升：" . $up . "%";
         $history_data = json_encode($original_price);
-        
+
         // 检查并创建历史记录表
         $DB->exec("CREATE TABLE IF NOT EXISTS pre_price_history (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -104,33 +104,33 @@ switch ($act) {
             description VARCHAR(255) NOT NULL,
             create_time DATETIME NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-        
+
         // 插入历史记录
         $DB->exec("INSERT INTO pre_price_history (zid, price_data, description, create_time) VALUES ('{$userrow['zid']}', '{$history_data}', '{$history_desc}', NOW())");
-        
+
         // 使用事务确保操作的原子性
         $DB->beginTransaction();
         try {
             $updated_count = 0;
             foreach ($data as $tid => $price_info) {
                 $price = $price_info['price'];
-                
+
                 // 使用INSERT ON DUPLICATE KEY UPDATE语法，确保数据的唯一性
-                $sql = "INSERT INTO pre_site_price (zid, tid, price, create_time, update_time) 
-                       VALUES (:zid, :tid, :price, NOW(), NOW()) 
-                       ON DUPLICATE KEY UPDATE 
+                $sql = "INSERT INTO pre_site_price (zid, tid, price, create_time, update_time)
+                       VALUES (:zid, :tid, :price, NOW(), NOW())
+                       ON DUPLICATE KEY UPDATE
                        price = :price, update_time = NOW()";
-                
+
                 $data_insert = [
                     ':zid' => $userrow['zid'],
                     ':tid' => $tid,
                     ':price' => $price
                 ];
-                
+
                 $DB->exec($sql, $data_insert);
                 $updated_count++;
             }
-            
+
             $DB->commit();
             exit('{"code":0,"msg":"价格提升成功，共修改了'.count($data).'个商品"}');
         } catch (Exception $e) {
@@ -138,16 +138,16 @@ switch ($act) {
             exit('{"code":-1,"msg":"价格提升失败：' . $e->getMessage() . '"}');
         }
         break;
-    
+
     case 'reset_price':
         unset($islogin2);
         $cid = intval($_POST['cid']);
         $name = trim(daddslashes($_POST['name']));
         $status = intval($_POST['status']);
-        
+
         // 构建查询条件
         $where = "active=1";
-        
+
         // 分类条件
         if (!empty($cid) && $cid != '0') {
             // 处理多选分类，转换为数组
@@ -160,44 +160,44 @@ switch ($act) {
                 $where .= " AND cid IN ('" . implode("','", $cid_array) . "')";
             }
         }
-        
+
         // 名称条件
         if (!empty($name)) {
             $where .= " AND name LIKE '%$name%'";
         }
-        
+
         // 状态条件
         if ($status == 1) {
             $where .= " AND close=0";
         } elseif ($status == 2) {
             $where .= " AND close=1";
         }
-        
+
         // 查询符合条件的商品
         $sql = $DB->query("SELECT tid FROM pre_tools WHERE {$where}");
         $tids = [];
         while ($row = $sql->fetch()) {
             $tids[] = $row['tid'];
         }
-        
+
         $reset_count = 0;
         if (!empty($tids)) {
             // 从pre_site_price表中删除这些商品的价格记录
             $tid_list = implode(',', $tids);
             $reset_count = $DB->exec("DELETE FROM pre_site_price WHERE zid='{$userrow['zid']}' AND tid IN ({$tid_list})");
         }
-        
+
         if ($reset_count > 0) {
             exit('{"code":0,"msg":"成功恢复 '.$reset_count.' 个商品的价格"}');
         } else {
             exit('{"code":0,"msg":"没有找到需要恢复价格的商品"}');
         }
         break;
-    
+
     case 'batch_update_price':
         unset($islogin2);
         $price_obj = new \lib\Price($userrow['zid'], $userrow);
-        
+
         // 获取参数
         $operation = $_POST['operation'];
         $price_type = $_POST['price_type'];
@@ -206,27 +206,27 @@ switch ($act) {
         $cid = trim($_POST['cid']);
         $name = trim($_POST['name']);
         $status = intval($_POST['status']);
-        
+
         // 验证参数
         if ($operation != 'add' && $operation != 'subtract') {
             exit('{"code":-1,"msg":"操作类型错误"}');
         }
-        
+
         if ($price_type != 'price') {
             exit('{"code":-1,"msg":"价格类型错误"}');
         }
-        
+
         if ($batch_type != 'fixed' && $batch_type != 'percent') {
             exit('{"code":-1,"msg":"批量类型错误"}');
         }
-        
+
         if ($batch_type == 'percent' && $value <= 0) {
             exit('{"code":-1,"msg":"百分比必须为正数"}');
         }
-        
+
         // 构建查询条件
         $where = "active=1";
-        
+
         // 分类条件
         if (!empty($cid) && $cid != '0') {
             // 处理多选分类，转换为数组
@@ -239,37 +239,37 @@ switch ($act) {
                 $where .= " AND cid IN ('" . implode("','", $cid_array) . "')";
             }
         }
-        
+
         // 名称条件
         if (!empty($name)) {
             $where .= " AND name LIKE '%" . daddslashes($name) . "%'";
         }
-        
+
         // 状态条件
         if ($status == 1) {
             $where .= " AND close=0";
         } elseif ($status == 2) {
             $where .= " AND close=1";
         }
-        
+
         // 查询符合条件的商品数量，移除数量限制
         $total_count = $DB->getColumn("SELECT count(*) FROM pre_tools WHERE {$where}");
-        
+
         // 查询符合条件的商品
         $sql = $DB->query("SELECT * FROM pre_tools WHERE {$where}");
         $data = [];
         $updated_count = 0;
-        
+
         while ($row = $sql->fetch()) {
             // 跳过价格为0或名称包含"免费"的商品
             if ($row['price'] == 0 || strpos($row['name'], '免费') !== false) {
                 continue;
             }
-            
+
             // 获取当前价格
             $price_obj->setToolInfo($row['tid'], $row);
             $current_price = $price_obj->getToolPrice($row['tid']);
-            
+
             // 计算新价格
             $new_price = 0;
             if ($batch_type == 'fixed') {
@@ -286,13 +286,13 @@ switch ($act) {
                     $new_price = round($current_price * (1 - $percentage), 2);
                 }
             }
-            
+
             // 确保价格不低于成本价
             $cost_price = $price_obj->getToolCost($row['tid']);
             if ($new_price < $cost_price) {
                 continue;
             }
-            
+
             // 应用价格限制
             $main_price = $price_obj->getMainPrice();
             if ($conf['fenzhan_pricelimit'] == 1) {
@@ -303,17 +303,17 @@ switch ($act) {
                     continue;
                 }
             }
-            
+
             // 更新价格
             $data[$row['tid']]['price'] = $new_price;
             $updated_count++;
         }
-        
+
         // 保存更新
         if ($updated_count > 0) {
             // 添加调试日志
             error_log("[DEBUG] 开始批量修改价格，ZID: {$userrow['zid']}, 待更新商品数量: {$updated_count}");
-            
+
             // 从pre_site_price表中获取当前价格数据作为备份
             $price_history = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$userrow['zid']}'");
             $original_price = [];
@@ -325,14 +325,14 @@ switch ($act) {
                     'del' => $row['del']
                 ];
             }
-            
+
             // 记录原始数据信息
             error_log("[DEBUG] 原始数据数量: " . count($original_price));
-            
+
             // 保存历史记录
             $history_desc = "批量" . ($operation == 'add' ? "加价" : "降价") . "：" . ($batch_type == 'fixed' ? $value . "元" : $value . "%");
             $history_data = json_encode($original_price); // 使用JSON格式保存原始数据作为历史记录
-            
+
             // 检查并创建历史记录表
             $DB->exec("CREATE TABLE IF NOT EXISTS pre_price_history (
                 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -341,32 +341,32 @@ switch ($act) {
                 description VARCHAR(255) NOT NULL,
                 create_time DATETIME NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-            
+
             // 插入历史记录
             $DB->exec("INSERT INTO pre_price_history (zid, price_data, description, create_time) VALUES ('{$userrow['zid']}', '{$history_data}', '{$history_desc}', NOW())");
-            
+
             // 使用事务确保操作的原子性
             $DB->beginTransaction();
             try {
                 // 将批量修改的价格数据保存到新表中
                 foreach ($data as $tid => $price_info) {
                     $price = $price_info['price'];
-                    
+
                     // 使用INSERT ON DUPLICATE KEY UPDATE语法，确保数据的唯一性
-                    $sql = "INSERT INTO pre_site_price (zid, tid, price, create_time, update_time) 
-                           VALUES (:zid, :tid, :price, NOW(), NOW()) 
-                           ON DUPLICATE KEY UPDATE 
+                    $sql = "INSERT INTO pre_site_price (zid, tid, price, create_time, update_time)
+                           VALUES (:zid, :tid, :price, NOW(), NOW())
+                           ON DUPLICATE KEY UPDATE
                            price = :price, update_time = NOW()";
-                    
+
                     $data_insert = [
                         ':zid' => $userrow['zid'],
                         ':tid' => $tid,
                         ':price' => $price
                     ];
-                    
+
                     $DB->exec($sql, $data_insert);
                 }
-                
+
                 $DB->commit();
                 error_log("[DEBUG] 批量修改成功，共更新了 {$updated_count} 个商品");
                 exit("{\"code\":0,\"msg\":\"批量修改成功，共更新了 {$updated_count} 个商品\"}");
@@ -578,32 +578,32 @@ switch ($act) {
             $file_ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
             $allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp');
             $max_size = 2 * 1024 * 1024; // 2MB
-            
+
             // 检查文件类型和扩展名
             if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
                 exit('{"code":-1,"msg":"只允许上传JPG、PNG、GIF、WEBP、BMP格式的图片文件！"}');
             }
-            
+
             // 检查文件大小
             if ($_FILES['file']['size'] > $max_size) {
                 exit('{"code":-1,"msg":"文件大小不能超过2MB！"}');
             }
-            
+
             // 检查文件是否为真实图片
             $image_info = getimagesize($_FILES['file']['tmp_name']);
             if (!$image_info) {
                 exit('{"code":-1,"msg":"请上传真实的图片文件！"}');
             }
-            
+
             // 生成更安全的文件名：结合时间戳、随机数和文件内容哈希
             $filename = md5(uniqid(mt_rand(), true) . time() . file_get_contents($_FILES['file']['tmp_name'])) . '.' . $file_ext;
             $fileurl  = 'assets/img/workorder/' . $filename;
-            
+
             // 确保上传目录存在
             if (!is_dir(ROOT . 'assets/img/workorder/')) {
                 mkdir(ROOT . 'assets/img/workorder/', 0755, true);
             }
-            
+
             // 使用move_uploaded_file更安全
             if (move_uploaded_file($_FILES['file']['tmp_name'], ROOT . $fileurl)) {
                 exit('{"code":0,"msg":"succ","url":"' . $fileurl . '"}');
@@ -792,10 +792,10 @@ switch ($act) {
         $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
         $pagesize = 10;
         $offset = ($page - 1) * $pagesize;
-        
+
         // 获取总记录数
         $total = $DB->getColumn("SELECT count(*) FROM pre_price_history WHERE zid='{$userrow['zid']}'");
-        
+
         // 获取历史记录
         $sql = $DB->query("SELECT * FROM pre_price_history WHERE zid='{$userrow['zid']}' ORDER BY create_time DESC LIMIT $offset,$pagesize");
         $history = [];
@@ -808,7 +808,7 @@ switch ($act) {
                     $price_data = [];
                 }
             }
-            
+
             $history[] = [
                 'id' => $row['id'],
                 'description' => $row['description'],
@@ -816,7 +816,7 @@ switch ($act) {
                 'price_data_count' => count($price_data)
             ];
         }
-        
+
         exit(json_encode([
             'code' => 0,
             'msg' => 'success',
@@ -832,7 +832,7 @@ switch ($act) {
         if (!$last_history) {
             exit('{"code":-1,"msg":"没有找到历史记录"}');
         }
-        
+
         // 保存当前状态到历史记录
         $current_price = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$userrow['zid']}'");
         $current_price_data = [];
@@ -846,20 +846,20 @@ switch ($act) {
         }
         $current_price_json = json_encode($current_price_data);
         $DB->exec("INSERT INTO pre_price_history (zid, price_data, description, create_time) VALUES ('{$userrow['zid']}', '{$current_price_json}', '恢复到上一次修改前的状态', NOW())");
-        
+
         // 使用事务确保操作的原子性
         $DB->beginTransaction();
         try {
             // 清空当前价格数据
             $DB->exec("DELETE FROM pre_site_price WHERE zid='{$userrow['zid']}'");
-            
+
             // 恢复上一次的价格数据
             $last_price_data = json_decode($last_history['price_data'], true);
             if (is_array($last_price_data)) {
                 foreach ($last_price_data as $tid => $price_info) {
-                    $sql = "INSERT INTO pre_site_price (zid, tid, price, cost, cost2, del, create_time, update_time) 
+                    $sql = "INSERT INTO pre_site_price (zid, tid, price, cost, cost2, del, create_time, update_time)
                            VALUES (:zid, :tid, :price, :cost, :cost2, :del, NOW(), NOW())";
-                    
+
                     $data_insert = [
                         ':zid' => $userrow['zid'],
                         ':tid' => $tid,
@@ -868,11 +868,11 @@ switch ($act) {
                         ':cost2' => isset($price_info['cost2']) ? $price_info['cost2'] : 0,
                         ':del' => isset($price_info['del']) ? $price_info['del'] : 0
                     ];
-                    
+
                     $DB->exec($sql, $data_insert);
                 }
             }
-            
+
             $DB->commit();
             exit('{"code":0,"msg":"已成功恢复到上一次修改的状态"}');
         } catch (Exception $e) {
@@ -887,7 +887,7 @@ switch ($act) {
         if (!$history) {
             exit('{"code":-1,"msg":"历史记录不存在"}');
         }
-        
+
         // 保存当前状态到历史记录
         $current_price = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$userrow['zid']}'");
         $current_price_data = [];
@@ -901,20 +901,20 @@ switch ($act) {
         }
         $current_price_json = json_encode($current_price_data);
         $DB->exec("INSERT INTO pre_price_history (zid, price_data, description, create_time) VALUES ('{$userrow['zid']}', '{$current_price_json}', '恢复到指定历史版本前的状态', NOW())");
-        
+
         // 使用事务确保操作的原子性
         $DB->beginTransaction();
         try {
             // 清空当前价格数据
             $DB->exec("DELETE FROM pre_site_price WHERE zid='{$userrow['zid']}'");
-            
+
             // 恢复指定历史版本的价格数据
             $history_price_data = json_decode($history['price_data'], true);
             if (is_array($history_price_data)) {
                 foreach ($history_price_data as $tid => $price_info) {
-                    $sql = "INSERT INTO pre_site_price (zid, tid, price, cost, cost2, del, create_time, update_time) 
+                    $sql = "INSERT INTO pre_site_price (zid, tid, price, cost, cost2, del, create_time, update_time)
                            VALUES (:zid, :tid, :price, :cost, :cost2, :del, NOW(), NOW())";
-                    
+
                     $data_insert = [
                         ':zid' => $userrow['zid'],
                         ':tid' => $tid,
@@ -923,11 +923,11 @@ switch ($act) {
                         ':cost2' => isset($price_info['cost2']) ? $price_info['cost2'] : 0,
                         ':del' => isset($price_info['del']) ? $price_info['del'] : 0
                     ];
-                    
+
                     $DB->exec($sql, $data_insert);
                 }
             }
-            
+
             $DB->commit();
             exit('{"code":0,"msg":"已成功恢复到指定历史版本"}');
         } catch (Exception $e) {

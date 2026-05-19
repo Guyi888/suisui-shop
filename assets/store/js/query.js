@@ -65,7 +65,7 @@ function saveOrderPwd(id,skey) {
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function showOrder(id,skey){

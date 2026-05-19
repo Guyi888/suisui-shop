@@ -72,10 +72,21 @@ $mod=isset($_GET['mod'])?$_GET['mod']:null;
                     </div>
                     <br/>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label">显示间隔（小时）</label>
+                        <label class="col-sm-3 control-label">显示间隔</label>
                         <div class="col-sm-9">
-                            <input type="number" name="wall_guide_interval" value="<?php echo !empty($conf['wall_guide_interval']) ? $conf['wall_guide_interval'] : 24; ?>" class="form-control" placeholder="请输入多久显示一次（小时）" min="1" max="720">
-                            <span class="help-block">设置访问者多久会再次看到引导页，默认为24小时</span>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <input type="number" name="wall_guide_interval" value="<?php echo !empty($conf['wall_guide_interval']) ? $conf['wall_guide_interval'] : 24; ?>" class="form-control" placeholder="请输入数值" min="1" max="720">
+                                </div>
+                                <div class="col-sm-6">
+                                    <select class="form-control" name="wall_guide_interval_unit" default="<?php echo !empty($conf['wall_guide_interval_unit']) ? $conf['wall_guide_interval_unit'] : 'hour'; ?>">
+                                        <option value="second">秒</option>
+                                        <option value="minute">分</option>
+                                        <option value="hour">时</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <span class="help-block">设置访问者多久会再次看到引导页，支持秒、分、小时单位选择</span>
                         </div>
                     </div>
                     <br/>
@@ -97,7 +108,7 @@ $mod=isset($_GET['mod'])?$_GET['mod']:null;
             </div>
         </div>
         <div class="panel-footer">
-            <span class="glyphicon glyphicon-info-sign"></span>
+            <span class="fa fa-info-circle"></span>
             开启后访问前台会先显示引导页,点击继续访问后在设定的时间内不再显示,时间到期后需再次点击
         </div>
     </div>

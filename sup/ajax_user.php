@@ -112,21 +112,21 @@ case 'uploadimg':
 		$file_ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
 		$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp');
 		$max_size = 2 * 1024 * 1024; // 2MB
-		
+
 		if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 			exit('{"code":-1,"msg":"只允许上传JPG、PNG、GIF、WEBP、BMP格式的图片文件！"}');
 		}
-		
+
 		if ($_FILES['file']['size'] > $max_size) {
 			exit('{"code":-1,"msg":"文件大小不能超过2MB！"}');
 		}
-		
+
 		// 检查文件是否为真实图片
 		$image_info = getimagesize($_FILES['file']['tmp_name']);
 		if (!$image_info) {
 			exit('{"code":-1,"msg":"请上传真实的图片文件！"}');
 		}
-		
+
 		$filename = md5_file($_FILES['file']['tmp_name']).'.png';
 		$fileurl = 'assets/img/workorder/'.$filename;
 		if(copy($_FILES['file']['tmp_name'], ROOT.$fileurl)){

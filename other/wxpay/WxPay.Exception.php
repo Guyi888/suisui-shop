@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * 微信支付API异常类
  * @author widyhu
  *

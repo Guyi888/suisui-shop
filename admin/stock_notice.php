@@ -8,14 +8,14 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-md-12 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("faka", 1);
 ?><div class="widget">
 <ul class="list-group">
 	<li class="list-group-item">
 		注：商品隐藏、商品下架、对接商品不会显示。
 	</li>
-<?php 
+<?php
 $stockrows = $DB->getAll("SELECT `tid`,`name`,`active` FROM `pre_tools` WHERE `active` = 1 AND `close` = 0 AND `is_curl` = 4");
 $count = 0;
 foreach ($stockrows as $stockrow) {

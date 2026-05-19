@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-sm-12 col-md-10 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("account", 1);
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 if ($my == "add") {
@@ -51,7 +51,7 @@ if ($my == "add") {
   <br/><a href="./account.php">>>返回员工列表</a>
 </div>
 </div>
-<?php 
+<?php
 } elseif ($my == "edit") {
 	$id = $_GET["id"];
 	$row = $DB->getRow("select * from pre_account where id='" . $id . "' limit 1");
@@ -101,7 +101,7 @@ for (i = 0; i < items.length; i++) {
 	$(items[i]).val($(items[i]).attr("default")||0);
 }
 </script>
-<?php 
+<?php
 } elseif ($my == "add_submit") {
 	$username = $_POST["username"];
 	$password = $_POST["password"];
@@ -159,7 +159,7 @@ for (i = 0; i < items.length; i++) {
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>用户名</th><th>权限</th><th>添加时间/上次登录</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 	$pagesize = 30;
 	$pages = ceil($numrows / $pagesize);
 	$page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -171,7 +171,7 @@ for (i = 0; i < items.length; i++) {
 	?>          </tbody>
         </table>
       </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 	$first = 1;
 	$prev = $page - 1;
 	$next = $page + 1;
@@ -199,7 +199,7 @@ for (i = 0; i < items.length; i++) {
 		echo "<li class=\"disabled\"><a>&raquo;</a></li>";
 		echo "<li class=\"disabled\"><a>尾页</a></li>";
 	}
-	?></ul><?php 
+	?></ul><?php
 }
 ?>    </div>
   </div>

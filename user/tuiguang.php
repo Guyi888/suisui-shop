@@ -131,7 +131,7 @@ if($conf['fanghong_api']>0){
                                         自助下单地址：<?php echo $turl?></p>
                                 </div>
                             </div>
-                        
+
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <span style="font-weight:bold">专属文字广告②</span>
@@ -156,7 +156,7 @@ if($conf['fanghong_api']>0){
                                         自助下单地址：<?php echo $turl?></p>
                                 </div>
                             </div>
-                        
+
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <span style="font-weight:bold">专属文字广告④</span>
@@ -187,7 +187,7 @@ if($conf['fanghong_api']>0){
                                     <a href="javascript:void(0);" id="copy-btn" class="btn btn-success btn-xs pull-right" data-clipboard-target="#wen-f">复制广告</a>
                                 </div>
                                 <div class="panel-body">
-                                    <p id="wen-f" class="text-center">    
+                                    <p id="wen-f" class="text-center">
                                         QQ代唰商城<br><?php echo $turl?><br>【自动处理】【下单秒唰】<br>【钻类业务】【搭建分站】<br>【唰名片赞】【空间业务】<br>【会员业务】【王者代练】<br>【抖音业务】【代挂业务】<br>【Ｋ歌业务】【新浪微博】<br>每天免费抽奖，赢好礼<br>开通分站每天签到送现金！<br>建议收藏网站方便下次访问，不迷路
                                     </p>
                                 </div>

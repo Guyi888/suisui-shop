@@ -34,7 +34,7 @@ $addsalt_js = json_encode($addsalt);
 <body style="background-color:#ffffff;">
 <div style="padding-top:6px;">
     <div class="col-xs-12 col-sm-10 col-md-8 col-lg-5 center-block" style="float: none;">
-        
+
         <div class="block block-themed" style="box-shadow:0px 5px 10px 0 rgba(0, 0, 0, 0.25);">
 			<div class="block-header bg-primary">
 				<h3 class="block-title"><i class="fa fa-credit-card-alt"></i>&nbsp;&nbsp;卡密下单</h3>

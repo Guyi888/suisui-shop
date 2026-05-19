@@ -19,31 +19,31 @@ $DB->exec("CREATE TABLE IF NOT EXISTS `pre_domain_landing` (
 if(isset($_POST['submit'])) {
     $old_domain = trim(strtolower($_POST['old_domain']));
     $new_domain = trim(strtolower($_POST['new_domain']));
-    
+
     if(empty($old_domain) || empty($new_domain)) {
         showmsg('域名不能为空',3);
     }
-    
+
     // 验证新旧域名不能相同
     if($old_domain === $new_domain) {
         showmsg('新旧域名不能相同',3);
     }
-    
+
     // 去除http(s)://前缀
     $old_domain = preg_replace('/^https?:\/\//', '', $old_domain);
     $new_domain = preg_replace('/^https?:\/\//', '', $new_domain);
-    
+
     // 再次验证去除前缀后的域名不能相同
     if($old_domain === $new_domain) {
         showmsg('新旧域名不能相同',3);
     }
-    
+
     $sds = $DB->exec("INSERT INTO `pre_domain_landing` (`old_domain`, `new_domain`, `addtime`) VALUES (:old_domain, :new_domain, NOW()) ON DUPLICATE KEY UPDATE `new_domain`=:new_domain2", [
         ':old_domain' => $old_domain,
         ':new_domain' => $new_domain,
         ':new_domain2' => $new_domain
     ]);
-    
+
     showmsg('设置保存成功！',1);
 }
 

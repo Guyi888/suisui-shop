@@ -9,6 +9,14 @@ if (empty($site_info['appurl'])) {
 }
 // 从XHY-00获取的配置
 $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3.ax1x.com/2021/01/01/rxImKe.png';
+
+// 模板配置 - 显示/隐藏控制
+$show_marquee = isset($conf['show_marquee']) ? $conf['show_marquee'] : '1';
+$show_warning_div = isset($conf['show_warning_div']) ? $conf['show_warning_div'] : '1';
+$show_guide_link = isset($conf['show_guide_link']) ? $conf['show_guide_link'] : '1';
+$show_order_warning = isset($conf['show_order_warning']) ? $conf['show_order_warning'] : '1';
+$show_auto_delivery = isset($conf['show_auto_delivery']) ? $conf['show_auto_delivery'] : '1';
+$show_top_banner = isset($conf['show_top_banner']) ? $conf['show_top_banner'] : '1';
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -25,31 +33,31 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
   <link rel="icon" href="<?php echo $cdnserver?>assets/img/favicon/favicon.ico" type="image/x-icon" />
   <link rel="shortcut icon" href="<?php echo $cdnserver?>assets/img/favicon/favicon.ico" type="image/x-icon" />
   <?php }?>
-  
+
   <!-- 预加载关键资源 - 来自CX-NEW1 -->
   <link rel="preload" href="//lib.baomitu.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="//lib.baomitu.com/twitter-bootstrap/3.3.7/fonts/glyphicons-halflings-regular.woff2" as="font" type="font/woff2" crossorigin>
-  
+
   <!-- 关键CSS优先加载 - 结合CX-NEW1和XHY-00 -->
   <link href="//lib.baomitu.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">
   <link rel="stylesheet" href="<?php echo $cdnserver?>assets/css/common.css?ver=<?php echo VERSION ?>">
-  
+
   <!-- 非关键JavaScript异步加载 -->
   <script src="//lib.baomitu.com/modernizr/2.8.3/modernizr.min.js" async></script>
   <!--[if lt IE 9]>
     <script src="//lib.baomitu.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="//lib.baomitu.com/respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
-  
-  <!-- 关键JavaScript立即加载 - 来自6v6.ren -->
+
+  <!-- 关键JavaScript立即加载 - 岁岁 @qqfaka -->
   <script src="//lib.baomitu.com/jquery/1.12.4/jquery.min.js"></script>
   <script src="//lib.baomitu.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
   <script src="//lib.baomitu.com/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="//lib.baomitu.com/layer/2.3/layer.js"></script>
   <script src="assets/js/main.js?ver=<?php echo VERSION ?>"></script>
-  
+
   <!-- 全局错误处理 - 来自CX-NEW1 -->
   <script>
   window.addEventListener('error', function(e) {
@@ -57,7 +65,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
       return false;
   });
   </script>
-  
+
   <!-- 分类点击功能优化 - 来自CX-NEW1 -->
   <script>
   $(document).ready(function(){
@@ -65,23 +73,23 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
       $(document).on('click', '.goodTypeChange', function(e){
           e.preventDefault();
           e.stopPropagation();
-          
+
           var id = $(this).data('id');
           console.log('分类点击事件触发，ID:', id);
-          
+
           // 立即响应，不等待AJAX
           $("#cid").val(id);
           $("#goodType").hide('fast');
           $("#goodTypeContent").show('fast');
-          
+
           // 异步加载商品数据
           setTimeout(function(){
               $("#cid").trigger('change');
           }, 100);
-          
+
           return false;
       });
-      
+
       // 返回按钮
       $(document).on('click', '.backType', function(e){
           e.preventDefault();
@@ -90,11 +98,11 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
           $("#goodTypeContent").hide('fast');
           return false;
       });
-      
+
       console.log('关键JavaScript已加载完成');
   });
   </script>
-  
+
   <!-- 合并CX-NEW1和XHY-00的样式 -->
   <style type="text/css">
   /* CX-NEW1的样式 */
@@ -106,7 +114,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
       background: linear-gradient(to right,#84C1FF,#66B3FF);
       border-radius: 0 25px 25px 0;
   }
-  
+
   /* 优化分类点击区域 */
   .goodTypeChange {
       pointer-events: auto !important;
@@ -114,38 +122,38 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
       position: relative !important;
       z-index: 10 !important;
   }
-  
+
   .goodTypeChange:hover {
       opacity: 0.8;
   }
-  
+
   /* 确保分类容器正常显示 */
   #goodType {
       display: block !important;
       visibility: visible !important;
       opacity: 1 !important;
   }
-  
+
   /* 优化加载性能 */
   .widget {
       pointer-events: auto !important;
   }
-  
+
   .btn {
       pointer-events: auto !important;
   }
-  
+
   /* 减少动画时间 */
   .animated {
       animation-duration: 0.5s !important;
   }
-  
+
   /* 优化图片加载 */
   img {
       max-width: 100%;
       height: auto;
   }
-  
+
   /* XHY-00的样式 */
   .form-control {
       color: #646464;
@@ -252,7 +260,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
       -webkit-background-size: cover;
       background-size: cover;
   }
-  
+
   /* 确保标签页正常显示 */
   .tab-content {
       display: block !important;
@@ -278,8 +286,8 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
         <h4 class="modal-title" id="myModalLabel"><?php echo $conf['sitename']?></h4>
        </div>
         <div class="modal-body">
-         	<?php echo $conf['modal']?>
-  	    </div>
+	<?php echo $conf['modal']?>
+	    </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">知道啦</button>
       </div>
@@ -353,9 +361,9 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
   </div>
 </div>
 <!-TAB标签-->
-<a href="./user/regsite.php"><img src="https://ftp.bmp.ovh/imgs/2020/01/a0e42112bae39699.gif"width="100%"></a><br/>
+<?php if($show_top_banner == '1'){ ?><a href="./user/regsite.php"><img src="https://ftp.bmp.ovh/imgs/2020/01/a0e42112bae39699.gif"width="100%"></a><br/><?php } ?>
 <!-TAB标签-->
-		
+
 <!--查单说明开始 - 融合CX-NEW1和XHY-00的说明-->
 <div class="modal fade" align="left" id="cxsm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -394,17 +402,19 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
             <li style="width: 25%;" align="center" class="active"><a href="#shop" data-toggle="tab"><span style="font-weight:bold"><img border="0" width="22" src="https://pan.suyanw.cn/view.php/a4c308fe41a57c4751b133d9189161b4.gif"><font color="#0000FF">下单</font></span></a></li>
             <li style="width: 25%;" align="center"><a href="#search" data-toggle="tab" id="tab-query"><span style="font-weight:bold"><i class="fa fa-search"></i> <font color="#8B008B">查单</font></span></a></li>
 		<li style="width: 25%;" align="center"><a href="./user/regsite.php" target="_blank" class="fenzhan-jump"><font color="#FF4000"><i class="fa fa-location-arrow fa-spin"></i> <b>分站</b></font></a></li>
-	
+
 		<li style="width: 25%;" align="center"><a href="#more" data-toggle="tab"><span style="font-weight:bold"><i class="fa fa-folder-open"></i> <font color="#FF8C00">更多</font></span></a></li>
         </ul>
-        
 
 
+
+<?php if($show_auto_delivery == '1'){ ?>
 <div style="background-color:#333;border-radius: 25px;box-shadow: 0px 0px 5px #f200ff;padding:5px;margin-top: 10px;margin-bottom:0px;">
     <center><span style="color: rgb(194, 79, 74)"><i class="fa fa-check"></i><b><font color="#D2B48C">【平台所有商品全天24小时自动发货】</font><i class="fa fa-check"></i></b></span></center>
     <center><span style="font-size:10px;"><strong><span><span style="color:#E53333;">下单步骤<span style="color:#E53333;"> &gt; <span><span style="color:#E8E8E8;">选择分类</span></span> &gt; <span style="color:#009900;">选择商品<span style="color:#E53333;"> &gt; </span></span><span></span><span style="color:#EE33EE;">填写信息<span style="color:#E53333;"> &gt; </span><span style="color:#F08080;">下单成功</span></span></span></span></strong></span>
 </center></div>
-    
+<?php } ?>
+
     <div class="block-content tab-content">
 <!--TAB标签-->
 <!--在线下单-->
@@ -412,13 +422,15 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
     <div class="tab-pane active" id="shop">
 <?php include ROOT.'user/shop.inc.php'; ?>
 	</div>
-   
+
 <!--在线下单-->
+<?php if($show_marquee == '1'){ ?>
 <marquee>
-    	<b id="nr">诚信经营,价格最低,货源最全,卡密问题质保可退换,放心下单即可!!!</b>
+	<b id="nr">诚信经营,价格最低,货源最全,卡密问题质保可退换,放心下单即可!!!</b>
     </marquee>
+<?php } ?>
 <!--查询订单-->
-			
+
 					<div class="tab-pane fade fade-up" id="search">
 						<ul class="list-group animated bounceIn">
       <li class="list-group-item">
@@ -455,8 +467,8 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 						</font>
 						<font color="red">
 				查单号:请输入您购买时候填写的手机号，如果填写的时候忘记手机号请点击立即查询即可！
-				
-						</font>					
+
+						</font>
 					<br>
 					<div id="result2" class="form-group" style="display:none;">
 						<center>
@@ -526,10 +538,10 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
             网站轻轻松松推广日挣上千￥不是梦</strong></td>
       </tr>
             <tr class="active">
-        <td><span class="glyphicon glyphicon-magnet"></span>&nbsp;快加入我们成为大家庭中的一员吧<hr> <a href="#userjs" data-toggle="modal" class="btn btn-effect-ripple  btn-info btn-sm" style="float:left;overflow: hidden; position: relative;">
-            <span class="glyphicon glyphicon-eye-open"></span>&nbsp;网站详情介绍</a>
+        <td><span class="fa fa-magnet"></span>&nbsp;快加入我们成为大家庭中的一员吧<hr> <a href="#userjs" data-toggle="modal" class="btn btn-effect-ripple  btn-info btn-sm" style="float:left;overflow: hidden; position: relative;">
+            <span class="fa fa-eye"></span>&nbsp;网站详情介绍</a>
           <a href="./user/regsite.php" target="_blank" class="btn btn-effect-ripple  btn-success btn-sm" style="float:right;overflow: hidden; position: relative;">
-            <span class="glyphicon glyphicon-share-alt"></span>&nbsp;开通网站</a></td></tr>
+            <span class="fa fa-share"></span>&nbsp;开通网站</a></td></tr>
       <tr>
     </tbody>
   </table>
@@ -543,7 +555,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 		<p>
 		<a class="btn btn-info" id="start" style="display:block;">开始</a>
 		<a class="btn btn-danger" id="stop" style="display:none;">停止</a>
-		</p> 
+		</p>
 		<div id="result"></div><br/>
 		<div class="giftlist" style="display:none;"><strong>最近记录</strong><ul id="pst_1"></ul></div>
 		</div>
@@ -585,52 +597,52 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 $(document).ready(function(){
     // 确保所有标签页内容正确加载
     $('.tab-content').show();
-    
+
     // 初始化页面时检查URL中的锚点，并激活对应的标签页
     var hash = window.location.hash;
     if (hash) {
         $('.nav-tabs a[href="' + hash + '"]').tab('show');
     }
-    
+
     // 修复标签页切换问题
     $('.nav-tabs a[data-toggle="tab"]').on('click', function(e) {
         e.preventDefault();
         $(this).tab('show');
     });
-    
+
     // 确保分类按钮可以正常点击
     $('.goodTypeChange').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         var id = $(this).data('id');
         console.log('分类点击事件触发，ID:', id);
-        
+
         // 立即响应，不等待AJAX
         $("#cid").val(id);
         $("#goodType").hide('fast');
         $("#goodTypeContent").show('fast');
-        
+
         // 异步加载商品数据
         setTimeout(function(){
             $("#cid").trigger('change');
         }, 100);
-        
+
         return false;
     });
-    
-    // 购买成功后自动显示订单详情弹窗 - 来自6v6.ren
+
+    // 购买成功后自动显示订单详情弹窗 - 岁岁 @qqfaka
     function getUrlParam(name) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
         var r = window.location.search.substr(1).match(reg);
         if (r != null) return decodeURIComponent(r[2]);
         return '';
     }
-    
+
     if(getUrlParam('buyok') == '1'){
         // 切换到查询标签页
         $("#tab-query").tab("show");
-        
+
         // 延迟执行查询，确保标签页已切换
         setTimeout(function(){
             $("#submit_query").click();

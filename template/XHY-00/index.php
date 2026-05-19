@@ -1,21 +1,30 @@
 <?php
 /*
- 本代码由 教主 创建
+ 本代码由 岁岁 @qqfaka 创建
  创建时间 2025-1-1
  技术支持 QQ:1410505990
  模板版本 v1.0
 */
 if(!defined('IN_CRONLITE'))exit();
 $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3.ax1x.com/2021/01/01/rxImKe.png';
+
+// 模板配置 - 显示/隐藏控制
+$show_top_banner = isset($conf['show_top_banner']) ? $conf['show_top_banner'] : '1';
+$show_order_warning = isset($conf['show_order_warning']) ? $conf['show_order_warning'] : '1';
+$show_warning_div = isset($conf['show_warning_div']) ? $conf['show_warning_div'] : '1';
+$show_guide_link = isset($conf['show_guide_link']) ? $conf['show_guide_link'] : '1';
+$show_favorite_div = isset($conf['show_favorite_div']) ? $conf['show_favorite_div'] : '1';
+$show_stats_div = isset($conf['show_stats_div']) ? $conf['show_stats_div'] : '1';
+$show_article_list = isset($conf['show_article_list']) ? $conf['show_article_list'] : '1';
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    	<title><?php echo $conf['sitename'] ?> - <?php echo $conf['title'] ?></title>
-    	<meta name="keywords" content="<?php echo $conf['keywords'] ?>">
-    	<meta name="description" content="<?php echo $conf['description'] ?>">
+	<title><?php echo $conf['sitename'] ?> - <?php echo $conf['title'] ?></title>
+	<meta name="keywords" content="<?php echo $conf['keywords'] ?>">
+	<meta name="description" content="<?php echo $conf['description'] ?>">
 		<?php if(!empty($conf['favicon'])) { ?>
 		<link rel="icon" href="<?php echo $conf['favicon'] ?>" type="image/x-icon" />
 		<link rel="shortcut icon" href="<?php echo $conf['favicon'] ?>" type="image/x-icon" />
@@ -24,8 +33,8 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 		<link rel="shortcut icon" href="assets/img/favicon/favicon.ico" type="image/x-icon" />
 		<?php } ?>
 		<link href="<?php echo $cdnpublic?>twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
-    	<link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
-    	<link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">
+	<link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+	<link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">
 		<link rel="stylesheet" href="<?php echo $cdnserver?>assets/css/common.css?ver=<?php echo VERSION ?>">
 		<script src="<?php echo $cdnpublic?>modernizr/2.8.3/modernizr.min.js"></script>
 		<!--[if lt IE 9]>
@@ -172,9 +181,11 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 
 
 <!-TAB标签-->
+<?php if($show_top_banner == '1'){ ?>
 <a href="./user/regsite.php"><img src="https://ftp.bmp.ovh/imgs/2020/01/a0e42112bae39699.gif"width="100%"></a><br/>
-<!-TAB标签-->	
-		
+<?php } ?>
+<!-TAB标签-->
+
 				<!--查单说明开始-->
 				<div class="modal fade" align="left" id="cxsm" tabindex="-1" role="dialog"
 				aria-labelledby="myModalLabel" aria-hidden="true">
@@ -257,7 +268,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 						</li>
 						<li style="width: 20%;" align="center" class="hide">
 							<a href="#cardbuy" data-toggle="tab">
-								<i class="glyphicon glyphicon-th">
+								<i class="fa fa-th">
 								</i>
 								卡密
 							</a>
@@ -315,7 +326,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 									</font>
 									<font color="blue">
 										付款未收到卡密,请在二十四小时内联系客服<br>-------------最简单的查单方式--------------
-									</font>							
+									</font>
 									<br>
 									<font color="red">
 										<i class="">
@@ -323,7 +334,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 									</font>
 									<font color="red">
 										什么浏览器购买的，直接用什么浏览器打开，什么也别填写，直接点立即查询。在手机QQ打开的购买的，用手机QQ打开网址点立即查询~！
-									</font><p>点击进入 <a href="/query.php" style="color: blue;">新版订单查询</a></p>						
+									</font><p>点击进入 <a href="/query.php" style="color: blue;">新版订单查询</a></p>
 								</p>
 							</div>
 							<div class="form-group">
@@ -342,7 +353,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 									required/>
 									<span class="input-group-btn">
 										<a href="#cxsm" target="_blank" data-toggle="modal" class="btn btn-warning">
-											<i class="glyphicon glyphicon-exclamation-sign">
+											<i class="fa fa-exclamation-circle">
 											</i>
 										</a>
 									</span>
@@ -356,7 +367,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 									</font>
 									<font color="red">
 								1.查单号:请输入您购买时候填写的手机号，如果填写的时候忘记填写的手机号请留空点击立即查询即可！
-									</font>						
+									</font>
 							<br/>
 							<div id="result2" class="form-group" style="display:none;">
 								<center>
@@ -426,10 +437,10 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
             网站轻轻松松推广日赚上千元不是梦</strong></td>
       </tr>
             <tr class="active">
-        <td><span class="glyphicon glyphicon-magnet"></span>&nbsp;快加入我们成为大家庭中的一员吧<hr> <a href="#userjs" data-toggle="modal" class="btn btn-effect-ripple  btn-info btn-sm" style="float:left;overflow: hidden; position: relative;">
-            <span class="glyphicon glyphicon-eye-open"></span>&nbsp;网站详情介绍</a>
+        <td><span class="fa fa-magnet"></span>&nbsp;快加入我们成为大家庭中的一员吧<hr> <a href="#userjs" data-toggle="modal" class="btn btn-effect-ripple  btn-info btn-sm" style="float:left;overflow: hidden; position: relative;">
+            <span class="fa fa-eye"></span>&nbsp;网站详情介绍</a>
           <a href="./user/regsite.php" target="_blank" class="btn btn-effect-ripple  btn-success btn-sm" style="float:right;overflow: hidden; position: relative;">
-            <span class="glyphicon glyphicon-share-alt"></span>&nbsp;免费开通网站</a></td></tr>
+            <span class="fa fa-share"></span>&nbsp;免费开通网站</a></td></tr>
       <tr>
     </tbody>
   </table>
@@ -542,7 +553,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 										</i>
 										<div class="font-w600 text-white-op push-15-t">
 											售后客服
-											
+
                                         </div>
 									</div>
 								</a>
@@ -910,7 +921,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 
 
 
-				<?php if($conf['articlenum']>0){
+				<?php if($show_article_list == '1' && $conf['articlenum']>0){
 				$limit = intval($conf['articlenum']);
 				$rs=$DB->query("SELECT id,title FROM pre_article WHERE active=1 ORDER BY top DESC,id DESC LIMIT {$limit}");
 				$msgrow=array();
@@ -932,7 +943,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 				</div>
 				<!--文章列表-->
 				<?php }?>
-				<?php if($conf['hide_tongji']==0){
+				<?php if($show_stats_div == '1' && $conf['hide_tongji']==0){
 				echo '
 				<div class="block panel panel-primary btn btn-block animated bounceInUp btn-rounded" style="border:1px solid #b3cde3; background: url(https://s3.ax1x.com/2021/01/02/sSy9rq.png);margin-top:15px;font-size:15px;padding:15px;border-radius:15px;background-color: white;">
 					<table class="table table-bordered">
@@ -987,32 +998,30 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'https://s3
 			    ';}?>
 				<!--底部导航-->
 				<center>
+					<?php if($show_favorite_div == '1'){ ?>
 					<div class="block panel-body btn btn-block animated bounceInUp btn-rounded" style="border:1px solid #b3cde3; background: url(https://s3.ax1x.com/2021/01/02/sSy9rq.png);margin-top:2px;font-size:15px;padding:2px;border-radius:10px;background-color: white;">
 						<div class="block-content text-center border-t">
-		<a href="javascript:void(0);" onclick="AddFavorite('货源总站',location.href)">
-  <b style="text-shadow: LightSteelBlue 1px 0px 0px;">
-  <i class="fa fa-heart text-danger animation-pulse"></i>
-  <font color=#CB0034>本</font>
-  <font color=#BE0041>站</font>
-  <font color=#B1004E>网</font>
-  <font color=#A4005B>址</font>
-  <font color=#970068>：<?php echo $_SERVER['HTTP_HOST'];?></font>
-  <font color=#2F00D0></font>
-  <font color=#CB0034>&nbsp;</font>
-  <font color=#CB0034>建</font>
-  <font color=#BE0041>议</font>
-  <font color=#B1004E>收</font>
-  <font color=#A4005B>藏</font>
-  </b>
-</a>
-<br/><?php echo $conf['footer']?>
-
-
-
-
-
+							<a href="javascript:void(0);" onclick="AddFavorite('货源总站',location.href)">
+								<b style="text-shadow: LightSteelBlue 1px 0px 0px;">
+									<i class="fa fa-heart text-danger animation-pulse"></i>
+									<font color=#CB0034>本</font>
+									<font color=#BE0041>站</font>
+									<font color=#B1004E>网</font>
+									<font color=#A4005B>址</font>
+									<font color=#970068>：<?php echo $_SERVER['HTTP_HOST'];?></font>
+									<font color=#2F00D0></font>
+									<font color=#CB0034>&nbsp;</font>
+									<font color=#CB0034>建</font>
+									<font color=#BE0041>议</font>
+									<font color=#B1004E>收</font>
+									<font color=#A4005B>藏</font>
+								</b>
+							</a>
+						</div>
 					</div>
-			</div>
+					<?php } ?>
+					<br/><?php echo $conf['footer']?>
+				</center>
 			<script src="https://lib.baomitu.com/jquery/3.5.1/jquery.min.js"></script>
 	<script src="<?php echo $cdnpublic?>twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script src="<?php echo $cdnpublic?>jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
@@ -1063,13 +1072,13 @@ catch (e) {
 		var homepage = true;
 		var hashsalt = <?php echo $addsalt_js ?> ;
 		$(function() {
-   			if (typeof $.fn.lazyload !== 'undefined') {
-       			$("img.lazy").lazyload({
-           		effect: "fadeIn"
-        		});
-    		} else {
-       			console.log('Lazyload functionality not available');
-    		}
+			if (typeof $.fn.lazyload !== 'undefined') {
+			$("img.lazy").lazyload({
+		effect: "fadeIn"
+		});
+		} else {
+			console.log('Lazyload functionality not available');
+		}
 		});
 		// 移除无效的计时脚本
 		var stimeElement = document.createElement('div');
@@ -1079,7 +1088,7 @@ catch (e) {
 		var ss = 0,
 		    mm = 0,
 		    hh = 0;
-		
+
 		function TimeGo() {
 		    ss++;
 		    if (ss >= 60) {
@@ -1114,12 +1123,12 @@ catch (e) {
 			if (r != null) return decodeURIComponent(r[2]);
 			return '';
 		}
-		
+
 		if(getUrlParam('buyok') == '1'){
 			// 直接从URL获取订单ID和skey参数
 			var orderid = getUrlParam('orderid');
 			var skey = getUrlParam('skey');
-			
+
 			// 如果有订单ID和skey参数，直接显示订单详情
 			if(orderid && skey){
 				showOrder(orderid, skey);
@@ -1128,7 +1137,7 @@ catch (e) {
 			else {
 				var searchtype = getUrlParam('searchtype') || 1;
 				var qq = getUrlParam('qq') || '';
-				
+
 				// 先检查$_GET变量的类型，确保正确处理
 				if (typeof window.$_GET === 'function') {
 					// 保存原始的$_GET函数
@@ -1152,14 +1161,14 @@ catch (e) {
 						}
 					};
 				}
-				
+
 				// 临时设置querymode，禁用查询弹窗显示
 				var tempQuerymode = window.querymode;
 				window.querymode = 'noPopup';
-				
+
 				// 执行订单查询
 				queryOrder(searchtype, qq, 1);
-				
+
 				// 恢复原始设置
 				setTimeout(function() {
 					window.querymode = tempQuerymode;

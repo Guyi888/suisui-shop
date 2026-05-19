@@ -156,7 +156,7 @@ class Template {
 				// 禁用背景图片，只设置背景色
 				$background_css = '<style>body{ background:#ecedf0; }</style>';
 			}
-			
+
 			// 添加背景动画效果
 			if($conf['background_enable'] == 1){
 				$background_type = $conf['background_type'] ?? 'particles';
@@ -166,7 +166,7 @@ class Template {
 				$ui_color1 = $conf['ui_color1'] ?? '#3498db';
 				$ui_color2 = $conf['ui_color2'] ?? '#2980b9';
 				$gradientDirection = $ui_colorto == 0 ? '180deg' : '90deg';
-				
+
 				$background_css .= '<style>
 					/* 背景美化样式 */
 					#background-canvas {
@@ -177,7 +177,7 @@ class Template {
 					  height: 100%;
 					  z-index: -1;
 					}
-					
+
 					/* 渐变背景样式 */
 					.gradient-background {
 					  position: fixed;
@@ -189,14 +189,14 @@ class Template {
 					  background: linear-gradient('.$gradientDirection.', '.$ui_color1.' 0%, '.$ui_color2.' 100%);
 					  animation: gradient-animation '.(20 - ($background_speed * 1.5)).'s ease infinite;
 					}
-					
+
 					@keyframes gradient-animation {
 					  0% { background-position: 0% 50%; }
 					  50% { background-position: 100% 50%; }
 					  100% { background-position: 0% 50%; }
 					}
 				</style>';
-				
+
 				$background_css .= '<script>
 					// 背景美化效果
 					document.addEventListener("DOMContentLoaded", function() {
@@ -206,7 +206,7 @@ class Template {
 					  const uiColor1 = "'.$ui_color1.'";
 					  const uiColor2 = "'.$ui_color2.'";
 					  const uiColorto = '.$ui_colorto.';
-					  
+
 					  // 创建背景容器
 					  function createBackground() {
 						if (backgroundType === "gradient") {
@@ -238,17 +238,17 @@ class Template {
 						  const canvas = document.createElement("canvas");
 						  canvas.id = "background-canvas";
 						  document.body.appendChild(canvas);
-						  
+
 						  const ctx = canvas.getContext("2d");
 						  canvas.width = window.innerWidth;
 						  canvas.height = window.innerHeight;
-						  
+
 						  // 根据背景类型绘制不同效果
 						  if (backgroundType === "particles") {
 							// 粒子效果
 							const particles = [];
 							const particleCount = 100;
-							
+
 							// 初始化粒子
 							for (let i = 0; i < particleCount; i++) {
 							  particles.push({
@@ -260,16 +260,16 @@ class Template {
 								speedY: (Math.random() - 0.5) * (backgroundSpeed / 2)
 							  });
 							}
-							
+
 							// 动画循环
 							function animate() {
 							  ctx.clearRect(0, 0, canvas.width, canvas.height);
-							  
+
 							  particles.forEach(particle => {
 								// 更新位置
 								particle.x += particle.speedX;
 								particle.y += particle.speedY;
-								
+
 								// 边界检测
 								if (particle.x < 0 || particle.x > canvas.width) {
 								  particle.speedX *= -1;
@@ -277,42 +277,42 @@ class Template {
 								if (particle.y < 0 || particle.y > canvas.height) {
 								  particle.speedY *= -1;
 								}
-								
+
 								// 绘制粒子
 								ctx.beginPath();
 								ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
 								ctx.fillStyle = particle.color;
 								ctx.fill();
 							  });
-							  
+
 							  requestAnimationFrame(animate);
 							}
 							animate();
 						  } else if (backgroundType === "matrix") {
 							// 黑客效果
-							const characters = "01"; 
+							const characters = "01";
 							const fontSize = 14;
 							const columns = canvas.width / fontSize;
 							const drops = [];
-							
+
 							// 初始化雨滴位置
 							for (let x = 0; x < columns; x++) {
 							  drops[x] = 1;
 							}
-							
+
 							// 绘制矩阵
 							function drawMatrix() {
 							  // 半透明背景覆盖
 							  ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
 							  ctx.fillRect(0, 0, canvas.width, canvas.height);
-							  
+
 							  ctx.fillStyle = "#00ff00";
 							  ctx.font = fontSize + "px monospace";
-							  
+
 							  for (let i = 0; i < drops.length; i++) {
 								const text = characters.charAt(Math.floor(Math.random() * characters.length));
 								ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-								
+
 								if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
 								  drops[i] = 0;
 								}
@@ -324,7 +324,7 @@ class Template {
 							// 气泡效果
 							const bubbles = [];
 							const bubbleCount = 50;
-							
+
 							// 初始化气泡
 							for (let i = 0; i < bubbleCount; i++) {
 							  bubbles.push({
@@ -336,16 +336,16 @@ class Template {
 								speedY: -Math.random() * (backgroundSpeed / 3) - 1
 							  });
 							}
-							
+
 							// 动画循环
 							function animateBubbles() {
 							  ctx.clearRect(0, 0, canvas.width, canvas.height);
-							  
+
 							  bubbles.forEach(bubble => {
 								// 更新位置
 								bubble.x += bubble.speedX;
 								bubble.y += bubble.speedY;
-								
+
 								// 边界检测
 								if (bubble.x < -bubble.radius || bubble.x > canvas.width + bubble.radius) {
 								  bubble.x = Math.random() * canvas.width;
@@ -354,7 +354,7 @@ class Template {
 								if (bubble.y < -bubble.radius) {
 								  bubble.y = canvas.height + bubble.radius;
 								}
-								
+
 								// 绘制气泡
 								ctx.beginPath();
 								ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
@@ -363,14 +363,14 @@ class Template {
 								ctx.fill();
 								ctx.globalAlpha = 1;
 							  });
-							  
+
 							  requestAnimationFrame(animateBubbles);
 							}
 							animateBubbles();
 						  }
 						}
 					  }
-					  
+
 					  // 创建背景
 					  createBackground();
 					});

@@ -25,7 +25,6 @@ $_SESSION['addsalt']=$addsalt;
 $x = new \lib\hieroglyphy();
 $addsalt_js = $x->hieroglyphyString($addsalt);
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <style>
 img.logo{width: 22px;margin: -2px 5px 0 5px;}
 .onclick{cursor: pointer;touch-action: manipulation;}

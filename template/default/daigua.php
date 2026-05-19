@@ -74,7 +74,7 @@ if(!defined('IN_CRONLITE'))exit();
         <img src="//puep.qpic.cn/coral/Q3auHgzwzM4fgQ41VTF2rEdicCGtNYWroGwsSZP1mAicdC5yzCHIe0PQ/0" class="img-responsive" >
 	<hr>
 	<h3>教程到这里结束，不懂的认真多看看几遍！</h3>
-  	</div>
+	</div>
 <!--使用教程结束-->
 
 <!--开通代挂开始-->

@@ -21,7 +21,7 @@ if(!$DB->query("SHOW TABLES LIKE 'pre_cc_log'")->fetch()) {
 // 处理POST操作
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
-    
+
     switch($action) {
         case 'save_config':
             // 保存配置
@@ -30,64 +30,64 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $cc_time_window = intval($_POST['cc_time_window']);
             $cc_ban_time = intval($_POST['cc_ban_time']);
             $cc_redirect_url = trim($_POST['cc_redirect_url']);
-            
+
             // 验证输入
             if($cc_max_requests <= 0) $cc_max_requests = 30;
             if($cc_time_window <= 0) $cc_time_window = 60;
             if($cc_ban_time <= 0) $cc_ban_time = 3600;
             if(!$cc_redirect_url) $cc_redirect_url = 'https://www.baidu.com';
-            
+
             // 保存到数据库
             $DB->query("UPDATE pre_config SET v=:v WHERE k='cc_protect_enabled'", [':v' => $cc_protect_enabled]);
             $DB->query("UPDATE pre_config SET v=:v WHERE k='cc_max_requests'", [':v' => $cc_max_requests]);
             $DB->query("UPDATE pre_config SET v=:v WHERE k='cc_time_window'", [':v' => $cc_time_window]);
             $DB->query("UPDATE pre_config SET v=:v WHERE k='cc_ban_time'", [':v' => $cc_ban_time]);
             $DB->query("UPDATE pre_config SET v=:v WHERE k='cc_redirect_url'", [':v' => $cc_redirect_url]);
-            
+
             // 清除缓存
             $CACHE->pre_update();
-            
+
             sysmsg('配置保存成功', 1);
             break;
-            
+
         case 'ban_ip':
             // 手动封禁IP
             $ip = trim($_POST['ip']);
             $reason = trim($_POST['reason']);
             $ban_hours = intval($_POST['ban_hours']);
-            
+
             if(!$ip || !filter_var($ip, FILTER_VALIDATE_IP)) {
                 sysmsg('IP格式不正确', 0);
             }
-            
+
             if(!$reason) $reason = '手动封禁';
             if($ban_hours <= 0) $ban_hours = 24;
-            
+
             ban_ip_manually($ip, $reason, $ban_hours);
             sysmsg('IP封禁成功', 1);
             break;
-            
+
         case 'unban_ip':
             // 解除IP封禁
             $ip = trim($_POST['ip']);
-            
+
             if(!$ip || !filter_var($ip, FILTER_VALIDATE_IP)) {
                 sysmsg('IP格式不正确', 0);
             }
-            
+
             unban_ip($ip);
             sysmsg('IP封禁已解除', 1);
             break;
-            
+
         case 'clean_logs':
             // 清理访问日志
             $days = intval($_POST['days']);
             $time = time() - ($days * 86400);
-            
+
             $DB->query("DELETE FROM pre_cc_log WHERE log_time < :time", [':time' => $time]);
             sysmsg('访问日志清理成功', 1);
             break;
-            
+
         case 'clean_expired':
             // 清理过期封禁
             clean_cc_ban_list();
@@ -124,7 +124,7 @@ include './head.php';
 <div class="col-sm-12 col-md-10 center-block" style="float: none;">
     <div class="block">
         <div class="block-title"><h3 class="panel-title">防CC攻击管理</h3></div>
-        
+
         <!-- 功能状态和统计 -->
         <div class="card">
             <div class="card-body">
@@ -136,14 +136,14 @@ include './head.php';
             </div>
         </div>
         <br>
-        
+
         <!-- 配置表单 -->
         <div class="card">
             <div class="card-header"><h4>防CC配置</h4></div>
             <div class="card-body">
                 <form onsubmit="return saveConfig()" method="post" class="form-horizontal" role="form">
                     <input type="hidden" name="action" value="save_config">
-                    
+
                     <div class="form-group">
                         <label class="col-sm-3 control-label">启用防CC攻击</label>
                         <div class="col-sm-9">
@@ -153,7 +153,7 @@ include './head.php';
                             </label>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-3 control-label">最大请求次数</label>
                         <div class="col-sm-9">
@@ -161,7 +161,7 @@ include './head.php';
                             <small class="help-block">在指定时间窗口内，单个IP允许的最大请求次数</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-3 control-label">时间窗口(秒)</label>
                         <div class="col-sm-9">
@@ -169,7 +169,7 @@ include './head.php';
                             <small class="help-block">统计请求次数的时间窗口，单位秒</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-3 control-label">封禁时间(秒)</label>
                         <div class="col-sm-9">
@@ -177,7 +177,7 @@ include './head.php';
                             <small class="help-block">检测到攻击后封禁IP的时间，单位秒</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-3 control-label">重定向URL</label>
                         <div class="col-sm-9">
@@ -185,7 +185,7 @@ include './head.php';
                             <small class="help-block">当检测到CC攻击时，将恶意IP重定向到这个URL</small>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <div class="col-sm-offset-3 col-sm-9">
                             <button type="submit" class="btn btn-primary">保存配置</button>
@@ -195,35 +195,35 @@ include './head.php';
             </div>
         </div>
         <br>
-        
+
         <!-- 手动封禁IP -->
         <div class="card">
             <div class="card-header"><h4>手动封禁IP</h4></div>
             <div class="card-body">
                 <form onsubmit="return banIP()" method="post" class="form-horizontal" role="form">
                     <input type="hidden" name="action" value="ban_ip">
-                    
+
                     <div class="form-group">
                         <label class="col-sm-3 control-label">IP地址</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="ip" placeholder="要封禁的IP地址" required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-3 control-label">封禁原因</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="reason" placeholder="封禁原因" value="手动封禁">
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="col-sm-3 control-label">封禁时长(小时)</label>
                         <div class="col-sm-9">
                             <input type="number" class="form-control" name="ban_hours" value="24" placeholder="封禁时长(小时)" min="1">
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <div class="col-sm-offset-3 col-sm-9">
                             <button type="submit" class="btn btn-danger">立即封禁</button>
@@ -233,7 +233,7 @@ include './head.php';
             </div>
         </div>
         <br>
-        
+
         <!-- 封禁列表 -->
         <div class="card">
             <div class="card-header"><h4>当前封禁列表</h4></div>
@@ -275,7 +275,7 @@ include './head.php';
             </div>
         </div>
         <br>
-        
+
         <!-- 维护操作 -->
         <div class="card">
             <div class="card-header"><h4>维护操作</h4></div>
@@ -284,7 +284,7 @@ include './head.php';
                     <div class="col-md-6">
                         <form onsubmit="return cleanLogs()" method="post" class="form-horizontal" role="form">
                             <input type="hidden" name="action" value="clean_logs">
-                            
+
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">清理日志</label>
                                 <div class="col-sm-9">
@@ -298,11 +298,11 @@ include './head.php';
                             </div>
                         </form>
                     </div>
-                    
+
                     <div class="col-md-6">
                         <form onsubmit="return cleanExpired()" method="post" class="form-horizontal" role="form">
                             <input type="hidden" name="action" value="clean_expired">
-                            
+
                             <div class="form-group">
                                 <div class="col-sm-offset-3 col-sm-9">
                                     <button type="submit" class="btn btn-info">清理过期封禁</button>

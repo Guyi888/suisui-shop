@@ -12,7 +12,7 @@ if ($conf["sup_cost2"] <= 0) {
 }
 ?><div class="wrapper">
 <div class="col-sm-12">
-<?php 
+<?php
 $mod = isset($_GET["mod"]) ? $_GET["mod"] : null;
 if ($mod == "user_n") {
 	if (!checkRefererHost()) {
@@ -43,17 +43,17 @@ if ($mod == "user_n") {
 <div class="panel-heading font-bold" style="background-color: #9999CC;color: white;" >用户资料设置</div>
 <div class="panel-body">
   <form action="./uset.php?mod=user_n" method="post" role="form">
-  <?php 
+  <?php
 	if ($conf["login_qq"] == 1) {
 		?>  <div class="form-group">
-    <label><img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/bt_blue_24X24.png">&nbsp;QQ快捷登录：</label><?php 
+    <label><img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/bt_blue_24X24.png">&nbsp;QQ快捷登录：</label><?php
 		if ($suprow["qq_openid"]) {
-			?><font color="green">已绑定</font>&nbsp;<a class="btn btn-xs btn-default" href="javascript:unbind('qq')">解绑</a><?php 
+			?><font color="green">已绑定</font>&nbsp;<a class="btn btn-xs btn-default" href="javascript:unbind('qq')">解绑</a><?php
 		} else {
-			?><font color="red">未绑定</font>&nbsp;<a class="btn btn-xs btn-success" href="javascript:connect('qq')">立即绑定</a><?php 
+			?><font color="red">未绑定</font>&nbsp;<a class="btn btn-xs btn-success" href="javascript:connect('qq')">立即绑定</a><?php
 		}
 		?>  </div>
-  <?php 
+  <?php
 	}
 	?>	<div class="form-group">
 	  <label>登录用户名:</label><br/>
@@ -66,15 +66,15 @@ if ($mod == "user_n") {
 
 	<div class="form-group">
 	  <label>提现方式:</label><br/>
-	  <select class="form-control" name="pay_type" default="<?php echo $suprow["pay_type"];?>"><?php 
+	  <select class="form-control" name="pay_type" default="<?php echo $suprow["pay_type"];?>"><?php
 	if ($conf["sup_tixian_alipay"] == 1) {
-		?><option value="0">支付宝</option><?php 
+		?><option value="0">支付宝</option><?php
 	}
 	if ($conf["sup_tixian_wx"] == 1) {
-		?><option value="1">微信</option><?php 
+		?><option value="1">微信</option><?php
 	}
 	if ($conf["sup_tixian_qq"] == 1) {
-		?><option value="2">QQ钱包</option><?php 
+		?><option value="2">QQ钱包</option><?php
 	}
 	?></select>
 	</div>
@@ -88,13 +88,13 @@ if ($mod == "user_n") {
 	  <input type="text" name="pay_name" value="<?php echo $suprow["pay_name"];?>" class="form-control"/>
 	</div>
 
-	<?php 
+	<?php
 	if (substr($suprow["user"], 0, 3) != "qq_") {
 		?>	<div class="form-group">
 	  <label>重置密码:</label><br/>
 	  <input type="text" name="pwd" value="" class="form-control" placeholder="不修改请留空"/>
 	</div>
-	<?php 
+	<?php
 	}
 	?>	<div class="form-group">
 	  <input type="submit" name="submit" value="修改" class="btn btn-primary form-control"/>
@@ -102,7 +102,7 @@ if ($mod == "user_n") {
   </form>
   </div>
 </div>
-<?php 
+<?php
 	if (substr($suprow["user"], 0, 3) == "qq_") {
 		?><div class="panel panel-default">
 <div class="panel-heading font-bold" style="background-color: #9999CC;color: white;" >登录用户名与密码设置</div>
@@ -119,16 +119,16 @@ if ($mod == "user_n") {
 	</div>
 	<div class="form-group">
 	  <input type="submit" name="submit" value="保存" class="btn btn-primary form-control"/>
-	</div>	
+	</div>
   </form>
   </div>
 </div>
-<?php 
+<?php
 	}
 } elseif ($mod == "skimg") {
 	?><div class="panel panel-default">
 <div class="panel-heading font-bold" style="background-color: #9999CC;color: white;" >提现收款图设置</div>
-<div class="panel-body"><?php 
+<div class="panel-body"><?php
 	if ($_POST["s"] == 1) {
 		if (!checkRefererHost()) {
 			exit;
@@ -139,21 +139,21 @@ if ($mod == "user_n") {
 		$file_ext = strtolower(pathinfo($_FILES["shoukuan"]["name"], PATHINFO_EXTENSION));
 		$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp');
 		$max_size = 2 * 1024 * 1024; // 2MB
-		
+
 		if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 			exit("只允许上传JPG、PNG、GIF、WEBP、BMP格式的图片文件！");
 		}
-		
+
 		if ($_FILES["shoukuan"]["size"] > $max_size) {
 			exit("文件大小不能超过2MB！");
 		}
-		
+
 		// 检查文件是否为真实图片
 		$image_info = getimagesize($_FILES["shoukuan"]["tmp_name"]);
 		if (!$image_info) {
 			exit("请上传真实的图片文件！");
 		}
-		
+
 		copy($_FILES["shoukuan"]["tmp_name"], ROOT . "assets/img/skimg/sk_sup" . $suprow["sid"] . ".png");
 		echo "成功上传文件!<br>（可能需要清空浏览器缓存才能看到效果，按Ctrl+F5即可一键刷新缓存）";
 	}
@@ -163,31 +163,31 @@ if ($mod == "user_n") {
 		$logo = "../assets/img/skimg/sk.png";
 	}
 	echo "<form action=\"uset.php?mod=skimg\" method=\"POST\" enctype=\"multipart/form-data\"><label for=\"file\"></label><input type=\"file\" name=\"shoukuan\" id=\"shoukuan\" /><input type=\"hidden\" name=\"s\" value=\"1\" /><br><input type=\"submit\" class=\"btn btn-primary form-control\" value=\"确认上传\" /></form><br>现在的收款图：<br><img src=\"" . $logo . "\" style=\"max-width:30%\">";
-	?></div></div><?php 
+	?></div></div><?php
 }
 ?>	</div>
 </div>
-<?php 
+<?php
 include "./foot.php";
 ?><script src="<?php echo $cdnpublic;?>jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
-<?php 
+<?php
 if ($mod == "user") {
 	?><script>
 var items = $("select[default]");
 for (i = 0; i < items.length; i++) {
 	$(items[i]).val($(items[i]).attr("default")||0);
 }
-<?php 
+<?php
 	if ($conf["sup_daifu"] == 1) {
 		?>var getopenid = function () {
     var open = layer.open({
         type:1,
         title:'',
         content:'<div class="layui-card-body"><h3 style="text-align:center">请使用微信扫一扫</h3><div><div id="qrcode" style="padding:15px;"></div></div></div>',
-        cancel: function(index, layero){ 
+        cancel: function(index, layero){
             layer.close(open);
-            window.clearInterval(cron); 
-        },success: function(){ 
+            window.clearInterval(cron);
+        },success: function(){
 			var code_url = '<?php echo $code_url;?>';
 			$('#qrcode').qrcode({
 				text: code_url,
@@ -208,7 +208,7 @@ for (i = 0; i < items.length; i++) {
                 if (data.code) {
                     $("input[name=pay_account]").val(data.data);
                     layer.close(open);
-                    window.clearInterval(cron); 
+                    window.clearInterval(cron);
                 }
             }
         });
@@ -224,7 +224,7 @@ $("select[name='pay_type']").change(function(){
 	}
 });
 $("select[name='pay_type']").change();
-<?php 
+<?php
 	}
 	?>
 function setpwd(){
@@ -257,7 +257,7 @@ function setpwd(){
 			}else{
 				layer.alert(data.msg, {icon:0});
 			}
-		} 
+		}
 	});
 	return false;
 }
@@ -275,7 +275,7 @@ function connect(type){
 			}else{
 				layer.alert(data.msg, {icon: 7});
 			}
-		} 
+		}
 	});
 }
 function unbind(type){
@@ -293,14 +293,14 @@ function unbind(type){
 				}else{
 					layer.alert(data.msg, {icon: 0});
 				}
-			} 
+			}
 		});
 	}, function(){
 	  layer.close(confirmobj);
 	});
 }
 </script>
-<?php 
+<?php
 }
 ?></body>
 </html>

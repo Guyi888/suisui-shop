@@ -26,7 +26,7 @@ if ($islogin == 1) {
     </div>
   </div>
 </div>
-<?php 
+<?php
 adminpermission("site", 1);
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 if ($my == "add") {
@@ -107,7 +107,7 @@ $(document).ready(function(){
 	}
 });
 </script>
-<?php 
+<?php
 } elseif ($my == "add_submit") {
 	if (!checkRefererHost()) {
 		exit;
@@ -133,7 +133,7 @@ $(document).ready(function(){
 	}
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">删除卡密</h3></div>
-<div class=" box"><?php 
+<div class=" box"><?php
 	$id = intval($_GET["id"]);
 	$sql = $DB->exec("DELETE FROM pre_kms WHERE kid=:id", array(':id' => $id));
 	if ($sql) {
@@ -141,7 +141,7 @@ $(document).ready(function(){
 	} else {
 		echo "删除失败！";
 	}
-	?><hr/><a href="./cardlist.php">>>返回卡密列表</a></div></div><?php 
+	?><hr/><a href="./cardlist.php">>>返回卡密列表</a></div></div><?php
 } elseif ($my == "qk") {
 	if (!checkRefererHost()) {
 		exit;
@@ -149,14 +149,14 @@ $(document).ready(function(){
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">清空卡密</h3></div>
 <div class=" box">
-您确认要清空所有卡密吗？清空后无法恢复！<br><a href="./cardlist.php?my=qk2">确认</a> | <a href="javascript:history.back();">返回</a></div></div><?php 
+您确认要清空所有卡密吗？清空后无法恢复！<br><a href="./cardlist.php?my=qk2">确认</a> | <a href="javascript:history.back();">返回</a></div></div><?php
 } elseif ($my == "qk2") {
 	if (!checkRefererHost()) {
 		exit;
 	}
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">清空卡密</h3></div>
-<div class=" box"><?php 
+<div class=" box"><?php
 	if ($DB->exec("DELETE FROM pre_kms WHERE type=1") !== false) {
 		echo "<div class=\"box\">清空成功.</div>";
 	} else {
@@ -170,14 +170,14 @@ $(document).ready(function(){
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">清空卡密</h3></div>
 <div class=" box">
-您确认要清空所有卡密吗？清空后无法恢复！<br><a href="./cardlist.php?my=qkuse2">确认</a> | <a href="javascript:history.back();">返回</a></div></div><?php 
+您确认要清空所有卡密吗？清空后无法恢复！<br><a href="./cardlist.php?my=qkuse2">确认</a> | <a href="javascript:history.back();">返回</a></div></div><?php
 } elseif ($my == "qkuse2") {
 	if (!checkRefererHost()) {
 		exit;
 	}
 	?><div class="block">
 <div class="block-title w h"><h3 class="panel-title">清空卡密</h3></div>
-<div class=" box"><?php 
+<div class=" box"><?php
 	if ($DB->exec("DELETE FROM pre_kms WHERE type=1 AND status=1") !== false) {
 		echo "<div class=\"box\">清空成功.</div>";
 	} else {
@@ -207,7 +207,7 @@ $(document).ready(function(){
         <table class="table table-striped">
           <thead><tr><th>卡密</th><th>商品</th><th>状态</th><th>添加时间</th><th>使用时间</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 	$pagesize = 30;
 	$pages = ceil($numrows / $pagesize);
 	$page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -232,7 +232,7 @@ $(document).ready(function(){
 	?>          </tbody>
         </table>
       </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 	$first = 1;
 	$prev = $page - 1;
 	$next = $page + 1;
@@ -260,15 +260,15 @@ $(document).ready(function(){
 		echo "<li class=\"disabled\"><a>&raquo;</a></li>";
 		echo "<li class=\"disabled\"><a>尾页</a></li>";
 	}
-	?></ul><?php 
+	?></ul><?php
 }
 ?><div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span> 卡密兑换页面地址：<a href="/?mod=cardbuy">/?mod=cardbuy</a><br />
-<span class="glyphicon glyphicon-info-sign"></span> 开启卡密兑换功能：<a href="./set.php?mod=site">系统设置 -> 网站信息配置</a> 中找到"开启卡密兑换功能"选项
+<span class="fa fa-info-circle"></span> 卡密兑换页面地址：<a href="/?mod=cardbuy">/?mod=cardbuy</a><br />
+<span class="fa fa-info-circle"></span> 开启卡密兑换功能：<a href="./set.php?mod=site">系统设置 -> 网站信息配置</a> 中找到"开启卡密兑换功能"选项
 </div>
     </div>
   </div>
-<?php 
+<?php
 function getkm($len = 18)
 {
 	$_var_0 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

@@ -151,7 +151,7 @@ class PdoHelper
 
 		if(is_array($limit)){
 
-			$limit = ' LIMIT '.$limit[0].','.$limit[1];			
+			$limit = ' LIMIT '.$limit[0].','.$limit[1];
 
 		}elseif(!empty($limit)){
 

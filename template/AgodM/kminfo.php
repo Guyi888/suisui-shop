@@ -53,7 +53,7 @@ if (strlen($kmdata) > 2) $kmdata = substr($kmdata, 0, -2);
                             </div>
                         </div>
 
-          
+
                     </div>
                 </div>
 
@@ -62,12 +62,12 @@ if (strlen($kmdata) > 2) $kmdata = substr($kmdata, 0, -2);
                     <div style=" position: relative;     background: #fff" class="row justify-content-center">
                         <div class="col-12">
                             <div class="section-title text-center mb-4 pb-2">
-                                 
+
                       <div id="cardinfo0" class="pb-4"><p>卡密：<?php echo $kmdata ?><a href="javascript:;" class="btn btn-purple waves-effect waves-light clipboard"data-clipboard-action="copy"
                 data-clipboard-target="#txt_0" id="clipboard_btn">复制</a></p>
                 <p >使用说明：<div style="word-break: break-all;" v-html="info.desc"></div></p>
                 </div>
-                 <textarea id="txt_0"   style="position: absolute; z-index: -1000; border: none" wrap="off"><?php echo $kmdata ?></textarea> 
+                 <textarea id="txt_0"   style="position: absolute; z-index: -1000; border: none" wrap="off"><?php echo $kmdata ?></textarea>
                                 <!-- Card Start -->
                                 <div class="component-wrapper rounded shadow" style="font-size: 12.5px;">
 
@@ -78,17 +78,17 @@ if (strlen($kmdata) > 2) $kmdata = substr($kmdata, 0, -2);
                                             <div>
                                                 <p class="text-left"><b>订单号</b><br>{{_ID}}</p>
                                                 <p class="text-left"><b>售后卖家QQ：</b><a class="text-primary" href="tencent://message/?uin=<?php echo $conf['kfqq'];?>&amp;Site=<?php echo $conf['kfqq'];?>&amp;Menu=yes" title="联系商家,请先加好友" target="_blank"><?php echo $conf['kfqq'];?></a></p>
-                                                <p class="text-left"><b>付款时间</b><br>{{info.date}}</p>		
-                                                <p class="text-left"> <b>商品名称</b><br>{{info.name}}</p>	
+                                                <p class="text-left"><b>付款时间</b><br>{{info.date}}</p>
+                                                <p class="text-left"> <b>商品名称</b><br>{{info.name}}</p>
                                                 <p class="tips0 text-left"></p>
-                                                
+
                                             </div>
-                                            <div>  
-                                            
+                                            <div>
+
                                                     <p>您使用线上在线支付付款 <b class="text-primary" style="font-size:24px">{{info.money}}</b> 元</p>
-                                                    
-                                                    
-                                                    
+
+
+
                                                 </p><p><a style="font-size: 12px;" class="btn btn-pills btn-outline-danger mt-2 mr-2 pl-2 pr-2 pt-1 pb-1" onclick="Export()" href="javascript:;">导出卡密</a></p>
                                                 <p><button style="font-size: 12px;" class="btn btn-pills btn-outline-danger mt-2 mr-2 pl-2 pr-2 pt-1 pb-1" data-clipboard-action="copy"
                 data-clipboard-target="#txt_0" id="clipboard_btn">复制全部</button></p>
@@ -99,12 +99,12 @@ if (strlen($kmdata) > 2) $kmdata = substr($kmdata, 0, -2);
                                             <textarea class="cardslite"></textarea>
                                         </div>
 
-                                        
+
                                         <div class="border"></div>
-                                                 
+
                                     </div>
 
-                                    
+
 
                                 </div>
                             </div>

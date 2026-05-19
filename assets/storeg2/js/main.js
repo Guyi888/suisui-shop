@@ -43,7 +43,7 @@ function share_shop(){
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function getPoint() {
@@ -202,7 +202,7 @@ function get_shuoshuo(id,uin,km,page){
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function set_shuoshuo(id){
@@ -238,7 +238,7 @@ function get_rizhi(id,uin,km,page){
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 }
 function set_rizhi(id){
@@ -330,12 +330,12 @@ function getpddinput() {
     var pattresult6 = (/([0-9]{8})/).exec(pddinput);
     var pattresult7 = (/[a-zA-Z0-9=_\&\?\-\/]?[a-zA-Z0-9]{15}[a-zA-Z0-9=_\&\?\-\/]?/).exec(pddinput);
     var pattresult12 = (/^[a-zA-Z0-9]{16}/).exec(pddinput);
-    
+
     var pattresult10 = (/[\ud83a-\ud83f][\u0000-\uFFFF]/).exec(pddinput);
     var no_emoji_input = pddinput.replace(/[\ud83a-\ud83f][\u0000-\uFFFF]/g, "");
     no_emoji_input = no_emoji_input.replace(/[\ufe00-\ufe0f]/g, "");
     no_emoji_input = no_emoji_input.replace(/[\u0000-\uffff][\u20aa-\u20ff]/g, "");
-    
+
     var pattresult13 = (/[a-zA-Z0-9]{13}/).exec(no_emoji_input);
     var pattresult14 = (/[a-zA-Z0-9]{14}/).exec(no_emoji_input);
     var status = false;
@@ -459,7 +459,7 @@ var handlerEmbed = function (captchaObj) {
 					layer.alert(data.msg);
 					captchaObj.reset();
 				}
-			} 
+			}
 		});
 	});
 };
@@ -482,7 +482,7 @@ var handlerEmbed2 = function (token) {
 			}else{
 				layer.alert(data.msg);
 			}
-		} 
+		}
 	});
 };
 var handlerEmbed3 = function (vaptchaObj) {
@@ -550,7 +550,7 @@ function dopay(type,orderid){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	}else{
 		window.location.href='other/submit.php?type='+type+'&orderid='+orderid;
@@ -802,7 +802,7 @@ $(document).ready(function(){
 				}else{
 					layer.alert(data.msg,{icon:2});
 				}
-			} 
+			}
 		});
 	});
 	$("#submit_cart_shop").click(function(){
@@ -878,7 +878,7 @@ $(document).ready(function(){
 				}else{
 					layer.alert(data.msg);
 				}
-			} 
+			}
 		});
 	});
 $("#num_add").click(function () {
@@ -918,8 +918,8 @@ $("#num_add").click(function () {
 $("#num_min").click(function (){
 	var i = parseInt($("#num").val());
 	if(i<=1){
-    	layer.msg('最低下单一份哦！'); 
-      	return false;
+	layer.msg('最低下单一份哦！');
+	return false;
     }
 	if ($("#need").val() == ''){
 		layer.alert('请先选择商品');

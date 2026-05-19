@@ -6,7 +6,6 @@ $title='网站设置';
 include 'head.php';
 if($conf['fenzhan_cost2']<=0)$conf['fenzhan_cost2']=$conf['fenzhan_price2'];
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <div class="wrapper">
 <div class="col-sm-12">
 <?php
@@ -98,7 +97,7 @@ if($mod=='user_n'){
 	</div>
 	<div class="form-group">
 	  <input type="submit" name="submit" value="保存" class="btn btn-primary form-control"/>
-	</div>	
+	</div>
   </form>
   </div>
 </div>
@@ -162,7 +161,7 @@ if($mod=='user_n'){
   <form action="./uset.php?mod=site_n" method="post" role="form">
 	<div class="form-group">
 		<label>网站名称:</label><br>
-	  	<input type="text" name="sitename" value="<?php echo $userrow['sitename']; ?>" class="form-control" required/>
+		<input type="text" name="sitename" value="<?php echo $userrow['sitename']; ?>" class="form-control" required/>
 	</div>
 	<div class="form-group">
 	  <label>标题栏后缀</label><br>
@@ -238,7 +237,7 @@ if($mod=='user_n'){
 	<div class="form-group">
 	  <label>本站域名</label><br>
 	  <div class="input-group">
-	  	<input type="text" name="domain" value="<?php echo $userrow['domain']; ?>" class="form-control" disabled/><div class="input-group-addon"><a href="cdomain.php">自助更换域名</a></div></div>
+		<input type="text" name="domain" value="<?php echo $userrow['domain']; ?>" class="form-control" disabled/><div class="input-group-addon"><a href="cdomain.php">自助更换域名</a></div></div>
 	</div>
 	<?php }?>
 	<div class="form-group">
@@ -246,12 +245,12 @@ if($mod=='user_n'){
 	  <input type="text" name="appurl" value="<?php echo $userrow['appurl']; ?>" class="form-control" placeholder="没有请留空"/>
 	</div>
 	<div class="form-group">
-	 	<input type="submit" name="submit" value="修改" class="btn btn-primary form-control"/>
+		<input type="submit" name="submit" value="修改" class="btn btn-primary form-control"/>
 	 </div>
    </form>
  </div>
 <div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span>
+<span class="fa fa-info-circle"></span>
 实用工具：<a href="http://www.w3school.com.cn/tiy/t.asp?f=html_basic" target="_blank" rel="noreferrer">HTML在线测试</a>｜<a href="http://pic.xiaojianjian.net/" target="_blank" rel="noreferrer">图床</a>｜<a href="http://music.cccyun.cc/" target="_blank" rel="noreferrer">音乐外链</a>
 </div>
 </div>
@@ -308,21 +307,21 @@ if($_POST['s']==1){
 	$file_ext = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
 	$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 	$max_size = 2 * 1024 * 1024; // 2MB
-	
+
 	if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 		exit("只允许上传JPG、PNG、GIF、WEBP格式的图片文件！");
 	}
-	
+
 	if ($_FILES["file"]["size"] > $max_size) {
 		exit("文件大小不能超过2MB！");
 	}
-	
+
 	// 检查文件是否为真实图片
 	$image_info = getimagesize($_FILES["file"]["tmp_name"]);
 	if (!$image_info) {
 		exit("请上传真实的图片文件！");
 	}
-	
+
 	copy($_FILES['file']['tmp_name'], ROOT.'assets/img/logo_'.$userrow['zid'].'.png');
 	echo "成功上传文件!<br>（可能需要清空浏览器缓存才能看到效果，按Ctrl+F5即可一键刷新缓存）";
 }
@@ -334,7 +333,7 @@ if(file_exists(ROOT.'assets/img/logo_'.$userrow['zid'].'.png')){
 echo '<form action="uset.php?mod=logo" method="POST" enctype="multipart/form-data"><label for="file"></label><input type="file" name="file" id="file" /><input type="hidden" name="s" value="1" /><br><input type="submit" class="btn btn-primary form-control" value="确认上传" /></form><br>现在的图片：<br><img src="'.$logo.'" style="max-width:30%">';
 echo '</div></div>';
 }elseif($mod=='skimg' && $userrow['power']>0){
-	
+
 echo '<div class="panel panel-default">
 <div class="panel-heading font-bold">提现收款图设置</div>
 <div class="panel-body">';
@@ -346,21 +345,21 @@ if($_POST['s']==1){
 	$file_ext = strtolower(pathinfo($_FILES["shoukuan"]["name"], PATHINFO_EXTENSION));
 	$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 	$max_size = 5 * 1024 * 1024; // 5MB
-	
+
 	if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 		exit("只允许上传JPG、PNG、GIF、WEBP格式的图片文件！");
 	}
-	
+
 	if ($_FILES["shoukuan"]["size"] > $max_size) {
 		exit("文件大小不能超过5MB！");
 	}
-	
+
 	// 检查文件是否为真实图片
 	$image_info = getimagesize($_FILES["shoukuan"]["tmp_name"]);
 	if (!$image_info) {
 		exit("请上传真实的图片文件！");
 	}
-	
+
 	copy($_FILES['shoukuan']['tmp_name'], ROOT.'assets/img/skimg/sk_'.$userrow['zid'].'.png');
 	echo "成功上传文件!<br>（可能需要清空浏览器缓存才能看到效果，按Ctrl+F5即可一键刷新缓存）";
 }
@@ -389,21 +388,21 @@ if($_POST['s']==1){
 	$file_ext = strtolower(pathinfo($_FILES["wxqrcode"]["name"], PATHINFO_EXTENSION));
 	$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 	$max_size = 2 * 1024 * 1024; // 2MB
-	
+
 	if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 		exit("只允许上传JPG、PNG、GIF、WEBP格式的图片文件！");
 	}
-	
+
 	if ($_FILES["wxqrcode"]["size"] > $max_size) {
 		exit("文件大小不能超过2MB！");
 	}
-	
+
 	// 检查文件是否为真实图片
 	$image_info = getimagesize($_FILES["wxqrcode"]["tmp_name"]);
 	if (!$image_info) {
 		exit("请上传真实的图片文件！");
 	}
-	
+
 	copy($_FILES['wxqrcode']['tmp_name'], ROOT.'assets/img/qrcode/wxqrcode_'.$userrow['zid'].'.png');
 	echo "成功上传文件!<br>（可能需要清空浏览器缓存才能看到效果，按Ctrl+F5即可一键刷新缓存）";
 }
@@ -433,10 +432,10 @@ var getopenid = function () {
         type:1,
         title:'',
         content:'<div class="layui-card-body"><h3 style="text-align:center">请使用微信扫一扫</h3><div><div id="qrcode" style="padding:15px;"></div></div></div>',
-        cancel: function(index, layero){ 
+        cancel: function(index, layero){
             layer.close(open);
-            window.clearInterval(cron); 
-        },success: function(){ 
+            window.clearInterval(cron);
+        },success: function(){
 			var code_url = '<?php echo $code_url?>';
 			$('#qrcode').qrcode({
 				text: code_url,
@@ -457,7 +456,7 @@ var getopenid = function () {
                 if (data.code) {
                     $("input[name=pay_account]").val(data.data);
                     layer.close(open);
-                    window.clearInterval(cron); 
+                    window.clearInterval(cron);
                 }
             }
         });
@@ -505,7 +504,7 @@ function setpwd(){
 			}else{
 				layer.alert(data.msg, {icon:0});
 			}
-		} 
+		}
 	});
 	return false;
 }
@@ -523,7 +522,7 @@ function connect(type){
 			}else{
 				layer.alert(data.msg, {icon: 7});
 			}
-		} 
+		}
 	});
 }
 function unbind(type){
@@ -541,7 +540,7 @@ function unbind(type){
 				}else{
 					layer.alert(data.msg, {icon: 0});
 				}
-			} 
+			}
 		});
 	}, function(){
 	  layer.close(confirmobj);

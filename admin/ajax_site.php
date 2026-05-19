@@ -186,6 +186,28 @@ switch($act){
         exit('{"code":0}');
         break;
 
+    case 'delTask': //删除站点任务
+        adminpermission('site', 2);
+        if (!isset($_GET['csrf_token']) || $_GET['csrf_token'] !== md5(session_id() . SYS_KEY)) {
+            exit('{"code":-1,"msg":"CSRF验证失败！"}');
+        }
+        $id=intval($_GET['id']);
+        if($DB->exec("DELETE FROM pre_sitetask WHERE id=:id", array(':id' => $id))!==false)
+            exit('{"code":0,"msg":"删除成功！"}');
+        else
+            exit('{"code":-1,"msg":"删除失败！'.$DB->error().'"}');
+        break;
+    case 'setTask': //设置站点任务状态
+        adminpermission('site', 2);
+        if (!isset($_GET['csrf_token']) || $_GET['csrf_token'] !== md5(session_id() . SYS_KEY)) {
+            exit('{"code":-1,"msg":"CSRF验证失败！"}');
+        }
+        $id=intval($_GET['id']);
+        $active=intval($_GET['active']);
+        $DB->exec("UPDATE pre_sitetask SET active=:active WHERE id=:id", array(':active' => $active, ':id' => $id));
+        exit('{"code":0,"msg":"succ"}');
+        break;
+
     default:
         exit('{"code":-4,"msg":"No Act"}');
         break;

@@ -7,7 +7,6 @@ $title='充值余额';
 include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php?back=recharge';</script>");
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <style>
 img.logo{width: 20px;margin: -2px 5px 0 5px;}
 </style>
@@ -18,7 +17,7 @@ img.logo{width: 20px;margin: -2px 5px 0 5px;}
 		充值余额
 	</div>
 	<div class="panel-body text-center">
-<?php 
+<?php
 $rebate_enabled = isset($conf['recharge_rebate_enabled']) ? $conf['recharge_rebate_enabled'] : 1;
 $rebate_rate = isset($conf['recharge_rebate_rate']) ? $conf['recharge_rebate_rate'] : 3;
 if ($rebate_enabled == 1) {
@@ -40,7 +39,7 @@ if ($rebate_enabled == 1) {
 				<b>预计返利金额：</b><span id="rebateAmount" style="font-size:16px; color:#FF6133;">0.00</span> 元<br>
 				<b>实际到账金额：</b><span id="totalAmount" style="font-size:16px; color:#FF6133;">0.00</span> 元
 			</div>
-<?php 
+<?php
 if(!empty($conf['codepay_key']))echo '<button type="submit" class="btn btn-default" id="buy_usdt"><img src="../other/usdt-trc20/static/img/tether.svg" class="logo">USDT - TRC20</button>&nbsp;';
 if($conf['alipay_api'])echo '<button type="submit" class="btn btn-default" id="buy_alipay"><img src="../assets/img/alipay.png" class="logo">支付宝</button>&nbsp;';
 if($conf['qqpay_api'])echo '<button type="submit" class="btn btn-default" id="buy_qqpay"><img src="../assets/img/qqpay.png" class="logo">QQ钱包</button>&nbsp;';
@@ -100,7 +99,7 @@ function calculateRebate() {
 	var totalAmount = document.getElementById('totalAmount');
 	var rebateEnabled = <?php echo isset($conf['recharge_rebate_enabled']) ? $conf['recharge_rebate_enabled'] : 1;?>;
 	var rebateRate = <?php echo isset($conf['recharge_rebate_rate']) ? $conf['recharge_rebate_rate'] : 3;?>;
-	
+
 	if (rebateEnabled == 1 && !isNaN(value) && value > 0) {
 		var rebate = value * (rebateRate / 100);
 		var total = value + rebate;

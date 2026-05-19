@@ -2,14 +2,14 @@
 // +----------------------------------------------------------------------
 // | 易客对接插件
 // | 博客地址：zhonguo.ren
-// | Q群：915043052
-// | 开发者：教主
+// | Q群：qqfaka
+// | 开发者：岁岁 @qqfaka
 // +----------------------------------------------------------------------
 namespace plugins;
 
 class third_yike {
     protected $conf;
-    
+
     // 插件配置信息 - 确保格式正确以便系统识别
     static public $info = array(
         'name'        => 'third_yike',
@@ -29,7 +29,7 @@ class third_yike {
             'paytype'  => '支付方式'
         )
     );
-    
+
     /**
      * 构造函数
      */
@@ -44,7 +44,7 @@ class third_yike {
             'paytype'  => $shequ['paytype']
         );
     }
-    
+
     /**
      * 初始化插件配置
      */
@@ -59,7 +59,7 @@ class third_yike {
             'paytype'  => $paytype
         );
     }
-    
+
     /**
      * 获取商品分类列表
      */
@@ -67,7 +67,7 @@ class third_yike {
         try {
             $url = $this->conf['url'] . '/api/client/goods/v2/category';
             $result = $this->request($url, 'GET', array());
-            
+
             if ($result['code'] == 100) {
                 $categories = array();
                 foreach ($result['result']['data'] as $category) {
@@ -83,7 +83,7 @@ class third_yike {
             return array('code' => 1, 'msg' => $e->getMessage());
         }
     }
-    
+
     /**
      * 获取分类列表（标准插件系统接口）
      * 用于批量对接商品功能
@@ -92,7 +92,7 @@ class third_yike {
         try {
             // 调用现有的获取分类方法
             $result = $this->getCategory();
-            
+
             if ($result['code'] == 0) {
                 $categories = array();
                 // 转换为标准插件系统期望的格式
@@ -109,7 +109,7 @@ class third_yike {
             return $e->getMessage();
         }
     }
-    
+
     /**
      * 获取商品详情
      */
@@ -119,9 +119,9 @@ class third_yike {
             $params = array(
                 'goodsSN' => $goodsSN
             );
-            
+
             $result = $this->request($url, 'GET', $params);
-            
+
             if ($result['code'] == 100 && isset($result['result'])) {
                 return $result['result'];
             } else {
@@ -131,7 +131,7 @@ class third_yike {
             return array();
         }
     }
-    
+
     /**
      * 获取商品列表
      */
@@ -143,13 +143,13 @@ class third_yike {
                 'page'       => $page,
                 'limit'      => $pagesize
             );
-            
+
             // 记录请求信息
             $request_start = microtime(true);
             $result = $this->request($url, 'GET', $params);
             $request_end = microtime(true);
             $request_time = round(($request_end - $request_start) * 1000, 2);
-            
+
             // 检查响应状态
             if ($result['code'] == 100) {
                 $goods = array();
@@ -157,13 +157,13 @@ class third_yike {
                 if (!isset($result['result']) || !isset($result['result']['data']) || !is_array($result['result']['data'])) {
                     throw new \Exception("响应数据结构错误: " . json_encode($result));
                 }
-                
+
                 foreach ($result['result']['data'] as $item) {
                     // 直接使用列表接口返回的数据，不调用详情接口以提高性能
                     $goodsSN = $item['goodsSN'] ?? '';
-                    
+
                     if (empty($goodsSN)) continue;
-                    
+
                     // 构造商品数据，使用列表接口返回的基础信息
                     $goods_item = array(
                         'id'            => $goodsSN,
@@ -179,7 +179,7 @@ class third_yike {
                         'shopimg'       => $item['goodsThumb'] ?? '',
                         'type'          => ''
                     );
-                    
+
                     $goods[] = $goods_item;
                 }
                 return array('code' => 0, 'msg' => 'success', 'data' => $goods);
@@ -193,7 +193,7 @@ class third_yike {
             return array('code' => 1, 'msg' => $error_msg);
         }
     }
-    
+
     /**
      * 获取商品列表（兼容third_call函数）
      */
@@ -226,7 +226,7 @@ class third_yike {
             return $e->getMessage();
         }
     }
-    
+
     /**
      * 获取指定分类的商品列表（标准插件系统接口）
      * 用于批量对接商品功能
@@ -235,7 +235,7 @@ class third_yike {
         try {
             // 调用现有的获取商品列表方法
             $result = $this->getGoodsList($cid, 1, 200);
-            
+
             if ($result['code'] == 0) {
                 $goods = array();
                 foreach ($result['data'] as $item) {
@@ -270,7 +270,7 @@ class third_yike {
             return '获取商品列表失败: ' . $e->getMessage();
         }
     }
-    
+
     /**
      * 获取商品列表（兼容third_call函数）
      */
@@ -314,7 +314,7 @@ class third_yike {
             return $error_msg;
         }
     }
-    
+
     /**
      * 获取商品详情
      */
@@ -322,22 +322,22 @@ class third_yike {
         try {
             $url = $this->conf['url'] . '/api/client/goods/v2/goods';
             $params = array('goodsSN' => $id);
-            
+
             // 记录请求开始时间
             $request_start = microtime(true);
             $result = $this->request($url, 'GET', $params);
             $request_end = microtime(true);
             $request_time = round(($request_end - $request_start) * 1000, 2);
-            
+
             if ($result['code'] == 100) {
                 $goods = $result['result'];
-                
+
                 // 确保 ParamsTemplate 存在且为字符串
                 $params_template = isset($goods['ParamsTemplate']) ? $goods['ParamsTemplate'] : '[]';
                 if (empty($params_template)) {
                     $params_template = '[]';
                 }
-                
+
                 // 解析参数模板
                 $params = array();
                 $template_data = json_decode($params_template, true);
@@ -347,17 +347,17 @@ class third_yike {
                         $param_name = $p['name'] ?? $p['key'] ?? '';
                         $param_alias = $p['alias'] ?? $p['description'] ?? '';
                         $param_required = $p['required'] ?? true;
-                        
+
                         // 确保参数名称不为空
                         if (empty($param_name)) {
                             $param_name = '参数' . (count($params) + 1);
                         }
-                        
+
                         // 确保参数别名不为空
                         if (empty($param_alias)) {
                             $param_alias = '请输入' . $param_name;
                         }
-                        
+
                         $params[] = array(
                             'name'     => $param_name,
                             'alias'    => $param_alias,
@@ -365,7 +365,7 @@ class third_yike {
                         );
                     }
                 }
-                
+
                 // 如果没有解析到参数，添加默认参数
                 if (empty($params)) {
                     $params[] = array(
@@ -374,7 +374,7 @@ class third_yike {
                         'required' => true
                     );
                 }
-                
+
                 // 构造返回数据，确保所有字段都有值
                 $return_data = array(
                     'id'          => $goods['goodsSN'] ?? $id,
@@ -394,18 +394,18 @@ class third_yike {
                     'category_name' => $goods['categoryName'] ?? '未分类',
                     'goodsType'   => $goods['goodsType'] ?? 1
                 );
-                
+
                 // 确保价格是数字类型
                 if (is_string($return_data['price'])) {
                     $return_data['price'] = floatval($return_data['price']);
                 }
-                
+
                 // 确保最小/最大下单数量是整数
                 $return_data['min'] = intval($return_data['min']);
                 $return_data['max'] = intval($return_data['max']);
                 $return_data['minnum'] = intval($return_data['minnum']);
                 $return_data['maxnum'] = intval($return_data['maxnum']);
-                
+
                 return array('code' => 0, 'msg' => 'success', 'data' => $return_data);
             }
             return array('code' => 1, 'msg' => $result['msg'] ?? '未知错误');
@@ -418,7 +418,7 @@ class third_yike {
             return array('code' => 1, 'msg' => $error_msg);
         }
     }
-    
+
     /**
      * 获取商品详情（兼容third_call函数）
      */
@@ -426,13 +426,13 @@ class third_yike {
         $result = $this->getGoodsInfo($id);
         if ($result['code'] == 0) {
             $data = $result['data'];
-            
+
             // 提取参数信息
             $params = $data['params'];
             $main_input = $params[0]['name'] ?? '账号';
             $other_inputs = array_slice($params, 1);
             $other_input_names = array_column($other_inputs, 'name');
-            
+
             // 调整返回格式，适应系统要求
             return array(
                 'name' => $data['name'],
@@ -460,14 +460,14 @@ class third_yike {
         file_put_contents($log_file, $log_content, FILE_APPEND);
         return $error_msg;
     }
-    
+
     /**
      * 提交订单
      */
     public function submitOrder($gid, $num, $params, $order_no = '') {
         try {
             $url = $this->conf['url'] . '/api/client/goods/v2/order';
-            
+
             // 格式化参数
             $formatted_params = array();
             foreach ($params as $p) {
@@ -477,7 +477,7 @@ class third_yike {
                     'value' => $p['value']
                 );
             }
-            
+
             $data = array(
                 'goodsSN'       => $gid,
                 'number'        => $num,
@@ -485,9 +485,9 @@ class third_yike {
                 'customOrderSN' => $order_no ?: date('YmdHis') . rand(1000, 9999),
                 'params'        => $formatted_params
             );
-            
+
             $result = $this->request($url, 'POST', $data, 'json');
-            
+
             if ($result['code'] == 100 && !empty($result['result']['orderSN'])) {
                 return array('code' => 0, 'msg' => '下单成功', 'id' => $result['result']['orderSN']);
             }
@@ -496,7 +496,7 @@ class third_yike {
             return array('code' => 1, 'msg' => $e->getMessage());
         }
     }
-    
+
     /**
      * 查询订单状态
      */
@@ -504,12 +504,12 @@ class third_yike {
         try {
             $url = $this->conf['url'] . '/api/client/goods/v2/order';
             $params = array('orderSN' => $trade_no);
-            
+
             $result = $this->request($url, 'GET', $params);
-            
+
             if ($result['code'] == 100) {
                 $order = $result['result'];
-                
+
                 // 订单状态映射
                 $status_map = array(
                     1 => 1,  // 待处理
@@ -522,11 +522,11 @@ class third_yike {
                     9 => 1,  // 未使用
                     10 => 3  // 退款
                 );
-                
+
                 $status = $status_map[$order['state'] ?? 0] ?? 1;
                 $cardno = $order['cardNumber'] ?? '';
                 $addtime = $order['createdAt'] ?? time();
-                
+
                 // 处理订单日志
                 $log = array();
                 if (!empty($order['logs'])) {
@@ -537,7 +537,7 @@ class third_yike {
                         }
                     }
                 }
-                
+
                 return array('code' => 0, 'msg' => '查询成功', 'data' => array(
                     'status'    => $status,
                     'orderno'   => $trade_no,
@@ -558,7 +558,7 @@ class third_yike {
             return array('code' => 1, 'msg' => $e->getMessage());
         }
     }
-    
+
     /**
      * 申请退款
      */
@@ -566,9 +566,9 @@ class third_yike {
         try {
             $url = $this->conf['url'] . '/api/client/goods/v2/order/state';
             $data = array('orderSN' => $trade_no);
-            
+
             $result = $this->request($url, 'POST', $data, 'json');
-            
+
             if ($result['code'] == 100) {
                 return array('code' => 0, 'msg' => '退款申请已提交');
             }
@@ -577,7 +577,7 @@ class third_yike {
             return array('code' => 1, 'msg' => $e->getMessage());
         }
     }
-    
+
     /**
      * 检测连接
      */
@@ -585,7 +585,7 @@ class third_yike {
         try {
             $url = $this->conf['url'] . '/api/client/account/v2/profile';
             $result = $this->request($url, 'GET', array());
-            
+
             if ($result['code'] == 100 && !empty($result['result'])) {
                 return array('code' => 0, 'msg' => '连接成功', 'info' => '余额：' . ($result['result']['balance'] ?? 0));
             }
@@ -594,32 +594,32 @@ class third_yike {
             return array('code' => 1, 'msg' => $e->getMessage());
         }
     }
-    
+
     /**
      * 通用请求函数 - 处理HTTP请求
      */
     private function request($url, $method = 'GET', $data = array(), $type = 'form') {
         $ch = curl_init();
-        
+
         // 生成当前时间戳
         $timestamp = time();
-        
+
         // 解析URL，获取请求URI（除域名外的部分）
         $parse_url = parse_url($url);
         $requestURI = $parse_url['path'];
-        
+
         // 初始化请求头信息
         $headers = array(
             'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         );
-        
+
         // 生成AppToken（根据易客文档要求）
         $AppId = $this->conf['username'];
         $AppSecret = $this->conf['password']; // 注意：这里的password实际是AppSecret
-        
+
         // 处理请求参数和URL
         $full_url = $url;
-        
+
         if ($method == 'GET') {
             // GET请求：将参数添加到URL和requestURI中
             if (!empty($data)) {
@@ -637,15 +637,15 @@ class third_yike {
                 $data_str = http_build_query($data);
             }
         }
-        
+
         // 生成AppToken - 严格按照文档要求的顺序
         $AppToken = sha1($AppId . $AppSecret . $requestURI . $timestamp);
-        
+
         // 添加认证头 - 确保顺序正确
         $headers[] = 'AppId: ' . $AppId;
         $headers[] = 'AppTimestamp: ' . $timestamp;
         $headers[] = 'AppToken: ' . $AppToken;
-        
+
         // 设置CURL选项
         // 自动跟随重定向（处理301/302等）
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -653,7 +653,7 @@ class third_yike {
         curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
         // 保存重定向历史
         curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-        
+
         curl_setopt($ch, CURLOPT_URL, $full_url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -661,43 +661,43 @@ class third_yike {
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        
+
         if ($method == 'POST') {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data_str);
         }
-        
+
         $response = curl_exec($ch);
         $curl_errno = curl_errno($ch);
         $curl_error = curl_error($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        
+
         if ($curl_errno) {
             $error_msg = 'CURL请求失败：' . $curl_error . ' (错误码: ' . $curl_errno . ')';
             throw new \Exception($error_msg);
         }
-        
+
         if ($http_code != 200) {
             $error_msg = 'HTTP错误：状态码 ' . $http_code . '，响应: ' . substr($response, 0, 200);
             throw new \Exception($error_msg);
         }
-        
+
         $result = json_decode($response, true);
         if (!is_array($result)) {
             $error_msg = '响应格式错误：无法解析JSON，原始响应: ' . substr($response, 0, 200);
             throw new \Exception($error_msg);
         }
-        
+
         // 检查是否认证失败
         if (isset($result['code']) && $result['code'] == 403) {
             $error_msg = 'API认证失败：' . ($result['msg'] ?? '请检查AppId和AppSecret配置');
             throw new \Exception($error_msg);
         }
-        
+
         return $result;
     }
-    
+
     /**
      * 处理订单（兼容third_call函数）
      */
@@ -713,14 +713,14 @@ class third_yike {
                     'value' => $inputs[$i]
                 );
             }
-            
+
             $result = $this->submitOrder($gid, $num, $params, $order_no);
             return $result;
         } catch (\Exception $e) {
             return array('code' => 1, 'msg' => $e->getMessage());
         }
     }
-    
+
     /**
      * 批量获取商品列表（标准插件系统接口）
      * 用于批量对接商品功能
@@ -732,27 +732,27 @@ class third_yike {
             if (!is_array($categories)) {
                 return $categories; // 返回错误信息
             }
-            
+
             $all_goods = array();
-            
+
             // 遍历每个分类，获取商品列表
             foreach ($categories as $category) {
                 $cid = $category['cid'];
                 $goods_list = $this->goods_list_by_cid($cid);
-                
+
                 if (is_array($goods_list)) {
                     foreach ($goods_list as $goods) {
                         $all_goods[] = $goods;
                     }
                 }
             }
-            
+
             return $all_goods;
         } catch (\Exception $e) {
             return '获取批量商品列表失败: ' . $e->getMessage();
         }
     }
-    
+
     /**
      * 编辑页面JS - 预留扩展
      */

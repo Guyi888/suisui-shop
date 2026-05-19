@@ -53,7 +53,7 @@ class AlipayTradeRefundContentBuilder extends ContentBuilder
         if(!empty($this->bizContentarr)){
             $this->bizContent = json_encode($this->bizContentarr,JSON_UNESCAPED_UNICODE);
         }
-        
+
         return $this->bizContent;
     }
 

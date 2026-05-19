@@ -20,10 +20,10 @@ $outcome_lastday = $DB->getColumn("SELECT sum(point) FROM pre_suppoints WHERE si
 <table class="table table-bordered">
 <tbody>
 <tr height="25">
-<td align="center"><font color="#808080"><b><span class="glyphicon glyphicon-tint"></span>今日收益</b></br><?php echo round($income_today, 2);?>元</font></td>
-<td align="center"><font color="#808080"><b><i class="glyphicon glyphicon-check"></i>今日消费</b></br></span><?php echo round($outcome_today, 2);?>元</font></td>
-<td align="center"><font color="#808080"><b><span class="glyphicon glyphicon-tint"></span>昨日收益</b></br><?php echo round($income_lastday, 2);?>元</font></td>
-<td align="center"><font color="#808080"><b><i class="glyphicon glyphicon-check"></i>昨日消费</b></br></span><?php echo round($outcome_lastday, 2);?>元</font></td>
+<td align="center"><font color="#808080"><b><span class="fa fa-tint"></span>今日收益</b></br><?php echo round($income_today, 2);?>元</font></td>
+<td align="center"><font color="#808080"><b><i class="fa fa-check"></i>今日消费</b></br></span><?php echo round($outcome_today, 2);?>元</font></td>
+<td align="center"><font color="#808080"><b><span class="fa fa-tint"></span>昨日收益</b></br><?php echo round($income_lastday, 2);?>元</font></td>
+<td align="center"><font color="#808080"><b><i class="fa fa-check"></i>昨日消费</b></br></span><?php echo round($outcome_lastday, 2);?>元</font></td>
 </tr>
 </tbody>
 </table>
@@ -31,7 +31,7 @@ $outcome_lastday = $DB->getColumn("SELECT sum(point) FROM pre_suppoints WHERE si
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>类型</th><th>金额</th><th>详情</th><th>时间</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $numrows = $DB->getColumn("SELECT count(*) from pre_suppoints WHERE sid='" . $suprow["sid"] . "'");
 $pagesize = 30;
 $pages = ceil($numrows / $pagesize);
@@ -46,7 +46,7 @@ while ($res = $rs->fetch()) {
           </tbody>
         </table>
       </div>
-<center><ul class="pagination"><?php 
+<center><ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;
@@ -78,7 +78,7 @@ if ($page < $pages) {
   </div>
  </div>
 </div>
-<?php 
+<?php
 include "./foot.php";
 ?></body>
 </html>

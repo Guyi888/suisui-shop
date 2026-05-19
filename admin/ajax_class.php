@@ -164,7 +164,7 @@ case 'batchOperation': //批量操作分类
 	exit('{"code":0,"msg":"成功改变'.$i.'个分类"}');
 break;
 
-// 设置二级分类提示语 - 教主修改，博客地址：6v6.ren Q群：941535592
+// 设置二级分类提示语 - 岁岁 @qqfaka修改，岁岁 @qqfaka
 case 'setNotice':
 	adminpermission('shop', 2);
 	$cid=intval($_POST['cid']);
@@ -177,7 +177,7 @@ case 'setNotice':
 		exit('{"code":-1,"msg":"设置失败！'.$DB->error().'"}');
 break;
 
-// 获取二级分类提示语 - 教主修改，博客地址：6v6.ren Q群：941535592
+// 获取二级分类提示语 - 岁岁 @qqfaka修改，岁岁 @qqfaka
 case 'getNotice':
 	$cid=intval($_POST['cid']);
 	$rows=$DB->getRow("select notice from shua_class where cid='$cid' limit 1");

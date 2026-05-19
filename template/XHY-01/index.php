@@ -1,21 +1,29 @@
 <?php
 /*
- 本代码由 教主 创建
+ 本代码由 岁岁 @qqfaka 创建
  创建时间 2025-11-30
  技术支持 QQ:1410505990
  模板版本 v1.0
 */
 if(!defined('IN_CRONLITE'))exit();
 $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aifeili.com.cn/bg.png';
+
+// 模板配置 - 显示/隐藏控制
+$show_marquee = isset($conf['show_marquee']) ? $conf['show_marquee'] : '1';
+$show_warning_div = isset($conf['show_warning_div']) ? $conf['show_warning_div'] : '1';
+$show_guide_link = isset($conf['show_guide_link']) ? $conf['show_guide_link'] : '1';
+$show_order_warning = isset($conf['show_order_warning']) ? $conf['show_order_warning'] : '1';
+$show_favorite_div = isset($conf['show_favorite_div']) ? $conf['show_favorite_div'] : '1';
+$show_article_list = isset($conf['show_article_list']) ? $conf['show_article_list'] : '1';
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    	<title><?php echo $conf['sitename'] ?> - <?php echo $conf['title'] ?></title>
-    	<meta name="keywords" content="<?php echo $conf['keywords'] ?>">
-    	<meta name="description" content="<?php echo $conf['description'] ?>">
+	<title><?php echo $conf['sitename'] ?> - <?php echo $conf['title'] ?></title>
+	<meta name="keywords" content="<?php echo $conf['keywords'] ?>">
+	<meta name="description" content="<?php echo $conf['description'] ?>">
 		<?php if(!empty($conf['favicon'])) { ?>
 		<link rel="icon" href="<?php echo $conf['favicon'] ?>" type="image/x-icon" />
 		<link rel="shortcut icon" href="<?php echo $conf['favicon'] ?>" type="image/x-icon" />
@@ -24,8 +32,8 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 		<link rel="shortcut icon" href="assets/img/favicon/favicon.ico" type="image/x-icon" />
 		<?php } ?>
 		<link href="<?php echo $cdnpublic?>twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
-    	<link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
-    	<link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">
+	<link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+	<link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">
 		<link rel="stylesheet" href="<?php echo $cdnserver?>assets/css/common.css?ver=<?php echo VERSION ?>">
 		<script src="https://lib.baomitu.com/jquery/3.5.1/jquery.min.js"></script>
 		<script src="https://lib.baomitu.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
@@ -37,6 +45,113 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 		var modalShowType = <?php echo isset($conf['modal_show_type']) ? intval($conf['modal_show_type']) : 0; ?>;
 		var homepage = true;
 		var hashsalt = <?php echo $addsalt_js ?> ;
+		</script>
+		<!-- ============================================ -->
+		<!-- 🔥 课程查询强制修复 - 纯原生 JavaScript -->
+		<!-- ============================================ -->
+		<script>
+		console.log('🔥 课程查询强制修复加载...');
+
+		// 1. 定义真正的查询函数
+		function doQuery() {
+			console.log('🚀 执行查询...');
+
+			// 纯原生获取值
+			var input1 = document.getElementById('inputvalue');
+			var input2 = document.getElementById('inputvalue2');
+			var input3 = document.getElementById('inputvalue3');
+
+			var user = input1 ? input1.value || '' : '';
+			var pwd = input2 ? input2.value || '' : '';
+			var school = input3 ? input3.value || '' : '';
+
+			user = user.trim();
+			pwd = pwd.trim();
+			school = school.trim();
+
+			console.log('获取的值:', {user, pwd, school});
+
+			if (!user || !pwd || !school) {
+				var msg = '请完整填写信息！';
+				if (!user) msg += ' 登录账号';
+				if (!pwd) msg += ' 登录密码';
+				if (!school) msg += ' 学校名字';
+				if (typeof layer !== 'undefined') {
+					layer.alert(msg, {icon: 2, title: '提示'});
+				} else {
+					alert(msg);
+				}
+				return;
+			}
+
+			var url = 'cx.php?user=' + encodeURIComponent(user) + '&pwd=' + encodeURIComponent(pwd) + '&school=' + encodeURIComponent(school);
+			console.log('跳转URL:', url);
+
+			window.open(url, '_blank');
+		}
+
+		// 2. 立即定义 dzb_ck
+		window.dzb_ck = doQuery;
+
+		// 3. 持续启用输入框 + 绑定点击事件
+		function fixAndBind() {
+			// 启用输入框
+			['inputvalue', 'inputvalue2', 'inputvalue3', 'inputvalue4'].forEach(function(id) {
+				var el = document.getElementById(id);
+				if (el && el.disabled) {
+					el.disabled = false;
+					el.removeAttribute('disabled');
+				}
+			});
+
+			// 找到查询按钮并强绑定
+			var btn = document.getElementById('dzb_ck');
+			if (btn) {
+				if (btn.disabled) {
+					btn.disabled = false;
+					btn.removeAttribute('disabled');
+				}
+				btn.style.opacity = '1';
+				btn.style.cursor = 'pointer';
+
+				// 终极防护：覆盖 onclick 属性并直接绑定事件
+				btn.onclick = function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					console.log('🔥 按钮被点击，执行查询');
+					doQuery();
+					return false;
+				};
+
+				// 同时也用 addEventListener
+				if (!btn._queryBound) {
+					btn.addEventListener('click', function(e) {
+						e.preventDefault();
+						e.stopPropagation();
+						console.log('🔥 addEventListener 触发');
+						doQuery();
+						return false;
+					});
+					btn._queryBound = true;
+				}
+			}
+
+			// 持续覆盖 dzb_ck 函数，防止被加密代码覆盖
+			window.dzb_ck = doQuery;
+		}
+
+		// 页面加载完成后立即启动
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', function() {
+				console.log('✅ 启用输入框...');
+				setInterval(fixAndBind, 100); // 更频繁检查
+			});
+		} else {
+			console.log('✅ 启用输入框...');
+			setInterval(fixAndBind, 100); // 更频繁检查
+		}
+
+		console.log('✅ 强制修复完成！');
 		</script>
 		<script src="<?php echo $cdnserver ?>assets/js/main.js?ver=<?php echo VERSION ?>"></script>
 		<!--[if lt IE 9]>
@@ -274,7 +389,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 			<i class="fa fa-exclamation-circle" style="margin-right: 8px;"></i>
 			站长没有办法处理？点击下方联系平台人工客服解决
 		</div>
-		
+
 		<!-- 客服联系区域 -->
 		<div style="background: #FFF0F0; border: 1px solid #D8A0A0; border-radius: 10px; padding: 20px; box-shadow: 0 2px 6px rgba(139,0,0,0.1);">
 			<div style="display: flex; align-items: center;">
@@ -282,7 +397,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 				<div style="margin-right: 15px;">
 					<img src="/template/XHY-01/gif_lb.jpg" alt="客服头像" class="img-circle" style="width: 70px; height: 70px; border: 2px solid #D8A0A0;">
 				</div>
-				
+
 				<!-- 客服信息 -->
 				<div style="flex: 1;">
 					<div style="color: #8B0000; font-size: 18px; font-weight: 600; margin-bottom: 5px;">
@@ -297,7 +412,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 					</a>
 				</div>
 
-				
+
 			</div>
 		</div>
 	</div>
@@ -441,8 +556,8 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 
 <!-TAB标签-->
 
-<!-TAB标签-->	
-		
+<!-TAB标签-->
+
 				<!--查单说明开始-->
 				<div class="modal fade" align="left" id="cxsm" tabindex="-1" role="dialog"
 				aria-labelledby="myModalLabel" aria-hidden="true">
@@ -524,7 +639,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 					</li>
 					<li style="width: 20%;" align="center" class="hide">
 						<a href="#cardbuy" data-toggle="tab">
-							<i class="glyphicon glyphicon-th">
+							<i class="fa fa-th">
 						</i>
 							卡密
 						</a>
@@ -538,7 +653,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 					</li>
 				</ul>
 				<!-- 添加警告信息和下单步骤 -->
-				
+
 					<!--TAB-->
 					<div class="block-content tab-content">
 						<!--在线下单-->
@@ -557,7 +672,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 									<i class="fa fa-newspaper-o" style="color:#8B0000;"></i>
 									<span style="text-shadow:0 1px 2px rgba(139,0,0,0.1)">注文释意</span>
 								</h4>
-								
+
 								<!-- 操作按钮组 -->
 								<div style="display:flex; gap:10px; flex-wrap:wrap;">
 									<a href="javascript:void(alert('可能是总站或供货商库存不足了，等待后台补卡或联系客服解决即可！'));">
@@ -573,7 +688,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 											<i class="fa fa-clock-o"></i> 待处理订单
 										</span>
 									</a>
-									
+
 									<a href="javascript:void(alert('显示已退款是退款到你余额(可提现)，如果没有注册则不到账，先注册账号再联系客服！'));">
 										<span style="display:inline-block;
 										          padding:6px 15px;
@@ -587,7 +702,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 											<i class="fa fa-undo"></i> 已退款订单
 										</span>
 									</a>
-									
+
 									<a href="javascript:void(alert('如果付款了找不到订单请在下边手动查单，如果还是没有带上付款截图联系客服！'));">
 										<span style="display:inline-block;
 										          padding:6px 15px;
@@ -604,7 +719,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 								</div>
 							</div>
 						</div>
-						
+
 						<!-- 客服信息卡片 -->
 						<div style="background: white;
 						          border: 1px solid #D8A0A0;
@@ -619,7 +734,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 										<img src="/template/XHY-01/gif_lb.jpg" alt="客服头像" style="width:80px; height:80px; border-radius:50%;">
 									</a>
 								</div>
-								
+
 								<!-- 客服信息 -->
 								<div style="flex: 1;">
 								<h4 style="color: #8B0000; margin: 0 0 8px 0;">
@@ -639,7 +754,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 								</div>
 							</div>
 						</div>
-						
+
 						<!-- 查询订单教程 -->
 						<div style="background: #FFF0F0;
 						          border: 2px solid #FFCCCC;
@@ -654,7 +769,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 								<li>方法3：支付记录详细截图联系客服协助查询，高峰期需排队</li>
 							</ul>
 						</div>
-						
+
 						<!-- 查询表单 -->
 						<div class="form-group">
 							<div class="input-group">
@@ -667,15 +782,15 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 								<input type="text" name="qq" id="qq3" value="" class="form-control" placeholder="输入下单信息" onkeydown="if(event.keyCode==13){submit_query.click()}" required>
 								<span class="input-group-btn">
 									<a tabindex="0" class="btn btn-default" role="button" data-container="body" data-toggle="popover" data-trigger="focus" data-placement="top" title="" data-content="您下单时，在第一个输入框内填写的信息。如果您不记得下单账号是什么，可以不填写，直接点击查询，则会根据浏览器缓存查询！" data-original-title="下单信息是什么？">
-										<i class="glyphicon glyphicon-exclamation-sign"></i>
+										<i class="fa fa-exclamation-circle"></i>
 									</a>
 								</span>
 							</div>
 						</div>
-						
+
 						<!-- 立即查询按钮 -->
 						<input type="submit" id="submit_query" class="btn btn-danger btn-block btn-rounded" style="background: linear-gradient(to right, #FFCCCB, #8B0000); color: #fff; border: none; margin-bottom: 15px;" value="立即查询">
-						
+
 						<!-- 结果区域 -->
 						<div id="result2" class="form-group" style="display:none;">
 							<center>
@@ -720,7 +835,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 										</div>
 									</td>
 								</tr>
-								
+
 								<tr>
 									<td style="padding: 15px 10px;">
 										<div style="display: flex; align-items: center; color: #8B0000;">
@@ -729,7 +844,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 										</div>
 									</td>
 								</tr>
-								
+
 								<tr>
 									<td style="padding: 15px 10px;">
 										<div style="display: flex; align-items: center; color: #8B0000;">
@@ -738,7 +853,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 										</div>
 									</td>
 								</tr>
-								
+
 								<tr>
 									<td style="padding: 15px 10px;">
 										<div style="display: flex; align-items: center; color: #8B0000;">
@@ -747,7 +862,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 										</div>
 									</td>
 								</tr>
-								
+
 								<tr>
 									<td style="padding: 15px 10px;">
 										<div style="display: flex; align-items: center; color: #8B0000;">
@@ -756,14 +871,14 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 										</div>
 									</td>
 								</tr>
-								
+
 								<tr class="active">
 									<td style="padding: 20px 10px; text-align: center;">
 										<div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
 											<a href="#userjs" data-toggle="modal" class="btn btn-effect-ripple" style="background: #FFF0F0; color: #8B0000; border: none; border-radius: 20px; padding: 8px 25px; font-weight: 600; box-shadow: 0 2px 5px rgba(139,0,0,0.1); transition: all 0.3s ease;">
 												<i class="fa fa-align-justify"></i> 版本介绍
 											</a>
-											
+
 											<a href="user/regsite.php" target="_blank" class="btn btn-effect-ripple" style="background: linear-gradient(135deg, #8B0000 0%, #CD5C5C 100%); color: white; border: none; border-radius: 20px; padding: 8px 25px; font-weight: 600; box-shadow: 0 2px 8px rgba(139,0,0,0.3); transition: all 0.3s ease;">
 												<i class="fa fa-arrow-right"></i> 马上开通
 											</a>
@@ -882,7 +997,7 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 										</i>
 										<div class="font-w600 text-white-op push-15-t">
 											售后客服
-											
+
                                         </div>
 									</div>
 								</a>
@@ -1250,8 +1365,8 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 
 
 
-				<?php 
-			// 确保文章列表总是显示
+				<?php
+			if($show_article_list == '1'){
 			$limit = intval($conf['articlenum']) > 0 ? intval($conf['articlenum']) : 5;
 			$rs=$DB->query("SELECT id,title FROM " . DBQZ . "article WHERE active=1 ORDER BY top DESC,id DESC LIMIT {$limit}");
 			$msgrow=array();
@@ -1260,7 +1375,6 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 			}
 			$class_arr = ['danger','warning','primary','success','info'];
 			$i=0;
-			// 如果没有文章，添加一个默认文章
 			if(empty($msgrow)){
 				$msgrow[] = array(
 					'id' => 1,
@@ -1310,35 +1424,34 @@ $chdsn_cn_zuocew = $conf['chdsn_cn_zuocew']?$conf['chdsn_cn_zuocew']:'http://aif
 					</div>
 				</div>
 				<!--文章列表-->
-				
+				<?php } ?>
+
 				<!--底部导航-->
 				<center>
+					<?php if($show_favorite_div == '1'){ ?>
 					<div class="block panel-body btn btn-block animated bounceInUp btn-rounded" style="border:1px solid #b3cde3; background: url(https://s3.ax1x.com/2021/01/02/sSy9rq.png);margin-top:2px;font-size:15px;padding:2px;border-radius:10px;background-color: white;">
 						<div class="block-content text-center border-t">
-		<a href="javascript:void(0);" onclick="AddFavorite('货源总站',location.href)">
-  <b style="text-shadow: LightSteelBlue 1px 0px 0px;">
-  <i class="fa fa-heart text-danger animation-pulse"></i>
-  <font color=#CB0034>本</font>
-  <font color=#BE0041>站</font>
-  <font color=#B1004E>网</font>
-  <font color=#A4005B>址</font>
-  <font color=#970068>：<?php echo $_SERVER['HTTP_HOST'];?></font>
-  <font color=#2F00D0></font>
-  <font color=#CB0034>&nbsp;</font>
-  <font color=#CB0034>建</font>
-  <font color=#BE0041>议</font>
-  <font color=#B1004E>收</font>
-  <font color=#A4005B>藏</font>
-  </b>
-</a>
-<br/><?php echo $conf['footer']?>
-
-
-
-
-
+							<a href="javascript:void(0);" onclick="AddFavorite('货源总站',location.href)">
+								<b style="text-shadow: LightSteelBlue 1px 0px 0px;">
+									<i class="fa fa-heart text-danger animation-pulse"></i>
+									<font color=#CB0034>本</font>
+									<font color=#BE0041>站</font>
+									<font color=#B1004E>网</font>
+									<font color=#A4005B>址</font>
+									<font color=#970068>：<?php echo $_SERVER['HTTP_HOST'];?></font>
+									<font color=#2F00D0></font>
+									<font color=#CB0034>&nbsp;</font>
+									<font color=#CB0034>建</font>
+									<font color=#BE0041>议</font>
+									<font color=#B1004E>收</font>
+									<font color=#A4005B>藏</font>
+								</b>
+							</a>
+						</div>
 					</div>
-		</div>
+					<?php } ?>
+					<br/><?php echo $conf['footer']?>
+				</center>
 	<script src="<?php echo $cdnpublic?>jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
 <!-- 移除无效的音乐播放器脚本 -->
 	<!--底部导航-->
@@ -1399,13 +1512,13 @@ catch (e) {
 			}
 		});
 		$(function() {
-   			if (typeof $.fn.lazyload !== 'undefined') {
-       			$("img.lazy").lazyload({
-           		effect: "fadeIn"
-        		});
-    		} else {
-       			console.log('Lazyload functionality not available');
-    		}
+			if (typeof $.fn.lazyload !== 'undefined') {
+			$("img.lazy").lazyload({
+		effect: "fadeIn"
+		});
+		} else {
+			console.log('Lazyload functionality not available');
+		}
 		});
 		// 移除无效的计时脚本
 		var stimeElement = document.createElement('div');
@@ -1415,7 +1528,7 @@ catch (e) {
 		var ss = 0,
 		    mm = 0,
 		    hh = 0;
-		
+
 		function TimeGo() {
 		    ss++;
 		    if (ss >= 60) {
@@ -1448,12 +1561,12 @@ $("#submit_buy").attr({'class':'btn btn-danger btn-block btn-rounded','style':'b
 			if (r != null) return decodeURIComponent(r[2]);
 			return '';
 		}
-		
+
 		if(getUrlParam('buyok') == '1'){
 			// 直接从URL获取订单ID和skey参数
 			var orderid = getUrlParam('orderid');
 			var skey = getUrlParam('skey');
-			
+
 			// 如果有订单ID和skey参数，直接显示订单详情
 			if(orderid && skey){
 				showOrder(orderid, skey);
@@ -1462,7 +1575,7 @@ $("#submit_buy").attr({'class':'btn btn-danger btn-block btn-rounded','style':'b
 			else {
 				var searchtype = getUrlParam('searchtype') || 1;
 				var qq = getUrlParam('qq') || '';
-				
+
 				// 先检查$_GET变量的类型，确保正确处理
 				if (typeof window.$_GET === 'function') {
 					// 保存原始的$_GET函数
@@ -1486,14 +1599,14 @@ $("#submit_buy").attr({'class':'btn btn-danger btn-block btn-rounded','style':'b
 						}
 					};
 				}
-				
+
 				// 临时设置querymode，禁用查询弹窗显示
 				var tempQuerymode = window.querymode;
 				window.querymode = 'noPopup';
-				
+
 				// 执行订单查询
 				queryOrder(searchtype, qq, 1);
-				
+
 				// 恢复原始设置
 				setTimeout(function() {
 					window.querymode = tempQuerymode;

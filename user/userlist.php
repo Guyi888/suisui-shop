@@ -7,7 +7,6 @@ $title='用户管理';
 include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <div class="wrapper">
 <div class="col-sm-12">
 		<div class="panel panel-default">

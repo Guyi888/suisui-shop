@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * 刷卡支付实现类
  * @author widyhu
  *
@@ -9,7 +9,7 @@
 class NativePay
 {
 	/**
-	 * 
+	 *
 	 * 生成扫描支付URL,模式一
 	 * @param BizPayUrlInput $bizUrlInfo
 	 */
@@ -21,9 +21,9 @@ class NativePay
 		$url = "weixin://wxpay/bizpayurl?" . $this->ToUrlParams($values);
 		return $url;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * 参数数组转换为url参数
 	 * @param array $urlObj
 	 */
@@ -34,13 +34,13 @@ class NativePay
 		{
 			$buff .= $k . "=" . $v . "&";
 		}
-		
+
 		$buff = trim($buff, "&");
 		return $buff;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * 生成直接支付url，支付url有效期为2小时,模式二
 	 * @param UnifiedOrderInput $input
 	 */

@@ -46,7 +46,7 @@ $(function() {
 
         //移除其他已点击
         $(".goods_sort div[data-order]").attr("class","item item-price"); // 只重置有data-order属性的元素
-        $(this).addClass(sort_type); 
+        $(this).addClass(sort_type);
         $(this).data("sort",sort_type_new);
         $('.goods_sort div[data-order]').removeClass('on'); // 只移除有data-order属性的元素的on类
         $(this).addClass("on");
@@ -73,7 +73,7 @@ $(function() {
         });
         $(".swiper-button-next").show();
         $(".swiper-button-prev").show();
-    }  
+    }
     jQuery(function ($) {
         $(window).resize(function () {
             var width = $('#js-com-header-area').width();
@@ -88,7 +88,7 @@ $(function() {
 
     // 优化分类图片加载
     optimizeCategoryImages();
-    
+
     // 优化轮播图图片加载
     optimizeBannerImages();
 
@@ -125,12 +125,12 @@ $(function() {
      document.activeElement.blur();
       return false;
     });
-    
 
-    
+
+
     /*点击切换风格 - 原生JavaScript实现*/
     console.log('尝试绑定列表切换按钮事件...');
-    
+
     // 首先定义getCookie函数
     function getCookie(name) {
         var cookieValue = null;
@@ -147,29 +147,29 @@ $(function() {
         }
         return cookieValue;
     }
-    
+
     // 获取元素
     var listblockBtn = document.getElementById('listblock');
     var goodsListContainer = document.getElementById('goods-list-container');
-    
+
     console.log('按钮元素存在:', listblockBtn ? '是' : '否');
     console.log('列表容器存在:', goodsListContainer ? '是' : '否');
-    
+
     // 初始化列表样式
     // 优先使用cookie设置，其次使用系统默认配置
     var defaultStyle = 'grid'; // 默认网格视图
     var cookieStyle = getCookie('goods_list_style');
-    
+
     // 检查是否有系统默认配置
     if(typeof goods_list_default_style !== 'undefined' && goods_list_default_style) {
         defaultStyle = goods_list_default_style;
     }
-    
+
     console.log('初始化列表样式: 系统默认配置为', defaultStyle, '，cookie设置为', cookieStyle);
-    
+
     // 确定最终使用的样式
     var finalStyle = cookieStyle || defaultStyle;
-    
+
     if(finalStyle == 'list'){
         console.log('初始化列表样式: 使用列表视图');
         if(listblockBtn) {
@@ -191,20 +191,20 @@ $(function() {
             goodsListContainer.classList.add('block', 'three');
         }
     }
-    
+
     // 直接绑定事件 - 不依赖jQuery
     if (listblockBtn) {
         console.log('按钮元素已找到，尝试绑定点击事件');
-        
+
         // 添加点击事件
         listblockBtn.addEventListener('click', function(e) {
             console.log('列表切换按钮被点击了!');
             e.stopPropagation(); // 阻止事件冒泡
-            
+
             // 获取当前状态
             var currentState = listblockBtn.getAttribute('data-state') || 'list';
             console.log('当前状态:', currentState);
-            
+
             try {
                 // 切换状态和样式
                 if (currentState === 'gongge') {
@@ -218,7 +218,7 @@ $(function() {
                     listblockBtn.classList.add('icon-app');
                     goodsListContainer.classList.remove('block', 'three');
                 }
-                
+
                 // 设置cookie (使用原生JavaScript) - 保存切换后的实际样式
                 var cookietime = new Date();
                 cookietime.setTime(cookietime.getTime() + (86400 * 1000));
@@ -226,7 +226,7 @@ $(function() {
                 var newStyle = currentState === 'gongge' ? 'grid' : 'list';
                 document.cookie = 'goods_list_style=' + newStyle + '; expires=' + cookietime.toUTCString() + '; path=/';
                 console.log('已保存cookie样式为:', newStyle);
-                
+
                 // 如果有layer库，显示消息
                 if (window.layer) {
                     var index = layer.msg('加载中', {
@@ -235,24 +235,24 @@ $(function() {
                     });
                     setTimeout(function() { layer.close(index); }, 500);
                 }
-                
+
                 console.log('列表样式已成功切换');
             } catch (error) {
                 console.error('切换列表风格时出错:', error);
             }
         }, false);
-        
+
         console.log('点击事件绑定完成');
     } else {
         console.log('未找到列表切换按钮元素');
     }
-        
+
     //弹窗广告
     if( !$.cookie('op')){
         $('.tzgg').show();
         $.cookie('op', false, { expires: 1});
     }
-    
+
         /**
      * 兼容iphone
      * @type {number | boolean | *}
@@ -298,7 +298,7 @@ function load(text="加载中")
     var index = layer.msg(text, {
         icon: 16
         ,shade: 0.01
-    });  
+    });
 }
 
 //获取商品
@@ -320,7 +320,7 @@ function get_goods(){
             load();
         }
         //写入数据
-        $(".show_class").show();  
+        $(".show_class").show();
         flow.load({
                 elem: '#goods_list' //流加载容器
                 ,isAuto:true
@@ -339,7 +339,7 @@ function get_goods(){
                     success : function(res) {
 							$(".tag_name").hide();
 							$(".tag_name ul").html("");
-                            
+
                             //假设你的列表返回在data集合中
                             layui.each(res.data, function(index, item){
                                 html = '<a class="fui-goods-item" title="'+item.name+'" href="./?mod=buy&tid='+item.tid+'">';
@@ -388,7 +388,7 @@ function get_goods(){
                                 }
                                 html += ''+show_tag_html+'<img class="lazy" lay-src="'+compressedImgUrl+'" src="./assets/store/picture/loadimg.gif" alt="'+item.name+'">'+shoukong+'';
                                 html += '</div>';
-                                
+
 
                                 html += '<div class="detail" style="height:unset;">';
                                 html += '<div class="name" style="color: #000000;">'+item.name+'</div>';
@@ -439,21 +439,21 @@ function get_goods(){
                 });
                 }
           });
-        
+
     });
 }
 
 var audio_init = {
 	changeClass: function (target,id) {
-       	var className = $(target).attr('class');
-       	var ids = document.getElementById(id);
-       	(className == 'on')
-           	? $(target).removeClass('on').addClass('off')
-           	: $(target).removeClass('off').addClass('on');
-       	(className == 'on')
-           	? ids.pause()
-           	: ids.play();
-   	},
+	var className = $(target).attr('class');
+	var ids = document.getElementById(id);
+	(className == 'on')
+	? $(target).removeClass('on').addClass('off')
+	: $(target).removeClass('off').addClass('on');
+	(className == 'on')
+	? ids.pause()
+	: ids.play();
+	},
 	play:function(){
 		document.getElementById('media').play();
 	}

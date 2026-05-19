@@ -12,7 +12,7 @@ if ($suprow["bond"] < $conf["sup_bond"]) {
 }
 ?><div class="wrapper">
   <div class="col-sm-12">
-<?php 
+<?php
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 ORDER BY sort ASC");
 $select = "<option value=\"0\">请选择分类</option>";
@@ -40,7 +40,7 @@ while ($res = $rs->fetch()) {
     </div>
   </div>
 </div>
-<?php 
+<?php
 if (isset($_GET["cid"])) {
 	$cid = intval($_GET["cid"]);
 	$numrows = $DB->getColumn("SELECT count(*) FROM pre_tools WHERE cid='" . $cid . "' AND active=1 and goods_sid='" . $suprow["sid"] . "'");
@@ -57,7 +57,7 @@ echo $con;
         <table class="table table-striped b-t b-light">
           <thead><tr><th>操作</th><th>商品名称</th><th>销售价格</th><th>审核状态</th><th>商品状态</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -66,10 +66,10 @@ $rs = $DB->query("SELECT * FROM pre_tools WHERE" . $sql . " ORDER BY sort ASC LI
 while ($res = $rs->fetch()) {
 	echo "<tr>\r\n\t\t\t<td>\r\n\t\t\t\t<a href=\"./shopedit.php?my=edit&tid=" . $res["tid"] . "\" class=\"btn btn-info btn-xs\">编辑</a>\r\n\t\t\t</td>\r\n\t\t\t<td><b><a title=\"点此下单\" style=\"color:#000\" href=\"./shop.php?cid=" . $res["cid"] . "&tid=" . $res["tid"] . "\">" . $res["name"] . "</a></b></td>\r\n\t\t\t<td><font color=\"#FF0ff0\">" . $res["sup_price"] . "元</font> </td>\r\n\t\t\t<td>" . ($res["audit_status"] == 0 ? "<font color=red>未通过</font>" : "<font color=green>已通过</font>") . "</td>\r\n\t\t\t<td>" . ($res["close"] == 1 ? "<font color=red>已下架</font>" : "<font color=green>上架中</font>") . "</td>\r\n\t\t</tr>";
 }
-?>		          
+?>
           </tbody>
         </table>
-<ul class="pagination"  style="margin-left:1em"><?php 
+<ul class="pagination"  style="margin-left:1em"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;
@@ -101,7 +101,7 @@ if ($page < $pages) {
 </div>
 
 </div>
-<?php 
+<?php
 include "./foot.php";
 ?></body>
 </html>

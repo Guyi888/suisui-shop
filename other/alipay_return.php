@@ -28,7 +28,7 @@ if(file_exists(__DIR__ . "/alipay/AlipayTradeService.php")) {
 }
 
 //计算得出通知验证结果
-$alipaySevice = new AlipayTradeService($config); 
+$alipaySevice = new AlipayTradeService($config);
 //$alipaySevice->writeLog(var_export($_GET,true));
 $verify_result = $alipaySevice->check($_GET);
 

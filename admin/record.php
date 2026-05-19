@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-md-12 center-block" style="float: none;">
-<?php 
+<?php
 if (isset($_GET["zid"])) {
 	$zid = intval($_GET["zid"]);
 	$sql = " zid=" . $zid;
@@ -23,10 +23,8 @@ $income_today = $DB->getColumn("SELECT sum(point) FROM pre_points WHERE action='
 $outcome_today = $DB->getColumn("SELECT sum(point) FROM pre_points WHERE action='消费' AND" . $sql . " AND addtime>'" . $thtime . "'");
 $income_lastday = $DB->getColumn("SELECT sum(point) FROM pre_points WHERE action='提成' AND" . $sql . " AND addtime<'" . $thtime . "' AND addtime>'" . $lastday . "'");
 $outcome_lastday = $DB->getColumn("SELECT sum(point) FROM pre_points WHERE action='消费' AND" . $sql . " AND addtime<'" . $thtime . "' AND addtime>'" . $lastday . "'");
-if (isset($_GET["zid"])) {
-	$income_all = $DB->getColumn("SELECT sum(point) FROM pre_points WHERE action='提成' AND" . $sql);
-	$outcome_all = $DB->getColumn("SELECT sum(point) FROM pre_points WHERE action='消费' AND" . $sql);
-}
+$income_all = $DB->getColumn("SELECT sum(point) FROM pre_points WHERE action='提成' AND" . $sql);
+$outcome_all = $DB->getColumn("SELECT sum(point) FROM pre_points WHERE action='消费' AND" . $sql);
 $numrows = $DB->getColumn("SELECT count(*) from pre_points WHERE" . $sql);
 ?><div class="block">
      <div class="block-title"><h2><?php echo $zid > 0 ? "分站ZID:<b>" . $zid . "</b> " : "全部分站";?>收支明细</h2></div>
@@ -34,24 +32,20 @@ $numrows = $DB->getColumn("SELECT count(*) from pre_points WHERE" . $sql);
 <table class="table table-bordered">
 <tbody>
 <tr height="25">
-<td align="center"><font color="#808080"><b><span class="glyphicon glyphicon-tint"></span>今日收益</b></br><?php echo round($income_today, 2);?>元</font></td>
-<td align="center"><font color="#808080"><b><i class="glyphicon glyphicon-check"></i>今日消费</b></br></span><?php echo round($outcome_today, 2);?>元</font></td>
-<td align="center"><font color="#808080"><b><span class="glyphicon glyphicon-tint"></span>昨日收益</b></br><?php echo round($income_lastday, 2);?>元</font></td>
-<td align="center"><font color="#808080"><b><i class="glyphicon glyphicon-check"></i>昨日消费</b></br></span><?php echo round($outcome_lastday, 2);?>元</font></td>
-<?php 
-if (isset($_GET["zid"])) {
-	?><td align="center"><font color="#808080"><b><span class="glyphicon glyphicon-tint"></span>总计收益</b></br><?php echo round($income_all, 2);?>元</font></td>
-<td align="center"><font color="#808080"><b><i class="glyphicon glyphicon-check"></i>总计消费</b></br></span><?php echo round($outcome_all, 2);?>元</font></td>
-<?php 
-}
-?></tr>
+<td align="center"><font color="#808080"><b><span class="fa fa-tint"></span>今日收益</b></br><?php echo round($income_today, 2);?>元</font></td>
+<td align="center"><font color="#808080"><b><i class="fa fa-check"></i>今日消费</b></br></span><?php echo round($outcome_today, 2);?>元</font></td>
+<td align="center"><font color="#808080"><b><span class="fa fa-tint"></span>昨日收益</b></br><?php echo round($income_lastday, 2);?>元</font></td>
+<td align="center"><font color="#808080"><b><i class="fa fa-check"></i>昨日消费</b></br></span><?php echo round($outcome_lastday, 2);?>元</font></td>
+<td align="center"><font color="#808080"><b><span class="fa fa-tint"></span>总计收益</b></br><?php echo round($income_all, 2);?>元</font></td>
+<td align="center"><font color="#808080"><b><i class="fa fa-check"></i>总计消费</b></br></span><?php echo round($outcome_all, 2);?>元</font></td>
+</tr>
 </tbody>
 </table>
       <div class="table-responsive">
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>站点ID</th><th>类型</th><th>金额</th><th>详情</th><th>时间</th><th>订单号</th></tr></thead>
           <tbody>
-<?php 
+<?php
 $pagesize = 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -63,7 +57,7 @@ while ($res = $rs->fetch()) {
 ?>          </tbody>
         </table>
       </div>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;

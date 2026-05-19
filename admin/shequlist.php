@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-sm-12 col-md-10 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("shequ", 1);
 $ThirdPluginsList = \lib\Plugin::getThirdPluginsList();
 $shequlist = "";
@@ -29,7 +29,7 @@ if ($my == "add") {
 <label>对接网站类型:</label><span class="pull-right">[<a href="?my=refresh">刷新对接插件列表</a>]</span><br>
 <div class="input-group">
 <select class="form-control" name="type"><?php echo $shequlist;?></select>
-<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="对接网站类型是指要对接的网站所使用的网站程序类型，并不代表特定的网站！具体是什么类型请咨询对接网站客服"><span class="glyphicon glyphicon-info-sign"></span></a>
+<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="对接网站类型是指要对接的网站所使用的网站程序类型，并不代表特定的网站！具体是什么类型请咨询对接网站客服"><span class="fa fa-info-circle"></span></a>
 </div>
 </div>
 <div class="form-group">
@@ -67,7 +67,7 @@ if ($my == "add") {
 <input type="submit" class="btn btn-primary btn-block" value="确定添加"></form><br/><a href="./shequlist.php">>>返回对接列表</a></div>
 <div id="alert-footer"></div>
 </div>
-<?php 
+<?php
 } elseif ($my == "edit") {
 	$id = intval($_GET["id"]);
 	$row = $DB->getRow("select * from pre_shequ where id=:id limit 1", array(':id' => $id));
@@ -80,7 +80,7 @@ if ($my == "add") {
 <label>对接网站类型:</label><span class="pull-right">[<a href="?my=refresh">刷新对接插件列表</a>]</span><br>
 <div class="input-group">
 <select class="form-control" name="type" default="<?php echo $row["type"];?>"><?php echo $shequlist;?></select>
-<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="对接网站类型是指要对接的网站所使用的网站程序类型，并不代表特定的网站！具体是什么类型请咨询对接网站客服"><span class="glyphicon glyphicon-info-sign"></span></a>
+<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="对接网站类型是指要对接的网站所使用的网站程序类型，并不代表特定的网站！具体是什么类型请咨询对接网站客服"><span class="fa fa-info-circle"></span></a>
 </div>
 </div>
 <div class="form-group">
@@ -114,7 +114,7 @@ if ($my == "add") {
 <label>下单成功后订单状态:</label><br>
 <div class="input-group">
 <select class="form-control" name="result" default="<?php echo $row["result"];?>"><option value="1">已完成（默认）</option><option value="2">正在处理</option></select>
-<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="下单成功后如果为正在处理，用户前台查询订单的时候会自动同步订单状态，如果对接订单已完成会自动将本站订单状态也改成已完成。"><span class="glyphicon glyphicon-info-sign"></span></a>
+<a tabindex="0" class="input-group-addon" role="button" data-toggle="popover" data-trigger="focus" title="" data-placement="bottom" data-content="下单成功后如果为正在处理，用户前台查询订单的时候会自动同步订单状态，如果对接订单已完成会自动将本站订单状态也改成已完成。"><span class="fa fa-info-circle"></span></a>
 </div>
 </div>
 <div class="form-group">
@@ -130,7 +130,7 @@ for (i = 0; i < items.length; i++) {
 	$(items[i]).val($(items[i]).attr("default")||0);
 }
 </script>
-<?php 
+<?php
 } elseif ($my == "add_submit") {
 	$type = $_POST["type"];
 	$protocol = $_POST["protocol"];
@@ -218,12 +218,12 @@ for (i = 0; i < items.length; i++) {
 <div class="block-title clearfix">
 <h2>系统共有 <b><?php echo $numrows;?></b> 个对接网站</h2>
 </div>
-<a href="./shequlist.php?my=add" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;添加一个对接站点</a>&nbsp;<a href="javascript:$('#myModal').modal('show');" class="btn btn-default"><i class="fa fa-question-circle-o"></i>&nbsp;对接插件</a>&nbsp;<a href="https://404.6v6.ren/dui-jie/1.html" target="_blank" class="btn btn-success"><i class="fa fa-star"></i>&nbsp;推荐对接网站</a>
+<a href="./shequlist.php?my=add" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;添加一个对接站点</a>&nbsp;<a href="javascript:$('#myModal').modal('show');" class="btn btn-default"><i class="fa fa-question-circle-o"></i>&nbsp;对接插件</a>
       <div class="table-responsive">
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>网站域名</th><th>类型</th><th>用户名</th><th>密码</th><th>备注</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 	$rs = $DB->query("SELECT * FROM pre_shequ WHERE 1 order by id asc");
 	while ($res = $rs->fetch()) {
 		echo "<tr><td><b>" . $res["id"] . "</b></td><td><a href=\"" . ($res["protocol"] == 1 ? "https://" : "http://") . $res["url"] . "/\" target=\"_blank\" rel=\"noreferrer\">" . $res["url"] . "</a></td><td><font color=blue>" . $shequ_name[$res["type"]] . "</font></td><td>" . $res["username"] . "</td><td>******</td><td>" . $res["remark"] . "</td><td><a href=\"./shequlist.php?my=edit&id=" . $res["id"] . "\" class=\"btn btn-info btn-xs\">编辑</a>&nbsp;<a href=\"./shequlist.php?my=delete&id=" . $res["id"] . "\" class=\"btn btn-xs btn-danger\" onclick=\"return confirm('你确实要删除此记录吗？');\">删除</a></td></tr>";
@@ -231,7 +231,7 @@ for (i = 0; i < items.length; i++) {
 	?>          </tbody>
         </table>
       </div>
-<?php 
+<?php
 }
 ?>    </div>
   </div>

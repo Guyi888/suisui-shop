@@ -59,7 +59,7 @@ if($result['return_code']=='SUCCESS' && $result['result_code']=='SUCCESS'){
 <div class="amount">￥<?php echo $row['money']?></div>
 <div class="qr-image" id="qrcode">
 </div>
- 
+
 <div class="detail" id="orderDetail">
 <dl class="detail-ct" style="display: none;">
 <dt>商家</dt>

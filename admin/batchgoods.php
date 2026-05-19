@@ -7,7 +7,7 @@ if ($islogin == 1) {
 } else {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }?><div class="col-sm-12 col-md-10 center-block" style="float: none;">
-    <?php 
+    <?php
 adminpermission("shop", 1);
 $act = isset($_GET["act"]) ? $_GET["act"] : null;
 $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 order by sort asc");
@@ -22,7 +22,7 @@ $shequselect = "";
 while ($res = $rs->fetch()) {
     // 获取插件配置
 	$getInfo = \lib\Plugin::getConfig("third_" . $res["type"]);
-    
+
     // 支持标准batchgoods插件和传统的玖伍、亿乐、直客系统
     $isBatchGoodsSupported = false;
     if (isset($getInfo["batchgoods"]) && $getInfo["batchgoods"] == true) {
@@ -30,7 +30,7 @@ while ($res = $rs->fetch()) {
     } elseif (in_array($res["type"], ['jiuwu', 'yile', 'zhike', 'shangzhanwl'])) {
         $isBatchGoodsSupported = true;
     }
-    
+
     if ($isBatchGoodsSupported) {
         // 为传统系统设置标题
         $titleText = $getInfo["title"] ?? "";
@@ -52,7 +52,7 @@ while ($res = $rs->fetch()) {
                     $titleText = '未知';
             }
         }
-        
+
         $shequselect .= "<option value=\"" . $res["id"] . "\" type=\"" . $res["type"] . "\" domain=\"" . $res["url"] . "\">[<font color=blue>" . $titleText . "</font>] " . $res["url"] . ($res["remark"] ? " (" . $res["remark"] . ")" : "") . "</option>";
     }
 }
@@ -66,10 +66,10 @@ while ($res = $rs->fetch()) {
 if ($act == "data") {
 	$shequ = intval($_GET["shequ"]);
 	$row = $DB->getRow("select * from pre_shequ where id=:id limit 1", array(":id" => $shequ));
-    
+
     // 处理不同类型的站点
     $isTraditionalSystem = in_array($row["type"], ['jiuwu', 'yile', 'zhike', 'shangzhanwl']);
-    
+
     // 获取商品分类列表
     $third_classlist = "";
     if (!$isTraditionalSystem) {
@@ -92,7 +92,7 @@ if ($act == "data") {
                         <div class="input-group"><div class="input-group-addon">当前对接站点</div>
                             <input class="form-control" value="<?php echo $row["url"];?>" disabled><span class="input-group-btn"><a href="./batchgoods.php" class="btn btn-default">重新选择</a></span>
                         </div></div>
-                    
+
                     <!-- 只对非传统系统显示分类选择 -->
                     <?php if (!$isTraditionalSystem): ?>
                     <div class="form-group">
@@ -109,7 +109,7 @@ if ($act == "data") {
                                 <option value="1">只获取 不存在本系统 的社区商品</option>
                             </select>
                         </div></div>
-                    
+
                     <!-- 传统系统添加商品分类选择 -->
                     <div class="form-group" id="categoryGroup">
                         <div class="input-group"><div class="input-group-addon">选择对接站点商品分类</div>
@@ -118,7 +118,7 @@ if ($act == "data") {
                             </select>
                         </div></div>
                         <p class="help-block">提示：按住Ctrl或Shift键可以多选分类</p>
-                        
+
                         <!-- 商战网特殊配置 -->
                         <?php if ($row["type"] == 'shangzhanwl'): ?>
                         <div class="form-group" id="showcid">
@@ -128,7 +128,7 @@ if ($act == "data") {
                         </div>
                         <?php endif; ?>
                     <?php endif; ?>
-                    
+
                     <table class="table table-bordered table-vcenter table-hover" id="shoptable">
                         <tbody id="shoplist">
                         </tbody>
@@ -151,12 +151,12 @@ if ($act == "data") {
                         <button type="button" onclick="getgoods()" class="btn btn-primary btn-block">获取商品列表</button>
                     </div>
                     <?php endif; ?>
-                    
+
                     <p><input type="button" name="submit" value="确定添加/更新选中商品" class="btn btn-primary btn-block" id="add_submit"/></p>
                 </form>
             </div>
         </div>
-<?php 
+<?php
 } else {
 	?>    <div class="block">
         <div class="block-title"><h3 class="panel-title">批量对接商品</h3></div>
@@ -174,7 +174,7 @@ if ($act == "data") {
             </form>
         </div>
     </div>
-    <?php 
+    <?php
 }?>	<script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
     <script>
         function SelectAll(chkAll) {
@@ -185,14 +185,14 @@ if ($act == "data") {
                 }
             }
         }
-        
+
         // 获取传统系统商品列表
         function getgoods() {
             var shequ = $("input[name='shequ']").val();
             var type = $("input[name='type']").val();
             var goodscid = $("#goodscid").val() || '';
             var is = $("#is").val() || 0;
-            
+
             // 获取选中的分类ID（支持多选）
             var category_ids = [];
             $("#category_id option:selected").each(function() {
@@ -201,18 +201,35 @@ if ($act == "data") {
                 }
             });
             var category_id = category_ids.join(',');
-            
+
             // 验证商战网商品目录
             if (type == 'shangzhanwl' && goodscid == '') {
                 layer.msg('请输入商品目录', {icon: 5});
                 return false;
             }
-            
+
             var ii = layer.load(2, {shade:[0.1,'#fff']});
             shoplist = new Array();
             $("#shoplist").empty();
-            $("#shoplist").append('<tr><td><label class="csscheckbox csscheckbox-primary">全选<input type="checkbox" onclick="SelectAll(this)"><span></span></label>&nbsp;商品名称</td><td>成本价</td><td>计算后的价钱</td><td>最少下单数量</td><td>最大下单数量</td><td style="color:red">默认下单数量</td><td>状态</td></tr>');
-            
+            $("#shoplist").append('<tr><td><label class="csscheckbox csscheckbox-primary">全选<input type="checkbox" onclick="SelectAll(this)"><span></span></label>&nbsp;商品名称</td><td>成本价</td><td>计算后的价钱</td><td>最少下单数量</td><td>最大下单数量</td><td style="color:red">默认下单数量</td><td>状态</td><td>对接状态</td><td>上架时间</td></tr>');
+
+            $.ajax({
+                type : "GET",
+                url : "ajax_batch_docking.php?act=getDockedTids&shequ=" + shequ,
+                dataType : 'json',
+                async: false,
+                success : function(data) {
+                    if(data.code == 0 && data.data) {
+                        window.dockedTids = data.data;
+                    } else {
+                        window.dockedTids = {};
+                    }
+                },
+                error: function() {
+                    window.dockedTids = {};
+                }
+            });
+
             $.ajax({
                 type : "POST",
                 url : "./ajax_batch_docking.php?act=getGoodsList",
@@ -225,11 +242,11 @@ if ($act == "data") {
                         $.each(data.data, function (i, item) {
                             // 调试：记录原始数据
                             console.log('Yile Item Data:', item);
-                            
+
                             // 设置默认值，处理不同系统返回数据结构不一致的问题
                             var id = item.id || item.gid || 0;
                             var name = item.name || item.title || '未知商品';
-                            
+
                             // 获取原始分类名称
                             var originalCategoryName = item.original_cname || '';
                             if(!originalCategoryName && item.category_name) {
@@ -238,7 +255,7 @@ if ($act == "data") {
                             if(!originalCategoryName && item.cname) {
                                 originalCategoryName = item.cname;
                             }
-                            
+
                             // 修复价格处理：优先使用多个可能的价格字段，如果都为null或undefined则使用0
                             var price = 0;
                             var priceFields = ['price', 'user_unitprice', 'goodsPrice', 'unitPrice'];
@@ -249,10 +266,10 @@ if ($act == "data") {
                                     break;
                                 }
                             }
-                            
+
                             // 固定最少下单数量为1
                             var minnum = 1;
-                            
+
                             // 修复最大下单数量处理
                             var maxnum = 0;
                             if(item.maxnum !== null && item.maxnum !== undefined && !isNaN(parseInt(item.maxnum))){
@@ -262,13 +279,13 @@ if ($act == "data") {
                             } else if(item.limit_max !== null && item.limit_max !== undefined && !isNaN(parseInt(item.limit_max))){
                                 maxnum = parseInt(item.limit_max);
                             }
-                            
+
                             var close = parseInt(item.close || item.goods_status || 0);
                             var shopimg = item.shopimg || item.thumb || '';
-                            
+
                             // 调试：记录处理后的数据
                             console.log('Processed Data:', {id, name, price, minnum, maxnum, close, shopimg, value: item.value});
-                            
+
                             // 优先使用对接站的默认数量信息，尝试多个可能的字段名
                             var defaultNum = 1;
                             // 尝试从多个可能的字段中获取默认数量
@@ -284,10 +301,10 @@ if ($act == "data") {
                             if(defaultNum <= 0) {
                                 defaultNum = 500;
                             }
-                            
+
                             // 计算成本价，确保不会出现NaN
                             var cost = isNaN(price * defaultNum) ? 0 : getFloat(price * defaultNum, 2);
-                            
+
                             // 如果计算后的价钱为0，则自动增加默认下单数量
                             var maxIterations = 5; // 防止无限循环的最大迭代次数
                             var iterations = 0;
@@ -296,7 +313,7 @@ if ($act == "data") {
                                 cost = isNaN(price * defaultNum) ? 0 : getFloat(price * defaultNum, 2);
                                 iterations++;
                             }
-                            
+
                             // 保存到shoplist数组
                             var shopItem = {
                                 id: id,
@@ -311,9 +328,11 @@ if ($act == "data") {
                                 original_cname: originalCategoryName // 添加原始分类名称
                             };
                             shoplist[id] = JSON.stringify(shopItem);
-                            
+
                             // 渲染表格行
-                            $("#shoplist").append('<tr><td><label class="csscheckbox csscheckbox-primary"><input name="tid[]" type="checkbox" class="shop" id="tid" value="'+id+'"><span></span>&nbsp;'+name+'<label></label></label></td><td><span id="price'+id+'">'+price+'</span></td><td><span id="cost'+id+'">'+cost+'</span></td><td>'+minnum+'</td><td>'+(maxnum > 0 ? maxnum : '无限制')+'</td><td><input type="text" class="form-control input-sm" style="width:60px;" id="defaultnum'+id+'" value="'+defaultNum+'" onkeyup="changeNum('+id+')" required=""></td><td>'+(close==1?'<span class="label label-warning">已下架</span>':'<span class="label label-success">上架中</span>')+'</td></tr>');
+                            var isDocked = window.dockedTids.hasOwnProperty(id);
+var dockedTime = isDocked ? window.dockedTids[id] : '-';
+$("#shoplist").append('<tr><td><label class="csscheckbox csscheckbox-primary"><input name="tid[]" type="checkbox" class="shop" id="tid" value="'+id+'"><span></span>&nbsp;'+name+'<label></label></label></td><td><span id="price'+id+'">'+price+'</span></td><td><span id="cost'+id+'">'+cost+'</span></td><td>'+minnum+'</td><td>'+(maxnum > 0 ? maxnum : '无限制')+'</td><td><input type="text" class="form-control input-sm" style="width:60px;" id="defaultnum'+id+'" value="'+defaultNum+'" onkeyup="changeNum('+id+')" required=""></td><td>'+(close==1?'<span class="label label-warning">已下架</span>':'<span class="label label-success">上架中</span>')+'</td><td>'+(isDocked ? '<span class="label label-success">已对接</span>' : '<span class="label label-default">未对接</span>')+'</td><td>'+dockedTime+'</td></tr>');
                             num++;
                         });
                         if(num==0) layer.msg('该分类下没有商品', {icon:0, time:800});
@@ -327,7 +346,7 @@ if ($act == "data") {
                 }
             });
         }
-        
+
         // 价格计算函数
         function getFloat(number, n) {
             n = n ? parseInt(n) : 0;
@@ -335,25 +354,25 @@ if ($act == "data") {
             number = Math.round(number * Math.pow(10, n)) / Math.pow(10, n);
             return number;
         }
-        
+
         // 修改默认下单数量时重新计算价格
         function changeNum(id) {
             var price = parseFloat($("#price"+id).html());
             var num = parseInt($("#defaultnum"+id).val());
-            
+
             // 确保价格和数量都是有效数字
             if (isNaN(price) || price <= 0) price = 9999;
             if (isNaN(num) || num <= 0) num = 1;
-            
+
             var cost = getFloat(price * num, 2);
             $("#cost"+id).html(cost);
-            
+
             // 确保默认下单数量至少为1
             if (num <= 0) {
                 $("#defaultnum"+id).val(1);
             }
         }
-        
+
         var shoplist;
         $(document).ready(function(){
             // 监听分类选择变化，显示/隐藏父级分类选择
@@ -364,7 +383,7 @@ if ($act == "data") {
                     $("#parentClassGroup").hide();
                 }
             });
-            
+
             // 传统系统：页面加载时获取商品分类列表
             var type = $("input[name='type']").val();
             var shequ = $("input[name='shequ']").val();
@@ -393,21 +412,21 @@ if ($act == "data") {
                     }
                 });
             }
-            
+
             $("#add_submit").click(function () {
                 var shequ = $("input[name='shequ']").val();
                 var type = $("input[name='type']").val();
                 var mcid = $("#mcid").val();
                 var parent_cid = $("#parent_cid").val();
                 var prid = $("#prid").val();
-                
+
                 if(mcid == -1){
                     layer.alert('请选择保存到本站的分类');return false;
                 }
                 if(prid == -1){
                     layer.alert('请选择使用的加价模板');return false;
                 }
-                
+
                 var newshoplist = new Array();
                 var defaultnum = new Array();
                 var items = $('.shop');
@@ -415,7 +434,7 @@ if ($act == "data") {
                     if (items[i].id.indexOf("tid") != -1 && items[i].type == "checkbox" && items[i].checked == true) {
                         var tid = items[i].value;
                         newshoplist.push(shoplist[tid]);
-                        
+
                         // 传统系统需要默认下单数量
                         if (typeof $("#defaultnum"+items[i].value) != 'undefined') {
                             var num = $("#defaultnum"+items[i].value).val();
@@ -426,13 +445,13 @@ if ($act == "data") {
                 if(newshoplist.length <= 0){
                     layer.alert('请至少选中一个商品');return false;
                 }
-                
+
                 var ii = layer.load(2, {shade:[0.1,'#fff']});
-                
+
                 // 根据站点类型选择不同的AJAX URL
                 var ajaxUrl = '';
                 var ajaxData = {};
-                
+
                 if (in_array(type, ['jiuwu', 'yile', 'zhike', 'shangzhanwl'])) {
                     // 传统系统
                     ajaxUrl = "ajax_batch_docking.php?act=batchaddgoods";
@@ -449,7 +468,7 @@ if ($act == "data") {
                     });
                     ajaxData = {shequ:shequ, mcid:mcid, parent_cid:parent_cid, prid:prid, list:newshoplist, cname:cnames.join(', '), cimg:$("#cid option:selected:first").attr('data-shopimg')};
                 }
-                
+
                 $.ajax({
                     type : "POST",
                     url : ajaxUrl,
@@ -473,34 +492,51 @@ if ($act == "data") {
                     }
                 });
             });
-            
+
             // 非传统系统监听分类选择变化
             $("#cid").change(function () {
                 var cids = $(this).val();
                 var shequ = $("input[name='shequ']").val();
                 var type = $("input[name='type']").val();
-                
+
                 // 传统系统不处理此事件
                 if (in_array(type, ['jiuwu', 'yile', 'zhike', 'shangzhanwl'])) return;
-                
+
                 if(!cids || cids.length == 0 || (cids.length == 1 && cids[0] == -1))return;
-                
+
                 // 过滤掉-1值
                 var validCids = $.grep(cids, function(cid) {
                     return cid != -1;
                 });
                 if(validCids.length == 0)return;
-                
+
                 var ii = layer.load(2, {shade:[0.1,'#fff']});
                 shoplist = new Array();
                 $("#shoplist").empty();
-                $("#shoplist").append('<tr><td><label class="csscheckbox csscheckbox-primary">全选<input type="checkbox" onclick="SelectAll(this)"><span></span></label>&nbsp;ID</td><td>商品名称</td><td>成本价</td><td>状态</td></tr>');
-                
+                $("#shoplist").append('<tr><td><label class="csscheckbox csscheckbox-primary">全选<input type="checkbox" onclick="SelectAll(this)"><span></span></label>&nbsp;ID</td><td>商品名称</td><td>成本价</td><td>状态</td><td>对接状态</td><td>上架时间</td></tr>');
+
+                $.ajax({
+                    type : "GET",
+                    url : "ajax_batch_docking.php?act=getDockedTids&shequ=" + shequ,
+                    dataType : 'json',
+                    async: false,
+                    success : function(data) {
+                        if(data.code == 0 && data.data) {
+                            window.dockedTids = data.data;
+                        } else {
+                            window.dockedTids = {};
+                        }
+                    },
+                    error: function() {
+                        window.dockedTids = {};
+                    }
+                });
+
                 // 为每个选中的分类加载商品
                 var loadedCids = 0;
                 var totalItems = 0;
                 var errorMessages = [];
-                
+
                 $.each(validCids, function(index, cid) {
                     $.ajax({
                         type : "POST",
@@ -513,20 +549,22 @@ if ($act == "data") {
                                 // 为商品添加原始分类信息
                                 var originalCid = cid;
                                 var originalCname = $("#cid option[value='"+cid+"']").text();
-                                
+
                                 $.each(data.data, function (i, item) {
                                     // 添加原始分类信息到商品对象
                                     item.original_cid = originalCid;
                                     item.original_cname = originalCname;
-                                    
+
                                     shoplist[item.tid] = JSON.stringify(item);
-                                    $("#shoplist").append('<tr><td><label class="csscheckbox csscheckbox-primary"><input name="tid[]" type="checkbox" class="shop" id="tid" value="'+item.tid+'"><span></span>&nbsp;'+item.tid+'<label></label></label></td><td>'+item.name+'</td><td>'+item.price+'</td><td>'+(item.close==1?'<span class="label label-warning">已下架</span>':'<span class="label label-success">上架中</span>')+'</td></tr>');
+                                    var isDocked = window.dockedTids.hasOwnProperty(item.tid);
+var dockedTime = isDocked ? window.dockedTids[item.tid] : '-';
+$("#shoplist").append('<tr><td><label class="csscheckbox csscheckbox-primary"><input name="tid[]" type="checkbox" class="shop" id="tid" value="'+item.tid+'"><span></span>&nbsp;'+item.tid+'<label></label></label></td><td>'+item.name+'</td><td>'+item.price+'</td><td>'+(item.close==1?'<span class="label label-warning">已下架</span>':'<span class="label label-success">上架中</span>')+'</td><td>'+(isDocked ? '<span class="label label-success">已对接</span>' : '<span class="label label-default">未对接</span>')+'</td><td>'+dockedTime+'</td></tr>');
                                     totalItems++;
                                 });
                             } else {
                                 errorMessages.push('分类 ' + $("#cid option[value='"+cid+"']").text() + ' 加载失败: ' + data.msg);
                             }
-                            
+
                             // 所有分类都加载完成
                             if(loadedCids == validCids.length) {
                                 layer.close(ii);
@@ -546,7 +584,7 @@ if ($act == "data") {
                             errorMessages.push('分类 ' + $("#cid option[value='"+cid+"']").text() + ' 加载失败: ' + status + ' ' + error);
                             console.log('AJAX Error:', xhr.status, status, error);
                             console.log('Response Text:', xhr.responseText);
-                            
+
                             // 所有分类都加载完成
                             if(loadedCids == validCids.length) {
                                 layer.close(ii);
@@ -560,14 +598,14 @@ if ($act == "data") {
                     });
                 });
             });
-            
+
             // 传统系统监听分类选择变化
             $("#category_id").change(function () {
                 var type = $("input[name='type']").val();
-                
+
                 // 只处理传统系统
                 if (!in_array(type, ['jiuwu', 'yile', 'zhike', 'shangzhanwl'])) return;
-                
+
                 // 获取选中的分类ID
                 var category_ids = [];
                 $("#category_id option:selected").each(function() {
@@ -575,15 +613,15 @@ if ($act == "data") {
                         category_ids.push($(this).val());
                     }
                 });
-                
+
                 // 如果没有选择任何分类，不执行操作
                 if(category_ids.length == 0) return;
-                
+
                 // 自动调用getgoods函数获取商品列表
                 getgoods();
             });
         });
-        
+
         // 数组包含判断函数
         function in_array(needle, haystack) {
             for(var i in haystack) {

@@ -25,8 +25,8 @@ $cat_name = "";
 while ($res = $re->fetch()) {
     if($is_fenzhan && in_array($res['cid'], $classhide))continue;
     if($res['cid'] == $cid){
-    	$cat_name=$res['name'];
-    	$qcid = $cid;
+	$cat_name=$res['name'];
+	$qcid = $cid;
     }
     // 如果有pid字段，使用pid区分一级和二级分类
     if(isset($res['pid']) && $res['pid'] > 0){
@@ -62,7 +62,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
     <link rel="stylesheet" type="text/css" href="<?php echo $cdnserver; ?>assets/store/css/style.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $cdnserver; ?>assets/store/css/iconfont.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $cdnserver; ?>assets/store/css/index.css">
-    
+
     <link rel="stylesheet" type="text/css" href="<?php echo $cdnpublic ?>layui/2.5.7/css/layui.css">
     <link href="<?php echo $cdnpublic?>Swiper/6.4.5/swiper-bundle.min.css" rel="stylesheet">
 
@@ -146,16 +146,16 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
         line-height: 1.1rem;
     }
 
-      
-      
-      
-      
-      
-      
-      
-      
-      
-    
+
+
+
+
+
+
+
+
+
+
     .fui-goods-item .detail .sale {
         height: 1.7rem;
         overflow: hidden;
@@ -237,11 +237,11 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
         font-size: .6rem;
     }
 .fui-goods-group.block .fui-goods-item .image {
-     width: 100%; 
-     margin: unset; 
-     padding-bottom: unset; 
+     width: 100%;
+     margin: unset;
+     padding-bottom: unset;
              height:5rem;
-          
+
 
 }
 .layui-flow-more{
@@ -249,7 +249,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
     float: left;
 }
 .fui-goods-group .fui-goods-item .image img{
-    border-radius:5px;    
+    border-radius:5px;
 }
 .fui-goods-group .fui-goods-item .detail .minprice {
     font-size: .6rem;
@@ -411,7 +411,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
     overflow-x: auto;
     width: max-content;
     padding: 10px;
-    
+
 }
 .cate_list .item {
     border-radius: 15px;
@@ -477,7 +477,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
             transform: rotate(360deg)
         }
     }
- 
+
     .jia span {
     margin-right: 80px;
     background-color: rgba(0, 0, 0, 0.4);
@@ -524,12 +524,12 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
 <div id="body">
     <div style="position: fixed;    z-index: 100;    top: 30px;    left: 20px;       color: white;    padding: 2px 8px;      background-color: rgba(0,0,0,0.4);    border-radius: 5px;display: none" id="xn_text">
     </div>
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
     <div class="fui-page-group " style="height: auto">
         <div class="fui-page  fui-page-current " style="height:auto; overflow: inherit">
             <div class="fui-content navbar" id="container" style="background-color: #fafafc;overflow: inherit">
@@ -566,11 +566,11 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                         <div class="text" style="height: 1.2rem;line-height: 1.2rem">
                             <ul>
                                 <li><a href="JavaScript:void(0)" onclick="$('.tzgg').show()">
-                                    
+
                                             <div class="text" style="height: 1.2rem;line-height: 1.2rem">
                             <ul>
                                         <marquee behavior="alternate" class="jia" scrollamount="8">
-                                            
+
                      <span>四川用户135****343购买了本商品 2分钟前</span>
                      <span>湖北用户176****343购买了本商品 8分钟前</span>
                      <span>湖南用户138****343购买了本商品 6分钟前</span>
@@ -606,9 +606,9 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                      <span>河北用户156****930购买了本商品 13分钟前</span>
                      <span>河南用户155****255购买了本商品 10分钟前</span>
                                         </marquee>
-                                    
+
                             </ul>
-           
+
                         </div>
                                         </marquee>
                                     </a></li>
@@ -616,7 +616,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                         </div>
                     </div>
                   <div class="text" style="height: 1.2rem;line-height: 1.2rem;">
-                                
+
                                 <div class="list_item_box shop_tips" id="" style="overflow: hidden;margin-left:10px;margin-top:-25px;top: 150px;height: 25px;min-height:10px;">
                                     <span id="xn_text4" style="padding:0 10px; border-radius: 5px; float: left;line-height:25px;text-overflow: ellipsis;white-space: nowrap;color: white;background-color: rgba(0,0,0,0.4);"></span>
                                 </div>
@@ -670,14 +670,14 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                             <span class=" icon icon-notice"></span>
                             <p>平台公告</p>
                         </a>
-                            
-                            
+
+
                             <a href="./?mod=invite" target="_blank" class="urlbox2">
                                 <span class=" icon icon-notice"></span>
                                 <p>红包福利</p>
                             </a>
-                            
-                            
+
+
                             <a href="/" target="_blank" class="urlbox3">
                                 <span class=" icon icon-share"></span>
                                 <p>平台Q群</p>
@@ -686,13 +686,13 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
 <!--启程QQ：3882252696-->
 
 
-                            
+
                             <a href="./user/regsite.php" target="_blank" class="urlbox4">
                                 <!--<span class=" icon icon-refund"></span>-->
                                 <img src="/img/hot.gif">
                                 <p>加盟赚钱</p>
                             </a>
-                           
+
                         </div>
                     <div class="fui-notice">
                         <div class="text" style="height: 1.5rem !important;line-height: 1.1rem">
@@ -715,21 +715,21 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                                                 <font color="#81007E">-</font>
                                                 <font color="#AB0054">-</font>
                                         </span>
-                                       
+
                                     </marquee>
                                 </li>
                                 <li id="search-container" style="display: none;">
-                            		<div style="display: flex;align-items: center;margin: 0 10px;">
-                            			<div class="search-content" style="display: flex;border-radius: 5px;
-                            			background-color: rgb(242, 242, 242);padding: 6px 0;flex: 1;margin-right: 8px;">
-                            				<div style="margin-right: 6px;">
-                            				    <i class="icon icon-search" style="float: none"></i>
-                            				</div>
-                            				<input placeholder="输入商品关键词...如：腾讯视频" id="kw" name="kw" value="" style="flex:1;
-                            			background-color: rgb(242, 242, 242);font-size: 13px;">
-                            			</div>
-                            			<input type="button" id="goods_search" class="searchbar-cancel searchbtn" style="font-size: 13px;width:3rem;background-color:#ff5555;height: 1.35rem; border-radius:5px 5px 5px 5px;color: #fff;" value="搜索">
-                            			<div id="cancel-button" style="margin-left: 8px;">取消</div>
+		<div style="display: flex;align-items: center;margin: 0 10px;">
+			<div class="search-content" style="display: flex;border-radius: 5px;
+			background-color: rgb(242, 242, 242);padding: 6px 0;flex: 1;margin-right: 8px;">
+				<div style="margin-right: 6px;">
+				    <i class="icon icon-search" style="float: none"></i>
+				</div>
+				<input placeholder="输入商品关键词...如：腾讯视频" id="kw" name="kw" value="" style="flex:1;
+			background-color: rgb(242, 242, 242);font-size: 13px;">
+			</div>
+			<input type="button" id="goods_search" class="searchbar-cancel searchbtn" style="font-size: 13px;width:3rem;background-color:#ff5555;height: 1.35rem; border-radius:5px 5px 5px 5px;color: #fff;" value="搜索">
+			<div id="cancel-button" style="margin-left: 8px;">取消</div>
                                         </div>
                                 </li>
                             </ul>
@@ -752,13 +752,13 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                                 min-width: 0;
                                 text-align: center !important;
                             }
-                            
+
                             .primary-category .mbg {
                                 display: flex;
                                 flex-direction: column;
                                 align-items: center;
                             }
-                            
+
                             .primary-category .ico {
                                 display: flex;
                                 align-items: center;
@@ -766,13 +766,13 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                                 margin: 0 auto !important;
                                 width: 100%;
                             }
-                            
+
                             .primary-category .ico img {
                                 width: 30px !important;
                                 height: 30px !important;
                                 max-width: 100%;
                             }
-                            
+
                             /* 确保每行显示5个分类，超出部分在下一行显示 */
                             .content-slide {
                                 display: flex;
@@ -784,7 +784,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                                 height: 150px !important;
                                 overflow: hidden;
                             }
-                            
+
                             /* 确保2行固定高度，不会向下扩展 */
                             .swiper-slide {
                                 display: flex;
@@ -793,7 +793,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                                 height: 150px !important;
                                 overflow: hidden;
                             }
-                            
+
                             /* 调整文字大小，使分类更紧凑 */
                             .primary-category .icon-title {
                                 font-size: 11px !important;
@@ -804,12 +804,12 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                                 text-overflow: ellipsis;
                                 white-space: nowrap;
                             }
-                            
+
                             /* 激活状态样式 */
                             .primary-category.shop_active {
                                 transform: scale(1.05);
                             }
-                            
+
                             .primary-category.shop_active .icon-title {
                                 color: #ff5555;
                                 font-weight: bold;
@@ -829,14 +829,14 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                                         }
                                         // 检查当前分类是否被选中
                                         $active_class = ($v['cid'] == $cid) ? 'shop_active' : '';
-                                         
+
                                         echo '<a data-cid="' . $v['cid'] . '" data-name="' . $v['name'] . '" class="get_cat primary-category ' . $active_class . '">
                                                <div class="mbg">
                                                    <p class="ico"><img src="' . $v['shopimg'] . '" onerror="this.src=\'assets/store/picture/1562225141902335.jpg\'"></p>
                                                    <p class="icon-title">' . $v['name'] . '</p>
                                               </div>
                                           </a>';
-                                     
+
                                         if (((($arry + 1) / $items_per_page)) == ($au + 1)) { //循环尾
                                             echo '</div>
                                             </div>';
@@ -853,7 +853,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                                 <div class="swiper-pagination"></div>
                             </div>
                         </div>
-                        
+
                         <!-- 二级分类盒子 -->
                         <div class="category-container secondary-category-box" style="background-color: #fff; padding: 10px;">
                             <div class="sub-categories" style="display: flex;">
@@ -868,14 +868,14 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                                             break;
                                         }
                                     }
-                                     
+
                                     // 如果有二级分类
                                     if (!empty($secondary_categories)) {
                                         // 遍历二级分类
                                         foreach ($secondary_categories as $secondary) {
                                             // 检查当前分类是否被选中
                                             $sub_active_class = ($secondary['cid'] == $cid) ? 'shop_active' : '';
-                                             
+
                                             // 显示二级分类，添加一级分类ID标识
                                             echo '<a data-cid="' . $secondary['cid'] . '" data-name="' . $secondary['name'] . '" data-primary-cid="' . $primary_cid . '" class="get_cat sub-category ' . $sub_active_class . '" style="margin: 5px 10px; padding: 5px 15px; background-color: #f5f5f5; border-radius: 15px; font-size: 14px;">
                                                 ' . $secondary['name'] . '
@@ -896,15 +896,15 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
 
 
               <div style="height: 3px"></div>
-                
+
                 </section>
                 </section>
                  <div class="layui-tab tag_name tab_con" style="margin:0;display:none;">
                         <ul class="layui-tab-title" style="margin: 0;background:#fff;overflow: hidden;">
-                
+
                         </ul>
                 </div>
-                
+
                 <div class="fui-goods-group " style="background: #f3f3f3;" id="goods-list-container">
                     <div class="flow_load"><div id="goods_list"></div></div>
                     <div class="footer" style="width:100%; margin-top:0.5rem;margin-bottom:2.5rem;display: block;">
@@ -917,7 +917,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
 
             </div>
         </div>
-        
+
         </div>
         <input type="hidden" name="_cid" value="<?php echo $cid; ?>">
         <input type="hidden" name="_cidname" value="<?php echo $cat_name; ?>">
@@ -926,7 +926,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
 		<input type="hidden" name="_template_showsales" value="<?php echo $conf['template_showsales']?>">
         <input type="hidden" name="_sort_type" value="">
         <input type="hidden" name="_sort" value="">
-        
+
         <div class="fui-navbar" style="bottom:-34px;background-color: white;max-width: 650px">
         </div>
 
@@ -935,10 +935,10 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
             </a>
             <a href="./?mod=query" class="nav-item "> <span class="icon icon-dingdan1"></span> <span class="label">订单</span> </a>
             <?php if($conf['template_cart']==1){?><a href="./?mod=cart" class="nav-item "> <span class="icon icon-cart2"></span> <span class="label">购物车</span><span id="cart_sum" class="cart-count"></span> </a><?php }?>
-            
+
             <a href="/user/regsite.php" class=" nav-item  "> <span class="icon icon-wodetuandui"></span> <span class=" label titlename">加盟</span> </a>
-            
-                       
+
+
             <a href="./?mod=kf" class="nav-item "> <span class=" icon icon-service1"></span> <span class="label">客服</span>
             </a>
             <a href="./user/index.php" class="nav-item "> <span class="icon icon-person2"></span> <span class="label">会员中心</span> </a>
@@ -960,7 +960,7 @@ $class_show_num = intval($conf['index_class_num_style'])?intval($conf['index_cla
                     </div>
                 </div>
                 <div class="account-btn" style="display: block" onclick="$('.tzgg').hide()">确认</div>
-                
+
                 <!--<div class="account-close">-->
                 <!--<i class="icon icon-guanbi1"></i>-->
                 <!--</div>-->
@@ -1028,8 +1028,8 @@ if(response.code==0){
       console.error(error);
     }
   });
-  
-        
+
+
 }
 
 
@@ -1037,7 +1037,7 @@ if(response.code==0){
 
   <!-- 引入Swiper JavaScript -->
   <script src="<?php echo $cdnpublic?>Swiper/6.4.5/swiper-bundle.min.js"></script>
-  
+
   <!-- 添加响应式CSS，确保一级分类在各种屏幕宽度下都能正确显示 -->
   <style>
       /* 响应式媒体查询，根据屏幕宽度调整一级分类每行显示数量 */
@@ -1047,21 +1047,21 @@ if(response.code==0){
               width: calc(16% - 8px);
           }
       }
-      
+
       @media screen and (max-width: 639px) and (min-width: 480px) {
           /* 中屏幕：每行显示4个分类 */
           .primary-category {
               width: calc(25% - 10px);
           }
       }
-      
+
       @media screen and (max-width: 479px) and (min-width: 360px) {
           /* 小屏幕：每行显示3个分类 */
           .primary-category {
               width: calc(33.333% - 10px);
           }
       }
-      
+
       @media screen and (max-width: 359px) {
           /* 超小屏幕：每行显示2个分类 */
           .primary-category {
@@ -1069,7 +1069,7 @@ if(response.code==0){
           }
       }
   </style>
-  
+
   <!-- 确保Swiper正确初始化 -->
   <script>
       // 页面加载完成后初始化Swiper
@@ -1091,7 +1091,7 @@ if(response.code==0){
               // 禁用自动播放，防止用户体验问题
               autoplay: false
           });
-           
+
           // 当窗口大小改变时，重新初始化Swiper以适应新的屏幕尺寸
           $(window).resize(function() {
               // 稍微延迟一下，确保DOM已经更新

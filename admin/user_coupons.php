@@ -8,12 +8,12 @@ function formatTime($time) {
     if (is_null($time) || $time === '') {
         return '-';
     }
-    
+
     $timestamp = strtotime($time);
     if ($timestamp === false || $timestamp <= 0) {
         return '-';
     }
-    
+
     return date('Y-m-d H:i:s', $timestamp);
 }
 
@@ -21,7 +21,7 @@ if($islogin==1) {
     // 设置 zid，管理员默认为 0
     $zid = isset($zid) ? $zid : 0;
     $action = isset($_GET['action']) ? $_GET['action'] : 'list';
-    
+
     // 检查用户优惠券表，如果没有数据，插入一些示例数据
     if($action == 'list') {
         try {
@@ -32,20 +32,20 @@ if($islogin==1) {
             // 忽略错误，继续执行
         }
     }
-    
+
     // 用户优惠券列表
     if($action == 'list') {
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $pageSize = 100; // 增加到每页显示100条
         $start = ($page - 1) * $pageSize;
-        
+
         // 使用正常的查询，不使用zid条件，确保所有用户优惠券都能显示
         $total = $DB->getColumn("SELECT COUNT(*) FROM `shua_user_coupons` uc LEFT JOIN `shua_coupons` c ON uc.cid = c.cid");
         $user_coupons = $DB->getAll("SELECT uc.*, c.name, c.type, c.value, c.min_amount FROM `shua_user_coupons` uc LEFT JOIN `shua_coupons` c ON uc.cid = c.cid ORDER BY uc.ucid DESC LIMIT " . intval($start) . ", " . intval($pageSize));
-        
+
         $type_text = ['满减券', '折扣券', '固定金额券'];
         $status_text = ['<span class="label label-success">未使用</span>', '<span class="label label-primary">已使用</span>', '<span class="label label-default">已过期</span>'];
-        
+
         echo '<div class="col-xs-12">
     <div class="block">
         <div class="block-title">
@@ -71,7 +71,7 @@ if($islogin==1) {
                     </tr>
                 </thead>
                 <tbody>';
-        
+
         foreach($user_coupons as $uc) {
             $value_text = $uc['type'] == 1 ? $uc['value'].'折' : '¥'.$uc['value'];
             echo '<tr>
@@ -89,11 +89,11 @@ if($islogin==1) {
                 </td>
             </tr>';
         }
-        
+
         if(empty($user_coupons)) {
             echo '<tr><td colspan="10" class="text-center">暂无用户优惠券</td></tr>';
         }
-        
+
         echo '</tbody>
             </table>
         </div>
@@ -103,7 +103,7 @@ if($islogin==1) {
     </div>
 </div>';
     }
-    
+
     // 手动发放优惠券
     elseif($action == 'issue') {
         $coupons = $DB->getAll("SELECT cid, name FROM `shua_coupons` WHERE active = 1 ORDER BY cid DESC");
@@ -146,19 +146,19 @@ if($islogin==1) {
     </div>
 </div>';
     }
-    
+
     // 执行发放优惠券
     elseif($action == 'do_issue') {
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $userid = intval($_POST['userid']);
             $cid = intval($_POST['cid']);
             $num = intval($_POST['num']);
-            
+
             $coupon = $DB->getRow("SELECT * FROM `shua_coupons` WHERE cid = ? AND active = 1", [$cid]);
             if(!$coupon) {
                 showmsg('优惠券不存在或已禁用', 'user_coupons.php');
             }
-            
+
             // 检查发放总量
             if($coupon['total'] > 0) {
                 $issued = $DB->getColumn("SELECT COUNT(*) FROM `shua_user_coupons` WHERE cid = ?", [$cid]);
@@ -166,14 +166,14 @@ if($islogin==1) {
                     showmsg('优惠券发放量已达上限', 'user_coupons.php');
                 }
             }
-            
+
             // 计算过期时间
             if($coupon['valid_days'] > 0) {
                 $expire_time = strtotime('+' . $coupon['valid_days'] . ' days');
             } else {
                 $expire_time = strtotime($coupon['end_time']);
             }
-            
+
             // 发放优惠券
             $success = 0;
             $current_time = date('Y-m-d H:i:s');
@@ -184,7 +184,7 @@ if($islogin==1) {
                     $success++;
                 }
             }
-            
+
             if($success > 0) {
                 showmsg('优惠券发放成功，共发放 ' . $success . ' 张', 'user_coupons.php');
             } else {
@@ -194,7 +194,7 @@ if($islogin==1) {
             showmsg('非法请求', 'user_coupons.php');
         }
     }
-    
+
     // 删除用户优惠券
     elseif($action == 'delete') {
         $ucid = intval($_GET['ucid']);

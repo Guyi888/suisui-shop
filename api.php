@@ -1,7 +1,7 @@
 <?php
-/* 
-QQ群915043052
-个人博客blog.6v6.ren
+/*
+QQ群qqfaka
+岁岁 @qqfaka
 */
 $nosession = true;
 include("./includes/common.php");
@@ -394,7 +394,7 @@ elseif($act == 'pay')
 		$result['message'] = '商品ID不存在';
 	}
 }
-elseif($act == 'search') 
+elseif($act == 'search')
 {
 	$result['code'] = -1;
 	$id = isset($_POST['id'])?intval($_POST['id']):intval($_GET['id']);

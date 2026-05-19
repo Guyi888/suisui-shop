@@ -2,13 +2,12 @@
 require '../includes/common.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 $title = '消息列表';
-include 'head.php';	
+include 'head.php';
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
       <div class="wrapper">
           <div class="col-sm-12">
 	<div class="panel panel-default">
-    <div class="panel-heading font-bold">常见问题</div>	  
+    <div class="panel-heading font-bold">常见问题</div>
         <div class="panel-body">
 						<div id="accordion">
                             <div class="panel panel-default">
@@ -103,7 +102,7 @@ include 'head.php';
 									</div>
                                 </div>
                             </div>
-                                                      
+
                         </div>
 					</div>
 	</div>

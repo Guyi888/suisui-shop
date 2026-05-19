@@ -67,7 +67,7 @@ function shequ_get_curl($url, $post = 0, $referer = 0, $cookie = 0, $header = 0,
 	if ($post) {
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-		
+
 		// 检查是否已经设置了Content-Type头
 		$has_content_type = false;
 		foreach ($httpheader as $h) {
@@ -76,7 +76,7 @@ function shequ_get_curl($url, $post = 0, $referer = 0, $cookie = 0, $header = 0,
 				break;
 			}
 		}
-		
+
 		// 如果没有设置Content-Type头，才添加默认的
 		if (!$has_content_type) {
 			$httpheader[] = "Content-Type: application/x-www-form-urlencoded; charset=UTF-8";

@@ -11,7 +11,7 @@ if ($islogin == 1) {
 }
 ?><div class="col-xs-12 col-sm-10 col-lg-8 center-block" style="float: none;">
 
-	<?php 
+	<?php
 $mod = isset($_GET["mod"]) ? $_GET["mod"] : null;
 if ($mod == "cleanbom") {
 	adminpermission("set", 1);
@@ -115,14 +115,14 @@ if ($mod == "cleanbom") {
 					</form>
 				</div>
 				<div class="panel-footer">
-					<span class="glyphicon glyphicon-info-sign"></span>高级防CC功能说明<br />
+					<span class="fa fa-info-circle"></span>高级防CC功能说明<br />
 					此功能可自动检测异常IP访问频率，当发现恶意访问时将其重定向到指定网站<br />
 					建议设置合理的参数，避免误拦截正常用户<br />
 					默认将恶意IP重定向到百度，您可以设置为自己的其他网站或警告页面
 				</div>
 			</div>
 			<div class="panel-footer">
-				<span class="glyphicon glyphicon-info-sign"></span>
+				<span class="fa fa-info-circle"></span>
 				此功能可以使用微信/QQ扫码快捷登录到后台。微信、QQ可以只绑定其中一个。登录的时候二维码可以同时被微信和QQ扫描。
 			</div>
 		</div>
@@ -142,7 +142,7 @@ if ($mod == "cleanbom") {
 				}
 			});
 		</script>
-        <?php 
+        <?php
 } elseif ($mod == "sup_n" && $_POST["do"] == "submit") {
 	$sup_bond = $_POST["sup_bond"];
 	$sup_reg = $_POST["sup_reg"];
@@ -355,7 +355,7 @@ if ($mod == "cleanbom") {
                 }
             });
         </script>
-	<?php 
+	<?php
 } elseif ($mod == "account_n" && $_POST["do"] == "submit") {
 	if ($admintypeid == 1) {
 		$user = $_POST["user"];
@@ -441,7 +441,7 @@ if ($mod == "cleanbom") {
 				</form>
 			</div>
 			</div>
-			
+
 			<!-- 高级防CC功能配置 -->
 			<div class="block" style="margin-top: 20px;">
 				<div class="block-title">
@@ -450,7 +450,7 @@ if ($mod == "cleanbom") {
 				<div class="">
 					<form action="./set.php?mod=defend_n" method="post" class="form-horizontal" role="form"><input type="hidden" name="do" value="submit" />
 						<input type="hidden" name="defendid" value="<?php echo CC_Defender;?>" />
-						
+
 						<div class="form-group">
 							<label class="col-sm-3 control-label">启用高级防CC功能</label>
 							<div class="col-sm-9">
@@ -460,7 +460,7 @@ if ($mod == "cleanbom") {
 								</select>
 							</div>
 						</div><br />
-						
+
 						<div class="form-group">
 							<label class="col-sm-3 control-label">最大请求数</label>
 							<div class="col-sm-9">
@@ -468,7 +468,7 @@ if ($mod == "cleanbom") {
 								<span class="help-block">检测时间窗口内允许的最大请求数，默认30</span>
 							</div>
 						</div><br />
-						
+
 						<div class="form-group">
 							<label class="col-sm-3 control-label">检测时间窗口（秒）</label>
 							<div class="col-sm-9">
@@ -476,7 +476,7 @@ if ($mod == "cleanbom") {
 								<span class="help-block">单位：秒，默认30秒</span>
 							</div>
 						</div><br />
-						
+
 						<div class="form-group">
 							<label class="col-sm-3 control-label">封禁时长（秒）</label>
 							<div class="col-sm-9">
@@ -484,7 +484,7 @@ if ($mod == "cleanbom") {
 								<span class="help-block">单位：秒，默认300秒（5分钟）</span>
 							</div>
 						</div><br />
-						
+
 						<div class="form-group">
 							<label class="col-sm-3 control-label">重定向网址</label>
 							<div class="col-sm-9">
@@ -492,7 +492,7 @@ if ($mod == "cleanbom") {
 								<span class="help-block">发现CC攻击时重定向到的网址，默认百度</span>
 							</div>
 						</div><br />
-						
+
 						<div class="form-group">
 							<div class="col-sm-offset-3 col-sm-9">
 								<input type="submit" name="submit" value="保存设置" class="btn btn-primary btn-block" />
@@ -501,7 +501,7 @@ if ($mod == "cleanbom") {
 					</form>
 				</div>
 				<div class="panel-footer">
-					<span class="glyphicon glyphicon-info-sign"></span>高级防CC功能说明：<br />
+					<span class="fa fa-info-circle"></span>高级防CC功能说明：<br />
 					- 该功能通过检测IP访问频率识别CC攻击<br />
 					- 当检测到异常访问时，自动将恶意IP重定向到指定网站<br />
 					- 后台页面默认跳过检测，不影响管理员操作<br />
@@ -509,7 +509,7 @@ if ($mod == "cleanbom") {
 					- 采用文件缓存机制，不增加数据库负担<br />
 				</div>
 			</div>
-	<?php 
+	<?php
 } elseif ($mod == "site") {
 	adminpermission("set", 1);
 	?>		<link rel="stylesheet" href="<?php echo $cdnpublic;?>bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.min.css">
@@ -809,6 +809,14 @@ if ($mod == "cleanbom") {
 						<font color="green">开启后免费商品需要登录后才能领取</font>
 					</div>
 				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">获取空间说说列表接口</label>
+					<div class="col-sm-10"><input type="text" name="sslist_api" value="<?php echo $conf["sslist_api"];?>" class="form-control" placeholder="留空则不启用" /></div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">获取空间日志列表接口</label>
+					<div class="col-sm-10"><input type="text" name="rzlist_api" value="<?php echo $conf["rzlist_api"];?>" class="form-control" placeholder="留空则不启用" /></div>
+				</div>
 					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-10"><input type="submit" name="submit" value="修改" class="btn btn-primary btn-block" />
 						</div>
@@ -843,20 +851,20 @@ if ($mod == "cleanbom") {
 				format: 'hex'
 			});
 		</script>
-	<?php 
+	<?php
 } elseif ($mod == "defend_n" && $_POST["do"] == "submit") {
 	adminpermission("set", 1);
 	$defendid = $_POST["defendid"];
 	$file = "<?php\r\n//防CC模块设置\r\ndefine('CC_Defender', " . $defendid . ");\r\n?>";
 	file_put_contents(SYSTEM_ROOT . "base.php", $file);
-	
+
 	// 保存高级防CC设置
 	saveSetting("cc_protect_enabled", $_POST["cc_protect_enabled"]);
 	saveSetting("cc_max_requests", $_POST["cc_max_requests"]);
 	saveSetting("cc_check_time", $_POST["cc_check_time"]);
 	saveSetting("cc_block_time", $_POST["cc_block_time"]);
 	saveSetting("cc_redirect_url", $_POST["cc_redirect_url"]);
-	
+
 	$ad = $CACHE->clear();
 	showmsg("修改成功！", 1);
 } elseif ($mod == "defend") {
@@ -884,7 +892,7 @@ if ($mod == "cleanbom") {
 				</form>
 			</div>
 			<div class="panel-footer">
-				<span class="glyphicon glyphicon-info-sign"></span>CC防护说明<br />
+				<span class="fa fa-info-circle"></span>CC防护说明<br />
 				滑动验证码：全局开启滑动验证码，验证通过后才能访问<br />
 				高：全局使用防CC，会影响网站APP和对接软件的正常使用<br />
 				中：会影响搜索引擎的收录，建议仅在正在受到CC攻击且防御不佳时开启<br />
@@ -938,13 +946,13 @@ if ($mod == "cleanbom") {
 				</form>
 			</div>
 			<div class="panel-footer">
-				<span class="glyphicon glyphicon-info-sign"></span>高级防CC功能说明<br />
+				<span class="fa fa-info-circle"></span>高级防CC功能说明<br />
 				此功能可自动检测异常IP访问频率，当发现恶意访问时将其重定向到指定网站<br />
 				建议设置合理的参数，避免误拦截正常用户<br />
 				默认将恶意IP重定向到百度，您可以设置为自己的其他网站或警告页面
 			</div>
 		</div>
-	<?php 
+	<?php
 } elseif ($mod == "proxy_n" && $_POST["do"] == "submit") {
 	adminpermission("set", 1);
 	$proxy = $_POST["proxy"];
@@ -981,10 +989,10 @@ if ($mod == "cleanbom") {
 			</div>
 			<div class="">
 				<form action="./set.php?mod=proxy_n" method="post" class="form-horizontal" role="form"><input type="hidden" name="do" value="submit" />
-					<?php 
+					<?php
 	if (check_china() == true) {
 		?>						<div class="alert alert-info">你当前的服务器位于国内，无需使用代理服务器。</div>
-					<?php 
+					<?php
 	} else {
 		?>						<div class="form-group">
 							<label class="col-sm-2 control-label">代理服务器开关</label>
@@ -1024,12 +1032,12 @@ if ($mod == "cleanbom") {
 							<div class="col-sm-offset-2 col-sm-10"><input type="submit" name="submit" value="修改" class="btn btn-primary form-control" /><br />
 							</div>
 						</div>
-					<?php 
+					<?php
 	}
 	?>				</form>
 			</div>
 			<div class="panel-footer">
-				<span class="glyphicon glyphicon-info-sign"></span>本功能适用于国外服务器对接一些屏蔽国外访问的社区或者卡盟，开启后使用国内代理服务器进行对接。<br />
+				<span class="fa fa-info-circle"></span>本功能适用于国外服务器对接一些屏蔽国外访问的社区或者卡盟，开启后使用国内代理服务器进行对接。<br />
 				自定义代理可以使用Windows服务器+CCProxy软件搭建<br />
 				<b>注意：如果网站更换主机之后需要重新修改当前配置。</b><br />
 			</div>
@@ -1043,7 +1051,7 @@ if ($mod == "cleanbom") {
 				}
 			});
 		</script>
-	<?php 
+	<?php
 } elseif ($mod == "fenzhan") {
 	adminpermission("set", 1);
 	?>		<div class="block">
@@ -1358,7 +1366,7 @@ if ($mod == "cleanbom") {
 				}
 			});
 		</script>
-	<?php 
+	<?php
 } elseif ($mod == "gonggao") {
 	adminpermission("set", 1);
 	?>		<div class="block">
@@ -1425,11 +1433,11 @@ if ($mod == "cleanbom") {
 				</form>
 			</div>
 			<div class="panel-footer">
-				<span class="glyphicon glyphicon-info-sign"></span>
+				<span class="fa fa-info-circle"></span>
 				实用工具：<a href="set.php?mod=copygg">一键复制其他站点排版</a>｜<a href="http://www.runoob.com/runcode" target="_blank" rel="noreferrer">HTML在线测试</a>｜<a href="https://sm.ms/" target="_blank" rel="noreferrer">SM.MS图床</a>｜<a href="https://imgbb.com/" target="_blank" rel="noreferrer">ImgBB图床</a>｜<a href="https://link.hhtjim.com/" target="_blank" rel="noreferrer">音乐外链1</a>｜<a href="http://www.musictool.top/" target="_blank" rel="noreferrer">音乐外链2</a>
 			</div>
 		</div>
-	<?php 
+	<?php
 } elseif ($mod == "copygg_n") {
 	$url = $_POST["url"];
 	$content = $_POST["content"];
@@ -1490,7 +1498,7 @@ if ($mod == "cleanbom") {
 				</form>
 			</div>
 		</div>
-	<?php 
+	<?php
 } elseif ($mod == "mail") {
 	adminpermission("set", 1);
 	?>		<div class="block">
@@ -1591,7 +1599,7 @@ if ($mod == "cleanbom") {
 				</form>
 			</div>
 			<div class="panel-footer">
-				<span class="glyphicon glyphicon-info-sign"></span>
+				<span class="fa fa-info-circle"></span>
 				此功能为用户下单时给自己发邮件提醒以及发卡商品发送给用户的邮件。<br />使用普通模式发信时，建议使用QQ邮箱，SMTP服务器smtp.qq.com，端口465或587，密码不是QQ密码也不是邮箱独立密码，是QQ邮箱设置界面生成的<a href="https://service.mail.qq.com/cgi-bin/help?subtype=1&&no=1001256&&id=28" target="_blank" rel="noreferrer">授权码</a>。<br />阿里云邮件推送：<a href="https://www.aliyun.com/product/directmail" target="_blank" rel="noreferrer">点此进入</a>｜<a href="https://usercenter.console.aliyun.com/#/manage/ak" target="_blank" rel="noreferrer">获取AK/SK</a>
 			</div>
 		</div>
@@ -1642,7 +1650,7 @@ if ($mod == "cleanbom") {
 				</form>
 			</div>
 			<div class="panel-footer">
-				<span class="glyphicon glyphicon-info-sign"></span><br />
+				<span class="fa fa-info-circle"></span><br />
 				<b>ServerChan(ftqq)：</b>进入 <a href="http://sc.ftqq.com/" target="_blank" rel="noopener noreferrer">http://sc.ftqq.com/</a> ，登录账号 -> 绑定自己的微信号 -> 获取到SCKEY填写到上方输入框！<br />
 				<b>WxPusher：</b><a href="https://wxpusher.zjiecode.com/admin/" target="_blank" rel="noopener noreferrer">点此进入</a> ，注册并且创建应用 -> 将appToken填写到上方输入框 -> 扫码关注应用 -> 在用户列表查看自己的UID填写到上方输入框<br />
 			</div>
@@ -1658,7 +1666,7 @@ if ($mod == "cleanbom") {
 				}
 			});
 		</script>
-	<?php 
+	<?php
 } elseif ($mod == "alipay_n" && $_POST["do"] == "submit") {
 	adminpermission("super", 1);
 	$alipay_appid = $_POST["alipay_appid"];
@@ -1852,9 +1860,9 @@ if($epay_key4){
 	saveSetting("epay_key4", $epay_key4);
 }
 
-	
+
 	$ad = $CACHE->clear();
-	
+
 	if ($ad) {
 		showmsg("修改成功！", 1);
 	} else {
@@ -1924,7 +1932,7 @@ if($epay_key4){
 			</div>
 		</form>
 	</div>
-	<?php 
+	<?php
 	// USDT-TRC20支付配置入口
 	?>	<div class="block">
 		<div class="block-title">
@@ -1934,7 +1942,7 @@ if($epay_key4){
 			<p>USDT-TRC20支付需要单独配置，<a href="./set.php?mod=codepay">点击这里进入USDT-TRC20支付配置页面</a></p>
 		</div>
 	</div>
-		<?php 
+		<?php
 	if ($conf["alipay_api"] == 1 || $conf["alipay_api"] == 3) {
 		?>			<div class="block">
 				<div class="block-title">
@@ -1966,9 +1974,9 @@ if($epay_key4){
 					</div>
 				</form>
 			</div>
-		<?php 
+		<?php
 	}
-	?>		<?php 
+	?>		<?php
 	if ($conf["alipay_api"] == 7) {
 		?>			<div class="block">
 				<div class="block-title">
@@ -2000,9 +2008,9 @@ if($epay_key4){
 					</div>
 				</form>
 			</div>
-		<?php 
+		<?php
 	}
-	?>		<?php 
+	?>		<?php
 	if ($conf["qqpay_api"] == 1) {
 		?>			<div class="block">
 				<div class="block-title">
@@ -2028,9 +2036,9 @@ if($epay_key4){
 					</div>
 				</form>
 			</div>
-		<?php 
+		<?php
 	}
-	?>		<?php 
+	?>		<?php
 	if ($conf["wxpay_api"] == 1 || $conf["wxpay_api"] == 3) {
 		?>			<div class="block">
 				<div class="block-title">
@@ -2074,15 +2082,15 @@ if($epay_key4){
 					</div>
 				</form>
 			</div>
-		<?php 
+		<?php
 	}
-	?>		<?php 
+	?>		<?php
 	if ($conf["alipay_api"] == 2 || $conf["qqpay_api"] == 2 || $conf["wxpay_api"] == 2) {
 		?>			<div class="block">
 				<div class="block-title">
 					<h3 class="panel-title">易支付配置</h3>
 					<div class="block-options pull-right"></div>
-					<div class="block-options pull-right"><a href="#" rel="noreferrer" target="_blank" class="btn btn-default" id="epayurl" style="display:none;">进入易支付网站</a>  <a href="https://404.6v6.ren/zhi-fu/1.html" target="_blank" class="btn btn-default" style="color:#0000FF">推荐的支付</a></div>
+					<div class="block-options pull-right"><a href="#" rel="noreferrer" target="_blank" class="btn btn-default" id="epayurl" style="display:none;">进入易支付网站</a></div>
 				</div>
 				<form action="./set.php?mod=epay_n" method="post" class="form-horizontal" role="form" onsubmit="return checkepayurl('payapi','epay_url')"><input type="hidden" name="do" value="submit" />
 					<div class="form-group">
@@ -2118,9 +2126,9 @@ if($epay_key4){
 					</div>
 				</form>
 			</div>
-		<?php 
+		<?php
 	}
-	?>		<?php 
+	?>		<?php
 	if ($conf["alipay_api"] == 6 || $conf["wxpay_api"] == 6) {
 		?>			<div class="block">
 				<div class="block-title">
@@ -2163,9 +2171,9 @@ if($epay_key4){
 					</div>
 				</form>
 			</div>
-		<?php 
+		<?php
 	}
-	?>		<?php 
+	?>		<?php
 	if ($conf["qqpay_api"] == 8 || $conf["wxpay_api"] == 8) {
 		?>			<div class="block">
 				<div class="block-title">
@@ -2205,9 +2213,9 @@ if($epay_key4){
 					</div>
 				</form>
 			</div>
-		<?php 
+		<?php
 	}
-	?>		<?php 
+	?>		<?php
 	if ($conf["wxpay_api"] == 9) {
 		?>			<div class="block">
 				<div class="block-title">
@@ -2247,9 +2255,9 @@ if($epay_key4){
 					</div>
 				</form>
 			</div>
-		<?php 
+		<?php
 	}
-	?>		<?php 
+	?>		<?php
 	if ($conf["alipay_api"] == 10 || $conf["qqpay_api"] == 10 || $conf["wxpay_api"] == 10) {
 			?>				<div class="block">
 					<div class="block-title">
@@ -2289,10 +2297,10 @@ if($epay_key4){
 						</div>
 					</form>
 				</div>
-			<?php 
+			<?php
 			}
 			?>
-			<?php 
+			<?php
 			if ($conf["alipay_api"] == 1 || $conf["alipay_api"] == 3 || $conf["qqpay_api"] == 1 || $conf["wxpay_api"] == 1 || $conf["wxpay_api"] == 3) {
 			?>				<div class="block">
 					<div class="block-title">
@@ -2312,7 +2320,7 @@ if($epay_key4){
 					</div>
 				</form>
 			</div>
-		<?php 
+		<?php
 	}
 	?></div>
 <script>
@@ -2357,7 +2365,7 @@ if($epay_key4){
 			$("#epayurl").html('点此进入' + $("select[name='payapi'] option:selected").html() + '');
 			$("#epayurl").show();
 		}
-	
+
 	});
 	$("select[name='payapi2']").change(function() {
 	    if ($(this).val() == null){
@@ -2436,7 +2444,7 @@ if($epay_key4){
 		$("select[name='micropayapi']").change();
 	}
 </script>
-<?php 
+<?php
 } elseif ($mod == "epay_nn") {
 	adminpermission("super", 1);
 	$payapi = pay_api(true);
@@ -2481,7 +2489,7 @@ if($epay_key4){
 				</div>
 			</form>
 		</div>
-		<?php 
+		<?php
 } elseif ($mod == "epay") {
 	adminpermission("super", 1);
 	if (!empty($conf["epay_pid"]) && !empty($conf["epay_key"])) {
@@ -2545,12 +2553,12 @@ if($epay_key4){
 					<div class="col-sm-offset-2 col-sm-10"><input type="submit" name="submit" value="确定修改" class="btn btn-primary form-control" /><br />
 					</div>
 				</div>
-				<h4><span class="glyphicon glyphicon-info-sign"></span> 注意事项</h4>
+				<h4><span class="fa fa-info-circle"></span> 注意事项</h4>
 				1.结算账号和真实姓名请仔细核对，一旦错误将无法结算到账！<br />2.每笔交易会有<?php echo 100 - $arr["money_rate"];?>%的手续费，这个手续费是支付宝、微信和财付通收取的，非本接口收取。<br />3.结算为T+1规则，当天满<?php echo $arr["settle_money"];?>元在第二天会自动结算
 			</form>
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "epay_settle") {
 	adminpermission("set", 1);
 	$payapi = pay_api(true);
@@ -2575,7 +2583,7 @@ if($epay_key4){
 					</tr>
 				</thead>
 				<tbody>
-					<?php 
+					<?php
 	foreach ($arr["data"] as $res) {
 		echo "<tr><td><b>" . $res["id"] . "</b></td><td>" . $res["account"] . "</td><td><b>" . $res["money"] . "</b></td><td><b>" . $res["fee"] . "</b></td><td>" . $res["time"] . "</td></tr>";
 	}
@@ -2583,7 +2591,7 @@ if($epay_key4){
 			</table>
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "epay_order") {
 	adminpermission("set", 1);
 	$payapi = pay_api(true);
@@ -2608,7 +2616,7 @@ if($epay_key4){
 					</tr>
 				</thead>
 				<tbody>
-					<?php 
+					<?php
 	foreach ($arr["data"] as $res) {
 		echo "<tr><td>" . $res["trade_no"] . "<br/>" . $res["out_trade_no"] . "</td><td>" . $res["type"] . "</td><td>" . $res["name"] . "<br/>￥ <b>" . $res["money"] . "</b></td><td>" . $res["addtime"] . "<br/>" . $res["endtime"] . "</td><td>" . ($res["status"] == 1 ? "<font color=green>已完成</font>" : "<font color=red>未完成</font>") . "</td></tr>";
 	}
@@ -2616,7 +2624,7 @@ if($epay_key4){
 			</table>
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "template") {
 	adminpermission("set", 1);
 	$mblist = \lib\Template::getList();
@@ -2656,21 +2664,21 @@ if($epay_key4){
 			<hr />
 			<h4>更换模板：</h4>
 			<div class="row text-center">
-				<?php 
+				<?php
 	foreach ($mblist as $row) {
 		?>					<div class="col-xs-6 col-sm-4 mblist">
 						<a href="javascript:changeTemplate('<?php echo $row;?>')"><img class="img-responsive img-thumbnail img-rounded" src="../template/<?php echo $row;?>/preview.png" loading="lazy" onerror="this.src='../assets/img/NoImg.png'" title="点击更换到该模板" style="min-height: 150px; background: #f5f5f5; display: block;"><br /><strong><?php echo $row;?></strong></a>
 					</div>
-				<?php 
+				<?php
 	}
 	?>			</div>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>
+			<span class="fa fa-info-circle"></span>
 			网站模板对应template目录里面的名称，会自动获取
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "template2") {
 	adminpermission("set", 1);
 	$mblist = \lib\Template::getList();
@@ -2709,40 +2717,40 @@ if($epay_key4){
 					<label class="col-sm-2 control-label">手机使用模板</label>
 					<div class="col-sm-10"><select class="form-control" name="template_m" default="<?php echo $conf["template_m"];?>">
 							<option value="0">与电脑版相同（默认）</option>
-							<?php 
+							<?php
 	foreach ($mblist as $row) {
 		?>								<option value="<?php echo $row;?>"><?php echo $row;?></option>
-							<?php 
+							<?php
 	}
 	?>						</select></div>
 				</div>
-				<?php 
+				<?php
 	if ($template_settings) {
 		foreach ($template_settings as $k => $v) {
 			if ($v["type"]) {
 				?>							<div class="form-group">
 								<label class="col-sm-2 control-label"><?php echo $v["name"];?></label>
 								<div class="col-sm-10">
-									<?php 
+									<?php
 				if ($v["type"] == "input") {
 					?>										<input type="text" name="<?php echo $k;?>" value="﻿<?php echo $conf[$k];?>" class="form-control" placeholder="<?php echo $v["note"];?>" />
-									<?php 
+									<?php
 				} elseif ($v["type"] == "textarea") {
 					?>										<textarea class="form-control" name="<?php echo $k;?>" rows="5" style="width:100%;" placeholder="<?php echo $v["note"];?>"><?php echo htmlspecialchars($conf[$k]);?></textarea>
-									<?php 
+									<?php
 				} elseif ($v["type"] == "select") {
-					?>										<select class="form-control" name="<?php echo $k;?>" default="<?php echo $conf[$k];?>">
-											<?php 
+					?>										<select class="form-control" name="<?php echo $k;?>" default="<?php echo isset($conf[$k]) && $conf[$k] !== '' ? $conf[$k] : $v["default"];?>">
+											<?php
 					foreach ($v["options"] as $optionk => $optionv) {
 						?>												<option value="<?php echo $optionk;?>"><?php echo $optionv;?></option>
-											<?php 
+											<?php
 					}
 					?>										</select>
-									<?php 
+									<?php
 				}
 				?>								</div>
 							</div>
-				<?php 
+				<?php
 			}
 		}
 	}
@@ -2753,7 +2761,7 @@ if($epay_key4){
 			</form>
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "oauth") {
 	adminpermission("set", 1);
 	?>	<div class="block">
@@ -2797,7 +2805,7 @@ if($epay_key4){
 			</form>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>
+			<span class="fa fa-info-circle"></span>
 			QQ快捷登录接口是使用安享聚合登录系统搭建的站点，并非QQ互联官方接口。<br />
 			QQ快捷登录开启后请勿随意更换登录API站点，否则会导致之前以QQ快捷登录注册的用户全部无法登录。<br />
 			手机QQ扫码登录使用更方便，登录凭证以用户注册时填写的QQ为准
@@ -2819,7 +2827,7 @@ if($epay_key4){
 			}
 		});
 	</script>
-<?php 
+<?php
 } elseif ($mod == "captcha_n" && $_POST["do"] == "submit") {
 	adminpermission("set", 1);
 	$captcha_open = $_POST["captcha_open"];
@@ -2828,12 +2836,18 @@ if($epay_key4){
 	$captcha_open_free = $_POST["captcha_open_free"];
 	$captcha_open_reg = $_POST["captcha_open_reg"];
 	$captcha_open_login = $_POST["captcha_open_login"];
+	$login_limit_enable = $_POST["login_limit_enable"];
+	$login_limit_max = $_POST["login_limit_max"];
+	$login_limit_time = $_POST["login_limit_time"];
 	saveSetting("captcha_open", $captcha_open);
 	saveSetting("captcha_id", $captcha_id);
 	saveSetting("captcha_key", $captcha_key);
 	saveSetting("captcha_open_free", $captcha_open_free);
 	saveSetting("captcha_open_reg", $captcha_open_reg);
 	saveSetting("captcha_open_login", $captcha_open_login);
+	saveSetting("login_limit_enable", $login_limit_enable);
+	saveSetting("login_limit_max", $login_limit_max);
+	saveSetting("login_limit_time", $login_limit_time);
 	$ad = $CACHE->clear();
 	if ($ad) {
 		showmsg("修改成功！", 1);
@@ -2880,11 +2894,52 @@ if($epay_key4){
 			</form>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>
+			<span class="fa fa-info-circle"></span>
 			极限验证码：<a href="https://www.geetest.com/Register" rel="noreferrer" target="_blank">点击进入</a> （免费版每小时限流，需人工审核）<br />
 			顶象验证码：<a href="https://www.dingxiang-inc.com/business/captcha" rel="noreferrer" target="_blank">点击进入</a> （收费的，可免费试用）<br />
 			VAPTCHA手势验证码：<a href="https://www.vaptcha.com/" rel="noreferrer" target="_blank">点击进入</a> （目前完全免费）<br />
 			选择极限验证码，然后ID和KEY留空保存，即可直接免费使用公共接口(测试中)
+		</div>
+	</div>
+	<div class="block">
+		<div class="block-title">
+			<h3 class="panel-title">登录失败限制设置</h3>
+		</div>
+		<div class="">
+			<form action="./set.php?mod=captcha_n" method="post" class="form-horizontal form-bordered" role="form"><input type="hidden" name="do" value="submit" />
+				<div class="form-group">
+					<label class="col-sm-3 control-label">启用登录失败限制</label>
+					<div class="col-sm-9"><select class="form-control" name="login_limit_enable" default="<?php echo isset($conf['login_limit_enable'])?$conf['login_limit_enable']:0;?>">
+							<option value="0">关闭</option>
+							<option value="1">开启</option>
+						</select>
+						<span class="help-block">开启后，当用户登录密码连续错误达到指定次数时，将限制该IP一段时间内不能登录</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">允许密码错误次数</label>
+					<div class="col-sm-9"><input type="number" name="login_limit_max" value="<?php echo isset($conf['login_limit_max'])?$conf['login_limit_max']:5;?>" class="form-control" min="1" max="100" />
+						<span class="help-block">连续密码错误达到此次数后，将限制登录。建议设置为3-10次</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">限制登录时长（分钟）</label>
+					<div class="col-sm-9"><input type="number" name="login_limit_time" value="<?php echo isset($conf['login_limit_time'])?$conf['login_limit_time']:30;?>" class="form-control" min="1" max="1440" />
+						<span class="help-block">密码错误次数达到后，限制登录的时长。单位：分钟，建议设置为15-60分钟</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-3 col-sm-9"><input type="submit" name="submit" value="修改" class="btn btn-primary btn-block" />
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="panel-footer">
+			<span class="fa fa-info-circle"></span>
+			登录失败限制功能说明：<br />
+			- 根据IP地址进行限制，同一IP在规定时间内密码连续错误达到次数后将无法登录<br />
+			- 限制时间到期后会自动解除限制<br />
+			- 建议根据网站安全需求合理设置次数和时长
 		</div>
 	</div>
 	<div class="block">
@@ -2904,7 +2959,7 @@ if($epay_key4){
 			</form>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>
+			<span class="fa fa-info-circle"></span>
 			此功能设置用于防止用户伪造IP请求造成免费商品无限制下单。<br />
 			X_FORWARDED_FOR：之前的获取真实IP方式，极易被伪造IP<br />
 			X_REAL_IP：在网站使用CDN的情况下选择此项，在不使用CDN的情况下也会被伪造<br />
@@ -2929,7 +2984,7 @@ if($epay_key4){
 			});
 		})
 	</script>
-<?php 
+<?php
 } elseif ($mod == "delwxqrcode") {
 	adminpermission("set", 1);
 	if (file_exists(ROOT . "assets/img/wxqrcode.png")) {
@@ -2944,23 +2999,23 @@ if($epay_key4){
 		$file_type = $_FILES["file"]["type"];
 		$file_ext = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
 		$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
-		
+
 		if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 			showmsg("只允许上传JPG、PNG、GIF、WEBP格式的图片文件！", 4);
 		}
-		
+
 		// 检查文件大小（限制为2MB）
 		$max_size = 2 * 1024 * 1024;
 		if ($_FILES["file"]["size"] > $max_size) {
 			showmsg("文件大小不能超过2MB！", 4);
 		}
-		
+
 		// 检查文件是否为真实图片
 		$image_info = getimagesize($_FILES["file"]["tmp_name"]);
 		if (!$image_info) {
 			showmsg("请上传真实的图片文件！", 4);
 		}
-		
+
 		// 保存文件，使用固定文件名
 		if (move_uploaded_file($_FILES["file"]["tmp_name"], ROOT . "assets/img/wxqrcode.png")) {
 			showmsg("上传成功！", 1);
@@ -2973,7 +3028,7 @@ if($epay_key4){
 			<h3 class="panel-title">上传客服微信二维码</h3>
 		</div>
 		<div class="">
-		
+
 			<form action="set.php?mod=upwxqrcode" method="POST" enctype="multipart/form-data">
 				<label for="file"></label>
 				<input type="file" name="file" id="file" accept="image/*" />
@@ -2984,7 +3039,7 @@ if($epay_key4){
 			现在的客服微信二维码：<br><img src="../assets/img/wxqrcode.png?r=<?php echo rand(10000, 99999);?>" style="max-width:30%">
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "upimg") {
 	adminpermission("set", 1);
 	if ($_POST["s"] == 1) {
@@ -2993,23 +3048,23 @@ if($epay_key4){
 		$file_type = $_FILES["file"]["type"];
 		$file_ext = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
 		$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
-		
+
 		if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 			showmsg("只允许上传JPG、PNG、GIF、WEBP格式的图片文件！", 4);
 		}
-		
+
 		// 检查文件大小（限制为2MB）
 		$max_size = 2 * 1024 * 1024;
 		if ($_FILES["file"]["size"] > $max_size) {
 			showmsg("文件大小不能超过2MB！", 4);
 		}
-		
+
 		// 检查文件是否为真实图片
 		$image_info = getimagesize($_FILES["file"]["tmp_name"]);
 		if (!$image_info) {
 			showmsg("请上传真实的图片文件！", 4);
 		}
-		
+
 		// 保存文件，使用固定文件名
 		if (move_uploaded_file($_FILES["file"]["tmp_name"], ROOT . "assets/img/logo.png")) {
 			showmsg("上传成功！", 1);
@@ -3033,7 +3088,7 @@ if($epay_key4){
 			<img src="../assets/img/logo.png?r=<?php echo rand(10000, 99999);?>" style="max-width:100%">
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "upbgimg") {
 	adminpermission("set", 1);
 	if ($_POST["s"] == 1) {
@@ -3042,23 +3097,23 @@ if($epay_key4){
 		$file_type = $_FILES["file"]["type"];
 		$file_ext = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
 		$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
-		
+
 		if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 			showmsg("只允许上传JPG、PNG、GIF、WEBP格式的图片文件！", 4);
 		}
-		
+
 		// 检查文件大小（限制为5MB）
 		$max_size = 5 * 1024 * 1024;
 		if ($_FILES["file"]["size"] > $max_size) {
 			showmsg("文件大小不能超过5MB！", 4);
 		}
-		
+
 		// 检查文件是否为真实图片
 		$image_info = getimagesize($_FILES["file"]["tmp_name"]);
 		if (!$image_info) {
 			showmsg("请上传真实的图片文件！", 4);
 		}
-		
+
 		// 保存文件，使用固定文件名
 		if (move_uploaded_file($_FILES["file"]["tmp_name"], ROOT . "assets/img/bj.png")) {
 			showmsg("上传成功！", 1);
@@ -3072,7 +3127,7 @@ if($epay_key4){
 			<div class="block-options pull-right"><a class="btn btn-default" href="set.php?mod=upimg">更改LOGO</a></div>
 		</div>
 		<div class="">
-		
+
 			<form action="set.php?mod=upbgimg" method="POST" enctype="multipart/form-data">
 				<label for="file"></label>
 				<input type="file" name="file" id="file" accept="image/*" />
@@ -3081,7 +3136,7 @@ if($epay_key4){
 			</form><br>现在的图片：<br><img src="../assets/img/bj.png?r=<?php echo rand(10000, 99999);?>" style="max-width:100%">
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "cron") {
 	adminpermission("set", 1);
 	?>	<div class="block">
@@ -3122,7 +3177,7 @@ if($epay_key4){
 			</br />
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "qiandao") {
 	adminpermission("set", 1);
 	?>	<div class="block">
@@ -3164,7 +3219,7 @@ if($epay_key4){
 			</form>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>奖励余额初始值填写一个值代表所有类型分站都一样，填写3个值并用|隔开代表不同类型分站不一样，例如0.01|0.02|0.03 分别是普通用户、普及版分站、专业版分站的奖励余额初始值。
+			<span class="fa fa-info-circle"></span>奖励余额初始值填写一个值代表所有类型分站都一样，填写3个值并用|隔开代表不同类型分站不一样，例如0.01|0.02|0.03 分别是普通用户、普及版分站、专业版分站的奖励余额初始值。
 		</div>
 	</div>
 	<div class="block">
@@ -3220,7 +3275,7 @@ if($epay_key4){
 			});
 		})
 	</script>
-<?php 
+<?php
 } elseif ($mod == "invitegift") {
 	adminpermission("set", 1);
 	?>	<div class="block">
@@ -3248,11 +3303,11 @@ if($epay_key4){
 			</form>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>
+			<span class="fa fa-info-circle"></span>
 			开启后，前台分享商品海报，分享商品链接，只要是返利商品便自动切换成返利链接
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "invite") {
 	adminpermission("set", 1);
 	?>	<div class="block">
@@ -3281,13 +3336,13 @@ if($epay_key4){
 			</form>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>
+			<span class="fa fa-info-circle"></span>
 			推广链接生成地址：/?mod=invite<br />
 			推广页面模板文件：/template/default/invite.php<br />
 			如果使用累计次数推广模式，建议先设置好<a href="./set.php?mod=captcha">用户IP地址获取设置</a>，相同IP地址算一次访问。
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "dwz") {
 	adminpermission("set", 1);
 	?>	<div class="block">
@@ -3297,17 +3352,17 @@ if($epay_key4){
 		<div class="">
 			<form onsubmit="return saveSetting(this)" method="post" class="form" role="form">
 			    <div class="form-group">
-            	    <label>防红接口选择：<a href="https://404.6v6.ren/fang-hon/1.html" target="_blank">防红推荐</a></label>
-            		<select class="form-control" name="fanghong_api" default="<?php echo $conf["fanghong_api"];?>">
-            		  <option value="0">不使用防红接口</option>
-            		  <option value="1">安享官方防红</option>
-            		  <option value="9">自定义防红接口</option>
-            		</select>
-            	</div>
-            	<div class="form-group" id="fanghong_gf" style="<?php echo $conf["fanghong_api"] == 9 || $conf["fanghong_api"] == 0 ? "display:none;" : NULL;?>">
-            	    <div class="form-group">
+	    <label>防红接口选择：</label>
+		<select class="form-control" name="fanghong_api" default="<?php echo $conf["fanghong_api"];?>">
+		  <option value="0">不使用防红接口</option>
+		  <option value="1">安享官方防红</option>
+		  <option value="9">自定义防红接口</option>
+		</select>
+	</div>
+	<div class="form-group" id="fanghong_gf" style="<?php echo $conf["fanghong_api"] == 9 || $conf["fanghong_api"] == 0 ? "display:none;" : NULL;?>">
+	    <div class="form-group">
                         <div class="input-group">
-                            
+
                             <div class="input-group-addon">短网址类型</div>
                             <input type="text" name="fanghong_gftype" value="<?php echo $conf["fanghong_gftype"];?>" class="form-control" placeholder="例如：留空默认为网易163接口">
                         </div>
@@ -3325,16 +3380,16 @@ if($epay_key4){
                             <input type="text" name="fanghong_gftoken" value="<?php echo $conf["fanghong_gftoken"];?>" class="form-control" placeholder="token" required="required">
                         </div>
                     </div>
-            	    
-        	    </div>
+
+	    </div>
                 <div class="form-group" id="fanghong_diy" style="<?php echo $conf["fanghong_api"] != 9 ? "display:none;" : NULL;?>">
-    				<div class="form-group">
-    					<div class="input-group">
-    						<div class="input-group-addon">防红API</div>
-    						<input type="text" name="fanghong_url" value="<?php echo $conf["fanghong_url"];?>" class="form-control" placeholder="不填写则关闭防红链接生成" />
-    						<div class="input-group-addon" onclick="checkurl()"><small>检测地址</small></div>
-    					</div>
-    				</div>
+				<div class="form-group">
+					<div class="input-group">
+						<div class="input-group-addon">防红API</div>
+						<input type="text" name="fanghong_url" value="<?php echo $conf["fanghong_url"];?>" class="form-control" placeholder="不填写则关闭防红链接生成" />
+						<div class="input-group-addon" onclick="checkurl()"><small>检测地址</small></div>
+					</div>
+				</div>
                     <div class="form-group">
                         <div class="input-group">
                             <div class="input-group-addon">返回值</div>
@@ -3348,11 +3403,11 @@ if($epay_key4){
 			</form>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>
+			<span class="fa fa-info-circle"></span>
 			一般防红接口地址为 http://防红网站域名/dwz.php?longurl= 具体可以咨询相应站长
 		</div>
 	</div>
-	<?php 
+	<?php
 	if ($conf["fanghong_api"] != 0) {
 		?>		<div class="block">
 			<div class="block-title">
@@ -3367,7 +3422,7 @@ if($epay_key4){
 				<a class="btn btn-block btn-success" id="create_url">生成我的防红链接</a>
 			</div>
 		</div>
-	<?php 
+	<?php
 	}
 	?>	<script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 	<script src="<?php echo $cdnpublic;?>clipboard.js/1.7.1/clipboard.min.js"></script>
@@ -3429,16 +3484,16 @@ $("select[name='fanghong_api']").change(function(){
 	if($(this).val() == 9){
 		$("#fanghong_diy").css("display","inherit");
 		$("#fanghong_gf").css("display","none");
-		
+
 	}else if($(this).val() == 0){
 		$("#fanghong_diy").css("display","none");
 		$("#fanghong_gf").css("display","none");
-		
+
 	}else{
 	    $("#fanghong_diy").css("display","none");
 	    $("#fanghong_gf").css("display","inherit");
 	}
-	
+
 });
 
 			var clipboard = new Clipboard('.copy-btn', {
@@ -3509,7 +3564,7 @@ $("select[name='fanghong_api']").change(function(){
 			});
 		});
 	</script>
-<?php 
+<?php
 } elseif ($mod == "mailcon_reset") {
 	adminpermission("set", 1);
 	$faka_mail = "<b>商品名称：</b> [name]<br/><b>购买时间：</b>[date]<br/><b>以下是你的卡密信息：</b><br/>[kmdata]<br/>----------<br/><b>使用说明：</b><br/>[alert]<br/>----------<br/>安享云商城自助下单平台<br/>[domain]";
@@ -3554,7 +3609,7 @@ $("select[name='fanghong_api']").change(function(){
 			$("#" + id).val($("#" + id).val() + str);
 		}
 	</script>
-<?php 
+<?php
 } elseif ($mod == "cloneset") {
 	adminpermission("set", 1);
 	$key = md5($password_hash . md5(SYS_KEY) . $conf["apikey"]);
@@ -3571,12 +3626,12 @@ $("select[name='fanghong_api']").change(function(){
 			</form>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>
+			<span class="fa fa-info-circle"></span>
 			此密钥是用于其他站点克隆本站商品<br />
 			提示：修改API对接密钥可同时重置克隆密钥。<br />
 		</div>
 	</div>
-<?php 
+<?php
 } elseif ($mod == "rewrite") {
 	adminpermission("set", 1);
 	$SERVER_SOFTWARE = explode("/", $_SERVER["SERVER_SOFTWARE"]);
@@ -3600,7 +3655,7 @@ $("select[name='fanghong_api']").change(function(){
 			</form>
 		</div>
 		<div class="panel-footer">
-			<span class="glyphicon glyphicon-info-sign"></span>
+			<span class="fa fa-info-circle"></span>
 			当前服务器Web软件为：<?php echo ucwords($SERVER_SOFTWARE[0]);?><br />
 			请将以下内容添加到伪静态规则
 			<pre>location / {
@@ -3646,7 +3701,7 @@ $("select[name='fanghong_api']").change(function(){
 		}
 	</script>
 
-<?php 
+<?php
 } elseif ($mod == "map") {
 	adminpermission("set", 1);
 	?>	<div class="block">
@@ -3712,7 +3767,7 @@ $("select[name='fanghong_api']").change(function(){
 			return false;
 		}
 	</script>
-<?php 
+<?php
 } elseif ($mod == "chat") {
     adminpermission("set", 1);
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['do']) && $_POST['do'] == 'save') {
@@ -4409,12 +4464,12 @@ $("select[name='fanghong_api']").change(function(){
 				</form>
 			</div>
 			<div class="panel-footer">
-				<span class="glyphicon glyphicon-info-sign"></span>
+				<span class="fa fa-info-circle"></span>
 				设置用户充值时的返利比例，所有充值方式（在线充值、加款卡充值）均按此比例计算返利。<br />
 				返利金额会在充值成功后自动发放到用户账户。
 			</div>
 		</div>
-	<?php 
+	<?php
 } elseif ($mod == "beautify_n" && $_POST["do"] == "submit") {
 	$sakura_enable = $_POST["sakura_enable"];
 	$sakura_num = $_POST["sakura_num"];
@@ -4474,7 +4529,7 @@ $("select[name='fanghong_api']").change(function(){
 	saveSetting("ui_colorto", $ui_colorto);
 	saveSetting("ui_color1", $ui_color1);
 	saveSetting("ui_color2", $ui_color2);
-	
+
 	// 处理背景图片上传
 	if (isset($_FILES["background_image"]) && $_FILES["background_image"]["error"] == 0) {
 		$allowedExts = array("gif", "jpeg", "jpg", "png");
@@ -4497,7 +4552,7 @@ $("select[name='fanghong_api']").change(function(){
 			showmsg("背景图片格式错误或文件过大！", 4);
 		}
 	}
-	
+
 	$ad = $CACHE->clear();
 	if ($ad) {
 		showmsg("背景美化设置保存成功！", 1);

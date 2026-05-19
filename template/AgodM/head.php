@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" style="font-size: 39px;" >
-    
+
   <head>
-      
+
     <meta charset="UTF-8" />
     <meta
       http-equiv="X-UA-Compatible"
@@ -22,7 +22,7 @@
       content="<?php echo $conf['description'] ?>"
     />
     <!--css依赖-->
-   
+
             <link rel="stylesheet" href="./assets/Agod/bootstrap-reboot.min.css">
         <link rel="stylesheet" href="./assets/Agod/bootstrap-grid.css">
          <link rel="stylesheet" href="./assets/AgodM/mobile_main.css">

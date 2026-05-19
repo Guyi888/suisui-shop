@@ -34,9 +34,9 @@ if(!defined('IN_CRONLITE'))exit();
   </div>
   <div class="block-content">
 <b style="color:red;"><b style="color:red;">推荐使用支付宝或QQ钱包付款，订单会优先处理！<hr>
-          
 
-    
+
+
     <font color="red"> 超简单转移方法:</font><br><br><font color="#000000">①&nbsp;在微信公众号搜索<font color="red">QQ钱包官方账号</font><br>
      <br>
 ②&nbsp;在公众号菜单栏中点击“转账到QQ” 按步骤依次完成即可实现从微信转账资金到QQ钱包余额<br><br>

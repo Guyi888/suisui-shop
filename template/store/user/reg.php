@@ -122,7 +122,7 @@ a:hover{
                         <div style="text-align:center">
                             <i class="fa fa-user"></i>&nbsp;已有账号？<a href="login.php">点此登录</a>
                         </div>
-                        
+
                         <div style="text-align: center;margin-bottom: 5px;color:#999;margin-top: 15px;">
                         <?php if($conf['login_qq']==1){?>
                          <hr style="border-top: 1px solid rgba(0,0,0,.1);">   <div style="color:#999;position: relative;top: -12px;width: 100px;background-color: white;margin: auto">            第三方登录</div>

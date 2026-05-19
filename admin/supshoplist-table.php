@@ -65,7 +65,7 @@ if (isset($_GET["kw"])) {
         <table class="table table-striped" id="shoplist">
             <thead><tr><th>商品名称</th><th>售卖价格</th><th>供货商ID</th><th class="<?php echo isset($_GET["cid"]) ? "hide" : "";?>">所属分类</th><th>操作</th></tr></thead>
             <tbody>
-            <?php 
+            <?php
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
 $offset = $pagesize * ($page - 1);
@@ -82,7 +82,7 @@ while ($res = $rs->fetch()) {
         <select name="cid"><option selected>将选定商品移动到分类</option><?php echo $select;?></select><button type="button" onclick="move()">确定移动</button>
     </div>
 </form>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;

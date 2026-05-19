@@ -15,10 +15,10 @@
 <script>
 function goback()
 {
-    if(window.document.referrer==""||window.document.referrer==window.location.href){  
-        window.location.href="/";  
-    }else{  
-        window.location.href=window.document.referrer;  
+    if(window.document.referrer==""||window.document.referrer==window.location.href){
+        window.location.href="/";
+    }else{
+        window.location.href=window.document.referrer;
     }
 }
 </script>

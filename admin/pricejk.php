@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-xs-12 col-sm-10 col-lg-8 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("shequ", 1);
 if ($_POST["do"] == "submit") {
 	$pricejk_cid = implode(",", $_POST["pricejk_cid"]);
@@ -42,7 +42,7 @@ $pricejk_lasttime = $DB->getColumn("SELECT v FROM pre_config WHERE k='pricejk_la
         <h4 class="modal-title" id="myModalLabel">手动同步价格</h4>
       </div>
       <div class="modal-body" id="result_content">
-	  
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

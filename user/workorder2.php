@@ -7,7 +7,6 @@ $title='我的投诉';
 include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php?back=workorder';</script>");
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <style>
 .gdan_gout{width:100%;height:auto;background-color:#fff;padding-bottom:1em}
 .gdan_txt{height:3em;line-height:3em;text-indent:1em;font-family:"微软雅黑";font-weight:800;}
@@ -98,7 +97,7 @@ if(isset($_GET['orderid']) && $_GET['orderid'] && md5($_GET['orderid'].SYS_KEY.$
 <div class="form-group">
 <div class="input-group"><div class="input-group-addon">问题图片</div>
 <input type="file" id="file" onchange="fileUpload()" style="display:none;"/>
-<input type="text" class="form-control" id="picurl" name="picurl" value="" readonly onclick="fileView()"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片"><i class="glyphicon glyphicon-upload"></i></a></span>
+<input type="text" class="form-control" id="picurl" name="picurl" value="" readonly onclick="fileView()"><span class="input-group-btn"><a href="javascript:fileSelect()" class="btn btn-success" title="上传图片"><i class="fa fa-upload"></i></a></span>
 </div>
 </div>
 <?php }?>
@@ -114,7 +113,7 @@ if(isset($_GET['orderid']) && $_GET['orderid'] && md5($_GET['orderid'].SYS_KEY.$
 <br/><a href="./workorder2.php">>>返回投诉列表</a>
 </div>
 <div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span>
+<span class="fa fa-info-circle"></span>
 找不到要提交的订单？<a href="../?chadan=1">点击进入查询订单</a>，在订单详情页面点击【投诉订单】可以直接提交投诉。
 </div>
 </div>

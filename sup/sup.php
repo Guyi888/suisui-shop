@@ -71,7 +71,7 @@ if (empty($rows["qq"]) && !empty($rows["faceimg"])) {
                             <span style="color:#777;font-size: 10px;">以下业务由供货商提供，由平台担保购买！</span><span style="color:red;font-size: 10px;";>已交保证金:<?php echo $rows["bond"];?>元</span><br><span style="color:#EE33EE;font-size: 10px;";>请勿脱离平台交易，谨防受骗！（线下交易，平台不负任何责任！）</span>
                         </div>
                         <form id="classlist">
-                            <?php 
+                            <?php
 while ($res = $rs->fetch()) {
 	echo "<tr><td><a href=\"/?cid=" . $res["cid"] . "&tid=" . $res["tid"] . "\" target=\"_blank\" style=\"color:#5ccdde;\">" . $res["name"] . "</a></td><td><a href=\"/?cid=" . $res["cid"] . "&tid=" . $res["tid"] . "\" target=\"_blank\" class=\"btn btn-sm btn-success pull-right\">查看</a></td></td></tr>";
 }

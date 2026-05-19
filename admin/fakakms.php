@@ -30,7 +30,7 @@ td{overflow: hidden;text-overflow: ellipsis;white-space: nowrap;max-width:360px;
     </div>
   </div>
 </div>
-<?php 
+<?php
 adminpermission("faka", 1);
 $rs = $DB->query("SELECT * FROM pre_class WHERE active=1 order by sort asc");
 $select = "<option value=\"0\">请选择商品分类</option>";
@@ -66,7 +66,57 @@ if ($my == "add") {
 		<span class="input-group-addon">
 			卡密列表
 		</span>
-		<textarea class="form-control" id="kms" name="kms" rows="8" placeholder="一行一张卡"></textarea>
+		<textarea class="form-control" id="kms" name="kms" rows="8" placeholder="一行一张卡，或使用下方随机生成功能"></textarea>
+	</div>
+</div>
+<div class="form-group">
+	<div class="input-group">
+		<span class="input-group-addon">
+			随机生成
+		</span>
+		<div class="form-control" style="height: auto;padding: 10px;">
+			<div class="row">
+				<div class="col-xs-6 col-sm-3">
+					<div class="input-group input-group-sm">
+						<span class="input-group-addon">数量</span>
+						<input type="number" id="gen_num" class="form-control" value="10" min="1" max="1000">
+					</div>
+				</div>
+				<div class="col-xs-6 col-sm-3">
+					<div class="input-group input-group-sm">
+						<span class="input-group-addon">卡号</span>
+						<input type="number" id="gen_km_len" class="form-control" value="16" min="4" max="64">
+					</div>
+				</div>
+				<div class="col-xs-6 col-sm-3">
+					<div class="input-group input-group-sm">
+						<span class="input-group-addon">密码</span>
+						<input type="number" id="gen_pw_len" class="form-control" value="16" min="4" max="64">
+					</div>
+				</div>
+				<div class="col-xs-6 col-sm-3">
+					<div class="input-group input-group-sm">
+						<span class="input-group-addon">分隔符</span>
+						<input type="text" id="gen_split" class="form-control" value=" " maxlength="10" placeholder="空格">
+					</div>
+				</div>
+			</div>
+			<div class="row" style="margin-top: 8px;">
+				<div class="col-xs-12">
+					<label style="margin-right: 15px;"><input type="checkbox" id="gen_use_num" checked> 数字(0-9)</label>
+					<label style="margin-right: 15px;"><input type="checkbox" id="gen_use_low" checked> 小写字母(a-z)</label>
+					<label style="margin-right: 15px;"><input type="checkbox" id="gen_use_up" checked> 大写字母(A-Z)</label>
+					<label style="margin-right: 15px;"><input type="checkbox" id="gen_use_spec"> 特殊字符</label>
+				</div>
+			</div>
+			<div class="row" style="margin-top: 8px;">
+				<div class="col-xs-12">
+					<button type="button" class="btn btn-primary btn-sm" onclick="generatekms()"><i class="fa fa-magic"></i> 生成卡密</button>
+					<button type="button" class="btn btn-default btn-sm" onclick="clearkms()"><i class="fa fa-trash-o"></i> 清空</button>
+					<span class="help-block" style="margin-bottom:0;font-size:11px;">提示：生成的卡密会自动填入上方卡密列表框</span>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 <div class="form-group">
@@ -89,13 +139,13 @@ if ($my == "add") {
 </form>
 </div>
 <div class="panel-footer">
-<span class="glyphicon glyphicon-info-sign"></span>
+<span class="fa fa-info-circle"></span>
 注意：卡密格式：卡号+空格+密码，一行一张卡，如：ABCDEFG 123456789<br/>
 只有商品设置里面购买成功后的动作选择自动发卡，该商品才会显示在当前列表
 </div>
 </div>
 <a href="<?php echo isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : "fakalist.php";?>" class="btn btn-default btn-block">>>返回发卡库存列表</a>
-<?php 
+<?php
 } elseif ($my == "add_submit") {
 	if (!checkRefererHost()) {
 		exit;
@@ -155,7 +205,7 @@ if ($my == "add") {
 	$tid = intval($_GET["tid"]);
 	?><div class="block">
 <div class="block-title"><h3 class="panel-title">清空卡密</h3></div>
-<div class="box"><?php 
+<div class="box"><?php
 	if ($DB->exec("DELETE FROM pre_faka WHERE tid='" . $tid . "'") !== false) {
 		echo "<div class=\"box\">清空成功.</div>";
 	} else {
@@ -175,7 +225,7 @@ if ($my == "add") {
 	$tid = intval($_GET["tid"]);
 	?><div class="block">
 <div class="block-title"><h3 class="panel-title">清空卡密</h3></div>
-<div class="box"><?php 
+<div class="box"><?php
 	if ($DB->exec("DELETE FROM pre_faka WHERE tid='" . $tid . "' and orderid!=0") !== false) {
 		echo "<div class=\"box\">清空成功.</div>";
 	} else {
@@ -237,7 +287,7 @@ if ($my == "add") {
 				<option value="1">同时改为已使用</option>
 			</select>
 		</span>
-		
+
 	</div>
 </div>
 <input type="submit" class="btn btn-primary btn-block" value="导出"></form>
@@ -274,7 +324,7 @@ if ($my == "add") {
         <table class="table table-striped">
           <thead><tr><th>卡号</th><th>密码</th><th>状态</th><th>添加时间</th><th>使用时间</th><th>操作</th></tr></thead>
           <tbody>
-<?php 
+<?php
 	$pagesize = 30;
 	$pages = ceil($numrows / $pagesize);
 	$page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -294,7 +344,7 @@ if ($my == "add") {
 <input type="submit" name="Submit" value="删除选中">
 </div>
 </form>
-<ul class="pagination"><?php 
+<ul class="pagination"><?php
 	$first = 1;
 	$prev = $page - 1;
 	$next = $page + 1;
@@ -322,12 +372,63 @@ if ($my == "add") {
 		echo "<li class=\"disabled\"><a>&raquo;</a></li>";
 		echo "<li class=\"disabled\"><a>尾页</a></li>";
 	}
-	?></ul><?php 
+	?></ul><?php
 }
 ?>    </div>
   </div>
 </div>
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/fakakms.js?ver=<?php echo VERSION;?>"></script>
+<script>
+function generateRandomString(length, options) {
+	var chars = '';
+	if (options.useNum) chars += '0123456789';
+	if (options.useLow) chars += 'abcdefghijklmnopqrstuvwxyz';
+	if (options.useUp) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	if (options.useSpec) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+	if (chars === '') chars = '0123456789';
+	var result = '';
+	for (var i = 0; i < length; i++) {
+		result += chars.charAt(Math.floor(Math.random() * chars.length));
+	}
+	return result;
+}
+function generatekms() {
+	var num = parseInt($("#gen_num").val()) || 10;
+	var kmLen = parseInt($("#gen_km_len").val()) || 16;
+	var pwLen = parseInt($("#gen_pw_len").val()) || 16;
+	var split = $("#gen_split").val() || " ";
+	var useNum = $("#gen_use_num").prop("checked");
+	var useLow = $("#gen_use_low").prop("checked");
+	var useUp = $("#gen_use_up").prop("checked");
+	var useSpec = $("#gen_use_spec").prop("checked");
+	if (num < 1 || num > 1000) {
+		layer.msg('数量必须在1-1000之间', {icon: 2});
+		return;
+	}
+	if (kmLen < 4 || kmLen > 64 || pwLen < 4 || pwLen > 64) {
+		layer.msg('卡号和密码长度必须在4-64之间', {icon: 2});
+		return;
+	}
+	var kmOptions = {useNum: useNum, useLow: useLow, useUp: useUp, useSpec: useSpec};
+	var kms = [];
+	for (var i = 0; i < num; i++) {
+		var km = generateRandomString(kmLen, kmOptions);
+		var pw = generateRandomString(pwLen, kmOptions);
+		kms.push(km + split + pw);
+	}
+	var existing = $("#kms").val();
+	if (existing.trim()) {
+		$("#kms").val(existing + "\n" + kms.join("\n"));
+	} else {
+		$("#kms").val(kms.join("\n"));
+	}
+	$("input[name='split']").val(split);
+	layer.msg('成功生成 ' + num + ' 张卡密', {icon: 1});
+}
+function clearkms() {
+	$("#kms").val('');
+}
+</script>
 </body>
 </html>

@@ -2,6 +2,12 @@
 if(!defined('IN_CRONLITE'))exit();
 $classhide = explode(',',$siterow['class']);
 
+// 模板配置 - 显示/隐藏控制
+$show_marquee = isset($conf['show_marquee']) ? $conf['show_marquee'] : '1';
+$show_warning_div = isset($conf['show_warning_div']) ? $conf['show_warning_div'] : '1';
+$show_guide_link = isset($conf['show_guide_link']) ? $conf['show_guide_link'] : '1';
+$show_order_warning = isset($conf['show_order_warning']) ? $conf['show_order_warning'] : '1';
+
 // 定义空数据提示函数
 function showEmptyMessage($title, $message) {
     echo '<div style="text-align: center; padding: 50px 20px; background-color: #f8f9fa; border-radius: 8px; margin: 20px 0;">
@@ -28,6 +34,7 @@ while($row = $rs->fetch()){
 }
 ?>
 <!-- 警告信息 -->
+<?php if($show_order_warning == '1'){ ?>
 <div id="orderWarning" style="background-color: #f8d7da; border-radius: 4px; border: 1px solid #f5c6cb; padding: 10px; margin-top: 10px; margin-bottom: 15px; display: block;">
 					<center>
 						<span style="color:#721c24">
@@ -53,7 +60,9 @@ while($row = $rs->fetch()){
 						</span>
 					</center>
 				</div>
+<?php } ?>
 <!-- 购前必看按钮 -->
+<?php if($show_guide_link == '1'){ ?>
 <a class="btn custom-btn" href="/template/XHY-01/content.html" target="_blank" role="button" style="display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px 15px; margin-bottom: 15px; width: 100%;">
 	<img src="/template/XHY-01/gif_lb.jpg" style="width: 24px; height: 24px; margin-right: 10px; object-fit: contain;">
 	<div style="flex: 1; text-align: left;">
@@ -62,6 +71,7 @@ while($row = $rs->fetch()){
 	</div>
 	<i class="fa fa-external-link" style="color: #666;"></i>
 </a>
+<?php } ?>
 	<div id="goodType" <?php if(isset($_GET['cid'])){?>style="display: none"<?php }?>>
 <?php if($conf['ui_shop']==1){?>
 	<div class="row">
@@ -222,7 +232,7 @@ $(document).on('click', '.primaryClassChange', function() {
 				<div class="input-group"><div class="input-group-addon">选择商品</div>
 				<select name="tid" id="tid" class="form-control" onchange="getPoint();"><option value="0">请选择商品</option></select>
 		</div></div>
-		<div class="alert alert-danger" style="border-left: 5px solid #a94442;font-weight: bold;background-color:#f2dede;color:#a94442;"><i class="fa fa-exclamation-triangle"></i> 下单信息：请认真填写，不要填写的过于简单，否则会被不法之人窃取卡密！</div>
+		<?php if($show_warning_div == '1'){ ?><div class="alert alert-danger" style="border-left: 5px solid #a94442;font-weight: bold;background-color:#f2dede;color:#a94442;"><i class="fa fa-exclamation-triangle"></i> 下单信息：请认真填写，不要填写的过于简单，否则会被不法之人窃取卡密！</div><?php } ?>
 		<div class="form-group" id="display_price" style="display:none;">
 			<div class="input-group"><div class="input-group-addon">商品价格</div>
 			<input type="text" name="need" id="need" class="form-control" style="center;color:#4169E1;font-weight:bold" disabled/>
@@ -259,6 +269,7 @@ $(document).on('click', '.primaryClassChange', function() {
 //经典模式
 ?>
 <!-- 警告信息 -->
+<?php if($show_order_warning == '1'){ ?>
 <div id="orderWarning" style="background-color: #f8d7da; border-radius: 4px; border: 1px solid #f5c6cb; padding: 10px; margin-top: 10px; margin-bottom: 15px; display: block;">
 					<center>
 						<span style="color:#721c24">
@@ -284,7 +295,9 @@ $(document).on('click', '.primaryClassChange', function() {
 						</span>
 					</center>
 				</div>
+<?php } ?>
 <!-- 购前必看按钮 -->
+<?php if($show_guide_link == '1'){ ?>
 <a class="btn custom-btn" href="/template/XHY-01/content.html" target="_blank" role="button" style="display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px 15px; margin-bottom: 15px; width: 100%;">
 	<img src="/template/XHY-01/gif_lb.jpg" style="width: 24px; height: 24px; margin-right: 10px; object-fit: contain;">
 	<div style="flex: 1; text-align: left;">
@@ -293,6 +306,7 @@ $(document).on('click', '.primaryClassChange', function() {
 	</div>
 	<i class="fa fa-external-link" style="color: #666;"></i>
 </a>
+<?php } ?>
 <?php
 // 查询一级分类
 $rs=$DB->query("SELECT * FROM pre_class WHERE active=1 AND pid=0 order by sort asc");
@@ -311,7 +325,7 @@ if($primary_count==0)$hideclass = true;
 			<div class="form-group" id="display_searchBar">
 				<div class="input-group"><div class="input-group-addon">搜索商品</div>
 				<input type="text" id="searchkw" class="form-control" placeholder="搜索商品" onkeydown="if(event.keyCode==13){$('#doSearch').click()}"/>
-				<div class="input-group-addon"><span class="glyphicon glyphicon-search onclick" title="搜索" id="doSearch"></span></div>
+				<div class="input-group-addon"><span class="fa fa-search onclick" title="搜索" id="doSearch"></span></div>
 			</div></div>
 			<?php }?>
 			<?php if($hideclass){?>
@@ -370,7 +384,7 @@ function changePrimaryCategory(cid) {
         $('#tid').html('<option value="0">请选择商品</option>');
         return;
     }
-    
+
     // 加载二级分类
     $.ajax({
         url: './ajax.php?act=getsubclass',
@@ -406,7 +420,7 @@ function changePrimaryCategory(cid) {
             loadGoodsByCategory(cid);
         }
     });
-    
+
     // 清空商品列表
     $('#tid').html('<option value="0">请选择商品</option>');
 }
@@ -415,10 +429,10 @@ function changePrimaryCategory(cid) {
 function changeSecondaryCategory(subcid) {
     var cid = parseInt($('#cid').val());
     subcid = parseInt(subcid);
-    
+
     // 使用选择的分类ID（二级优先）
     var categoryId = subcid > 0 ? subcid : cid;
-    
+
     // 加载商品
     loadGoodsByCategory(categoryId);
 }
@@ -430,9 +444,9 @@ function loadGoodsByCategory(categoryId) {
         $('#tid').html('<option value="0">请选择商品</option>');
         return;
     }
-    
+
     $('#tid').html('<option value="0">加载中...</option>');
-    
+
     $.ajax({
         url: './ajax.php?act=gettool',
         type: 'GET',

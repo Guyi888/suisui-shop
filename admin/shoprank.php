@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-xs-12 col-md-10 center-block" style="float: none;">
-<?php 
+<?php
 $thtime = date("Y-m-d") . " 00:00:00";
 $lastday = date("Y-m-d", strtotime("-1 day")) . " 00:00:00";
 if ($_GET["last"] == 1) {
@@ -27,7 +27,7 @@ if ($_GET["last"] == 1) {
         <table class="table table-striped">
           <thead><tr><th class="text-center">排名</th><th class="text-center">商品ID</th><th class="text-center">商品名称</th><th class="text-center">订单数量</th></thead>
           <tbody>
-<?php 
+<?php
 $rs = $DB->query($sql);
 $i = 1;
 while ($res = $rs->fetch()) {

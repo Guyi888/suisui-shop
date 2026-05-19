@@ -23,7 +23,7 @@ $page=isset($_GET['page'])?intval($_GET['page']):1;
 if(!empty($data)){
 	if(strlen($data)==17 && is_numeric($data))
 	{
-	   $sql=" A.tradeno='{$data}'"; 
+	   $sql=" A.tradeno='{$data}'";
 	}else{
 	   $sql=" A.input='{$data}'";
 	}
@@ -172,8 +172,8 @@ a, a:focus, a:hover, a:active {
             <div class="layui-card" style="    background-color: unset;box-shadow: unset;">
 <div class="fui-searchbar bar">
                         <div class="searchbar center searchbar-active" style="padding-right:50px">
-                        	<input type="hidden" id="page" value="<?php echo $page?>">
-                        	<input type="hidden" id="q_status" value="<?php echo $q_status?>">
+	<input type="hidden" id="page" value="<?php echo $page?>">
+	<input type="hidden" id="q_status" value="<?php echo $q_status?>">
                             <input type="button" class="searchbar-cancel searchbtn" value="搜索" onclick="OrderQuery();">
                             <div class="search-input" style="border: 0px;padding-left:0px;padding-right:0px;margin-right: 5px">
                                 <i class="icon icon-search"></i>
@@ -206,7 +206,7 @@ a, a:focus, a:hover, a:active {
                          style="  display: block;    max-height: 15rem;    overflow: auto;margin-top: -10px">
                         <?php echo $conf['gg_search'] ?>
                     </div>
-                    
+
                     <div class="account-btn" style="display: block" onclick="$('.tzgg').hide()">确认</div>
                     <div class="account-close" onclick="$('.tzgg').hide()">
                         <i class="icon icon-guanbi1"></i>
@@ -234,9 +234,10 @@ a, a:focus, a:hover, a:active {
                                 </a>
                             </div>
                        <div class="layui-col-xs8" style="font-size: 0.8em;color:black;font-family: '微软雅黑'">
-                            <!-- 下单账号：<?php echo $row['input']?><br> -->
-                            下单时间：<?php echo $row['addtime']?><br>
-                            商品总价：<?php echo $row['money']?>元<br>
+                            订单编号：<?php echo $row['id']?><br>
+                            订单金额：<?php echo $row['money']?>元<br>
+                            购买时间：<?php echo $row['addtime']?><br>
+                            下单信息：<?php echo $row['input']?><br>
                       </div>
                   <div style="width: 100%;text-align: right" class="showorders">
                        <button class="layui-btn qt-btn layui-btn-sm layui-btn-primary xiangqing" data-id="<?php echo $row['id']?>" data-skey="<?php echo $row['skey']?>" onclick="showOrder(<?php echo $row['id']?>,'<?php echo $row['skey']?>')">
@@ -270,10 +271,10 @@ if($total_page!=$page){?>
 <div class="fui-content navbar order-list">
     <div class="fui-content-inner">
         <div class="content-empty" style="">
-        	<img src="./assets/store/picture/nolist.png" style="width: 6rem;margin-bottom: .5rem;"><br>
-        	<?php if($_GET['data']){ ?>
+	<img src="./assets/store/picture/nolist.png" style="width: 6rem;margin-bottom: .5rem;"><br>
+	<?php if($_GET['data']){ ?>
 	            <p style="color: #999;font-size: .75rem">没有查询到数据</p>
-        	<?php }else{ ?>
+	<?php }else{ ?>
 	            <p style="color: #999;font-size: .75rem">您暂时没有任何订单哦！</p>
 	            <br>
 	            <a href="./" class="btn btn-sm btn-primary-o" style="border-radius: 100px; height: 1.9rem; line-height: 1.4rem; width: 7rem; font-size: 0.75rem;">去首页逛逛吧</a>
@@ -281,7 +282,7 @@ if($total_page!=$page){?>
 
         </div>
     </div>
-</div>	
+</div>
 <?php } ?>
 <!--                             <?php if ($conf['gg_search'] != '') { ?>
                                 <div style="width: 100%;min-height: 3em;padding: 1em;box-shadow: 0px 0px 16px #eee;margin-top: 1em;border-radius: 0.5em;margin-bottom: 1em;">

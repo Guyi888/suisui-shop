@@ -27,14 +27,14 @@ include 'head2.php'
                                     订单号可在支付记录详情页查看
                                 </div>
                                 <div class="item">
-                                 
+
                                         <div class="search-icon"><i class="bx bx-search"></i></div>
                                         <div class="input-group">
                                             <input v-model="user_val"  type="text" placeholder="请输入下单联系方式" class="form-control" autocomplete="off">
-                             
+
                                             <div class="input-group-append"><button class="btn active" @click="Query_order(user_val)">订单查询</button></div>
                                         </div>
-                      
+
                                 </div>
                             </div>
                         </div>
@@ -49,7 +49,7 @@ include 'head2.php'
                                 <div class="component-wrapper rounded shadow" style="font-size: 12.5px;">
 
                                     <div class="p-4">
-                <div class="row projects-wrapper">  
+                <div class="row projects-wrapper">
                             <div v-for="item in list" :key="item.id" class="col-lg-4 col-md-6 col-12 mt-4 pt-2 business">
                                 <div class="card blog border-0 work-container work-classic shadow rounded-md overflow-hidden">
                                     <div class="card-body p-3">

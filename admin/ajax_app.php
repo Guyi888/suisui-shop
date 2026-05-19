@@ -12,28 +12,28 @@ case 'app_upload':
 	if(!$conf['appcreate_key'])exit('{"code":-1,"msg":"未配置APP生成平台密钥"}');
 	$file = $_FILES['file'];
 	if(!$file)exit(json_encode(['code' => -1, 'msg' => '上传失败']));
-	
+
 	// 检查文件类型和大小
 	$allowed_types = array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
 	$file_type = $file['type'];
 	$file_ext = strtolower(substr($file['name'], strrpos($file['name'], '.') + 1));
 	$allowed_exts = array('jpg', 'jpeg', 'png', 'gif', 'webp');
 	$max_size = 2 * 1024 * 1024; // 2MB
-	
+
 	if (!in_array($file_type, $allowed_types) || !in_array($file_ext, $allowed_exts)) {
 		exit(json_encode(['code' => -1, 'msg' => '只允许上传JPG、PNG、GIF、WEBP格式的图片文件！']));
 	}
-	
+
 	if ($file['size'] > $max_size) {
 		exit(json_encode(['code' => -1, 'msg' => '文件大小不能超过2MB！']));
 	}
-	
+
 	// 检查文件是否为真实图片
 	$image_info = getimagesize($file['tmp_name']);
 	if (!$image_info) {
 		exit(json_encode(['code' => -1, 'msg' => '请上传真实的图片文件！']));
 	}
-	
+
 	$app = new \lib\AppCreate($conf['appcreate_key']);
 	if($app->uploadimg($file['tmp_name'])){
 		exit(json_encode(['code' => 0, 'msg' => '图片上传成功', 'fileid' => $app->fileid]));

@@ -3,19 +3,19 @@ if (!defined('IN_CRONLITE')) die();
 $tid=intval($_GET['tid']);
 $tool=$DB->getRow("select * from pre_tools where tid='$tid' limit 1");
 if(!$tool)sysmsg('没有找到商品熬！');
-function escape($string, $in_encoding = 'UTF-8',$out_encoding = 'UCS-2') { 
-    $return = ''; 
-    if (function_exists('mb_get_info')) { 
-        for($x = 0; $x < mb_strlen ( $string, $in_encoding ); $x ++) { 
-            $str = mb_substr ( $string, $x, 1, $in_encoding ); 
-            if (strlen ( $str ) > 1) { // 多字节字符 
-                $return .= '%u' . strtoupper ( bin2hex ( mb_convert_encoding ( $str, $out_encoding, $in_encoding ) ) ); 
-            } else { 
-                $return .= '%' . strtoupper ( bin2hex ( $str ) ); 
-            } 
-        } 
-    } 
-    return $return; 
+function escape($string, $in_encoding = 'UTF-8',$out_encoding = 'UCS-2') {
+    $return = '';
+    if (function_exists('mb_get_info')) {
+        for($x = 0; $x < mb_strlen ( $string, $in_encoding ); $x ++) {
+            $str = mb_substr ( $string, $x, 1, $in_encoding );
+            if (strlen ( $str ) > 1) { // 多字节字符
+                $return .= '%u' . strtoupper ( bin2hex ( mb_convert_encoding ( $str, $out_encoding, $in_encoding ) ) );
+            } else {
+                $return .= '%' . strtoupper ( bin2hex ( $str ) );
+            }
+        }
+    }
+    return $return;
 }
 
 $level = '<font color="#48d1cc">普通用户售价</font>';
@@ -500,19 +500,19 @@ input.no-border {
             </div>
 			<div style="width:100%;text-align:center;font-size:15px;font-weight:550;margin-top: -3%;">填写下单信息</div>
                 <div style="padding:10px;">
-                
-               
+
+
                 <div class="layui-form-item">
-                    
-                    
-                    
-                    
-                    
-                    
+
+
+
+
+
+
                 <div id="inputsname"></div>
-                
-                
-                
+
+
+
                 <div style="height: 3px"></div>
                 <div class="layui-form-item" <?php echo $tool['multi']==0?'style="display: none"':null;?>>
                     <label class="layui-form-label" style="width: 100%;text-align: left;padding:0">下单份数：<?php if($isfaka == 1){echo "<span style='float:right;'>剩余：<font color='red'>".$count."</font>份</span>";} ?></label>
@@ -520,39 +520,39 @@ input.no-border {
                         <div class="input-group-addon" id="num_min" style="background-color: #ff7100; color: #fff; border-radius: 2px 0 0 2px; cursor: pointer;">
                                 减一份
                             </div>
-                            
+
                             <b><input id="num" style="text-align: center; font-weight: bold; border: 1px solid; border-radius: 2px; padding: 5px;background-color: #f1f3f7;" name="num" class="layui-input" type="number" value="1" placeholder="请输入数量" required="" min="1"<?php echo $isfaka==1?' max="'.$count.'"':null?>></b>
-                            
-                            
+
+
                         <div class="input-group-addon" id="num_add" style="background-color: #ff7100; color: #fff; border-radius: 0 2px 2px 0; cursor: pointer;">
                                 加一份
                             </div>
                     </div>
-             
+
                 </div> <div style="height: 3px"></div>
                    <label class="layui-form-label" style="width: 100%;text-align: left;padding:0">商品价格</label>
                     <div class="layui-input-">
-                        
+
                         <b><input style="text-align: center;color:#4169E1;background-color:#ffffff;" type="text" id="need"disabled="" class="form-control need_price" value="<?php echo $price?> 元"></b>
-                        
-                        
+
+
                         <div style="color: #ff7100;font-size:11px">增加或减少份数时，请注意价格变更哦~</div>
-                        
+
                     </div>
                 </div>
-              
-               
+
+
                 <br>  <br>  <br> <br> <br>
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
+
+
+
+
+
+
+
+
+
+
             <div class="content_friends" style="    border: 1px solid #5fb878;margin-bottom:105px;">
                 <div class="top_tit">
                     商品说明
@@ -561,7 +561,7 @@ input.no-border {
             </div>
             <br/>
 			<?php if($tool['shopimg']){?>
-            
+
                         <section style="border: 0px none #e0dcc6; clear: both; box-sizing: border-box; padding: 0px; color: inherit;">
                             <section style="color: inherit; float: left; width: 10px; margin-top: -10px; border-color: #e0dcc6; height: 10px !important; background-color: #fefefe;"></section>
                             <section style="color: inherit; float: right; width: 10px; margin-top: -10px; border-color: #e0dcc6; height: 10px !important; background-color: #fefefe;"></section>
@@ -581,8 +581,8 @@ input.no-border {
             </div>
 
             <div class="assemble-footer footer">
-    
-          
+
+
 
     <div class="assemble-footer footer" style="max-width: 650px; z-index: 100;background-color: rgba(255,255,255,0.7);">
 <style>
@@ -592,7 +592,7 @@ input.no-border {
         z-index: 100;
                     }
 </style><div class="assemble-footer footer" style="bottom: 3vh;">
-        
+
                     <div class="aui-footer-wrap">
                         <a href="javascript:history.back()" style="color:#333;">
                             <span class="fa fa-mail-reply" aria-hidden="true"></span>
@@ -601,7 +601,7 @@ input.no-border {
                     </div>
                     <div class="aui-footer-wrap" style="">
                         <a id="submit_cart_shop" style="color:#333">
-                            <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span>
+                            <span class="fa fa-shopping-cart" aria-hidden="true"></span>
                             <span>加入购物车<span id="cart_sum" style="display:inline-block;">(0)</span></span>
                         </a>
                     </div>
@@ -621,7 +621,7 @@ input.no-border {
 
     <div id="paymentmethod" class="common-mask" style="display:none;max-width: 650px">
         <div class="payment-method" style="position: absolute;max-height:70vh;">
-            
+
             </div>
         </div>
     </div>

@@ -16,4 +16,4 @@ if (_P1 == '?buyok=1') {
     window.location.href = './?mod=query&type=0&qq=&page=1'
 }
 	</script>
- 
+

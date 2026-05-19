@@ -23,15 +23,15 @@ function get_data_show(){
 	$num = mt_rand(1,18000);
 	 if($num >= 60)
 	 {
-	 	if($num >= 3600)
-	 	{
-	 		$times = floor($num/3600).'小时';
-	 	}else{
-	 		$times = floor($num/60).'分钟';
-	 	}
+		if($num >= 3600)
+		{
+			$times = floor($num/3600).'小时';
+		}else{
+			$times = floor($num/60).'分钟';
+		}
 
 	 }else{
-	 	$times = $num."秒";
+		$times = $num."秒";
 	 }
 
 	switch ($arr) {
@@ -68,7 +68,7 @@ function get_data_show(){
 			$text = "【{$phone}】获得下级站点订单收益{$num}元";
 			break;
 	}
-	
+
 
 	$info= get_curl("http://api.uomg.com/api/rand.avatar?format=json");
     $info = json_decode($info,true);
@@ -143,16 +143,16 @@ function  getname_1( $name_count=1)
 	for( $j=1 ;$j<=$name_count; $j++ )
 	{
 		$firstname_rand_key   = mt_rand( 0,count( $firstname_arr )-1 );
-		$firstname   =  $firstname_arr[$firstname_rand_key]; 
+		$firstname   =  $firstname_arr[$firstname_rand_key];
 		$name_length = mt_rand( 1,2 );
 		$lastname='';
 	  for( $i=1;$i<=$name_length;$i++ )
 	  {
 	    $lastname_rand_key = mt_rand( 0,count( $lastname_arr )-1 );
-	 	$lastname    .=$lastname_arr[$lastname_rand_key];
+		$lastname    .=$lastname_arr[$lastname_rand_key];
 	  }
 	  $temp[]=$firstname. $lastname;
 	}
     $ret= json_encode($temp,JSON_UNESCAPED_UNICODE);
-	return $ret; 
+	return $ret;
 }

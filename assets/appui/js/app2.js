@@ -139,10 +139,13 @@ var App = function() {
             ripple.css({top: y + 'px', left: x + 'px'}).addClass('animate');
         });
 
-        // Primary Accordion functionality
-        menuLinks.on('click', function(e){
+        // Primary Accordion functionality - 使用命名空间事件，避免和快速加载脚本冲突
+        menuLinks.off('click.appMenu').on('click.appMenu', function(e){
             var link = $(this);
             var windowW = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+            // 如果快速加载脚本已经处理了，这里就不处理
+            if (e.isDefaultPrevented()) return;
 
             // If we are in mini sidebar mode
             if (page.hasClass('sidebar-visible-lg-mini') && (windowW > 991)) {
@@ -172,9 +175,12 @@ var App = function() {
             return false;
         });
 
-        // Submenu Accordion functionality
-        submenuLinks.on('click', function(e){
+        // Submenu Accordion functionality - 使用命名空间事件
+        submenuLinks.off('click.appSubmenu').on('click.appSubmenu', function(e){
             var link = $(this);
+
+            // 如果快速加载脚本已经处理了，这里就不处理
+            if (e.isDefaultPrevented()) return;
 
             if (link.parent().hasClass('active') !== true) {
                 if (link.hasClass('open')) {

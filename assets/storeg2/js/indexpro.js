@@ -19,7 +19,7 @@ $(function() {
 
         //移除其他已点击
         $(".goods_sort div").attr("class","item item-price");
-        $(this).addClass(sort_type); 
+        $(this).addClass(sort_type);
         $(this).data("sort",sort_type_new);
         $('.goods_sort div').removeClass('on');
         $(this).addClass("on");
@@ -27,56 +27,56 @@ $(function() {
         $("input[name=_sort]").val(sort_type);
         get_goods();
     });
-    
+
     // 添加分类样式
     $("head").append('<style type="text/css">\n        .category-container { border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }\n        .primary-category-box { background-color: #fff; padding: 10px; margin-bottom: 10px; }\n        .secondary-category-box { background-color: #fff; padding: 10px; }\n        .shop_active { color: #ff6600 !important; font-weight: bold; }\n        .sub-category.shop_active { background-color: #ff6600 !important; color: white !important; }\n        .primary-category:hover { opacity: 0.8; }\n        .sub-category:hover { background-color: #e8e8e8 !important; }\n        .sub-category.shop_active:hover { background-color: #ff6600 !important; }\n        /* 二级分类横向滑动样式 */\n        .sub-categories { display: flex; overflow-x: auto; flex-wrap: nowrap; white-space: nowrap; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }\n        \n        /* 默认样式（手机端）：隐藏滚动条但保留滑动功能 */\n        .sub-categories::-webkit-scrollbar { display: none; /* Chrome, Safari, Edge */ }\n        .sub-categories { -ms-overflow-style: none; /* IE and Edge */ scrollbar-width: none; /* Firefox */ }\n        \n        /* 媒体查询：电脑端显示滚动条 */\n        @media (min-width: 768px) {\n            .sub-categories::-webkit-scrollbar { display: block; height: 4px; }\n            .sub-categories::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 2px; }\n            .sub-categories::-webkit-scrollbar-thumb { background: #888; border-radius: 2px; }\n            .sub-categories::-webkit-scrollbar-thumb:hover { background: #555; }\n            .sub-categories { -ms-overflow-style: auto; scrollbar-width: thin; }\n        }\n    </style>');
-    
-    // 为一级分类添加点击事件，点击后显示该一级分类下所有二级分类的商品 - 作者：教主 博客：zhonguo.ren
+
+    // 为一级分类添加点击事件，点击后显示该一级分类下所有二级分类的商品 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
     $("a.primary-category").on("click", function() {
         var primary_cid = $(this).data("cid");
         var primary_name = $(this).data("name");
         console.log('点击一级分类:', primary_cid, primary_name); // 调试信息
-        
+
         // 隐藏所有二级分类
         $("a.sub-category").hide();
-        
+
         // 只显示当前一级分类下的二级分类
         $("a.sub-category[data-primary-cid='" + primary_cid + "']").show();
-        
+
         // 移除所有二级分类的选中状态
         $("a.sub-category").removeClass("shop_active");
-        
+
         // 移除所有一级分类的选中状态
         $("a.primary-category").removeClass("shop_active");
         // 添加当前一级分类的选中状态
         $(this).addClass("shop_active");
-        
+
         // 设置表单值 - 使用一级分类ID和名称
         $("input[name=_cid]").val(primary_cid);
         $("input[name=_cidname]").val(primary_name);
-        
+
         // 清空搜索关键词，避免干扰
         $("input[name=kw]").val("");
-        
+
         // 重置排序
         $(".goods_sort .item").removeClass("on");
         $("input[name=_sort_type]").val("sort");
         $("input[name=_sort]").val("ASC");
-        
+
         // 显示加载中状态
         layer.msg("加载中...", {icon: 16, shade: 0.01});
-        
+
         // 强制重新加载商品列表
         setTimeout(function() {
             get_goods();
         }, 100);
-        
+
         // 更新URL
         history.replaceState({}, null, './?cid='+primary_cid);
-        
+
         return false; // 阻止默认行为，避免触发get_cat的点击事件
     });
-    
+
     // 页面加载完成后初始化
     $(document).ready(function() {
         // 获取URL中的cid参数
@@ -85,7 +85,7 @@ $(function() {
             // 检查是否是一级分类
             var is_primary = false;
             var primary_element = null;
-            
+
             $(".primary-category").each(function() {
                 if(parseInt($(this).data("cid")) === url_cid) {
                     is_primary = true;
@@ -93,7 +93,7 @@ $(function() {
                     return false; // 退出循环
                 }
             });
-            
+
             if(is_primary && primary_element) {
                 // 是一级分类，直接触发点击事件
                 primary_element.click();
@@ -103,11 +103,11 @@ $(function() {
                 if(sub_element.length > 0) {
                     var primary_cid = sub_element.data("primary-cid");
                     var primary_element = $(".primary-category[data-cid='" + primary_cid + "']");
-                    
+
                     // 先显示对应一级分类的二级分类
                     $(".sub-category").hide();
                     $(".sub-category[data-primary-cid='" + primary_cid + "']").show();
-                    
+
                     // 设置选中状态
                     $(".primary-category").removeClass("shop_active");
                     $(".sub-category").removeClass("shop_active");
@@ -124,7 +124,7 @@ $(function() {
             }
         }
     });
-    
+
     // 获取URL参数的辅助函数
     function getQueryString(name) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
@@ -132,7 +132,7 @@ $(function() {
         if (r != null) return unescape(r[2]);
         return null;
     }
-    
+
     if(template_virtualdata == 1){
         ka();
     }
@@ -140,6 +140,11 @@ $(function() {
     get_goods();
     $(".get_cat").on("click",function()
     {
+        // 如果是一级分类，跳过处理，让 a.primary-category 的处理程序处理
+        if($(this).hasClass("primary-category")){
+            return false;
+        }
+
         var cid = $(this).data("cid");
         var name = $(this).data("name");
         tags(cid);
@@ -171,14 +176,14 @@ $(function() {
      document.activeElement.blur();
       return false;
     });
-    
+
     if($.cookie('goods_list_style') == 'list'){
         $("#listblock").data("state","gongge");
         $("#listblock").removeClass("icon-sort");
         $("#listblock").addClass("icon-app");
         $("#goods-list-container").removeClass("block three");
     }
-    
+
     /*点击切换风格*/
     $("#listblock").on("click",function(){
         var index = layer.msg('加载中', {
@@ -198,18 +203,18 @@ $(function() {
             $("#goods-list-container").removeClass("block three");
         }
         //设置cookie
-        var cookietime = new Date(); 
+        var cookietime = new Date();
         cookietime.setTime(cookietime.getTime() + (86400));
         $.cookie('goods_list_style', attr, { expires: cookietime });
         layer.close(index);
     });
-        
+
     //弹窗广告
     if( !$.cookie('op')){
         $('.tzgg').show();
         $.cookie('op', false, { expires: 1});
     }
-    
+
         /**
      * 兼容iphone
      * @type {number | boolean | *}
@@ -256,7 +261,7 @@ function load(text="加载中")
     var index = layer.msg(text, {
         icon: 16
         ,shade: 0.01
-    });  
+    });
 }
 
 //获取商品
@@ -270,11 +275,11 @@ function get_goods(){
         var kw = $("input[name=kw]").val();
         var sort_type = $("input[name=_sort_type]").val();
         var sort = $("input[name=_sort]").val();
-        // 检查是否是一级分类点击 - 作者：教主 博客：zhonguo.ren
+        // 检查是否是一级分类点击 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
         var is_primary_cat = 0;
         var active_primary = $("a.primary-category.shop_active");
         var cid_val = $("input[name=_cid]").val();
-        
+
         // 检查条件：1. 有激活的一级分类 2. cid不为空且为数字 3. 没有激活的二级分类
         if(active_primary.length > 0 && cid_val && !isNaN(parseInt(cid_val))) {
             // 验证该cid确实是一个一级分类的ID
@@ -285,7 +290,7 @@ function get_goods(){
                     return false;
                 }
             });
-            
+
             if(is_valid_primary) {
                 is_primary_cat = 1;
                 console.log('检测到一级分类视图，cid:', cid_val);
@@ -299,17 +304,17 @@ function get_goods(){
             load();
         }
         //写入数据
-        $("div.show_class").show();  
-        
-        // 先清空列表容器内容，确保每次切换分类都能重新开始 - 作者：教主 博客：zhonguo.ren
+        $("div.show_class").show();
+
+        // 先清空列表容器内容，确保每次切换分类都能重新开始 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
         $("#goods_list").html('');
-        
-        // 重置flow的加载状态 - 作者：教主 博客：zhonguo.ren
+
+        // 重置flow的加载状态 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
         if (window.flowInstance) {
             window.flowInstance.destroy ? window.flowInstance.destroy() : $("#goods_list").data('flow-status', null);
         }
-        
-        // 重新初始化flow - 作者：教主 博客：zhonguo.ren
+
+        // 重新初始化flow - 作者：岁岁 @qqfaka 博客：zhonguo.ren
         window.flowInstance = flow.load({
                 elem: '#goods_list' //流加载容器
                 ,isAuto:true
@@ -329,7 +334,7 @@ function get_goods(){
                     success : function(res) {
 							$(".tag_name").hide();
 							$(".tag_name ul").html("");
-                            
+
                             //假设你的列表返回在data集合中
                             layui.each(res.data, function(index, item){
                                 html = '<a class="fui-goods-item" title="'+item.name+'" href="./?mod=buy&tid='+item.tid+'">';
@@ -372,7 +377,7 @@ function get_goods(){
 								}
                                 html += ''+show_tag_html+'<img class="lazy" lay-src="'+item.shopimg+'" src="./assets/store/picture/loadimg.gif" alt="'+item.name+'">'+shoukong+'';
                                 html += '</div>';
-                                
+
 
                                 html += '<div class="detail" style="height:unset;">';
                                 html += '<div class="name" style="color: #000000;">'+item.name+'</div>';
@@ -391,7 +396,7 @@ function get_goods(){
                                     buy = '';
                                 }
 
-                                 html += '<div class="price" style="margin-top: -0.1rem;"><span class="text" style="color: #ff5555;"> <p class="minprice">￥' + item.price + '</p> </span><p class="layui-icon layui-icon-auz" style="font-size: 0.62rem;position:absolute;margin-left:28%;font-weight: 300;color:#000000;">售后保障 </p>' + buy + '</div>';
+                                 html += '<div class="price" style="margin-top: -0.1rem;"><span class="text" style="color: #ff5555;"> <p class="minprice">￥' + item.price + '</p> </span><p class="layui-icon layui-icon-wallet" style="font-size: 0.62rem;position:absolute;margin-left:28%;font-weight: 300;color:#000000;">售后保障 </p>' + buy + '</div>';
                             html += '</div>';
                             html += '</a>';
                             html += '<div style="height: 3px"></div>';
@@ -417,21 +422,21 @@ function get_goods(){
                 });
                 }
           });
-        
+
     });
 }
 
 var audio_init = {
 	changeClass: function (target,id) {
-       	var className = $(target).attr('class');
-       	var ids = document.getElementById(id);
-       	(className == 'on')
-           	? $(target).removeClass('on').addClass('off')
-           	: $(target).removeClass('off').addClass('on');
-       	(className == 'on')
-           	? ids.pause()
-           	: ids.play();
-   	},
+	var className = $(target).attr('class');
+	var ids = document.getElementById(id);
+	(className == 'on')
+	? $(target).removeClass('on').addClass('off')
+	: $(target).removeClass('off').addClass('on');
+	(className == 'on')
+	? ids.pause()
+	: ids.play();
+	},
 	play:function(){
 		document.getElementById('media').play();
 	}

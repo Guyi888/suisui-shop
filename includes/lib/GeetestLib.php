@@ -202,11 +202,11 @@ class GeetestLib {
             );
             $context = stream_context_create($opts);
             $data    = @file_get_contents($url, false, $context);
-            if($data){ 
+            if($data){
                 return $data;
-            }else{ 
+            }else{
                 return 0;
-            } 
+            }
         }
     }
 
@@ -263,7 +263,7 @@ class GeetestLib {
     }
 
 
-    
+
     /**
      * @param $err
      */

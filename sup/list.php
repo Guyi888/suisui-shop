@@ -87,7 +87,7 @@ aria-hidden="true" style="display: none;">
 		</div>
 	</div>
 </div>
-<?php 
+<?php
 $sqls = $suprow["power"] > 0 ? "A.sid='" . $suprow["sid"] . "'" : "A.userid='" . $suprow["sid"] . "'";
 $links = "";
 if (!empty($_GET["starttime"]) || !empty($_GET["endtime"])) {
@@ -165,8 +165,8 @@ echo $con;
 						</tr>
 					</thead>
 					<tbody>
-						
-<?php 
+
+<?php
 $pagesize = 30;
 $pages = ceil($numrows / $pagesize);
 $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
@@ -184,7 +184,7 @@ while ($res = $rs->fetch()) {
 				</table>
 			</div>
 			<center>
-<ul class="pagination"  style="margin-left:1em"><?php 
+<ul class="pagination"  style="margin-left:1em"><?php
 $first = 1;
 $prev = $page - 1;
 $next = $page + 1;
@@ -214,7 +214,7 @@ if ($page < $pages) {
 }
 ?></ul></center>	</div>
 </div>
-<?php 
+<?php
 include "./foot.php";
 ?><script src="//lib.baomitu.com/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <script src="//lib.baomitu.com/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.zh-CN.min.js"></script>
@@ -313,7 +313,7 @@ $(document).ready(function(){
 })
 </script>
 </body>
-</html><?php 
+</html><?php
 function display_zt($zt)
 {
 	if ($zt == 1) {

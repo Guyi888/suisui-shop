@@ -1,4 +1,4 @@
-// 教主博客 zhonguo.ren QQ群915043052
+// 岁岁 @qqfaka博客 zhonguo.ren QQ群qqfaka
 // 加载分类列表并初始化拖拽功能
 function listTable(query){
 	var url = window.document.location.href.toString();
@@ -19,8 +19,8 @@ function listTable(query){
 				return;
 			}
 			$("#listTable").html(data);
-			
-			// 初始化拖拽排序功能 - 教主博客 zhonguo.ren 915043052
+
+			// 初始化拖拽排序功能 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
 			initDragSort();
 		},
 		error:function(data){
@@ -32,10 +32,10 @@ function listTable(query){
 	});
 }
 
-// 初始化HTML5原生拖拽排序功能 - 教主博客 zhonguo.ren 915043052
+// 初始化HTML5原生拖拽排序功能 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
 function initDragSort() {
 	try {
-		// 添加拖拽样式 - 教主博客 zhonguo.ren 915043052
+		// 添加拖拽样式 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
 		if (!$('style#dragSortStyle').length) {
 			$('head').append(`
 				<style id="dragSortStyle">
@@ -69,21 +69,21 @@ function initDragSort() {
 				</style>
 			`);
 		}
-		
+
 		// 检查表格和行是否存在，避免空指针错误
 		if ($("#classlisttbody").length === 0 || $("#classlisttbody tr").length === 0) {
 			console.log('表格不存在或无数据，跳过拖拽初始化');
 			return;
 		}
-		
+
 		// 为一级分类和子分类添加拖拽功能
 		$(".primary-class, .sub-class").each(function() {
 			var row = $(this);
 			var dragHandle = row.find(".sort_drag");
-			
+
 			// 设置行可拖拽
 			row.attr('draggable', 'true');
-			
+
 			// 拖拽开始事件
 			row.on('dragstart', function(e) {
 				// 存储被拖拽元素的ID
@@ -93,18 +93,18 @@ function initDragSort() {
 				// 设置拖拽图像
 				e.originalEvent.dataTransfer.effectAllowed = 'move';
 			});
-			
+
 			// 拖拽结束事件
 			row.on('dragend', function() {
 				// 移除所有拖拽相关样式
 				row.removeClass('dragging');
 				$(".primary-class, .sub-class").removeClass('drag-over');
 				$(".drag-placeholder").remove();
-				
+
 				// 拖拽完成后更新排序
 				updateSortNumbers();
 			});
-			
+
 			// 拖拽经过事件
 			row.on('dragover', function(e) {
 				e.preventDefault(); // 允许放置
@@ -114,26 +114,26 @@ function initDragSort() {
 					row.addClass('drag-over');
 				}
 			});
-			
+
 			// 拖拽离开事件
 			row.on('dragleave', function() {
 				row.removeClass('drag-over');
 			});
-			
+
 			// 拖拽放置事件
 			row.on('drop', function(e) {
 				e.preventDefault();
 				row.removeClass('drag-over');
-				
+
 				var draggedId = e.originalEvent.dataTransfer.getData('text/plain');
 				var draggedRow = $("tr[data-cid='" + draggedId + "']");
-				
+
 				// 确保被拖拽元素存在且不是自身
 				if (draggedRow.length > 0 && draggedRow[0] !== row[0]) {
 					// 获取当前行和被拖拽行的类型
 					var currentIsPrimary = row.hasClass('primary-class');
 					var draggedIsPrimary = draggedRow.hasClass('primary-class');
-					
+
 					// 确保同类型元素之间才能拖拽交换
 					if (currentIsPrimary === draggedIsPrimary) {
 						// 执行行交换
@@ -148,7 +148,7 @@ function initDragSort() {
 				}
 			});
 		});
-		
+
 		console.log('HTML5原生拖拽功能初始化完成');
 	} catch (e) {
 		console.error('拖拽初始化失败:', e);
@@ -156,14 +156,14 @@ function initDragSort() {
 	}
 }
 
-// 更新排序号并保存 - 教主博客 zhonguo.ren 915043052
+// 更新排序号并保存 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
 function updateSortNumbers() {
 	try {
 		console.log('开始更新排序...');
 		// 获取所有一级分类并按当前DOM顺序排序
 		var primaryClasses = $("#classlisttbody .primary-class");
 		var primarySort = 1;
-		
+
 		// 遍历一级分类，更新排序号
 		primaryClasses.each(function(index) {
 			var cid = $(this).attr('data-cid');
@@ -174,13 +174,13 @@ function updateSortNumbers() {
 					console.log('一级分类排序更新:', cid, '=>', primarySort);
 				}
 			}
-			
+
 			// 为当前一级分类下的子分类排序
 			var subSort = 1;
 			// 获取当前一级分类之后，下一个一级分类之前的所有子分类
 			var nextPrimary = primaryClasses.eq(index + 1);
 			var subClasses;
-			
+
 			if (nextPrimary.length > 0) {
 				// 如果有下一个一级分类，获取它们之间的子分类
 				subClasses = $(this).nextUntil(nextPrimary, ".sub-class");
@@ -188,7 +188,7 @@ function updateSortNumbers() {
 				// 如果是最后一个一级分类，获取之后所有子分类
 				subClasses = $(this).nextAll(".sub-class");
 			}
-			
+
 			// 更新子分类排序号
 			subClasses.each(function() {
 				var subCid = $(this).attr('data-cid');
@@ -203,13 +203,13 @@ function updateSortNumbers() {
 				}
 				subSort++;
 			});
-			
+
 			primarySort++;
 		});
-		
+
 		// 显示成功提示并保存
 		layer.msg('排序已更新', {icon: 1, time: 1000});
-		
+
 		// 延迟保存，让用户看到提示
 		setTimeout(function() {
 			console.log('保存排序数据...');
@@ -221,7 +221,7 @@ function updateSortNumbers() {
 	}
 }
 
-// 显示排序成功提示 - 教主博客 zhonguo.ren 915043052
+// 显示排序成功提示 - 岁岁 @qqfaka博客 zhonguo.ren qqfaka
 function showSortSuccess() {
 	layer.msg('排序已更新', {
 		icon: 1,
@@ -352,11 +352,11 @@ function saveAll() {
 		console.error('保存失败：表单不存在');
 		return;
 	}
-	
+
 	// 获取表单数据
 	var formData = $('#classlist').serialize();
 	console.log('保存数据:', formData);
-	
+
 	$.ajax({
 		type : 'POST',
 		url : 'ajax_class.php?act=editClassAll',

@@ -93,7 +93,7 @@ class third_kashangwl{
 			return '打开对接网站失败';
 		} elseif ($ret['code'] == 'ok') {
 			$return = $ret['data'];
-			if(!$is_params)return $return; 
+			if(!$is_params)return $return;
 			$url = '/api/product/recharge-params';
 			$param = array('customer_id'=>$this->config['username'], 'timestamp'=>time(), 'product_id'=>$goods_id);
 			$sign = $this->getSign($param, $this->config['password']);
@@ -120,7 +120,7 @@ class third_kashangwl{
 			return $ret['message'];
 		}
 	}
-	
+
 	public function query_order($orderid, $goodsid, $value = []){
 		$url = '/api/order';
 		$order_state = [100 => '待处理', 200 => '充值成功', 500 => '充值失败'];

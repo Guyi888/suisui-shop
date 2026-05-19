@@ -56,7 +56,7 @@ a:hover{
     </div>
 
     <div class="fui-content member-page navbar" style="">
-    <?php 
+    <?php
 if($islogin2==1){
     if($userrow['status']==0){
         sysmsg('你的账号已被封禁！',true);exit;
@@ -78,7 +78,7 @@ if($islogin2==1){
                     </a>
                     <a href="recharge.php">
                         <div class="btn">充值</div>
-                    </a>              
+                    </a>
                 </div>
                 <div class="child userinfo">
                     <a href="javascript:;" style="color: white;">
@@ -94,7 +94,7 @@ if($islogin2==1){
                         <?php }else{ ?>
                             [普通会员]
                         <?php } ?>
-                        
+
                     </div>
                 </div>
                 <div class="child">
@@ -115,7 +115,7 @@ if($islogin2==1){
             </div>
 
             <div class="member_header" style="background: #ff5555;">
-                
+
             </div>
             <img class="cover-img" src="../assets/store/picture/cover.png">
         </div>
@@ -254,7 +254,7 @@ if($islogin2==1){
                 </div>
             </div>
             </div> -->
-    
+
 
     <div class="fui-cell-group fui-cell-click">
         <a class="fui-cell" href="message.php">
@@ -269,7 +269,7 @@ if($islogin2==1){
                 <div class="fui-cell-icon"><i class="fa fa-check-square-o"></i></div>
                 <div class="fui-cell-text"><p>我的工单</p></div>
                 <div class="fui-cell-remark">
-                    <span class="badge work_cont" style="display:none;"></span>    
+                    <span class="badge work_cont" style="display:none;"></span>
                 </div>
         </a>
         <?php } ?>
@@ -277,7 +277,7 @@ if($islogin2==1){
         <a class="fui-cell" href="faq.php">
                 <div class="fui-cell-icon"><i class="fa fa-exclamation-circle"></i></div>
                 <div class="fui-cell-text"><p>常见问题</p></div>
-                <div class="fui-cell-remark">           
+                <div class="fui-cell-remark">
                 </div>
         </a>
         <?php } ?>
@@ -317,8 +317,8 @@ if($islogin2==1){
                     </div>
                 </div>
             </div>
-    </div>      
-                
+    </div>
+
 <!--         <div class="fui-cell-group fui-cell-click">
             <a class="fui-cell" href="">
                 <div class="fui-cell-icon"><i class="icon icon-cart"></i></div>
@@ -376,11 +376,11 @@ toastr.error('<a href="uset.php?mod=user">你的用户名与密码相同，极�
 
 function goback()
 {
-        if(window.document.referrer==""||window.document.referrer==window.location.href){  
-        window.location.href="/";  
-    }else{  
-        window.location.href=window.document.referrer;  
-    } 
+        if(window.document.referrer==""||window.document.referrer==window.location.href){
+        window.location.href="/";
+    }else{
+        window.location.href=window.document.referrer;
+    }
     // document.referrer === '' ?window.location.href = '/' :window.history.go(-1);
 }
 $(document).ready(function(){

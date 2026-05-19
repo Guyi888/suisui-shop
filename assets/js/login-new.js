@@ -151,12 +151,12 @@
 
   function render(els) {
     const { $purple, $black, $orange, $yellow, $purpleEyes, $blackEyes, $orangeEyes, $yellowEyes, $yellowMouth } = els;
-    
+
     const pp = calcPos($purple);
     const bp = calcPos($black);
     const op = calcPos($orange);
     const yp = calcPos($yellow);
-    
+
     const isHiding = passwordLen > 0 && !showPassword;
     const isShowingPw = passwordLen > 0 && showPassword;
 
@@ -176,7 +176,7 @@
     const purpleEyeR = $purpleEyes.children[1];
     purpleEyeL.style.height = purpleBlink ? "2px" : "18px";
     purpleEyeR.style.height = purpleBlink ? "2px" : "18px";
-    
+
     let pfx, pfy;
     if (isShowingPw) {
       $purpleEyes.style.left = "20px";
@@ -212,7 +212,7 @@
     const blackEyeR = $blackEyes.children[1];
     blackEyeL.style.height = blackBlink ? "2px" : "16px";
     blackEyeR.style.height = blackBlink ? "2px" : "16px";
-    
+
     let bfx, bfy;
     if (isShowingPw) {
       $blackEyes.style.left = "10px";
@@ -237,7 +237,7 @@
     $orange.style.transform = isShowingPw
       ? "skewX(0deg)"
       : `skewX(${op.bodySkew || 0}deg)`;
-    
+
     let ofx, ofy;
     if (isShowingPw) {
       $orangeEyes.style.left = "50px";
@@ -257,7 +257,7 @@
     $yellow.style.transform = isShowingPw
       ? "skewX(0deg)"
       : `skewX(${yp.bodySkew || 0}deg)`;
-    
+
     let yfx, yfy;
     if (isShowingPw) {
       $yellowEyes.style.left = "20px";

@@ -1,7 +1,7 @@
 <?php
-/* 
-QQ群915043052
-个人博客blog.6v6.ren
+/*
+QQ群qqfaka
+岁岁 @qqfaka
 */
 /**
  * 自助下单系统
@@ -13,7 +13,7 @@ if ($islogin == 1) {
     // 记录访问统计
     $today = date('Y-m-d');
     $ip = x_real_ip();
-    
+
     // 创建访问统计表（如果不存在）
     $DB->query("CREATE TABLE IF NOT EXISTS shua_visit_statistics (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -23,7 +23,7 @@ if ($islogin == 1) {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )");
-    
+
     // 创建IP记录表（如果不存在）
     $DB->query("CREATE TABLE IF NOT EXISTS shua_visit_ips (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,10 +37,10 @@ if ($islogin == 1) {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         UNIQUE KEY unique_ip_date (date, ip)
     )");
-    
+
     // 检查今日是否已有记录
     $today_record = $DB->getRow("SELECT * FROM shua_visit_statistics WHERE date = :date", array(':date' => $today));
-    
+
     if ($today_record) {
         // 更新访问次数
         $DB->query("UPDATE shua_visit_statistics SET visits = visits + 1 WHERE date = :date", array(':date' => $today));
@@ -48,14 +48,14 @@ if ($islogin == 1) {
         // 创建今日记录
         $DB->query("INSERT INTO shua_visit_statistics (date, visits, ip_count) VALUES (:date, 1, 0)", array(':date' => $today));
     }
-    
+
     // 获取当前URL和User Agent
     $url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '-';
     $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '-';
-    
+
     // 检查当前IP今日是否已有记录
     $ip_record = $DB->getRow("SELECT * FROM shua_visit_ips WHERE date = :date AND ip = :ip", array(':date' => $today, ':ip' => $ip));
-    
+
     if ($ip_record) {
         // 更新IP访问次数和最新URL
         $DB->query("UPDATE shua_visit_ips SET visits = visits + 1, url = :url, user_agent = :user_agent WHERE date = :date AND ip = :ip", array(':date' => $today, ':ip' => $ip, ':url' => $url, ':user_agent' => $user_agent));
@@ -74,7 +74,7 @@ $sec_msg = sec_check();
 <style>
 	/* 企业风格样式 */
 	/* 移除所有渐变和新拟态效果 */
-	
+
 	/* 统计卡片样式 - 企业风格 */
 	.stat-card {
 		display: flex;
@@ -108,7 +108,7 @@ $sec_msg = sec_check();
 		font-size: 13px;
 		color: #7f8c8d;
 	}
-	
+
 	/* 卡片样式 - 企业风格 */
 	.neumorphic-card {
 		background: #ffffff;
@@ -123,7 +123,7 @@ $sec_msg = sec_check();
 		border: 1px solid #e0e0e0;
 		padding: 15px;
 	}
-	
+
 	/* 企业配色方案 */
 	.gradient-primary {
 		background: #1890ff;
@@ -153,7 +153,7 @@ $sec_msg = sec_check();
 		background: #40a9ff;
 		color: white;
 	}
-	
+
 	/* 文本颜色类 - 企业风格 */
 	.text-gradient-primary {
 		color: #1890ff;
@@ -170,7 +170,7 @@ $sec_msg = sec_check();
 	.text-gradient-info {
 		color: #13c2c2;
 	}
-	
+
 	/* 响应式优化 */
 	@media (max-width: 767px) {
 		/* 手机端样式调整 */
@@ -191,7 +191,7 @@ $sec_msg = sec_check();
 			font-size: 12px;
 		}
 	}
-	
+
 	@media (max-width: 480px) {
 		/* 超小屏幕样式进一步优化 */
 		.stat-card {
@@ -214,7 +214,7 @@ $sec_msg = sec_check();
 			font-size: 11px;
 		}
 	}
-	
+
 	/* 图表容器样式 */
 	.chart-container {
 		position: relative;
@@ -222,13 +222,13 @@ $sec_msg = sec_check();
 		width: 100%;
 		overflow: hidden;
 	}
-	
+
 	/* 确保canvas元素不会超出容器 */
 	.chart-container canvas {
 		max-width: 100% !important;
 		height: auto !important;
 	}
-	
+
 	/* 自定义滚动条 */
 	::-webkit-scrollbar {
 		width: 8px;
@@ -245,7 +245,7 @@ $sec_msg = sec_check();
 	::-webkit-scrollbar-thumb:hover {
 		background: #a8a8a8;
 	}
-	
+
 	/* 企业风格网格布局 */
 	.grid {
 		display: grid;
@@ -254,7 +254,7 @@ $sec_msg = sec_check();
 	.grid-cols-2 {
 		grid-template-columns: repeat(2, 1fr);
 	}
-	
+
 	/* 移除所有过渡效果 */
 	* {
 		transition: none !important;
@@ -264,7 +264,7 @@ $sec_msg = sec_check();
 <!-- 顶部数据统计卡片区域 -->
 <div class="row">
 	<div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
-		<div class="stat-card">
+		<div class="stat-card" style="cursor: pointer;" onclick="window.location.href='./list.php'">
 			<div class="stat-icon gradient-primary">
 				<i class="fa fa-list-ol"></i>
 			</div>
@@ -274,9 +274,9 @@ $sec_msg = sec_check();
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
-		<div class="stat-card">
+		<div class="stat-card" style="cursor: pointer;" onclick="window.location.href='./list.php?type=0'">
 			<div class="stat-icon gradient-warning">
 				<i class="fa fa-hourglass-half"></i>
 			</div>
@@ -286,9 +286,9 @@ $sec_msg = sec_check();
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
-		<div class="stat-card">
+		<div class="stat-card" style="cursor: pointer;" onclick="window.location.href='./list.php'">
 			<div class="stat-icon gradient-success">
 				<i class="fa fa-calendar-check-o"></i>
 			</div>
@@ -298,9 +298,9 @@ $sec_msg = sec_check();
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
-		<div class="stat-card">
+		<div class="stat-card" style="cursor: pointer;" onclick="window.location.href='./list.php'">
 			<div class="stat-icon gradient-info">
 				<i class="fa fa-line-chart"></i>
 			</div>
@@ -310,9 +310,9 @@ $sec_msg = sec_check();
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
-		<div class="stat-card">
+		<div class="stat-card" style="cursor: pointer;" onclick="window.location.href='./record.php'">
 			<div class="stat-icon gradient-amber">
 				<i class="fa fa-money"></i>
 			</div>
@@ -322,9 +322,9 @@ $sec_msg = sec_check();
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
-		<div class="stat-card">
+		<div class="stat-card" style="cursor: pointer;" onclick="window.location.href='./record.php'">
 			<div class="stat-icon gradient-info">
 				<i class="fa fa-history"></i>
 			</div>
@@ -345,7 +345,7 @@ $sec_msg = sec_check();
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
 		<div class="stat-card">
 			<div class="stat-icon gradient-primary">
@@ -387,99 +387,23 @@ $sec_msg = sec_check();
 				</div>
 			</div>
 		</div>
-		
-		<!-- 通知与推广区域 -->
+
+		<!-- 站点维护记录 -->
 		<div class="row">
-			<!-- 官方公告 -->
-			<div class="col-sm-6">
+			<div class="col-sm-12">
 				<div class="neumorphic-card">
-					<h3 class="text-center mb-4 text-gradient-primary"><i class="fa fa-bullhorn"></i> 官方公告</h3>
+					<h3 class="text-center mb-4 text-gradient-primary"><i class="fa fa-list-alt"></i> 更新记录</h3>
 					<div class="neumorphic-inset">
 						<ul class="list-group">
-							<li class="list-group-item bg-transparent border-0" id="notice"><p>请勿将本程序用于任何违规场景，共创和谐网络环境！</p></li>
-							<li class="list-group-item bg-transparent border-0"><p>推广QQ群：<a href="https://jq.qq.com/?_wv=1027&k=JjZkT5Xr" target="_blank" class="text-gradient-primary">915043052</a></p></li>
-							<li class="list-group-item bg-transparent border-0"><p>广告位联系：<a href="https://jq.qq.com/?_wv=1027&k=JjZkT5Xr" target="_blank" class="text-gradient-primary">915043052</a></p></li>
+							<li class="list-group-item bg-transparent border-0"><p>当前基线：6V6 1.29 修复版，已合并磁盘显示、移动位置、菜单等最新修复。</p></li>
+							<li class="list-group-item bg-transparent border-0"><p>维护标识：岁岁 @qqfaka。后续变更会同步写入程序内更新日志与仓库 CHANGELOG。</p></li>
 						</ul>
 					</div>
 				</div>
 			</div>
-			
-			<!-- 友情推广 -->
-			<div class="col-sm-6">
-				<div class="neumorphic-card">
-					<h3 class="text-center mb-4 text-gradient-primary"><i class="fa fa-handshake-o"></i> 站长推荐</h3>
-					<div class="neumorphic-inset">
-						<a href="https://404.6v6.ren/tz/1.html" target="_blank" id="recommendLink"><img id="recommendImg" alt="站长推荐" loading="lazy" style="max-width: 100%; height: auto; min-height: 100px; background: #f5f5f5; display: none;"></a>
-					</div>
-				</div>
-				<script>
-					var allImages = [
-						'https://404.6v6.ren/img/1.gif',
-						'https://404.6v6.ren/img/2.gif',
-						'https://404.6v6.ren/img/3.gif',
-						'https://404.6v6.ren/img/4.gif',
-						'https://404.6v6.ren/img/5.gif'
-					];
-					var availableImages = [];
-					var currentIndex = 0;
-					var imgElement = document.getElementById('recommendImg');
-					
-					function checkImages() {
-						var loadedCount = 0;
-						var totalImages = allImages.length;
-						
-						allImages.forEach(function(imgUrl, index) {
-							var tempImg = new Image();
-							tempImg.onload = function() {
-								availableImages.push(imgUrl);
-								loadedCount++;
-								if (loadedCount === totalImages) {
-									startRotation();
-								}
-							};
-							tempImg.onerror = function() {
-								loadedCount++;
-								if (loadedCount === totalImages) {
-									startRotation();
-								}
-							};
-							tempImg.src = imgUrl;
-						});
-					}
-					
-					function startRotation() {
-						if (availableImages.length === 0) {
-							return;
-						}
-						
-						currentIndex = Math.floor(Math.random() * availableImages.length);
-						imgElement.src = availableImages[currentIndex];
-						
-						if (availableImages.length === 1) {
-							return;
-						}
-						
-						setInterval(function() {
-							currentIndex = (currentIndex + 1) % availableImages.length;
-							imgElement.src = availableImages[currentIndex];
-						}, 3000);
-					}
-					
-					imgElement.onload = function() {
-						imgElement.style.display = 'block';
-					};
-					
-					imgElement.onerror = function() {
-						imgElement.style.display = 'none';
-					};
-					
-					checkImages();
-				</script>
-			</div>
 		</div>
-	</div>
-	
-	<!-- 右侧信息区域 -->
+
+		<!-- 右侧信息区域 -->
 	<div class="col-sm-4">
 		<!-- 分站统计 -->
 		<div class="neumorphic-card">
@@ -515,7 +439,7 @@ $sec_msg = sec_check();
 				</div>
 			</div>
 		</div>
-		
+
 		<!-- 系统信息 -->
 		<div class="neumorphic-card">
 			<h3 class="text-center mb-4 text-gradient-primary"><i class="fa fa-server"></i> 系统信息</h3>
@@ -528,7 +452,7 @@ $sec_msg = sec_check();
 				</ul>
 			</div>
 		</div>
-		
+
 		<!-- 安全中心 -->
 		<div class="neumorphic-card">
 			<h3 class="text-center mb-4 text-gradient-primary"><i class="fa fa-shield"></i> 安全中心</h3>
@@ -544,7 +468,7 @@ $sec_msg = sec_check();
 				</ul>
 			</div>
 		</div>
-		
+
 		<!-- 待处理工单 -->
 		<div class="neumorphic-card">
 			<h3 class="text-center mb-4 text-gradient-primary"><i class="fa fa-comments"></i> 工单提醒</h3>
@@ -557,9 +481,9 @@ $sec_msg = sec_check();
 </div>
 <script>
 	$(document).ready(function() {
-		
+
 		$('#title').html('正在加载数据中...');
-		
+
 		$.ajax({
 			type: "POST",
 			url: "index.php",
@@ -607,7 +531,7 @@ $sec_msg = sec_check();
 				$('#count15').html(data.count15);
 				$('#count16').html(data.count16);
 				$('#count17').html(data.count17);
-				
+
 				// 显示访问统计数据
 				if(data.visit_today !== undefined) $('#visit_today').text(data.visit_today);
 				if(data.ip_today !== undefined) $('#ip_today').text(data.ip_today);
@@ -616,7 +540,7 @@ $sec_msg = sec_check();
 
 				// 绘制图表
 				var t = $("#chart-classic-dash");
-				
+
 				// 图表配置
 				var chartOptions = {
 					colors: ['#5BC0DE', '#5CB85C'],
@@ -642,7 +566,7 @@ $sec_msg = sec_check();
 						}
 					}
 				};
-				
+
 				// 图表数据
 				var chartData = [{
 					label: "订单量",
@@ -681,10 +605,10 @@ $sec_msg = sec_check();
 						radius: 5
 					}
 				}];
-				
+
 				// 初始化图表
 				var plot = $.plot(t, chartData, chartOptions);
-				
+
 				// 添加窗口大小改变时的重绘逻辑
 				$(window).resize(function() {
 					// 清除之前的图表
@@ -692,7 +616,7 @@ $sec_msg = sec_check();
 					// 重绘图表，使用新的容器尺寸
 					plot = $.plot(t, chartData, chartOptions);
 				});
-		
+
 		// 如果有访问数据，绘制访问统计图表
 		if(data.visit_chart) {
 			// 创建访问统计图表区域
@@ -710,7 +634,7 @@ $sec_msg = sec_check();
 					</div>
 				</div>
 			</div>`;
-			
+
 			// 添加访问详情模态框
 			var visitModalHtml = `
 			<div class="modal fade" id="visitDetailModal" tabindex="-1" role="dialog" aria-labelledby="visitDetailModalLabel">
@@ -753,16 +677,16 @@ $sec_msg = sec_check();
 					</div>
 				</div>
 			</div>`;
-			
+
 			// 将模态框添加到页面
 			$('body').append(visitModalHtml);
-			
+
 			// 插入到原图表之后
 			$("#chart-classic-dash").closest(".neumorphic-card").after(visitChartHtml);
-			
+
 			// 绘制访问统计图表
 				var v = $("#visit-chart");
-				
+
 				// 访问统计图表配置
 				var visitChartOptions = {
 					colors: ['#3b82f6', '#4cc9f0'], // 蓝色主题配色
@@ -788,7 +712,7 @@ $sec_msg = sec_check();
 						}
 					}
 				};
-				
+
 				// 访问统计图表数据
 				var visitChartData = [{
 					label: "访问量",
@@ -827,10 +751,10 @@ $sec_msg = sec_check();
 						radius: 5
 					}
 				}];
-				
+
 				// 初始化访问统计图表
 				var visitPlot = $.plot(v, visitChartData, visitChartOptions);
-				
+
 				// 添加窗口大小改变时的重绘逻辑
 				$(window).resize(function() {
 					// 清除之前的图表
@@ -838,7 +762,7 @@ $sec_msg = sec_check();
 					// 重绘图表，使用新的容器尺寸
 					visitPlot = $.plot(v, visitChartData, visitChartOptions);
 				});
-			
+
 			var visitPreviousPoint = null;
 			v.bind("plothover", function(event, pos, item) {
 				if (item) {
@@ -892,21 +816,21 @@ $sec_msg = sec_check();
 			// 访问详情功能
 			let currentPage = 1;
 			const pageSize = 20;
-			
+
 			// 详细查看按钮点击事件
 			$(document).on('click', '#viewVisitDetails', function() {
 				currentPage = 1;
 				loadVisitDetails(currentPage);
 				$('#visitDetailModal').modal('show');
 			});
-			
+
 			// 加载访问详情数据
 			function loadVisitDetails(page) {
 				$('#visitDetailLoading').show();
 				$('#visitDetailTable').empty();
 				$('#visitDetailEmpty').hide();
 				$('#visitDetailPagination').empty();
-				
+
 				$.ajax({
 					type: 'GET',
 					url: 'ajax.php?act=get_visit_details',
@@ -917,7 +841,7 @@ $sec_msg = sec_check();
 					dataType: 'json',
 					success: function(data) {
 						$('#visitDetailLoading').hide();
-						
+
 						if (data.code === 0) {
 							// 显示访问记录
 							if (data.visits && data.visits.length > 0) {
@@ -934,7 +858,7 @@ $sec_msg = sec_check();
 									`;
 									$('#visitDetailTable').append(row);
 								});
-								
+
 								// 生成分页
 								generatePagination(data.total, data.page, data.pageSize);
 							} else {
@@ -958,36 +882,36 @@ $sec_msg = sec_check();
 					}
 				});
 			}
-			
+
 			// 生成分页控件
 			function generatePagination(total, current, pageSize) {
 				const totalPages = Math.ceil(total / pageSize);
 				const maxVisible = 5; // 最多显示的页码数
 				let startPage = Math.max(1, current - Math.floor(maxVisible / 2));
 				let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-				
+
 				if (endPage - startPage + 1 < maxVisible) {
 					startPage = Math.max(1, endPage - maxVisible + 1);
 				}
-				
+
 				// 首页
 				if (startPage > 1) {
 					$('#visitDetailPagination').append(`<li><a href="#" data-page="1">首页</a></li>`);
 					$('#visitDetailPagination').append(`<li class="disabled"><a href="#">...</a></li>`);
 				}
-				
+
 				// 页码
 				for (let i = startPage; i <= endPage; i++) {
 					const activeClass = i === current ? 'active' : '';
 					$('#visitDetailPagination').append(`<li class="${activeClass}"><a href="#" data-page="${i}">${i}</a></li>`);
 				}
-				
+
 				// 末页
 				if (endPage < totalPages) {
 					$('#visitDetailPagination').append(`<li class="disabled"><a href="#">...</a></li>`);
 					$('#visitDetailPagination').append(`<li><a href="#" data-page="${totalPages}">末页</a></li>`);
 				}
-				
+
 				// 分页点击事件
 				$('#visitDetailPagination a[data-page]').click(function(e) {
 					e.preventDefault();
@@ -998,7 +922,7 @@ $sec_msg = sec_check();
 					}
 				});
 			}
-			
+
 			// 模态框关闭时重置状态
 			$('#visitDetailModal').on('hidden.bs.modal', function() {
 				currentPage = 1;

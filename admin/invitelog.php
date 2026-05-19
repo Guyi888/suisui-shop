@@ -8,7 +8,7 @@ if ($islogin == 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 ?>    <div class="col-md-12 center-block" style="float: none;">
-<?php 
+<?php
 adminpermission("shop", 1);
 ?><div class="block">
 <div class="block-title clearfix">
@@ -27,7 +27,7 @@ adminpermission("shop", 1);
 <div id="listTable"></div>
     </div>
   </div>
-      
+
 <script src="<?php echo $cdnpublic;?>layer/3.1.1/layer.js"></script>
 <script src="assets/js/invitelog.js?ver=<?php echo VERSION;?>"></script>
 </body>

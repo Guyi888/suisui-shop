@@ -55,10 +55,10 @@ foreach($data as $row){
 <div class="media"><span class="pull-left thumb-sm">
 <img src="'.$row['shopimg'].'" alt="..." class="img-avatar" width="20" onerror="this.src=\'assets/img/Product/noimg.png\'"></span>
 <div class="pull-right push-15-t">
-<label class="css-input css-checkbox css-checkbox-rounded css-checkbox-lg css-checkbox-default"><input type="checkbox" name="checkbox" id="lists" value="'.$row['id'].'" money="'.$row['money'].'" checked><span></span></label>	
+<label class="css-input css-checkbox css-checkbox-rounded css-checkbox-lg css-checkbox-default"><input type="checkbox" name="checkbox" id="lists" value="'.$row['id'].'" money="'.$row['money'].'" checked><span></span></label>
 <a class="btn btn-sm btn-danger" href="javascript:cart_shop_del('.$row['id'].')"><i class="fa fa-trash"></i></a></div>
 <div class="pull-left">
-<div><b>'.$row['name'].'</b><br> × '.$row['num'].'&nbsp;<font color="red">[￥'.$row['money'].'元]</font></div> 
+<div><b>'.$row['name'].'</b><br> × '.$row['num'].'&nbsp;<font color="red">[￥'.$row['money'].'元]</font></div>
 <div class="text-muted"><span onclick="cart_shop_edit('.$row['id'].')" title="点击修改数据"><font size="1">'.$inputname.'：'.$inputvalue[0].'</font></span></div>
 </div></div></li>';
 }

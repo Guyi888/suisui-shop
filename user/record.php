@@ -13,7 +13,6 @@ $outcome_today=$DB->getColumn("SELECT sum(point) FROM pre_points WHERE zid='{$us
 $income_lastday=$DB->getColumn("SELECT sum(point) FROM pre_points WHERE zid='{$userrow['zid']}' AND action='提成' AND addtime<'$thtime' AND addtime>'$lastday'");
 $outcome_lastday=$DB->getColumn("SELECT sum(point) FROM pre_points WHERE zid='{$userrow['zid']}' AND action='消费' AND addtime<'$thtime' AND addtime>'$lastday'");
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <div class="wrapper">
 	<div class="col-sm-12">
 		   <div class="panel panel-default">
@@ -21,10 +20,10 @@ $outcome_lastday=$DB->getColumn("SELECT sum(point) FROM pre_points WHERE zid='{$
 <table class="table table-bordered">
 <tbody>
 <tr height="25">
-<td align="center"><font color="#808080"><b><span class="glyphicon glyphicon-tint"></span>今日收益</b></br><?php echo round($income_today,2)?>元</font></td>
-<td align="center"><font color="#808080"><b><i class="glyphicon glyphicon-check"></i>今日消费</b></br></span><?php echo round($outcome_today,2)?>元</font></td>
-<td align="center"><font color="#808080"><b><span class="glyphicon glyphicon-tint"></span>昨日收益</b></br><?php echo round($income_lastday,2)?>元</font></td>
-<td align="center"><font color="#808080"><b><i class="glyphicon glyphicon-check"></i>昨日消费</b></br></span><?php echo round($outcome_lastday,2)?>元</font></td>
+<td align="center"><font color="#808080"><b><span class="fa fa-tint"></span>今日收益</b></br><?php echo round($income_today,2)?>元</font></td>
+<td align="center"><font color="#808080"><b><i class="fa fa-check"></i>今日消费</b></br></span><?php echo round($outcome_today,2)?>元</font></td>
+<td align="center"><font color="#808080"><b><span class="fa fa-tint"></span>昨日收益</b></br><?php echo round($income_lastday,2)?>元</font></td>
+<td align="center"><font color="#808080"><b><i class="fa fa-check"></i>昨日消费</b></br></span><?php echo round($outcome_lastday,2)?>元</font></td>
 </tr>
 </tbody>
 </table>

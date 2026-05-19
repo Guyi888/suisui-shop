@@ -32,7 +32,7 @@ if($row && $row['status']>=1){
 // 查询支付宝订单状态
 if($conf['alipay_api']==3 && $row && $row['status']==0) {
     fwrite($log, '开始直接查询支付宝订单状态\n');
-    
+
     // 定义支付宝配置
     $config = array(
         'sign_type' => 'RSA2',
@@ -42,63 +42,63 @@ if($conf['alipay_api']==3 && $row && $row['status']==0) {
         'gatewayUrl' => 'https://openapi.alipay.com/gateway.do',
         'app_id' => $conf['alipay_appid'],
     );
-    
+
     // 检查并引入支付宝SDK文件
     if(file_exists(__DIR__ . "/alipay/AlipayTradeService.php")) {
         require_once(__DIR__ . "/alipay/AlipayTradeService.php");
         fwrite($log, '支付宝SDK文件加载成功\n');
-        
+
         // 实例化AlipayTradeService
-        $alipaySevice = new AlipayTradeService($config); 
+        $alipaySevice = new AlipayTradeService($config);
         fwrite($log, 'AlipayTradeService实例化成功\n');
-        
+
         // 构建订单查询参数
         $queryBuilder = array();
         $queryBuilder['out_trade_no'] = $trade_no;
         fwrite($log, '订单查询参数: ' . json_encode($queryBuilder) . "\n");
-        
+
         // 调用订单查询接口
                         try {
                             $queryResponse = $alipaySevice->orderQuery($queryBuilder);
                             fwrite($log, '支付宝订单查询结果: ' . json_encode($queryResponse, JSON_UNESCAPED_UNICODE) . "\n");
-                            
+
                             // 检查查询结果
                             if(isset($queryResponse->code) && $queryResponse->code == '10000') {
                                 // 查询成功
                                 $trade_status = isset($queryResponse->trade_status) ? $queryResponse->trade_status : 'unknown';
                                 fwrite($log, '支付宝订单状态: ' . $trade_status . "\n");
                                 fwrite($log, '支付宝返回的完整响应: ' . json_encode($queryResponse, JSON_UNESCAPED_UNICODE) . "\n");
-                                
+
                                 // 根据不同的订单状态进行处理
                                 switch($trade_status) {
                                     case 'TRADE_SUCCESS':
                                     case 'TRADE_FINISHED':
                                         // 支付成功
                                         fwrite($log, '支付宝订单已支付，状态: ' . $trade_status . "\n");
-                                        
+
                                         // 获取支付宝交易号
                                         $api_trade_no = isset($queryResponse->trade_no) ? $queryResponse->trade_no : '';
                                         fwrite($log, '支付宝交易号: ' . $api_trade_no . "\n");
-                                        
+
                                         // 更新本地订单状态为已支付
                                         $update_sql = "UPDATE `pre_pay` SET `status` ='1' WHERE `trade_no`='{$trade_no}'";
                                         fwrite($log, '执行SQL: ' . $update_sql . "\n");
                                         $update_result = $DB->exec($update_sql);
                                         fwrite($log, 'SQL执行结果: ' . $update_result . "\n");
-                                        
+
                                         if($update_result !== false && $update_result > 0){
                                             $update_sql2 = "UPDATE `pre_pay` SET `endtime` ='$date',`api_trade_no` ='$api_trade_no' WHERE `trade_no`='{$trade_no}'";
                                             fwrite($log, '执行SQL: ' . $update_sql2 . "\n");
                                             $update_result2 = $DB->exec($update_sql2);
                                             fwrite($log, 'SQL执行结果: ' . $update_result2 . "\n");
                                             fwrite($log, '本地订单状态更新成功\n');
-                                            
+
                                             // 重新查询本地订单状态
                                             $row=$DB->getRow("SELECT * FROM pre_pay WHERE trade_no='{$trade_no}' LIMIT 1");
                                             if($row) {
                                                 fwrite($log, '更新后本地订单状态: ' . $row['status'] . "\n");
                                             }
-                                            
+
                                             // 处理订单
                                             fwrite($log, '开始处理订单\n');
                                             processOrder($row);
@@ -146,54 +146,54 @@ if($conf['alipay_api']==3 && $row && $row['status']==0) {
 if(($conf['wxpay_api']==1 || $conf['wxpay_api']==3) && $row && $row['status']==0) {
     fwrite($log, '开始直接查询微信订单状态
 ');
-    
+
     // 检查并引入微信支付SDK文件
     if(file_exists(SYSTEM_ROOT . "wxpay/WxPay.Api.php")) {
         require_once SYSTEM_ROOT . "wxpay/WxPay.Api.php";
         fwrite($log, '微信支付SDK文件加载成功
 ');
-        
+
         try {
             // 构建订单查询参数
             $input = new WxPayOrderQuery();
             $input->SetOut_trade_no($trade_no);
-            
+
             // 调用订单查询接口
             $result = WxPayApi::orderQuery($input);
             fwrite($log, '微信订单查询结果: ' . json_encode($result, JSON_UNESCAPED_UNICODE) . "\n");
-            
+
             // 检查查询结果
             if(isset($result['return_code']) && $result['return_code'] == 'SUCCESS') {
                 if(isset($result['result_code']) && $result['result_code'] == 'SUCCESS') {
                     // 查询成功，获取交易状态
                     $trade_state = isset($result['trade_state']) ? $result['trade_state'] : 'UNKNOWN';
                     fwrite($log, '微信订单状态: ' . $trade_state . "\n");
-                    
+
                     // 根据不同的交易状态进行处理
                     switch($trade_state) {
                         case 'SUCCESS':
                             // 支付成功
                             fwrite($log, '微信订单已支付，开始更新本地订单状态\n');
-                            
+
                             // 更新本地订单状态为已支付
                             $update_sql = "UPDATE `pre_pay` SET `status` ='1' WHERE `trade_no`='{$trade_no}'";
                             fwrite($log, '执行SQL: ' . $update_sql . "\n");
                             $update_result = $DB->exec($update_sql);
                             fwrite($log, 'SQL执行结果: ' . $update_result . "\n");
-                            
+
                             if($update_result !== false && $update_result > 0){
                                 $api_trade_no = isset($result['transaction_id']) ? $result['transaction_id'] : '';
                                 $update_sql2 = "UPDATE `pre_pay` SET `endtime` ='$date',`api_trade_no` ='$api_trade_no' WHERE `trade_no`='{$trade_no}'";
                                 fwrite($log, '执行SQL: ' . $update_sql2 . "\n");
                                 $update_result2 = $DB->exec($update_sql2);
                                 fwrite($log, '本地订单时间和交易号更新成功\n');
-                                
+
                                 // 重新查询本地订单状态
                                 $row=$DB->getRow("SELECT * FROM pre_pay WHERE trade_no='{$trade_no}' LIMIT 1");
                                 if($row) {
                                     fwrite($log, '更新后本地订单状态: ' . $row['status'] . "\n");
                                 }
-                                
+
                                 // 处理订单
                                 fwrite($log, '开始处理订单\n');
                                 processOrder($row);

@@ -7,7 +7,6 @@ $title='余额提现';
 include './head.php';
 if($islogin2==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
-<link rel="stylesheet" href="./public/css/blue_theme.css">
 <div class="wrapper">
 <div class="col-xs-12">
 <?php

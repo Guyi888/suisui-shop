@@ -57,7 +57,7 @@ function fillOrder(trade_no) {
 		success : function(data) {
 			layer.close(ii);
 			if(data.code == 0){
-				layer.alert(data.msg, {icon:1}, function(){listTable();});	
+				layer.alert(data.msg, {icon:1}, function(){listTable();});
 			}else{
 				layer.alert(data.msg);
 			}

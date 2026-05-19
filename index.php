@@ -1,8 +1,8 @@
 <?php
-/* 
+/*
 首页
-QQ群915043052
-个人博客blog.6v6.ren
+QQ群qqfaka
+岁岁 @qqfaka
 */
 $is_defend=true;
 if (version_compare(PHP_VERSION, '7.4.0', '<')) {

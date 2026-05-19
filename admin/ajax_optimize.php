@@ -41,39 +41,39 @@ $notice_settings = [
 if($do == 'apply'){
     $type = isset($_POST['type']) ? $_POST['type'] : '';
     $content = isset($_POST['content']) ? $_POST['content'] : '';
-    
+
     if(empty($type) || empty($content)) {
         exit(json_encode(['success' => false, 'message' => '参数错误']));
     }
-    
+
     // 记录日志
     error_log('[' . date('Y-m-d H:i:s') . '] AJAX应用优化内容: 类型=' . $type . ', 内容长度=' . strlen($content));
-    
+
     try {
         // 保存到数据库
         $DB->exec("UPDATE `pre_config` SET `v`=:value WHERE `k`=:key", [':value'=>$content, ':key'=>$type]);
-        
+
         // 更新配置缓存
         saveSetting($type, $content);
-        
+
         // 清除缓存
         $CACHE->clear();
-        
+
         // 记录成功
         error_log('[' . date('Y-m-d H:i:s') . '] AJAX应用成功: 类型=' . $type);
-        
+
         exit(json_encode([
-            'success' => true, 
+            'success' => true,
             'message' => '应用成功！内容已更新到' . (isset($notice_settings[$type]) ? $notice_settings[$type] : $type)
         ]));
     } catch (Exception $e) {
         // 记录异常
         error_log('[' . date('Y-m-d H:i:s') . '] AJAX应用异常: ' . $e->getMessage());
         exit(json_encode([
-            'success' => false, 
+            'success' => false,
             'message' => '应用过程中发生异常：' . $e->getMessage()
         ]));
     }
 } else {
     exit(json_encode(['success'=>false, 'message'=>'未知操作']));
-} 
+}
