@@ -36,7 +36,7 @@ $q8XhyFaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_
 		var homepage = true;
 		var hashsalt = <?php echo $addsalt_js ?> ;
 		</script>
-		<script src="<?php echo $cdnserver ?>assets/js/main.js?ver=<?php echo VERSION ?>-suisuiorder02"></script>
+		<script src="<?php echo $cdnserver ?>assets/js/main.js?ver=<?php echo VERSION ?>-suisuiorder03"></script>
 		<!--[if lt IE 9]>
 	    <script src="<?php echo $cdnpublic?>html5shiv/3.7.3/html5shiv.min.js"></script>
 	    <script src="<?php echo $cdnpublic?>respond.js/1.4.2/respond.min.js"></script>
@@ -1885,6 +1885,101 @@ button#submit_buy,
   }
   .block > ul.q8-main-tabs > li > a {
     font-size: 11px !important;
+  }
+}
+
+/* XHY order quantity control */
+#shop .q8-quantity-control{
+  display:flex;
+  align-items:stretch;
+  width:100%;
+  border:1px solid #dbeafe;
+  border-radius:13px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 8px 20px rgba(22,119,255,.08);
+}
+#shop .q8-quantity-label{
+  flex:0 0 96px;
+  min-width:96px !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:0;
+  border-right:1px solid #dbeafe;
+  border-radius:0;
+  background:#f7fbff;
+  color:#475569;
+  font-weight:800;
+}
+#shop .q8-quantity-action{
+  flex:0 0 44px;
+  width:44px;
+  display:flex;
+}
+#shop .q8-quantity-btn{
+  width:44px;
+  height:42px;
+  min-height:42px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f7fbff;
+  color:#1677ff;
+  box-shadow:none;
+}
+#shop .q8-quantity-btn:hover,
+#shop .q8-quantity-btn:focus{
+  background:#edf6ff;
+  color:#0f5fd7;
+  outline:none;
+}
+#shop .q8-quantity-input{
+  flex:1 1 auto;
+  min-width:0;
+  height:42px;
+  min-height:42px;
+  border:0;
+  border-left:1px solid #dbeafe;
+  border-right:1px solid #dbeafe;
+  text-align:center;
+  color:#1f2d3d;
+  font-weight:800;
+  box-shadow:none;
+}
+#shop .q8-quantity-input:focus{
+  box-shadow:inset 0 0 0 1px rgba(22,119,255,.28);
+}
+#shop .q8-quantity-note{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 10px;
+  padding:10px 12px;
+  border:1px solid #dbeafe;
+  border-radius:13px;
+  background:#f7fbff;
+  color:#475569;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.5;
+}
+#shop .q8-quantity-note i{
+  color:#1677ff;
+}
+@media(max-width:520px){
+  #shop .q8-quantity-label{
+    flex-basis:82px;
+    min-width:82px !important;
+    font-size:13px;
+  }
+  #shop .q8-quantity-action,
+  #shop .q8-quantity-btn{
+    flex-basis:40px;
+    width:40px;
   }
 }
 

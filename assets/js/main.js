@@ -110,6 +110,7 @@ function getPoint() {
     $("#need").val("");
     $("#display_price").hide();
     $("#display_num").hide();
+    $("#display_num_note").hide();
     $("#display_left").hide();
     $("#alert_frame").hide();
     return false;
@@ -124,6 +125,8 @@ function getPoint() {
   var price = $("#tid option:selected").attr("price");
   var shopimg = $("#tid option:selected").attr("shopimg");
   var close = $("#tid option:selected").attr("close");
+  $("#num").val(1);
+  $("#display_num_note").hide();
   $("#display_price").show();
   if (multi == 1 && count > 1) {
     $("#need").val("￥" + price + "元 ➠ " + count + "个");
@@ -143,8 +146,10 @@ function getPoint() {
   }
   if (multi == 1 && price != 0) {
     $("#display_num").show();
+    $("#display_num_note").hide();
   } else {
     $("#display_num").hide();
+    if (price != 0) $("#display_num_note").css("display", "flex");
   }
   var desc = $("#tid option:selected").attr("desc");
   if (desc != "" && alert != "null") {

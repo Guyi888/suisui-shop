@@ -246,12 +246,13 @@ $(document).on('click', '.primaryClassChange', function() {
 			<input type="text" name="leftcount" id="leftcount" class="form-control" disabled/>
 		</div></div>
 		<div class="form-group" id="display_num" style="display:none;">
-			<div class="input-group">
-			<div class="input-group-addon">下单份数</div>
-			<span class="input-group-btn"><input id="num_min" type="button" class="btn btn-info" style="border-radius: 0px;" value="━"></span>
-			<input id="num" name="num" class="form-control" type="number" min="1" value="1"/>
-			<span class="input-group-btn"><input id="num_add" type="button" class="btn btn-info" style="border-radius: 0px;" value="✚"></span>
+			<div class="input-group q8-quantity-control" role="group" aria-label="下单份数">
+			<div class="input-group-addon q8-quantity-label">下单份数</div>
+			<span class="input-group-btn q8-quantity-action"><button id="num_min" type="button" class="btn btn-info q8-quantity-btn" aria-label="减少下单份数"><i class="fa fa-minus"></i></button></span>
+			<input id="num" name="num" class="form-control q8-quantity-input" type="number" min="1" value="1" inputmode="numeric"/>
+			<span class="input-group-btn q8-quantity-action"><button id="num_add" type="button" class="btn btn-info q8-quantity-btn" aria-label="增加下单份数"><i class="fa fa-plus"></i></button></span>
 		</div></div>
+		<div class="q8-quantity-note" id="display_num_note" style="display:none;"><i class="fa fa-info-circle"></i> 该商品固定按 1 份下单，无需选择数量。</div>
 		<div id="inputsname"></div>
 		<div id="alert_frame" class="alert alert-success animated rubberBand" style="display:none;background: linear-gradient(to right,#71D7A2,#5ED1D7);font-weight: bold;color:white;"></div>
 		<?php if($conf['shoppingcart']==1){?>
@@ -360,12 +361,13 @@ if($primary_count==0)$hideclass = true;
 				<input type="text" name="leftcount" id="leftcount" class="form-control" disabled/>
 			</div></div>
 			<div class="form-group" id="display_num" style="display:none;">
-                <div class="input-group">
-                <div class="input-group-addon">下单份数</div>
-                <span class="input-group-btn"><input id="num_min" type="button" class="btn btn-info" style="border-radius: 0px;" value="━"></span>
-				<input id="num" name="num" class="form-control" type="number" min="1" value="1"/>
-				<span class="input-group-btn"><input id="num_add" type="button" class="btn btn-info" style="border-radius: 0px;" value="✚"></span>
+                <div class="input-group q8-quantity-control" role="group" aria-label="下单份数">
+                <div class="input-group-addon q8-quantity-label">下单份数</div>
+                <span class="input-group-btn q8-quantity-action"><button id="num_min" type="button" class="btn btn-info q8-quantity-btn" aria-label="减少下单份数"><i class="fa fa-minus"></i></button></span>
+				<input id="num" name="num" class="form-control q8-quantity-input" type="number" min="1" value="1" inputmode="numeric"/>
+				<span class="input-group-btn q8-quantity-action"><button id="num_add" type="button" class="btn btn-info q8-quantity-btn" aria-label="增加下单份数"><i class="fa fa-plus"></i></button></span>
 			</div></div>
+			<div class="q8-quantity-note" id="display_num_note" style="display:none;"><i class="fa fa-info-circle"></i> 该商品固定按 1 份下单，无需选择数量。</div>
 			<div id="inputsname"></div>
 			<div id="alert_frame" class="alert alert-success animated rubberBand" style="display:none;background: linear-gradient(to right,#71D7A2,#5ED1D7);font-weight: bold;color:white;"></div>
 			<?php if($conf['shoppingcart']==1){?>
