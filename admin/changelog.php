@@ -27,6 +27,7 @@ include "./head.php";
                         <li>移除远程公告弹窗与未引用的远程广告接口，避免后台加载无关外部推广内容。</li>
                         <li>自动转账接口改为后台自定义 Api_Url，不再写死第三方远程地址。</li>
                         <li>业务页面图标从 glyphicon 统一替换为 FontAwesome。</li>
+                        <li>新增 UPDATE.md，说明宝塔覆盖更新、数据库备份和必须保留的本地文件。</li>
                     </ul>
                 </div>
             </div>
