@@ -123,7 +123,6 @@ var GoodsCart = {
     },
     iframe: function (url) {
         var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
-        console.log(index)
         top.location.href = url;
     },
     CartNull: function () {
@@ -473,7 +472,6 @@ var GoodsCart = {
 				layer.closeAll();
 			});
 			clipboard.on('error', function (e) {
-				console.log(e);
 				swal({
 					title: '异常',
 					type: 'warning',

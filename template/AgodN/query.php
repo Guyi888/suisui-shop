@@ -182,7 +182,6 @@ if(!defined('IN_CRONLITE'))exit();
 
         // 获取URL中的orderid参数
         var orderid = getQueryString('orderid');
-        console.log('orderid:', orderid); // 调试信息
         if(orderid){
             $('#searchtype').val(1);
             $('#qq').val(orderid);

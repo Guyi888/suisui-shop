@@ -2736,7 +2736,6 @@ $(document).ready(function () {
       error: function (xhr, status, error) {
         layer.close(ii);
         layer.msg('网络错误，请稍后重试', {icon: 2});
-        console.log('Recommend load error:', error);
       }
     });
   }

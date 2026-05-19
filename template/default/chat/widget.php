@@ -41,9 +41,7 @@ function checkFontAwesome() {
   document.body.removeChild(fontTest);
 
   if (width > 0) {
-    console.log('Font Awesome加载成功');
   } else {
-    console.log('Font Awesome加载失败');
     // 尝试添加备用图标库
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -868,10 +866,8 @@ function playChatNotification() {
         try {
             audio.currentTime = 0; // 重置音频到开头
             audio.play().catch(function(e) {
-                console.log('音频播放失败:', e);
             });
         } catch(e) {
-            console.log('音频播放异常:', e);
         }
     }
 }

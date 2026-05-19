@@ -46,3 +46,29 @@ CREATE TABLE IF NOT EXISTS `shua_sync_category_map` (
   UNIQUE KEY `shequ_remote` (`shequ_id`,`remote_cid`),
   KEY `local_cid` (`local_cid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `shua_sync_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `shequ_id` int(11) NOT NULL,
+  `sync_interval` int(11) NOT NULL DEFAULT '5',
+  `sync_limit` int(11) NOT NULL DEFAULT '50',
+  `auto_update` tinyint(1) NOT NULL DEFAULT '1',
+  `delete_rule` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_class` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_sort` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_goods_sort` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_log` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_name` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_price` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_cost` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_desc` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_image` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_workorder` tinyint(1) NOT NULL DEFAULT '0',
+  `add_class` tinyint(1) NOT NULL DEFAULT '0',
+  `add_goods` tinyint(1) NOT NULL DEFAULT '0',
+  `markup_template` int(11) NOT NULL DEFAULT '0',
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  `addtime` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `shequ_id` (`shequ_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

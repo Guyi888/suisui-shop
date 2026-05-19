@@ -1,0 +1,9 @@
+<?php
+$dbconfig = array(
+    'host' => 'localhost',
+    'port' => 3306,
+    'user' => 'database_user',
+    'pwd' => 'database_password',
+    'dbname' => 'database_name',
+    'dbqz' => 'shua',
+);

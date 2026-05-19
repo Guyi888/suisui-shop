@@ -30,6 +30,10 @@ session_start();
 // 判断文件或目录是否有写的权限
 function is_really_writable($file)
 {
+    if (!is_file($file)) {
+        $dir = dirname($file);
+        return is_dir($dir) && is_writable($dir);
+    }
     if (DIRECTORY_SEPARATOR === '/' and @ ini_get("safe_mode") == false) {
         return is_writable($file);
     }
@@ -99,7 +103,14 @@ if (@$_GET['s'] === 'step3') {
                 $mysqlPassword = isset($_POST['password']) ? $_POST['password'] : 'root';
                 $mysqlDatabase = isset($_POST['database']) ? $_POST['database'] : 'pre';
                 $mysqlPreFix = isset($_POST['prefix']) ? $_POST['prefix'] : $config['tablePrefix'];
-                $mysqlPreFix = rtrim($mysqlPreFix);
+                $mysqlPreFix = trim($mysqlPreFix);
+                $port = (int)$port;
+                if ($port <= 0 || $port > 65535) {
+                    exit("progress:1|Invalid database port|error");
+                }
+                if (!preg_match('/^[A-Za-z0-9_]+$/', $mysqlPreFix)) {
+                    exit("progress:1|Invalid database table prefix|error");
+                }
                 //php 版本
                 if (version_compare(PHP_VERSION, '7.4.0', '<')) {
                     die("当前版本(" . PHP_VERSION . ")过低，请使用PHP7.4.0以上版本");
@@ -303,9 +314,28 @@ if (@$_GET['s'] === 'step3') {
                     @ob_flush();
                     @flush();
 
-	            $link->query("INSERT INTO `{$mysqlPreFix}_config` VALUES ('build', '".$date."')");
-                    $link->query("INSERT INTO `{$mysqlPreFix}_config` VALUES ('syskey', '" . md5(time(),'QQ2769693841') . "')");
-                    $link->query("INSERT INTO `{$mysqlPreFix}_config` VALUES ('cronkey', '" . mt_rand(100000,999999) . "')");
+                    $installAdminUser = 'admin';
+                    try {
+                        $installAdminPassword = substr(bin2hex(random_bytes(8)), 0, 12);
+                        $installSysKey = bin2hex(random_bytes(16));
+                    } catch (\Exception $e) {
+                        $installAdminPassword = substr(md5(uniqid('', true) . mt_rand()), 0, 12);
+                        $installSysKey = md5(uniqid('', true) . mt_rand());
+                    }
+                    $installCronKey = (string)mt_rand(100000, 999999);
+                    $configRows = array(
+                        'admin_user' => $installAdminUser,
+                        'admin_pwd' => $installAdminPassword,
+                        'build' => $date,
+                        'syskey' => $installSysKey,
+                        'cronkey' => $installCronKey,
+                    );
+                    foreach ($configRows as $configKey => $configValue) {
+                        $safeConfigKey = $link->real_escape_string($configKey);
+                        $safeConfigValue = $link->real_escape_string($configValue);
+                        $link->query("REPLACE INTO `{$mysqlPreFix}_config` (`k`,`v`) VALUES ('{$safeConfigKey}', '{$safeConfigValue}')");
+                    }
+                    $link->query("DELETE FROM `{$mysqlPreFix}_cache` WHERE `k`='config'");
 
                     echo "progress:6|系统配置数据插入完成|success\n";
                     @ob_flush();
@@ -323,15 +353,14 @@ if (@$_GET['s'] === 'step3') {
                     }
 
                     //替换数据库相关配置
-                    $config= "<?php
-\$dbconfig=array(
-'host' => '{$host}', //数据库服务器
-'port' => {$port}, //数据库端口
-'user' => '{$mysqlUserName}', //数据库用户名
-'pwd' => '{$mysqlPassword}', //数据库密码
-'dbname' => '{$mysqlDatabase}', //数据库名
-'dbqz' => '{$mysqlPreFix}', //表前缀
-);";
+                    $config = "<?php\n\$dbconfig = array(\n"
+                        . "'host' => " . var_export($host, true) . ",\n"
+                        . "'port' => " . $port . ",\n"
+                        . "'user' => " . var_export($mysqlUserName, true) . ",\n"
+                        . "'pwd' => " . var_export($mysqlPassword, true) . ",\n"
+                        . "'dbname' => " . var_export($mysqlDatabase, true) . ",\n"
+                        . "'dbqz' => " . var_export($mysqlPreFix, true) . ",\n"
+                        . ");";
                     $putConfig = @file_put_contents($databaseConfigFile, $config);
                     if (!$putConfig) {
                         exit("progress:7|安装失败、因为无config.php文件的写入权限！请前往宝塔面板将config目录权限设置为777|error");
@@ -352,7 +381,7 @@ if (@$_GET['s'] === 'step3') {
                         exit("progress:8|安装失败、因为无install目录的写入权限！请前往宝塔面板将install目录权限设置为777|error");
                     }
 
-                    $adminName = '';
+                    $adminName = $installAdminUser;
                     $result = @file_put_contents($lockFile, 'ok');
                     if (!$result) {
                         exit("progress:8|安装失败、因为无install.lock文件的写入权限！请前往宝塔面板将install目录权限设置为777|error");
@@ -363,8 +392,8 @@ if (@$_GET['s'] === 'step3') {
                     @flush();
 
                     // 完成安装
-                    $_SESSION['admin'] = 'admin';
-                    $_SESSION['password'] = '123456';
+                    $_SESSION['admin'] = $installAdminUser;
+                    $_SESSION['password'] = $installAdminPassword;
                     $_SESSION['backend'] = '';
                     echo $msg = 'success|' . $adminName;exit();
                 } catch (\Exception $e) {

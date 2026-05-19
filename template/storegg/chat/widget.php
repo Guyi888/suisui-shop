@@ -32,9 +32,7 @@ function checkFontAwesome() {
   document.body.removeChild(fontTest);
 
   if (width > 0) {
-    console.log('Font Awesome加载成功');
   } else {
-    console.log('Font Awesome加载失败');
     // 尝试添加备用图标库
     const link = document.createElement('link');
     link.rel = 'stylesheet';

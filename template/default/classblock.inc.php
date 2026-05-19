@@ -19,7 +19,7 @@ $(document).ready(function(){
 		jsonp: "callback",
 		success: function (res) {
 			if(res.status != "1"){
-				console.log(res);return false;
+				return false;
 			}
 			var loc = res.province+res.city;
 			$('#cid option').each(function (i, item) {

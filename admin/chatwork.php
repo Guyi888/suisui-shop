@@ -131,7 +131,6 @@ function loadSessionList() {
                     var audio = document.getElementById('chat-notification-audio');
                     if(audio) {
                         audio.play().catch(function(error) {
-                            console.log('音频播放失败:', error);
                         });
                     }
                 }
@@ -195,7 +194,6 @@ function loadMessageList(sessionId, scrollBottom, playSound) {
                 var audio = document.getElementById('chat-notification-audio');
                 if(audio) {
                     audio.play().catch(function(error) {
-                        console.log('音频播放失败:', error);
                     });
                 }
             }

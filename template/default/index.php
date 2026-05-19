@@ -35,11 +35,9 @@ if(!defined('IN_CRONLITE'))exit();
   <!-- 🔥 课程查询强制修复 - 纯原生 JavaScript + 终极防护 -->
   <!-- ============================================ -->
   <script>
-  console.log('🔥 课程查询强制修复加载...');
 
   // 1. 定义真正的查询函数
   function doQuery() {
-    console.log('🚀 执行查询...');
 
     // 纯原生获取值
     var input1 = document.getElementById('inputvalue');
@@ -54,7 +52,6 @@ if(!defined('IN_CRONLITE'))exit();
     pwd = pwd.trim();
     school = school.trim();
 
-    console.log('获取的值:', {user, pwd, school});
 
     if (!user || !pwd || !school) {
       var msg = '请完整填写信息！';
@@ -70,7 +67,6 @@ if(!defined('IN_CRONLITE'))exit();
     }
 
     var url = 'cx.php?user=' + encodeURIComponent(user) + '&pwd=' + encodeURIComponent(pwd) + '&school=' + encodeURIComponent(school);
-    console.log('跳转URL:', url);
 
     window.open(url, '_blank');
   }
@@ -103,7 +99,6 @@ if(!defined('IN_CRONLITE'))exit();
       btn.onclick = function(e) {
         e.preventDefault();
         e.stopPropagation();
-        console.log('🔥 按钮被点击，执行查询');
         doQuery();
         return false;
       };
@@ -113,7 +108,6 @@ if(!defined('IN_CRONLITE'))exit();
         btn.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
-          console.log('🔥 addEventListener 触发');
           doQuery();
           return false;
         });
@@ -128,15 +122,12 @@ if(!defined('IN_CRONLITE'))exit();
   // 页面加载完成后立即启动
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('✅ 启用输入框...');
       setInterval(fixAndBind, 100); // 更频繁检查
     });
   } else {
-    console.log('✅ 启用输入框...');
     setInterval(fixAndBind, 100); // 更频繁检查
   }
 
-  console.log('✅ 强制修复完成！');
   </script>
   <script src="assets/js/main.js?ver=<?php echo VERSION ?>"></script>
 
@@ -149,7 +140,6 @@ if(!defined('IN_CRONLITE'))exit();
           e.stopPropagation();
 
           var id = $(this).data('id');
-          console.log('分类点击事件触发，ID:', id);
 
           // 立即响应，不等待AJAX
           $("#cid").val(id);
@@ -173,7 +163,6 @@ if(!defined('IN_CRONLITE'))exit();
           return false;
       });
 
-      console.log('关键JavaScript已加载完成');
   });
   </script>
 
@@ -457,7 +446,6 @@ window.addEventListener('load', function() {
 
     // 延迟加载其他功能
     setTimeout(function() {
-        console.log('页面完全加载完成');
     }, 1000);
 });
 </script>
@@ -512,7 +500,6 @@ $(document).ready(function() {
 if (typeof LA === 'undefined') {
     window.LA = {
         init: function() {
-            console.log('LA.init called but LA library not loaded');
         }
     };
 }

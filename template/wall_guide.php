@@ -313,7 +313,6 @@
 
         // 页面跳转 - 先跳转到过渡页面
         setTimeout(() => {
-            console.log('设置的Cookie:', document.cookie);
             window.location.href = '/template/wall_redirect.php';
         }, 500);
     }

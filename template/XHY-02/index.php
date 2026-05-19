@@ -74,7 +74,6 @@ $show_top_banner = isset($conf['show_top_banner']) ? $conf['show_top_banner'] : 
           e.stopPropagation();
 
           var id = $(this).data('id');
-          console.log('分类点击事件触发，ID:', id);
 
           // 立即响应，不等待AJAX
           $("#cid").val(id);
@@ -98,7 +97,6 @@ $show_top_banner = isset($conf['show_top_banner']) ? $conf['show_top_banner'] : 
           return false;
       });
 
-      console.log('关键JavaScript已加载完成');
   });
   </script>
 
@@ -615,7 +613,6 @@ $(document).ready(function(){
         e.stopPropagation();
 
         var id = $(this).data('id');
-        console.log('分类点击事件触发，ID:', id);
 
         // 立即响应，不等待AJAX
         $("#cid").val(id);

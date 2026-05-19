@@ -134,6 +134,7 @@ https://你的域名/admin/
 ├── assets/             # 公共静态资源
 ├── install/            # 安装和升级脚本
 ├── config/             # 配置目录
+├── config.php.example  # 数据库配置示例，安装后生成 config.php
 ├── ajax.php            # 前台接口入口
 ├── api.php             # API 接口入口
 ├── cron.php            # 计划任务入口

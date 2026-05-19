@@ -83,14 +83,12 @@ var App = function() {
         if (typeof $().tooltip !== 'undefined') {
             $('[data-toggle="tooltip"], .enable-tooltip').tooltip({container: 'body', animation: false});
         } else {
-            console.log('Tooltip functionality not available');
         }
 
         // Initialize Popovers
         if (typeof $().popover !== 'undefined') {
             $('[data-toggle="popover"], .enable-popover').popover({container: 'body', animation: true});
         } else {
-            console.log('Popover functionality not available');
         }
 
 
@@ -105,7 +103,6 @@ var App = function() {
         if (typeof $().placeholder !== 'undefined') {
             $('input, textarea').placeholder();
         } else {
-            console.log('Placeholder functionality not available');
         }
     };
 

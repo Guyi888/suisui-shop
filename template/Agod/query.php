@@ -154,7 +154,6 @@ if(checkmobile()){include TEMPLATE_ROOT.'Agod/mquery.php';exit;}
           created() {
             //得到url参数
             const _URL = new URL(location.href)
-            console.log(_URL);
             // 摘取参数
             const _SEARCH = _URL.search
             const _Query = '?mod=query&type=0&qq=&page=1'

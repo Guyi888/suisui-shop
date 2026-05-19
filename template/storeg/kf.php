@@ -524,9 +524,6 @@ $conf['chat_window_color'] = '#FFFFFF';
             },
             error: function(xhr, status, error) {
                 console.error('创建会话请求失败:', status, error);
-                console.log('请求URL:', this.url);
-                console.log('响应状态:', xhr.status);
-                console.log('响应文本:', xhr.responseText);
                 // 请求失败，使用模拟数据
                 initWithMockData();
             }
@@ -697,7 +694,6 @@ $conf['chat_window_color'] = '#FFFFFF';
 
     // 使用模拟数据初始化（当无法连接到后端时）
     function initWithMockData() {
-        console.log('使用模拟数据初始化聊天');
         var mockHtml = '<div class="chat-msg-admin">'+
             '<span class="chat-msg-bubble">您好，欢迎使用在线客服，有什么可以帮助您的？</span>'+
             '<span class="chat-msg-time">'+new Date().toLocaleString('zh-CN', {month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})+'</span>'+

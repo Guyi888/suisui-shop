@@ -379,12 +379,10 @@ $(document).ready(function(){
 		var kmShowFrame = $('#km_show_frame');
 		if (kmShowFrame.length) {
 			kmShowFrame.append('<div id="inputsname"></div>');
-			console.log('DOM ready: Created #inputsname container in #km_show_frame');
 		} else {
 			console.error('DOM ready: #km_show_frame not found, could not create #inputsname container');
 		}
 	} else {
-		console.log('DOM ready: #inputsname container found');
 	}
 
 	$("#submit_card").click(function(){
@@ -405,8 +403,6 @@ $(document).ready(function(){
 					$("#num").val(data.num);
 					var res = data.data;
 				$("#shopname").val(res.name);
-				console.log('Debug: res.input =', res.input);
-				console.log('Debug: res.inputs =', res.inputs);
 
 				// 清除并重新生成输入框
 				$('#inputsname').html('');
@@ -495,7 +491,6 @@ $(document).ready(function(){
 						});
 					}
 
-					console.log('Debug: Input fields generated successfully');
 				} else {
 					layer.open({
 						title: '错误提示'

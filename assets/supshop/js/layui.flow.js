@@ -87,7 +87,6 @@ layui.define('jquery', function(exports){
           ? othis.prop('scrollHeight')
         : document.documentElement.scrollHeight;
 
-console.log(scrollHeight - top - height) //获得当前页
         //临界点
         if(scrollHeight - top - height <= mb){
           lock || done();

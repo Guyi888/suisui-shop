@@ -86,7 +86,6 @@ CREATE TABLE `shua_cache` (
 /*Data for the table `shua_cache` */
 
 insert  into `shua_cache`(`k`,`v`,`expire`) values
-('config','a:63:{s:9:\"admin_pwd\";s:6:\"123456\";s:10:\"admin_user\";s:5:\"admin\";s:10:\"alipay_api\";s:1:\"2\";s:7:\"anounce\";s:1008:\"<p><li class=\"list-group-item\"><span class=\"btn btn-danger btn-xs\">1</span> 售后问题请联系在线客服，默认官方客服 TG @qqfaka。</li><li class=\"list-group-item\"><span class=\"btn btn-success btn-xs\">2</span> 下单前请仔细阅读商品说明、补充信息和售后规则。</li><li class=\"list-group-item\"><span class=\"btn btn-info btn-xs\">3</span> 订单状态可在查询页面自助查看，请保存好下单账号或订单号。</li><li class=\"list-group-item\"><span class=\"btn btn-warning btn-xs\">4</span> 请勿重复下单，等待前一笔任务完成后再提交新的订单。</li><div class=\"btn-group btn-group-justified\"><a target=\"_blank\" class=\"btn btn-info\" href=\"https://t.me/qqfaka\"><i class=\"fa fa-paper-plane\"></i> 联系客服</a><a target=\"_blank\" class=\"btn btn-warning\" href=\"https://t.me/qqfaka\"><i class=\"fa fa-users\"></i> 官方群组</a><a target=\"_blank\" class=\"btn btn-success\" href=\"https://t.me/qqfaka\"><i class=\"fa fa-home\"></i> 官方入口</a></div></p>\";s:6:\"bottom\";s:0:\"\";s:5:\"build\";s:10:\"2023-05-28\";s:17:\"captcha_open_free\";s:1:\"1\";s:16:\"captcha_open_reg\";s:1:\"1\";s:9:\"cdnpublic\";s:1:\"0\";s:9:\"chatframe\";s:0:\"\";s:5:\"cishu\";s:1:\"3\";s:7:\"cronkey\";s:6:\"555267\";s:11:\"description\";s:90:\"岁岁云商城，专注数字商品、自助下单、发卡交付与分站运营服务。\";s:9:\"faka_mail\";s:237:\"<b>商品名称：</b> [name]<br/><b>购买时间：</b>[date]<br/><b>以下是你的卡密信息：</b><br/>[kmdata]<br/>----------<br/><b>使用说明：</b><br/>[alert]<br/>----------<br/>岁岁云商城自助下单平台<br/>[domain]\";s:11:\"fenzhan_buy\";s:1:\"1\";s:16:\"fenzhan_edithtml\";s:1:\"1\";s:14:\"fenzhan_expiry\";s:2:\"12\";s:12:\"fenzhan_free\";s:1:\"0\";s:12:\"fenzhan_kfqq\";s:1:\"1\";s:13:\"fenzhan_price\";s:2:\"10\";s:14:\"fenzhan_price2\";s:2:\"20\";s:18:\"fenzhan_pricelimit\";s:1:\"1\";s:12:\"fenzhan_rank\";s:1:\"1\";s:14:\"fenzhan_tixian\";s:1:\"0\";s:21:\"fenzhan_tixian_alipay\";s:1:\"1\";s:17:\"fenzhan_tixian_qq\";s:1:\"1\";s:17:\"fenzhan_tixian_wx\";s:1:\"1\";s:9:\"gg_search\";s:400:\"<span class=\"label label-primary\">待处理</span> 说明正在努力提交到服务器！<p></p><p></p><span class=\"label label-success\">已完成</span> 已经提交到接口正在处理！<p></p><p></p><span class=\"label label-warning\">处理中</span> 已经开始为您开单 请耐心等！<p></p><p></p><span class=\"label label-danger\">有异常</span> 下单信息有误 联系客服处理！\";s:9:\"gift_open\";s:1:\"0\";s:14:\"invite_content\";s:86:\"岁岁云商城自助下单平台，链接：[url] (请复制链接到浏览器打开)\";s:8:\"keywords\";s:54:\"岁岁云商城,自助下单,发卡商城,数字商品\";s:4:\"kfqq\";s:6:\"qqfaka\";s:10:\"lt_version\";s:4:\"1012\";s:9:\"mail_port\";s:3:\"465\";s:9:\"mail_smtp\";s:11:\"smtp.qq.com\";s:5:\"modal\";s:0:\"\";s:6:\"paymsg\";s:104:\"<hr/>小提示：支付遇到问题请联系在线客服处理，请保留付款记录与订单信息。\";s:12:\"pricejk_time\";s:3:\"600\";s:11:\"qiandao_day\";s:2:\"15\";s:12:\"qiandao_mult\";s:4:\"1.05\";s:14:\"qiandao_reward\";s:4:\"0.02\";s:9:\"qqpay_api\";s:1:\"2\";s:11:\"search_open\";s:1:\"1\";s:15:\"shopdesc_editor\";s:1:\"1\";s:12:\"shoppingcart\";s:1:\"1\";s:8:\"sitename\";s:15:\"岁岁云商城\";s:5:\"style\";s:1:\"1\";s:8:\"sup_bond\";s:1:\"0\";s:6:\"syskey\";s:16:\"Sv???t?$-????q\";s:8:\"template\";s:8:\"CX-NEW1\";s:12:\"tixian_limit\";s:1:\"1\";s:10:\"tixian_min\";s:2:\"10\";s:11:\"tixian_rate\";s:2:\"98\";s:11:\"tongji_time\";s:3:\"300\";s:13:\"ui_background\";s:1:\"3\";s:12:\"updatestatus\";s:1:\"0\";s:21:\"updatestatus_interval\";s:1:\"6\";s:9:\"user_open\";s:1:\"1\";s:11:\"verify_open\";s:1:\"1\";s:7:\"version\";s:4:\"1010\";s:14:\"workorder_open\";s:1:\"1\";s:14:\"workorder_type\";s:66:\"业务补单|卡密错误|充值没到账|订单中途改了密码\";s:9:\"wxpay_api\";s:1:\"2\";}',0),
 ('getcount','a:2:{s:4:\"time\";i:1685236943;s:4:\"data\";a:20:{s:4:\"code\";i:0;s:4:\"yxts\";d:1;s:6:\"count1\";s:1:\"0\";s:6:\"count2\";s:1:\"0\";s:6:\"count3\";s:1:\"0\";s:6:\"count4\";s:1:\"0\";s:6:\"count5\";d:0;s:6:\"count6\";s:1:\"0\";s:6:\"count7\";s:1:\"0\";s:6:\"count8\";d:0;s:6:\"count9\";d:0;s:7:\"count10\";d:0;s:7:\"count11\";d:0;s:7:\"count12\";d:0;s:7:\"count13\";d:0;s:7:\"count14\";d:0;s:7:\"count15\";d:0;s:7:\"count16\";d:0;s:7:\"count17\";s:1:\"0\";s:5:\"chart\";a:3:{s:4:\"date\";a:7:{i:0;a:2:{i:0;i:1;i:1;s:4:\"0521\";}i:1;a:2:{i:0;i:2;i:1;s:4:\"0522\";}i:2;a:2:{i:0;i:3;i:1;s:4:\"0523\";}i:3;a:2:{i:0;i:4;i:1;s:4:\"0524\";}i:4;a:2:{i:0;i:5;i:1;s:4:\"0525\";}i:5;a:2:{i:0;i:6;i:1;s:4:\"0526\";}i:6;a:2:{i:0;i:7;i:1;s:4:\"0527\";}}s:6:\"orders\";a:7:{i:0;a:2:{i:0;i:1;i:1;s:1:\"0\";}i:1;a:2:{i:0;i:2;i:1;s:1:\"0\";}i:2;a:2:{i:0;i:3;i:1;s:1:\"0\";}i:3;a:2:{i:0;i:4;i:1;s:1:\"0\";}i:4;a:2:{i:0;i:5;i:1;s:1:\"0\";}i:5;a:2:{i:0;i:6;i:1;s:1:\"0\";}i:6;a:2:{i:0;i:7;i:1;s:1:\"0\";}}s:5:\"money\";a:7:{i:0;a:2:{i:0;i:1;i:1;d:0;}i:1;a:2:{i:0;i:2;i:1;d:0;}i:2;a:2:{i:0;i:3;i:1;d:0;}i:3;a:2:{i:0;i:4;i:1;d:0;}i:4;a:2:{i:0;i:5;i:1;d:0;}i:5;a:2:{i:0;i:6;i:1;d:0;}i:6;a:2:{i:0;i:7;i:1;d:0;}}}}}',0),
 ('tongji','a:7:{s:6:\"orders\";s:1:\"0\";s:7:\"orders1\";s:1:\"0\";s:7:\"orders2\";s:1:\"0\";s:5:\"money\";d:0;s:6:\"money1\";d:0;s:4:\"site\";s:1:\"0\";s:4:\"gift\";N;}',0);
 
@@ -144,7 +143,7 @@ CREATE TABLE `shua_config` (
 
 insert  into `shua_config`(`k`,`v`) values
 ('adminlogin','2023-05-28 09:22:21'),
-('admin_pwd','123456'),
+('admin_pwd','install_generated'),
 ('admin_user','admin'),
 ('alipay_api','2'),
 ('anounce','<p><li class="list-group-item"><span class="btn btn-danger btn-xs">1</span> 售后问题请联系在线客服，默认官方客服 TG @qqfaka。</li><li class="list-group-item"><span class="btn btn-success btn-xs">2</span> 下单前请仔细阅读商品说明、补充信息和售后规则。</li><li class="list-group-item"><span class="btn btn-info btn-xs">3</span> 订单状态可在查询页面自助查看，请保存好下单账号或订单号。</li><li class="list-group-item"><span class="btn btn-warning btn-xs">4</span> 请勿重复下单，等待前一笔任务完成后再提交新的订单。</li><div class="btn-group btn-group-justified"><a target="_blank" class="btn btn-info" href="https://t.me/qqfaka"><i class="fa fa-paper-plane"></i> 联系客服</a><a target="_blank" class="btn btn-warning" href="https://t.me/qqfaka"><i class="fa fa-users"></i> 官方群组</a><a target="_blank" class="btn btn-success" href="https://t.me/qqfaka"><i class="fa fa-home"></i> 官方入口</a></div></p>'),
@@ -156,7 +155,7 @@ insert  into `shua_config`(`k`,`v`) values
 ('cdnpublic','0'),
 ('chatframe',''),
 ('cishu','3'),
-('cronkey','555267'),
+('cronkey','0'),
 ('datepoint','a:7:{i:0;a:3:{s:4:\"date\";s:4:\"0527\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:1;a:3:{s:4:\"date\";s:4:\"0526\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:2;a:3:{s:4:\"date\";s:4:\"0525\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:3;a:3:{s:4:\"date\";s:4:\"0524\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:4;a:3:{s:4:\"date\";s:4:\"0523\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:5;a:3:{s:4:\"date\";s:4:\"0522\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}i:6;a:3:{s:4:\"date\";s:4:\"0521\";s:6:\"orders\";s:1:\"0\";s:5:\"money\";d:0;}}'),
 ('description','岁岁云商城，专注数字商品、自助下单、发卡交付与分站运营服务。'),
 ('faka_mail','<b>商品名称：</b> [name]<br/><b>购买时间：</b>[date]<br/><b>以下是你的卡密信息：</b><br/>[kmdata]<br/>----------<br/><b>使用说明：</b><br/>[alert]<br/>----------<br/>岁岁云商城自助下单平台<br/>[domain]'),
@@ -194,7 +193,7 @@ insert  into `shua_config`(`k`,`v`) values
 ('sitename','岁岁云商城'),
 ('style','1'),
 ('sup_bond','0'),
-('syskey','Sv???t?$-????q'),
+('syskey',''),
 ('template','CX-NEW1'),
 ('tixian_limit','1'),
 ('tixian_min','10'),
@@ -1054,6 +1053,32 @@ CREATE TABLE IF NOT EXISTS `shua_sync_category_map` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `shequ_remote` (`shequ_id`,`remote_cid`),
   KEY `local_cid` (`local_cid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `shua_sync_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `shequ_id` int(11) NOT NULL,
+  `sync_interval` int(11) NOT NULL DEFAULT '5',
+  `sync_limit` int(11) NOT NULL DEFAULT '50',
+  `auto_update` tinyint(1) NOT NULL DEFAULT '1',
+  `delete_rule` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_class` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_sort` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_goods_sort` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_log` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_name` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_price` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_cost` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_desc` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_image` tinyint(1) NOT NULL DEFAULT '0',
+  `sync_workorder` tinyint(1) NOT NULL DEFAULT '0',
+  `add_class` tinyint(1) NOT NULL DEFAULT '0',
+  `add_goods` tinyint(1) NOT NULL DEFAULT '0',
+  `markup_template` int(11) NOT NULL DEFAULT '0',
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  `addtime` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `shequ_id` (`shequ_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

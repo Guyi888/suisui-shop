@@ -26,7 +26,6 @@ function listTable(query){
 			if(data.status) errorMsg += ' - HTTP状态码: ' + data.status;
 			if(data.statusText) errorMsg += ' - ' + data.statusText;
 			layer.msg(errorMsg);
-			console.log('AJAX错误详情:', data);
 			return false;
 		}
 	});

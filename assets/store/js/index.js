@@ -129,7 +129,6 @@ $(function() {
 
 
     /*点击切换风格 - 原生JavaScript实现*/
-    console.log('尝试绑定列表切换按钮事件...');
 
     // 首先定义getCookie函数
     function getCookie(name) {
@@ -152,8 +151,6 @@ $(function() {
     var listblockBtn = document.getElementById('listblock');
     var goodsListContainer = document.getElementById('goods-list-container');
 
-    console.log('按钮元素存在:', listblockBtn ? '是' : '否');
-    console.log('列表容器存在:', goodsListContainer ? '是' : '否');
 
     // 初始化列表样式
     // 优先使用cookie设置，其次使用系统默认配置
@@ -165,13 +162,11 @@ $(function() {
         defaultStyle = goods_list_default_style;
     }
 
-    console.log('初始化列表样式: 系统默认配置为', defaultStyle, '，cookie设置为', cookieStyle);
 
     // 确定最终使用的样式
     var finalStyle = cookieStyle || defaultStyle;
 
     if(finalStyle == 'list'){
-        console.log('初始化列表样式: 使用列表视图');
         if(listblockBtn) {
             listblockBtn.setAttribute('data-state', 'gongge');
             listblockBtn.classList.remove('icon-sort');
@@ -181,7 +176,6 @@ $(function() {
             goodsListContainer.classList.remove('block', 'three');
         }
     } else {
-        console.log('初始化列表样式: 使用网格视图');
         if(listblockBtn) {
             listblockBtn.setAttribute('data-state', 'list');
             listblockBtn.classList.remove('icon-app');
@@ -194,16 +188,13 @@ $(function() {
 
     // 直接绑定事件 - 不依赖jQuery
     if (listblockBtn) {
-        console.log('按钮元素已找到，尝试绑定点击事件');
 
         // 添加点击事件
         listblockBtn.addEventListener('click', function(e) {
-            console.log('列表切换按钮被点击了!');
             e.stopPropagation(); // 阻止事件冒泡
 
             // 获取当前状态
             var currentState = listblockBtn.getAttribute('data-state') || 'list';
-            console.log('当前状态:', currentState);
 
             try {
                 // 切换状态和样式
@@ -225,7 +216,6 @@ $(function() {
                 // 确定切换后的样式
                 var newStyle = currentState === 'gongge' ? 'grid' : 'list';
                 document.cookie = 'goods_list_style=' + newStyle + '; expires=' + cookietime.toUTCString() + '; path=/';
-                console.log('已保存cookie样式为:', newStyle);
 
                 // 如果有layer库，显示消息
                 if (window.layer) {
@@ -236,15 +226,12 @@ $(function() {
                     setTimeout(function() { layer.close(index); }, 500);
                 }
 
-                console.log('列表样式已成功切换');
             } catch (error) {
                 console.error('切换列表风格时出错:', error);
             }
         }, false);
 
-        console.log('点击事件绑定完成');
     } else {
-        console.log('未找到列表切换按钮元素');
     }
 
     //弹窗广告

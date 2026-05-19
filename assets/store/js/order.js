@@ -22,7 +22,6 @@ function dopay(type,orderid){
 			layer.closeAll();
 		});
 		clipboard.on('error', function (e) {
-			console.log(e);
 			swal({
 				title: '异常',
 				type: 'warning',

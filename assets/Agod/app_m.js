@@ -60,12 +60,10 @@ const app = new Vue({
   },
   methods: {
     async getGoodsInfo(tid) {
-      console.log("1");
       const { data: res } = await axios.get(
         `./ajax.php?act=gettool&tid=${tid}`
       );
       this.info = res.data[0];
-      console.log(res.data[0]);
     },
     countoper(opr) {
       if (this.info) {

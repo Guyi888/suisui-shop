@@ -1063,7 +1063,6 @@ catch (e) {
 		if (typeof $().tooltip !== 'undefined') {
 			$('[data-toggle="tooltip"]').tooltip();
 		} else {
-			console.log('Tooltip functionality not available');
 		}
 	});
 	</script>
@@ -1077,7 +1076,6 @@ catch (e) {
 		effect: "fadeIn"
 		});
 		} else {
-			console.log('Lazyload functionality not available');
 		}
 		});
 		// 移除无效的计时脚本

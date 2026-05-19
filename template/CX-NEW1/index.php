@@ -65,7 +65,6 @@ if (empty($site_info['appurl'])) {
           e.stopPropagation();
 
           var id = $(this).data('id');
-          console.log('分类点击事件触发，ID:', id);
 
           // 立即响应，不等待AJAX
           $("#cid").val(id);
@@ -89,7 +88,6 @@ if (empty($site_info['appurl'])) {
           return false;
       });
 
-      console.log('关键JavaScript已加载完成');
   });
   </script>
 
@@ -879,7 +877,6 @@ $i=0;
 if (typeof LA === 'undefined') {
     window.LA = {
         init: function() {
-            console.log('LA.init called but LA library not loaded');
         }
     };
 }
@@ -966,7 +963,6 @@ catch (e) {
 
       // 延迟加载其他功能
       setTimeout(function() {
-          console.log('页面完全加载完成');
       }, 1000);
   });
   </script>
@@ -1121,7 +1117,6 @@ $(function(){
 
   // 检测buyok参数并显示订单弹窗 - 岁岁 @qqfaka
   if(getUrlParam('buyok') == '1'){
-      console.log('检测到buyok参数，准备显示订单弹窗');
 
       // 直接从URL获取订单ID和skey参数
       var orderid = getUrlParam('orderid');
@@ -1129,7 +1124,6 @@ $(function(){
 
       // 如果有订单ID和skey参数，直接显示订单详情
       if(orderid && skey && typeof showOrder === 'function'){
-          console.log('使用订单ID和skey显示订单:', orderid, skey);
           showOrder(orderid, skey);
       }
       // 否则，为了保持兼容性，仍然通过查询获取最新订单
@@ -1137,7 +1131,6 @@ $(function(){
           var searchtype = getUrlParam('searchtype') || 1;
           var qq = getUrlParam('qq') || '';
 
-          console.log('通过查询获取最新订单，searchtype:', searchtype, 'qq:', qq);
 
           // 先检查$_GET变量的类型，确保正确处理
           if (typeof window.$_GET === 'function') {

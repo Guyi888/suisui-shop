@@ -35,7 +35,6 @@ $(function() {
     $("a.primary-category").on("click", function() {
         var primary_cid = $(this).data("cid");
         var primary_name = $(this).data("name");
-        console.log('点击一级分类:', primary_cid, primary_name); // 调试信息
 
         // 隐藏所有二级分类
         $("a.sub-category").hide();
@@ -293,7 +292,6 @@ function get_goods(){
 
             if(is_valid_primary) {
                 is_primary_cat = 1;
-                console.log('检测到一级分类视图，cid:', cid_val);
             }
         }
         var mb = testUA('Safari')?180:100;
@@ -322,7 +320,6 @@ function get_goods(){
                 ,isLazyimg:true
                 ,end:end
                 ,done: function(page, next){ //执行下一页的回调
-                    console.log('加载第', page, '页，cid:', cid, '一级分类:', is_primary_cat);
                     var lis = [];
                     //以jQuery的Ajax请求为例，请求下一页数据（注意：page是从2开始返回）
                     $.ajax({

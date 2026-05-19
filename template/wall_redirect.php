@@ -295,7 +295,6 @@
 
                 if (isBot) {
                     // 如果检测到可能是爬虫，可以采取一些措施
-                    console.log('Bot detected');
                 }
             }
         })();

@@ -62,12 +62,10 @@ const app = new Vue({
   },
   methods: {
     async getGoodsInfo(tid) {
-      console.log("1");
       const { data: res } = await axios.get(
         `./ajax.php?act=gettool&tid=${tid}`
       );
       this.info = res.data[0];
-      console.log(res.data[0]);
 
       // 处理输入框标题
       if (this.info.inputs) {
@@ -96,7 +94,6 @@ const app = new Vue({
     PayGoods() {
       var tid = this.info.tid;
       var inputvalue = $("#inputvalue").val();
-      console.log(tid, inputvalue);
 
       // 收集所有动态输入框的值
       var submitData = {

@@ -134,7 +134,6 @@ function Export() {
 }
 
 $("#saveas-bt").on("click", function() {
-    console.log('app')
     var txt = $("#txt_0").val();
     if (txt.indexOf('\r\n') < 0) {
         txt = txt.replace(/\n/g, "\r\n");
@@ -184,7 +183,6 @@ const app = new Vue({
                 dataType: 'JSON',
                 success: (res) => {
                     this.info = res
-                    console.log(this.info)
                 }
             })
             // 传入参数

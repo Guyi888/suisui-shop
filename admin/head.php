@@ -567,7 +567,6 @@ $bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
                     var audio = document.getElementById('global-chat-notification');
                     if(audio) {
                         audio.play().catch(function(error) {
-                            console.log('音频播放失败:', error);
                         });
                     }
                 }
