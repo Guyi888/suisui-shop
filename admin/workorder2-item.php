@@ -26,6 +26,23 @@
 .gdan_huifu1{width:6em;height:2.5em;border:none;background-color:#1e90ff;color:#fff;margin:.5em 0 .5em 1%}
 .gdan_jied{width:100%;height:3em;line-height:3em;text-align:center;color:#129DDE}
 .speedy-text{max-width: 180px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;display: inline-block;color: #fff!important;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;}
+body{margin:0;background:#f6f9ff;color:#1f2f46;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif}
+.row{margin:0}.center-block{width:100%;max-width:none;padding:16px}
+.panel{border:1px solid rgba(15,103,177,.12);border-radius:20px;box-shadow:0 18px 42px rgba(18,48,86,.08);overflow:hidden}
+.panel-heading{padding:16px 18px;border:0;background:linear-gradient(135deg,#f0f7ff,#fff)}
+.panel-title{font-weight:900;color:#14243c}
+.gdan_gout{padding:18px;background:#fff}
+.gdan_txt{height:auto;min-height:46px;line-height:1.6;text-indent:0;padding:12px 16px;border-radius:14px;background:#f8fbff;color:#14243c}
+.gdan_txt>span{position:static;float:right}
+.gdan_zhugan{width:100%;margin:14px 0 0;padding:16px;border:1px solid rgba(15,103,177,.1);border-radius:16px;background:#fbfdff}
+.gdan_kjia1{margin-left:58px;margin-top:-42px;line-height:1.8;word-break:break-word}
+.gdan_xiaozhi{height:auto;margin-bottom:8px;color:#64748b;font-weight:800}
+.gdan_xiaozhi>span{position:static;float:right;font-weight:600}
+.gdan_huifu{margin-top:16px;padding-top:16px;border-top:1px solid rgba(15,103,177,.1)}
+.gdan_srk{width:100%;height:130px;margin:0;border:1px solid rgba(22,119,255,.2);border-radius:14px;padding:12px;box-shadow:none}
+.gdan_huifu1{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:112px;height:38px;margin:10px 8px 10px 0;padding:0 14px;border-radius:999px;background:#1677ff;color:#fff;font-weight:800}
+.gdan_jied{height:auto;padding:16px;border-radius:14px;background:#ecfdf5;color:#0f8a5f;font-weight:900}
+#speedyList{border-radius:14px!important;background:#f8fbff}.speedy-text{max-width:220px;margin:4px}
 </style>
 
 </head>
@@ -78,11 +95,11 @@ if ($my == "view") {
 <?php
 	} else {
 		?><div class="gdan_huifu">
-<form action="./workorder-item.php?my=reply&id=<?php echo $id;?>" method="POST">
+<form action="./workorder2-item.php?my=reply&id=<?php echo $id;?>" method="POST">
 	<textarea class="gdan_srk" name="content" placeholder="回复后投诉状态自动变为已处理 ,分站站点将会收到通知哦！" required></textarea><br/>
 	<input type="checkbox" name="email" id="email" value="1" style="margin-left: 1%;"><label for="email">同时发送提醒邮件到用户邮箱</label><br/>
 	<input type="submit" name="submit" value="提交回复" class="gdan_huifu1" />
-	<input type="button" name="submit" value="完结投诉" class="gdan_huifu1" style="background-color: mediumseagreen;" onclick="window.location.href='./workorder-item.php?my=complete&id=<?php echo $id;?>'"/>
+	<input type="button" name="submit" value="完结投诉" class="gdan_huifu1" style="background-color: mediumseagreen;" onclick="window.location.href='./workorder2-item.php?my=complete&id=<?php echo $id;?>'"/>
 	<button type="button" class="gdan_huifu1" id="addSpeedy" style="width: 8em;background-color: #FFB800;">保存到快捷回复</button>
 	<div style="margin: 1%;">
 		<span>快捷回复列表</span>

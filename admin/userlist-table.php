@@ -58,7 +58,7 @@ function q8_userlist_power_label($power)
 				<th>&#20313;&#39069;</th>
 				<th>&#26102;&#38388;</th>
 				<th>&#29366;&#24577;</th>
-				<th>&#25805;&#20316;</th>
+				<th class="text-right">&#25805;&#20316;</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -80,7 +80,7 @@ while ($res = $rs->fetch()) {
 	echo '<td><a href="javascript:showRecharge(' . $zid . ')" title="&#28857;&#20987;&#35843;&#25972;&#20313;&#39069;">' . htmlspecialchars($res["rmb"], ENT_QUOTES, 'UTF-8') . '</a></td>';
 	echo '<td>' . htmlspecialchars($res["addtime"], ENT_QUOTES, 'UTF-8') . '<br><a href="javascript:setEndtime(' . $zid . ')" title="&#28857;&#20987;&#32493;&#26399;">' . htmlspecialchars($res["endtime"], ENT_QUOTES, 'UTF-8') . '</a></td>';
 	echo '<td>' . ($res["status"] == 1 ? '<span class="btn btn-xs btn-success" onclick="setActive(' . $zid . ',0)">&#24320;&#21551;</span>' : '<span class="btn btn-xs btn-warning" onclick="setActive(' . $zid . ',1)">&#20851;&#38381;</span>') . '</td>';
-	echo '<td>';
+	echo '<td class="text-right admin-userlist-actions">';
 	if ($power === 0) echo '<a href="./sitelist.php?my=add2&zid=' . $zid . '" class="btn btn-default btn-xs">&#24320;&#20998;&#31449;</a>&nbsp;';
 	echo '<a href="' . $editUrl . '" class="btn btn-info btn-xs">&#32534;&#36753;</a>&nbsp;';
 	echo '<a href="' . $orderUrl . '" class="btn btn-warning btn-xs">&#35746;&#21333;</a>&nbsp;';

@@ -59,8 +59,9 @@ function orderItem(id){
 	var options = {
 		type: 2,
 		title: title,
+		skin: 'admin-workorder-layer',
 		shadeClose: true,
-		shade: false,
+		shade: [0.14, '#0f172a'],
 		maxmin: true,
 		moveOut: true,
 		area: area,

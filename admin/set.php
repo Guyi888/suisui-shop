@@ -3036,16 +3036,16 @@ if($epay_key4){
 		<div class="block-title">
 			<h3 class="panel-title">上传客服微信二维码</h3>
 		</div>
-		<div class="">
+		<div class="admin-upload-card">
 
 			<form action="set.php?mod=upwxqrcode" method="POST" enctype="multipart/form-data">
 				<label for="file"></label>
-				<input type="file" name="file" id="file" accept="image/*" />
+				<input type="file" name="file" id="file" accept="image/*" class="form-control-file" />
 				<input type="hidden" name="s" value="1" /><br>
 				<input type="submit" class="btn btn-primary btn-block" value="确认上传" /><br />
 				<a href="./set.php?mod=delwxqrcode" class="btn btn-danger btn-block btn-sm">删除图片</a>
 			</form><br>
-			现在的客服微信二维码：<br><img src="../assets/img/wxqrcode.png?r=<?php echo rand(10000, 99999);?>" style="max-width:30%">
+			<div class="admin-upload-preview">现在的客服微信二维码：<br><img src="../assets/img/wxqrcode.png?r=<?php echo rand(10000, 99999);?>"></div>
 		</div>
 	</div>
 <?php

@@ -7,7 +7,7 @@ if ($islogin == 1) {
 } else {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
-?>    <div class="col-xs-12 col-md-10 center-block" style="float: none;">
+?>    <div class="col-xs-12 admin-rank-page">
 <?php
 if ($_GET["my"] == "setdo" && $_POST["do"] == "submit") {
 	$rank_reward = $_POST["rank_reward"];
@@ -30,8 +30,8 @@ if ($_GET["my"] == "setdo" && $_POST["do"] == "submit") {
 } elseif ($_GET["my"] == "set") {
 	$cron_lasttime = $DB->getColumn("SELECT `v` FROM `pre_config` WHERE `k` = 'cron_rank_time' LIMIT 1");
 	$cron_money = $DB->getColumn("SELECT `v` FROM `pre_config` WHERE `k` = 'cron_rank_money' LIMIT 1");
-	?><div class="block">
-<div class="block-title"><h3 class="panel-title">分站排行奖励设置</h3>&nbsp;&nbsp;[<a href="rank.php">返回</a>]</div>
+	?><div class="block admin-rank-panel">
+<div class="block-title"><h3 class="panel-title">分站排行奖励设置</h3><div class="block-options"><a class="btn btn-default btn-sm" href="rank.php"><i class="fa fa-arrow-left"></i> 返回排行</a></div></div>
 <div class="">
   <form action="./rank.php?my=setdo" method="post" class="form-horizontal" role="form"><input type="hidden" name="do" value="submit"/>
     <div class="form-group">
@@ -74,13 +74,13 @@ if ($_GET["my"] == "setdo" && $_POST["do"] == "submit") {
 		$sql = "select a.zid,(select b.sitename from pre_site as b where a.zid=b.zid) as sitename,count(id) as count,sum(money) as money from pre_orders as a where addtime>'" . $thtime . "' and zid>1 group by zid order by money desc limit " . $limit;
 		$addstr = "预计发放奖励";
 	}
-	?><div class="block">
+	?><div class="block admin-rank-panel">
      <div class="block-title"><h2>分站排行</h2></div>
-<ul class="nav nav-tabs">
-<li class="<?php echo $_GET["last"] != 1 ? "active" : null;?>" style="width:33.333333%"><a href="rank.php"><center>今日销售排行</center></a></li>
-<li class="<?php echo $_GET["last"] == 1 ? "active" : null;?>" style="width:33.333333%"><a href="rank.php?last=1"><center>昨日销售排行</center></a></li>
-<li style="width:33.333333%"><a href="rank.php?my=set"><center>分站排行奖励设置</center></a></li>
-</ul>
+<div class="admin-rank-tabs">
+<a class="<?php echo $_GET["last"] != 1 ? "active" : null;?>" href="rank.php"><i class="fa fa-line-chart"></i><span>今日销售排行</span></a>
+<a class="<?php echo $_GET["last"] == 1 ? "active" : null;?>" href="rank.php?last=1"><i class="fa fa-calendar-check-o"></i><span>昨日销售排行</span></a>
+<a href="rank.php?my=set"><i class="fa fa-trophy"></i><span>分站奖励排行</span></a>
+</div>
 
       <div class="table-responsive">
         <table class="table table-striped">

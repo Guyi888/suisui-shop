@@ -196,32 +196,24 @@ $actualProfitRate  = ($total['revenue'] > 0) ? round($totalActualProfit / $total
   </button>
 </form>
 
-<div class="row" style="margin-bottom:20px;">
-  <div class="col-xs-6 col-sm-3">
-    <div style="background:#5b9bd5;color:#fff;padding:14px 16px;border-radius:4px;margin-bottom:12px;">
-      <div style="font-size:22px;font-weight:700;">&#165;<?php echo number_format($total['revenue'],2);?></div>
-      <div style="font-size:13px;opacity:.9;"><i class="fa fa-money"></i> 总流水</div>
-    </div>
-  </div>
-  <div class="col-xs-6 col-sm-3">
-    <div style="background:#e74c3c;color:#fff;padding:14px 16px;border-radius:4px;margin-bottom:12px;">
-      <div style="font-size:22px;font-weight:700;">&#165;<?php echo number_format($total['cost'],2);?></div>
-      <div style="font-size:13px;opacity:.9;"><i class="fa fa-arrow-down"></i> 总成本</div>
-    </div>
-  </div>
-  <div class="col-xs-6 col-sm-3">
-    <div style="background:#27ae60;color:#fff;padding:14px 16px;border-radius:4px;margin-bottom:12px;">
-      <div style="font-size:22px;font-weight:700;">&#165;<?php echo number_format($total['profit'],2);?></div>
-      <div style="font-size:13px;opacity:.9;"><i class="fa fa-line-chart"></i> 毛利润（<?php echo $profitRate;?>%）</div>
-    </div>
-  </div>
-  <div class="col-xs-6 col-sm-3">
-    <div style="background:#e67e22;color:#fff;padding:14px 16px;border-radius:4px;margin-bottom:12px;">
-      <div style="font-size:22px;font-weight:700;">&#165;<?php echo number_format($totalActualProfit,2);?></div>
-      <div style="font-size:13px;opacity:.9;"><i class="fa fa-check-circle"></i> 实际利润（<?php echo $actualProfitRate;?>%）<br><span style="font-size:11px;opacity:.85;">扣赠送 &#165;<?php echo number_format($totalGift,2);?> + 退款扣回 &#165;<?php echo number_format($totalRefundDeduct,2);?></span></div>
-    </div>
-  </div>
-</div>
+<section class="admin-ops-stats admin-profit-stats" style="margin-bottom:20px;">
+  <article class="admin-ops-stat admin-ui-stat">
+    <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--primary"><i class="fa fa-money"></i></span>
+    <div><span>总流水</span><strong>&#165;<?php echo number_format($total['revenue'],2);?></strong></div>
+  </article>
+  <article class="admin-ops-stat admin-ui-stat">
+    <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--warning"><i class="fa fa-arrow-down"></i></span>
+    <div><span>总成本</span><strong>&#165;<?php echo number_format($total['cost'],2);?></strong></div>
+  </article>
+  <article class="admin-ops-stat admin-ui-stat">
+    <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--success"><i class="fa fa-line-chart"></i></span>
+    <div><span>毛利润</span><strong>&#165;<?php echo number_format($total['profit'],2);?></strong><small><?php echo $profitRate;?>%</small></div>
+  </article>
+  <article class="admin-ops-stat admin-ui-stat">
+    <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--accent"><i class="fa fa-check-circle"></i></span>
+    <div><span>实际利润</span><strong>&#165;<?php echo number_format($totalActualProfit,2);?></strong><small><?php echo $actualProfitRate;?>% / 扣赠送 &#165;<?php echo number_format($totalGift,2);?> / 退款扣回 &#165;<?php echo number_format($totalRefundDeduct,2);?></small></div>
+  </article>
+</section>
 <div style="margin-bottom:4px;color:#888;font-size:12px;">
   <i class="fa fa-info-circle"></i>
   完成订单数：<?php echo intval($total['order_count']);?> 笔 &nbsp;|&nbsp;

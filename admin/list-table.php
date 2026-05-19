@@ -96,9 +96,24 @@ if (isset($_GET["kw"]) && !empty($_GET["kw"])) {
 	$ondate2 = $DB->getColumn("select count(*) from pre_orders A where status=2" . $sqls);
 	$con = "系统共有 <b>" . $numrows . "</b> 个订单，其中已完成的有 <b>" . $ondate . "</b> 个，正在处理的有 <b>" . $ondate2 . "</b> 个。";
 }
-?>	  <form name="form1" id="form1">
+if (!isset($ondate)) {
+	$ondate = $DB->getColumn("SELECT count(*) from pre_orders A WHERE" . $sql . " AND A.status=1");
+}
+if (!isset($ondate2)) {
+	$ondate2 = $DB->getColumn("SELECT count(*) from pre_orders A WHERE" . $sql . " AND A.status=2");
+}
+?>	  <form name="form1" id="orderBatchForm">
 	  <div class="table-responsive">
-<?php echo $con;?>        <table class="table table-striped table-bordered table-vcenter orderList">
+		<div class="admin-order-summary">
+		  <div class="admin-order-summary__stats">
+			<div class="admin-order-stat"><span class="admin-order-stat__label">当前结果</span><strong class="admin-order-stat__value"><?php echo intval($numrows); ?></strong></div>
+			<div class="admin-order-stat"><span class="admin-order-stat__label">已完成</span><strong class="admin-order-stat__value"><?php echo intval($ondate); ?></strong></div>
+			<div class="admin-order-stat"><span class="admin-order-stat__label">处理中</span><strong class="admin-order-stat__value"><?php echo intval($ondate2); ?></strong></div>
+			<div class="admin-order-stat"><span class="admin-order-stat__label">每页显示</span><strong class="admin-order-stat__value"><?php echo isset($_GET["num"]) ? intval($_GET["num"]) : 30; ?></strong></div>
+		  </div>
+		  <div class="admin-order-summary__filters"><span class="admin-order-filter-chip"><i class="fa fa-info-circle"></i> <?php echo $con ? $con : "订单筛选结果"; ?></span></div>
+		</div>
+        <table class="table table-striped table-bordered table-vcenter orderList">
           <thead><tr><th>订单ID</th><th>商品名称</th><th>下单数据</th><th>份数</th><th>订单金额</th><th>站点ID</th><th>用户ID</th><th>添加时间</th><th>对接状态</th><th>订单状态</th><th>操作</th></tr></thead>
           <tbody>
 <?php
@@ -108,13 +123,17 @@ $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
 $offset = $pagesize * ($page - 1);
 $rs = $DB->query("SELECT A.*,B.name FROM pre_orders A left join pre_tools B on A.tid=B.tid WHERE" . $sql . " order by id desc limit " . $offset . "," . $pagesize);
 while ($res = $rs->fetch()) {
-	echo "<tr><td><input type=\"checkbox\" name=\"checkbox[]\" id=\"list1\" value=\"" . $res["id"] . "\" onClick=\"unselectall1()\"><b>" . $res["id"] . "</b></td><td><span onclick=\"showOrder(" . $res["id"] . ")\" title=\"点击查看详情\">" . htmlspecialchars($res["name"]) . "</span></td><td class=\"wbreak\"><span onclick=\"inputOrder(" . $res["id"] . ")\" title=\"点击修改数据\">" . htmlspecialchars($res["input"]) . ($res["input2"] ? "<br/>" . htmlspecialchars($res["input2"]) : null) . ($res["input3"] ? "<br/>" . htmlspecialchars($res["input3"]) : null) . ($res["input4"] ? "<br/>" . htmlspecialchars($res["input4"]) : null) . ($res["input5"] ? "<br/>" . htmlspecialchars($res["input5"]) : null) . "</span></td><td><span onclick=\"inputNum(" . $res["id"] . ")\" title=\"点击修改份数\">" . $res["value"] . "</span></td><td><b>￥" . $res["money"] . "</b></td><td><a href =\"sitelist.php?zid=" . $res["zid"] . "\" target=\"_blank\">" . $res["zid"] . "</a></td><td>" . (strlen($res["userid"]) != 32 ? "<a href =\"userlist.php?zid=" . $res["userid"] . "\" target=\"_blank\">" . $res["userid"] . "</a>" : "0") . "</td><td>" . $res["addtime"] . "</td><td>" . display_djzt($res["djzt"], $res["id"]) . "</td><td>" . display_zt($res["status"], $res["id"]) . "</td><td><select onChange=\"javascript:setStatus('" . $res["id"] . "',this.value)\" class=\"form-control\"><option selected>操作订单</option><option value=\"0\">待处理</option><option value=\"2\">正在处理</option><option value=\"1\">已完成</option><option value=\"4\">已退单</option><option value=\"3\">异常</option>" . ($res["zid"] > 1 || is_numeric($res["userid"]) ? "<option value=\"6\">退款</option>" : null) . "<option value=\"5\">删除订单</option></select></td></tr>";
+	echo "<tr><td><input type=\"checkbox\" name=\"checkbox[]\" id=\"list1\" class=\"js-order-check\" value=\"" . $res["id"] . "\" onClick=\"unselectall1()\"> <b>" . $res["id"] . "</b></td><td><span onclick=\"showOrder(" . $res["id"] . ")\" title=\"点击查看详情\">" . htmlspecialchars($res["name"]) . "</span></td><td class=\"wbreak\"><span onclick=\"inputOrder(" . $res["id"] . ")\" title=\"点击修改数据\">" . htmlspecialchars($res["input"]) . ($res["input2"] ? "<br/>" . htmlspecialchars($res["input2"]) : null) . ($res["input3"] ? "<br/>" . htmlspecialchars($res["input3"]) : null) . ($res["input4"] ? "<br/>" . htmlspecialchars($res["input4"]) : null) . ($res["input5"] ? "<br/>" . htmlspecialchars($res["input5"]) : null) . "</span></td><td><span onclick=\"inputNum(" . $res["id"] . ")\" title=\"点击修改份数\">" . $res["value"] . "</span></td><td><b>￥" . $res["money"] . "</b></td><td><a href =\"sitelist.php?zid=" . $res["zid"] . "\" target=\"_blank\">" . $res["zid"] . "</a></td><td>" . (strlen($res["userid"]) != 32 ? "<a href =\"userlist.php?zid=" . $res["userid"] . "\" target=\"_blank\">" . $res["userid"] . "</a>" : "0") . "</td><td>" . $res["addtime"] . "</td><td>" . display_djzt($res["djzt"], $res["id"]) . "</td><td>" . display_zt($res["status"], $res["id"]) . "</td><td><select onChange=\"javascript:setStatus('" . $res["id"] . "',this.value)\" class=\"form-control admin-order-action-select\"><option selected>操作订单</option><option value=\"0\">待处理</option><option value=\"2\">正在处理</option><option value=\"1\">已完成</option><option value=\"4\">已退单</option><option value=\"3\">异常</option>" . ($res["zid"] > 1 || is_numeric($res["userid"]) ? "<option value=\"6\">退款</option>" : null) . "<option value=\"5\">删除订单</option></select></td></tr>";
 }
 ?>          </tbody>
         </table>
-<label><input name="chkAll1" type="checkbox" id="chkAll1" onClick="this.value=check1(this.form.list1)" value="checkbox">全选</label>&nbsp;
-<select name="status"><option selected>操作订单</option><option value="0">待处理</option><option value="2">正在处理</option><option value="1">已完成</option><option value="3">异常</option><option value="5">重新下单</option><option value="6">订单退款</option><option value="4">删除订单</option></select>
-<button type="button" onclick="operation()">确定</button>
+<div class="admin-order-bulkbar">
+  <label class="admin-order-checkall"><input name="chkAll1" type="checkbox" id="chkAll1" onClick="this.value=check1(this.form.list1)" value="checkbox"> 全选当前页订单</label>
+  <div class="admin-order-bulkbar__right">
+    <select name="status" class="form-control admin-order-bulk-select"><option value="" selected>选择批量操作</option><option value="0">待处理</option><option value="2">正在处理</option><option value="1">已完成</option><option value="3">异常</option><option value="5">重新下单</option><option value="6">订单退款</option><option value="4">删除订单</option></select>
+    <button type="button" class="btn btn-primary" onclick="operation()"><i class="fa fa-check"></i> 确定执行</button>
+  </div>
+</div>
       </div>
 	 </form>
 <ul class="pagination"><?php

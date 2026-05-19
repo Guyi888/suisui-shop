@@ -6,6 +6,27 @@ if ($islogin != 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 
+$supportAds = array(
+    array(
+        'type' => 'image',
+        'title' => '图片广告位 A',
+        'desc' => '适合展示品牌海报、活动入口或新服务横幅。',
+        'image' => '../assets/beautify/img/gg-new.jpg',
+    ),
+    array(
+        'type' => 'image',
+        'title' => '图片广告位 B',
+        'desc' => '适合展示赞助商、渠道合作或教程入口。',
+        'image' => '../assets/beautify/img/gg-app.jpg',
+    ),
+    array(
+        'type' => 'text',
+        'title' => '文字广告位',
+        'desc' => '可放置短公告、招商说明、联系方式或限时活动文案。',
+        'tag' => 'Text Slot',
+    ),
+);
+
 include "./head.php";
 ?>
 <div class="col-xs-12 admin-ops-page admin-support-page">
@@ -13,7 +34,7 @@ include "./head.php";
         <div>
             <p class="admin-ops-hero__eyebrow">维护信息</p>
             <h2>联系与赞助</h2>
-            <p>本页仅展示程序维护方信息，不影响前台站长自行配置的客服联系方式。</p>
+            <p>本页展示后台维护、版本支持与赞助信息，不影响前台站长自定义客服配置。</p>
         </div>
         <div class="admin-ops-hero__actions">
             <a href="<?php echo htmlspecialchars(OWNER_SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="admin-ops-chip"><i class="fa fa-paper-plane"></i> 官方入口</a>
@@ -72,6 +93,35 @@ include "./head.php";
             </div>
         </div>
     </div>
+
+    <div class="block admin-ops-panel">
+        <div class="block-title">
+            <div>
+                <h3>广告展示位</h3>
+                <p>后续远程更新时，直接修改本页 <code>$supportAds</code> 数组或替换对应本地图片，即可新增、下架或调整广告。</p>
+            </div>
+        </div>
+        <div class="admin-support-ads">
+            <?php foreach ($supportAds as $ad) { ?>
+                <?php if ($ad['type'] === 'image') { ?>
+                <article class="admin-support-ad admin-support-ad--image">
+                    <img src="<?php echo htmlspecialchars($ad['image'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($ad['title'], ENT_QUOTES, 'UTF-8'); ?>">
+                    <div class="admin-support-ad__body">
+                        <h4><?php echo htmlspecialchars($ad['title'], ENT_QUOTES, 'UTF-8'); ?></h4>
+                        <p><?php echo htmlspecialchars($ad['desc'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    </div>
+                </article>
+                <?php } else { ?>
+                <article class="admin-support-ad admin-support-ad--text">
+                    <span class="admin-support-ad__tag"><?php echo htmlspecialchars($ad['tag'], ENT_QUOTES, 'UTF-8'); ?></span>
+                    <div class="admin-support-ad__body">
+                        <h4><?php echo htmlspecialchars($ad['title'], ENT_QUOTES, 'UTF-8'); ?></h4>
+                        <p><?php echo htmlspecialchars($ad['desc'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    </div>
+                </article>
+                <?php } ?>
+            <?php } ?>
+        </div>
+    </div>
 </div>
-</body>
-</html>
+<?php include "./foot.php"; ?>

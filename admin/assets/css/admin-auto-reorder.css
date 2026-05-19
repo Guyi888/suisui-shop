@@ -209,7 +209,7 @@
   background: linear-gradient(135deg, #e59a1f, #ffbd42);
 }
 
-.admin-auto-reorder-stat span {
+.admin-auto-reorder-stat span:not(.admin-auto-reorder-stat__icon) {
   display: block;
   margin-bottom: 6px;
   color: var(--auto-reorder-muted);

@@ -17,6 +17,24 @@ if (!function_exists('q8_toollog_parse_line')) {
 	}
 }
 
+if (!function_exists('q8_kms_ensure_use_columns')) {
+	function q8_kms_ensure_use_columns()
+	{
+		global $DB;
+		if (!$DB) return;
+		$useLimit = $DB->getColumn("SHOW COLUMNS FROM pre_kms LIKE 'use_limit'");
+		if (!$useLimit) {
+			$DB->exec("ALTER TABLE pre_kms ADD COLUMN `use_limit` int(11) unsigned NOT NULL DEFAULT 1 AFTER `money`");
+		}
+		$useCount = $DB->getColumn("SHOW COLUMNS FROM pre_kms LIKE 'use_count'");
+		if (!$useCount) {
+			$DB->exec("ALTER TABLE pre_kms ADD COLUMN `use_count` int(11) unsigned NOT NULL DEFAULT 0 AFTER `use_limit`");
+		}
+		$DB->exec("UPDATE pre_kms SET use_limit=1 WHERE use_limit<1");
+		$DB->exec("UPDATE pre_kms SET use_count=1 WHERE status=1 AND use_count=0");
+	}
+}
+
 if (!function_exists('q8_toollog_parse_content')) {
 	function q8_toollog_parse_content($content)
 	{

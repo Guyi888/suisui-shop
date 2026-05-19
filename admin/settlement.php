@@ -1,6 +1,6 @@
 <?php
 include "../includes/common.php";
-$title = "&#36890;&#36947;&#32467;&#31639;";
+$title = "通道结算";
 if ($islogin != 1) exit("<script>window.location.href='./login.php';</script>");
 adminpermission("record", 1);
 include "./head.php";
@@ -203,7 +203,7 @@ foreach ($sites as $item) {
     </div>
   </div>
   <div class="block">
-    <div class="block-title"><h3 class="panel-title"><i class="fa fa-calculator"></i> &#36890;&#36947;&#32467;&#31639;</h3></div>
+    <div class="block-title"><h3 class="panel-title"><i class="fa fa-calculator"></i> 通道结算</h3></div>
     <form class="form-inline" method="get" action="settlement.php" style="margin-bottom:15px;">
       <div class="form-group"><label>&#26085;&#26399;</label> <input type="date" name="date" value="<?php echo settle_h($date); ?>" class="form-control"></div>
       <div class="form-group"><label>&#36153;&#29575;%</label> <input type="number" step="0.01" min="0" name="rate" value="<?php echo settle_h($rate); ?>" class="form-control" style="width:90px;"></div>

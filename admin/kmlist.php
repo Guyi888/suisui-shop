@@ -6,6 +6,9 @@ if ($islogin != 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 adminpermission("site", 1);
+if (function_exists('q8_kms_ensure_use_columns')) {
+    q8_kms_ensure_use_columns();
+}
 
 if (!function_exists('q8_kmlist_escape')) {
     function q8_kmlist_escape($value)
@@ -36,6 +39,7 @@ if ($my === "add") {
     adminpermission("site", 2);
     $money = isset($_POST["money"]) ? trim((string)$_POST["money"]) : "";
     $num = isset($_POST["num"]) ? intval($_POST["num"]) : 0;
+    $useLimit = isset($_POST["use_limit"]) ? intval($_POST["use_limit"]) : 1;
     if (!is_numeric($money) || !preg_match("/^[0-9.]+$/", $money)) {
         showmsg("金额输入不规范", 3);
         exit;
@@ -44,6 +48,11 @@ if ($my === "add") {
         showmsg("生成数量需要在 1 到 1000 之间", 3);
         exit;
     }
+    if ($useLimit <= 0 || $useLimit > 1000) {
+        showmsg("每张卡可使用人数需要在 1 到 1000 之间", 3);
+        exit;
+    }
+    $generatedKms = array();
 
     include "./head.php";
     ?>
@@ -52,18 +61,21 @@ if ($my === "add") {
             <div class="block-title">
                 <div>
                     <h3>成功生成以下卡密</h3>
-                    <p>面额：<?php echo q8_kmlist_escape($money); ?> 元，共 <?php echo intval($num); ?> 张。</p>
+                    <p>面额：<?php echo q8_kmlist_escape($money); ?> 元，共 <?php echo intval($num); ?> 张，每张可使用 <?php echo intval($useLimit); ?> 次。</p>
                 </div>
                 <div class="block-options">
+                    <button type="button" class="btn btn-primary" onclick="return q8CopyGeneratedKms()"><i class="fa fa-copy"></i> 一键复制</button>
                     <a href="./kmlist.php" class="btn btn-default"><i class="fa fa-arrow-left"></i> 返回列表</a>
                 </div>
             </div>
+            <textarea id="q8GeneratedKms" class="form-control" rows="8" readonly style="margin-bottom:12px;"></textarea>
             <div class="list-group">
             <?php
             for ($i = 0; $i < $num; $i++) {
                 $km = getkm(18);
-                $sql = $DB->exec("INSERT INTO `pre_kms` (`type`,`km`,`money`,`addtime`) VALUES (0,:km,:money,:addtime)", array(':km' => $km, ':money' => $money, ':addtime' => $date));
+                $sql = $DB->exec("INSERT INTO `pre_kms` (`type`,`km`,`money`,`use_limit`,`use_count`,`addtime`) VALUES (0,:km,:money,:use_limit,0,:addtime)", array(':km' => $km, ':money' => $money, ':use_limit' => $useLimit, ':addtime' => $date));
                 if ($sql) {
+                    $generatedKms[] = $km;
                     echo '<div class="list-group-item"><i class="fa fa-key"></i> <b>' . q8_kmlist_escape($km) . '</b></div>';
                 }
             }
@@ -71,6 +83,17 @@ if ($my === "add") {
             </div>
         </div>
     </div>
+    <script>
+    function q8CopyGeneratedKms() {
+        var textarea = document.getElementById('q8GeneratedKms');
+        if (!textarea || !textarea.value) return false;
+        textarea.select();
+        document.execCommand('copy');
+        alert('\u5df2\u590d\u5236\u751f\u6210\u7684\u5361\u5bc6');
+        return false;
+    }
+    document.getElementById('q8GeneratedKms').value = <?php echo json_encode(implode("\n", $generatedKms)); ?>;
+    </script>
     </body>
     </html>
     <?php
@@ -211,6 +234,7 @@ include "./head.php";
         <form action="kmlist.php?my=add" method="post" class="block-content admin-ops-inline-form">
             <input type="text" class="form-control" name="money" placeholder="面额">
             <input type="number" min="1" max="1000" class="form-control" name="num" placeholder="生成个数">
+            <input type="number" min="1" max="1000" class="form-control" name="use_limit" value="1" placeholder="每张可用人数">
             <button type="submit" class="btn btn-primary"><i class="fa fa-plus"></i> 生成</button>
             <a href="kmlist.php?my=qk" class="btn btn-danger"><i class="fa fa-trash"></i> 清空</a>
             <a href="kmlist.php?my=qkuse" class="btn btn-danger"><i class="fa fa-eraser"></i> 清空已使用</a>
@@ -222,6 +246,7 @@ include "./head.php";
                 <tr>
                     <th>卡密</th>
                     <th>面额</th>
+                    <th>使用额度</th>
                     <th>状态</th>
                     <th>添加时间</th>
                     <th>使用时间</th>
@@ -236,7 +261,8 @@ include "./head.php";
                 <tr>
                     <td><b><?php echo q8_kmlist_escape($res["km"]); ?></b></td>
                     <td><?php echo q8_kmlist_escape($res["money"]); ?> 元</td>
-                    <td><?php echo $isUsed ? '<span class="label label-danger">已使用</span> <span class="text-muted">ZID:' . intval($res["zid"]) . '</span>' : '<span class="label label-success">未使用</span>'; ?></td>
+                    <td><?php echo intval(isset($res["use_count"]) ? $res["use_count"] : ($isUsed ? 1 : 0)); ?> / <?php echo intval(isset($res["use_limit"]) ? max(1, $res["use_limit"]) : 1); ?> 次</td>
+                    <td><?php echo $isUsed ? '<span class="label label-danger">已用完</span> <span class="text-muted">ZID:' . intval($res["zid"]) . '</span>' : '<span class="label label-success">可使用</span>'; ?></td>
                     <td><?php echo q8_kmlist_escape($res["addtime"]); ?></td>
                     <td><?php echo q8_kmlist_escape($res["usetime"]); ?></td>
                     <td class="text-center">
@@ -247,7 +273,7 @@ include "./head.php";
                     }
                 } else { ?>
                 <tr>
-                    <td colspan="6" class="text-center text-muted admin-ops-empty"><i class="fa fa-inbox"></i><span>暂无加款卡密。</span></td>
+                    <td colspan="7" class="text-center text-muted admin-ops-empty"><i class="fa fa-inbox"></i><span>暂无加款卡密。</span></td>
                 </tr>
                 <?php } ?>
                 </tbody>

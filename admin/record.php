@@ -1,6 +1,6 @@
 <?php
 include "../includes/common.php";
-$title = "&#25910;&#25903;&#26126;&#32454;";
+$title = "收支明细";
 include "./head.php";
 if ($islogin != 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
@@ -80,7 +80,7 @@ $statusColumn = $DB->getColumn("SHOW COLUMNS FROM pre_points LIKE 'status'");
 <div class="col-md-12 center-block" style="float:none;">
 	<div class="block">
 		<div class="block-title">
-			<h2><?php echo $zid > 0 ? "ZID:<b>" . $zid . "</b> " : "&#20840;&#37096;&#20998;&#31449;";?>&#25910;&#25903;&#26126;&#32454;</h2>
+			<h2><?php echo $zid > 0 ? "ZID:<b>" . $zid . "</b> " : "全部分站";?>收支明细</h2>
 		</div>
 		<form method="get" class="form-inline" style="margin-bottom:15px;">
 			<input type="number" name="zid" value="<?php echo $zid > 0 ? $zid : '';?>" class="form-control" placeholder="ZID">

@@ -1,7 +1,7 @@
 <?php
 include "../includes/common.php";
 
-$title = "&#26356;&#26032;&#26085;&#24535;";
+$title = "更新日志";
 if ($islogin != 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
@@ -11,8 +11,8 @@ include "./head.php";
 <div class="col-xs-12 admin-ops-page admin-changelog-page">
     <section class="admin-ops-hero">
         <div>
-            <p class="admin-ops-hero__eyebrow">&#29256;&#26412;&#35760;&#24405;</p>
-            <h2>&#26356;&#26032;&#26085;&#24535;</h2>
+            <p class="admin-ops-hero__eyebrow">版本记录</p>
+            <h2>更新日志</h2>
             <p>&#35760;&#24405;&#31243;&#24207;&#20869;&#30340;&#30028;&#38754;&#37325;&#26500;&#12289;&#36164;&#28304;&#26356;&#26032;&#12289;&#20081;&#30721;&#20462;&#22797;&#21644;&#36816;&#33829;&#32423;&#26816;&#26597;&#35201;&#27714;&#12290;</p>
         </div>
         <div class="admin-ops-hero__actions">
@@ -22,10 +22,20 @@ include "./head.php";
     </section>
     <div class="block admin-ops-panel">
         <div class="block-title">
-            <h3 class="panel-title"><i class="fa fa-list-alt"></i> &#26356;&#26032;&#26085;&#24535;</h3>
+            <h3 class="panel-title"><i class="fa fa-list-alt"></i> 更新日志</h3>
         </div>
         <div class="panel-body">
             <div class="timeline-list">
+                <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.1.0 / 2026-05-20 后台运营界面细节修复与加款卡增强</h4>
+                    <ul>
+                        <li>修复自动补单统计卡图标、订单列表底部统计与批量操作栏、分站排行入口、用户列表操作按钮对齐等界面问题。</li>
+                        <li>修复收支明细、通道结算、检查版本更新、更新日志等页面顶部标题显示 HTML 实体的问题。</li>
+                        <li>优化利润统计四个核心指标卡片、工单与网盘失效处理弹窗、客服微信二维码上传控件和对接插件说明弹窗。</li>
+                        <li>加款卡密生成结果新增一键复制，支持设置每张卡可使用人数，并自动补齐卡密使用次数字段。</li>
+                        <li>联系与赞助页面新增图片广告位和文字广告位，模板缩略图更新为本地前台首屏风格预览图。</li>
+                    </ul>
+                </div>
                 <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.0.0 / 2026-05-19 &#23681;&#23681;&#20113;&#21830;&#22478;&#39318;&#20010;&#21487;&#36816;&#33829;&#37325;&#26500;&#29256;&#26412;</h4>
                     <ul>

@@ -197,7 +197,7 @@ for (i = 0; i < items.length; i++) {
 	exit("<script language='javascript'>alert('刷新对接插件列表成功！');history.go(-1);</script>");
 } else {
 	$numrows = $DB->getColumn("SELECT count(*) from pre_shequ");
-	?><div class="modal" align="left" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	?><div class="modal admin-ops-modal" align="left" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -218,7 +218,7 @@ for (i = 0; i < items.length; i++) {
 <div class="block-title clearfix">
 <h2>系统共有 <b><?php echo $numrows;?></b> 个对接网站</h2>
 </div>
-<a href="./shequlist.php?my=add" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;添加一个对接站点</a>&nbsp;<a href="javascript:$('#myModal').modal('show');" class="btn btn-default"><i class="fa fa-question-circle-o"></i>&nbsp;对接插件</a>
+<a href="./shequlist.php?my=add" class="btn btn-primary"><i class="fa fa-plus"></i>&nbsp;添加一个对接站点</a>&nbsp;<a href="#" data-toggle="modal" data-target="#myModal" class="btn btn-default"><i class="fa fa-question-circle-o"></i>&nbsp;对接插件</a>
       <div class="table-responsive">
         <table class="table table-striped">
           <thead><tr><th>ID</th><th>网站域名</th><th>类型</th><th>用户名</th><th>密码</th><th>备注</th><th>操作</th></tr></thead>

@@ -697,20 +697,21 @@ case 'uploadimg':
 case 'usekm':
 	if(!$islogin2)exit('{"code":-1,"msg":"未登录"}');
 	if(!$conf['fenzhan_jiakuanka'])exit('{"code":-1,"msg":"未开启使用加款卡功能"}');
+	if(function_exists('q8_kms_ensure_use_columns')) q8_kms_ensure_use_columns();
 	$km=trim(daddslashes($_POST['km']));
 	$myrow=$DB->getRow("SELECT * FROM pre_kms WHERE km='$km' LIMIT 1");
 	if(!$myrow)
 	{
 		exit('{"code":-1,"msg":"此卡密不存在！"}');
 	}
-	elseif($myrow['status']==1){
-		exit('{"code":-1,"msg":"此卡密已被使用！"}');
+	elseif($myrow['status']==1 || intval($myrow['use_count']) >= max(1, intval($myrow['use_limit']))){
+		exit('{"code":-1,"msg":"此卡密已达到可用次数！"}');
 	}
 	$money = $myrow['money'];
 	$rebate_money = function_exists('q8_calc_online_recharge_bonus') ? q8_calc_online_recharge_bonus($money, $conf) : 0;
 	$rebate_rate = function_exists('q8_get_recharge_rebate_rate') ? q8_get_recharge_rebate_rate($money, $conf) : 0;
-	if($DB->exec("UPDATE `pre_kms` SET `status`=1 WHERE `kid`='{$myrow['kid']}'")){
-		$DB->exec("UPDATE `pre_kms` SET `zid` ='{$userrow['zid']}',`usetime` ='".$date."' WHERE `kid`='{$myrow['kid']}'");
+	$useLimit = max(1, intval($myrow['use_limit']));
+	if($DB->exec("UPDATE `pre_kms` SET `use_count`=`use_count`+1,`zid`='{$userrow['zid']}',`usetime`='".$date."',`status`=IF(`use_count`+1>=`use_limit`,1,0) WHERE `kid`='{$myrow['kid']}' AND `use_count`<`use_limit`")){
 		$rs = changeUserMoney($userrow['zid'], $money, true, '充值', '你使用加款卡充值了'.$money.'元余额');
 		if($rs){
 			if($rebate_money > 0) {

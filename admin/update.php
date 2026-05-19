@@ -1,7 +1,7 @@
 <?php
 include "../includes/common.php";
 
-$title = "&#29256;&#26412;&#20449;&#24687;";
+$title = "版本信息";
 if ($islogin != 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
@@ -25,7 +25,7 @@ $githubUrl = 'https://github.com/Guyi888/6v6faka';
 </style>
 <div class="col-xs-12 q8-update-wrap">
     <div class="q8-update-hero">
-        <h2><i class="fa fa-code-fork"></i> &#29256;&#26412;&#26356;&#26032;&#26816;&#26597;</h2>
+        <h2><i class="fa fa-code-fork"></i> 版本更新检查</h2>
         <p>&#24403;&#21069;&#39029;&#38754;&#29992;&#20110;&#26597;&#30475;&#26412;&#22320;&#32531;&#23384;&#29256;&#26412;&#12289;&#39033;&#30446;&#28304;&#22320;&#22336;&#21644;&#32500;&#25252;&#20837;&#21475;&#12290;&#32447;&#19978;&#26356;&#26032;&#21069;&#35831;&#20808;&#22791;&#20221;&#20195;&#30721;&#21644;&#25968;&#25454;&#24211;&#12290;</p>
     </div>
     <div class="q8-update-grid">
@@ -35,24 +35,24 @@ $githubUrl = 'https://github.com/Guyi888/6v6faka';
             <span><?php echo OWNER_HANDLE; ?></span>
         </div>
         <div class="q8-update-card">
-            <b>&#32531;&#23384;&#29256;&#26412;</b>
+            <b>缓存版本</b>
             <strong><?php echo defined('VERSION') ? VERSION : '20260519'; ?></strong>
             <span>&#20462;&#25913; CSS/JS &#21518;&#38656;&#21516;&#27493;&#26356;&#26032;&#12290;</span>
         </div>
         <div class="q8-update-card">
             <b>GitHub</b>
             <strong style="font-size:15px;"><a href="<?php echo $githubUrl; ?>" target="_blank" rel="noreferrer"><?php echo $githubUrl; ?></a></strong>
-            <span>&#24403;&#21069;&#39033;&#30446;&#22320;&#22336;&#24050;&#20889;&#20837;&#29256;&#26412;&#20449;&#24687;&#39029;&#12290;</span>
+            <span>当前项目地址已写入版本信息页。</span>
         </div>
     </div>
     <div class="block">
         <div class="block-title">
-            <h3 class="panel-title"><i class="fa fa-list-alt"></i> &#32500;&#25252;&#20837;&#21475;</h3>
+            <h3 class="panel-title"><i class="fa fa-list-alt"></i> 维护入口</h3>
         </div>
         <div class="panel-body">
             <div class="q8-update-actions">
-                <a class="btn btn-primary" href="./changelog.php"><i class="fa fa-list-alt"></i> &#26597;&#30475;&#26356;&#26032;&#26085;&#24535;</a>
-                <a class="btn btn-info" href="./support.php"><i class="fa fa-paper-plane"></i> &#32852;&#31995;&#19982;&#36190;&#21161;</a>
+                <a class="btn btn-primary" href="./changelog.php"><i class="fa fa-list-alt"></i> 查看更新日志</a>
+                <a class="btn btn-info" href="./support.php"><i class="fa fa-paper-plane"></i> 联系与赞助</a>
                 <a class="btn btn-default" href="<?php echo $githubUrl; ?>" target="_blank" rel="noreferrer"><i class="fa fa-github"></i> &#25171;&#24320; GitHub</a>
             </div>
         </div>

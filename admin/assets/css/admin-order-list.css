@@ -627,6 +627,15 @@
   font-weight: 700;
 }
 
+.admin-order-checkall {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--order-text);
+  font-weight: 800;
+}
+
 .admin-order-bulkbar__right {
   display: flex;
   gap: 12px;
