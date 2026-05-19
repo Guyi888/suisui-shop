@@ -1,6 +1,9 @@
 <?php
 if(!defined('IN_CRONLITE'))exit();
 @header('Content-Type: text/html; charset=UTF-8');
+@header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+@header('Pragma: no-cache');
+@header('Expires: 0');
 
 $scriptpath=str_replace('\\','/',$_SERVER['SCRIPT_NAME']);
 $scriptpath = substr($scriptpath, 0, strrpos($scriptpath, '/'));
@@ -17,8 +20,13 @@ if($admin_cdnpublic==1){
 }else{
 	$cdnpublic = '//lib.baomitu.com/';
 }
+
+$isAdminLoginPage = basename($_SERVER['SCRIPT_NAME']) === 'login.php';
 $isAdminIndexPage = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
-$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01';
+$isAdminCustomCssPage = basename($_SERVER['SCRIPT_NAME']) === 'customcss.php';
+$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8shell01';
+$adminCsrfToken = q8_admin_csrf_token();
+$bodyClass = $isAdminLoginPage ? 'login-page' : 'admin-shell-page';
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -33,106 +41,28 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
   <link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="../assets/appui/css/main.css">
   <link rel="stylesheet" href="../assets/appui/css/themes.css">
-  <link id="theme-link" rel="stylesheet" href="<?php echo $_COOKIE['optionThemeColor']?$_COOKIE['optionThemeColor']:'../assets/appui/css/themes/flat-2.4.css'; ?>">
+  <link id="theme-link" rel="stylesheet" href="<?php echo $_COOKIE['optionThemeColor']?$_COOKIE['optionThemeColor']:'../assets/appui/css/themes/flat-2.4.css';?>">
+  <link rel="stylesheet" href="./assets/css/admin-shell.css?v=<?php echo urlencode($adminAssetVersion); ?>">
   <?php if($isAdminIndexPage){ ?><link rel="stylesheet" href="./assets/css/admin-dashboard.css?v=<?php echo urlencode($adminAssetVersion); ?>"><?php } ?>
-    <!-- 原admin-custom.css文件不存在，修复引用路径错误 -->
-    <script src="<?php echo $cdnpublic?>jquery/2.1.4/jquery.min.js"></script>
-
-    <!-- 立即加载的菜单交互脚本 - 让侧边栏菜单在页面完全加载前就可用 -->
-    <script>
-        (function() {
-            // 菜单展开/收起的简单实现
-            function initMenuQuickAccess() {
-                // 使用事件委托处理菜单点击
-                document.addEventListener('click', function(e) {
-                    var target = e.target;
-
-                    // 处理主菜单点击展开
-                    var menuLink = target.closest('.sidebar-nav-menu');
-                    if (menuLink) {
-                        e.preventDefault();
-                        var li = menuLink.closest('li');
-                        var isOpen = menuLink.classList.contains('open');
-
-                        // 关闭其他打开的菜单
-                        var allMenus = document.querySelectorAll('#sidebar .sidebar-nav-menu.open');
-                        allMenus.forEach(function(m) {
-                            if (m !== menuLink) {
-                                m.classList.remove('open', 'active');
-                                m.closest('li').classList.remove('active');
-                            }
-                        });
-
-                        // 切换当前菜单
-                        if (isOpen) {
-                            menuLink.classList.remove('open', 'active');
-                            li.classList.remove('active');
-                        } else {
-                            menuLink.classList.add('open');
-                        }
-                        return;
-                    }
-
-                    // 处理子菜单点击展开
-                    var submenuLink = target.closest('.sidebar-nav-submenu');
-                    if (submenuLink) {
-                        e.preventDefault();
-                        var isOpen = submenuLink.classList.contains('open');
-
-                        // 关闭其他打开的子菜单
-                        var parentUl = submenuLink.closest('ul');
-                        var allSubmenus = parentUl.querySelectorAll('.sidebar-nav-submenu.open');
-                        allSubmenus.forEach(function(sm) {
-                            if (sm !== submenuLink) {
-                                sm.classList.remove('open');
-                            }
-                        });
-
-                        // 切换当前子菜单
-                        if (isOpen) {
-                            submenuLink.classList.remove('open');
-                        } else {
-                            submenuLink.classList.add('open');
-                        }
-                        return;
-                    }
-
-                    // 处理侧边栏链接跳转
-                    var navLink = target.closest('.sidebar-nav a');
-                    if (navLink && navLink.getAttribute('href') && navLink.getAttribute('href') !== 'javascript:void(0)') {
-                        // 显示加载指示器
-                        var loader = document.getElementById('pageLoader');
-                        if (loader) {
-                            loader.classList.remove('hidden');
-                        }
-                        // 直接跳转，不等待其他代码
-                        window.location.href = navLink.getAttribute('href');
-                    }
-                });
-
-                // 立即处理侧边栏显示
-                document.addEventListener('DOMContentLoaded', function() {
-                    // 这里可以添加更多DOM加载完成后的处理
-                });
-            }
-
-            // 立即初始化
-            initMenuQuickAccess();
-        })();
-    </script>
-
-    <script src="<?php echo $cdnpublic?>twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="<?php echo $cdnpublic?>layer/3.1.1/layer.js"></script>
-    <script src="../assets/appui/js/plugins.js"></script>
-    <script src="../assets/appui/js/app2.js"></script>
+  <?php if($isAdminCustomCssPage){ ?><link rel="stylesheet" href="./assets/css/admin-custom-css.css?v=<?php echo urlencode($adminAssetVersion); ?>"><?php } ?>
+  <script src="<?php echo $cdnpublic?>jquery/2.1.4/jquery.min.js"></script>
+  <script src="<?php echo $cdnpublic?>twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="<?php echo $cdnpublic?>layer/3.1.1/layer.js"></script>
+  <script src="../assets/appui/js/plugins.js"></script>
+  <script src="../assets/appui/js/app2.js"></script>
+  <script>
+    window.ADMIN_ASSET_VERSION = <?php echo json_encode($adminAssetVersion); ?>;
+    window.ADMIN_CSRF_TOKEN = <?php echo json_encode($adminCsrfToken); ?>;
+  </script>
+  <script src="./assets/js/admin-shell.js?v=<?php echo urlencode($adminAssetVersion); ?>"></script>
   <!--[if lt IE 9]>
     <script src="<?php echo $cdnpublic?>html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="<?php echo $cdnpublic?>respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
   <!-- Google Fonts - 动态加载，仅在需要时加载 -->
-  <?php if($conf['font_beautify'] == 1){
+  <?php if($conf['font_beautify'] == 1){ 
       $font_family = $conf['font_family'] ?? 'default';
-
+      
       // 定义需要Google Fonts的字体映射
       $google_fonts = [
           'playfair' => 'Playfair+Display:wght@400;700',
@@ -143,7 +73,7 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
           'raleway' => 'Raleway:wght@300;400;500;700',
           'oswald' => 'Oswald:wght@300;400;500;700'
       ];
-
+      
       // 如果用户选择了需要Google Fonts的字体，则加载相应字体
       if(isset($google_fonts[$font_family])){
           $font_param = $google_fonts[$font_family];
@@ -153,98 +83,6 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
           echo '<noscript><link rel="stylesheet" href="' . $font_url . '" crossorigin="anonymous"></noscript>';
       }
   } ?>
-  <!-- 页面加载指示器样式 -->
-  <style>
-    /* 页面加载指示器样式 - 透明背景版，让侧边栏可以操作 */
-    .page-loader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.1); /* 几乎透明背景 */
-        z-index: 9999; /* 降低层级，让侧边栏可以点击 */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: opacity 0s, visibility 0s; /* 无延迟过渡 */
-        pointer-events: none; /* 让点击穿透到下方元素 */
-    }
-
-    .page-loader.hidden {
-        opacity: 0;
-        visibility: hidden;
-    }
-
-    /* 加载指示器的旋转动画元素要接收点击事件 */
-    .page-loader .spinner {
-        pointer-events: auto;
-    }
-
-
-
-    /* 页面切换淡入效果 - 无延迟 */
-    body {
-        animation: fadeIn 0s;
-    }
-
-    @keyframes fadeIn {
-        0% { opacity: 0; }
-        100% { opacity: 1; }
-    }
-
-    /* 链接点击效果 */
-    .sidebar-nav a {
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .sidebar-nav a:active {
-        transform: scale(0.95);
-        transition: all 0.1s ease;
-    }
-
-    /* 确保侧边栏始终可点击 */
-    #sidebar {
-        position: relative;
-        z-index: 10000; /* 让侧边栏高于加载指示器 */
-    }
-  </style>
-  <!-- 页面加载指示器JavaScript -->
-  <script>
-    // 页面加载完成后隐藏加载指示器
-    window.addEventListener('load', function() {
-      var pageLoader = document.getElementById('pageLoader');
-      if (pageLoader) {
-        // 无延迟隐藏加载指示器
-        pageLoader.classList.add('hidden');
-      }
-    });
-
-    // 页面开始加载时显示加载指示器
-    window.addEventListener('beforeunload', function() {
-      var pageLoader = document.getElementById('pageLoader');
-      if (pageLoader) {
-        pageLoader.classList.remove('hidden');
-      }
-    });
-
-    // 为所有侧边栏链接添加点击事件，显示加载指示器
-    document.addEventListener('DOMContentLoaded', function() {
-      var sidebarLinks = document.querySelectorAll('.sidebar-nav a[href]');
-      sidebarLinks.forEach(function(link) {
-        link.addEventListener('click', function() {
-          // 只处理内部链接
-          if (this.href.startsWith(window.location.origin)) {
-            var pageLoader = document.getElementById('pageLoader');
-            if (pageLoader) {
-              pageLoader.classList.remove('hidden');
-            }
-          }
-        });
-      });
-    });
-  </script>
   <!-- 鼠标美化效果 -->
   <?php if($conf['mouse_beautify'] == 1){
       $mouse_style = $conf['mouse_style'] ?? 'default';
@@ -323,14 +161,14 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
     a, button, input, select, textarea {
       cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffaaa5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>'), pointer;
     }
-    <?php
+    <?php 
     }
     ?>
   </style>
-  <?php
+  <?php 
   }
   ?>
-
+  
   <!-- 字体美化效果 -->
   <?php if($conf['font_beautify'] == 1){
       $font_family = $conf['font_family'] ?? 'default';
@@ -366,7 +204,7 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
       font-size: <?php echo $font_size; ?>;
       color: <?php echo $font_color; ?>;
     }
-
+    
     /* 确保所有文本元素都继承字体样式 */
     h1, h2, h3, h4, h5, h6, p, a, span, div, input, button, select, textarea, li {
       font-family: inherit;
@@ -376,10 +214,10 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
     <?php }
     ?>
   </style>
-  <?php
+  <?php 
   }
   ?>
-
+  
   <!-- 背景美化效果 -->
   <?php if($conf['background_enable'] == 1){
       $background_type = $conf['background_type'] ?? 'particles';
@@ -401,7 +239,7 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
       height: 100%;
       z-index: -1;
     }
-
+    
     /* 渐变背景样式 */
     .gradient-background {
       position: fixed;
@@ -413,7 +251,7 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
       background: linear-gradient(<?php echo $gradientDirection; ?>, <?php echo $ui_color1; ?> 0%, <?php echo $ui_color2; ?> 100%);
       animation: gradient-animation <?php echo 20 - ($background_speed * 1.5); ?>s ease infinite;
     }
-
+    
     @keyframes gradient-animation {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -430,7 +268,7 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
       const uiColor1 = '<?php echo $ui_color1; ?>';
       const uiColor2 = '<?php echo $ui_color2; ?>';
       const uiColorto = <?php echo $ui_colorto; ?>;
-
+      
       // 创建背景容器
       function createBackground() {
         if (backgroundType === 'gradient') {
@@ -479,11 +317,11 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
           const canvas = document.createElement('canvas');
           canvas.id = 'background-canvas';
           document.body.appendChild(canvas);
-
+          
           const ctx = canvas.getContext('2d');
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
-
+          
           // 根据背景类型绘制不同效果
           if (backgroundType === 'particles') {
             drawParticles(ctx, canvas, backgroundSpeed, backgroundColor);
@@ -495,12 +333,12 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
           }
         }
       }
-
+      
       // 粒子效果
       function drawParticles(ctx, canvas, speed, color) {
         const particles = [];
         const particleCount = 100;
-
+        
         // 初始化粒子
         for (let i = 0; i < particleCount; i++) {
           particles.push({
@@ -512,16 +350,16 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
             speedY: (Math.random() - 0.5) * (speed / 2)
           });
         }
-
+        
         // 动画循环
         function animate() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+          
           particles.forEach(particle => {
             // 更新位置
             particle.x += particle.speedX;
             particle.y += particle.speedY;
-
+            
             // 边界检测
             if (particle.x < 0 || particle.x > canvas.width) {
               particle.speedX *= -1;
@@ -529,21 +367,21 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
             if (particle.y < 0 || particle.y > canvas.height) {
               particle.speedY *= -1;
             }
-
+            
             // 绘制粒子
             ctx.beginPath();
             ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
             ctx.fillStyle = particle.color;
             ctx.fill();
           });
-
+          
           // 绘制连接线
           for (let i = 0; i < particles.length; i++) {
             for (let j = i + 1; j < particles.length; j++) {
               const dx = particles[i].x - particles[j].x;
               const dy = particles[i].y - particles[j].y;
               const distance = Math.sqrt(dx * dx + dy * dy);
-
+              
               if (distance < 100) {
                 ctx.beginPath();
                 ctx.strokeStyle = `${color}${Math.floor((1 - distance / 100) * 50).toString(16).padStart(2, '0')}`;
@@ -554,60 +392,60 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
               }
             }
           }
-
+          
           requestAnimationFrame(animate);
         }
-
+        
         animate();
       }
-
+      
       // 黑客效果
       function drawMatrix(ctx, canvas, speed) {
         const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
         const fontSize = 14;
         const columns = Math.floor(canvas.width / fontSize);
         const drops = [];
-
+        
         // 初始化雨滴位置
         for (let i = 0; i < columns; i++) {
           drops[i] = 1;
         }
-
+        
         // 动画循环
         function animate() {
           // 半透明黑色背景
           ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+          
           // 绿色文字
           ctx.fillStyle = '#0f0';
           ctx.font = `${fontSize}px monospace`;
-
+          
           // 绘制字符
           for (let i = 0; i < drops.length; i++) {
             const text = chars[Math.floor(Math.random() * chars.length)];
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
+            
             // 随机重置雨滴位置
             if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
               drops[i] = 0;
             }
-
+            
             // 移动雨滴
             drops[i] += speed / 10;
           }
-
+          
           requestAnimationFrame(animate);
         }
-
+        
         animate();
       }
-
+      
       // 气泡效果
       function drawBubbles(ctx, canvas, speed, color) {
         const bubbles = [];
         const bubbleCount = 50;
-
+        
         // 初始化气泡
         for (let i = 0; i < bubbleCount; i++) {
           bubbles.push({
@@ -620,16 +458,16 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
             opacity: Math.random() * 0.5 + 0.1
           });
         }
-
+        
         // 动画循环
         function animate() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+          
           bubbles.forEach(bubble => {
             // 更新位置
             bubble.y += bubble.speedY;
             bubble.x += bubble.speedX;
-
+            
             // 边界检测
             if (bubble.y < -bubble.radius) {
               bubble.y = canvas.height + bubble.radius;
@@ -638,26 +476,26 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
             if (bubble.x < -bubble.radius || bubble.x > canvas.width + bubble.radius) {
               bubble.x = Math.random() * canvas.width;
             }
-
+            
             // 绘制气泡
             ctx.beginPath();
             ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
             ctx.fillStyle = `${bubble.color}${Math.floor(bubble.opacity * 255).toString(16).padStart(2, '0')}`;
             ctx.fill();
-
+            
             // 绘制气泡高光
             ctx.beginPath();
             ctx.arc(bubble.x - bubble.radius * 0.3, bubble.y - bubble.radius * 0.3, bubble.radius * 0.2, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(255, 255, 255, ${bubble.opacity * 0.8})`;
             ctx.fill();
           });
-
+          
           requestAnimationFrame(animate);
         }
-
+        
         animate();
       }
-
+      
       // 窗口大小改变时重新调整canvas大小
       window.addEventListener('resize', function() {
         const canvas = document.getElementById('background-canvas');
@@ -666,105 +504,46 @@ $adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01
           canvas.height = window.innerHeight;
         }
       });
-
+      
       // 创建背景
       createBackground();
     });
   </script>
-  <?php
+  <?php 
   }
   ?>
+  <?php echo function_exists('q8_render_custom_css') ? q8_render_custom_css('admin') : ''; ?>
 </head>
-<body<?php if(basename($_SERVER['SCRIPT_NAME'])=='login.php') echo ' class="login-page"'; ?>>
-<script>
-// 全局搜索功能
-function performGlobalSearch() {
-    var searchInput = document.getElementById('global-search');
-    if (!searchInput) return;
-
-    var searchTerm = searchInput.value.trim().toLowerCase();
-    if (searchTerm === '') return;
-
-    var results = [];
-    var menuItems = document.querySelectorAll('.sidebar-nav a');
-
-    menuItems.forEach(function(item) {
-        var text = item.textContent.trim().toLowerCase();
-        var href = item.getAttribute('href');
-
-        if (text.indexOf(searchTerm) !== -1 && href && href !== 'javascript:void(0)') {
-            results.push({text: item.textContent.trim(), href: href});
-        }
-    });
-
-    if (results.length > 0) {
-        // 显示搜索结果
-        var resultHtml = '<div class="modal fade" id="searchResultsModal" tabindex="-1" role="dialog" aria-labelledby="searchResultsModalLabel">';
-        resultHtml += '<div class="modal-dialog" role="document">';
-        resultHtml += '<div class="modal-content">';
-        resultHtml += '<div class="modal-header">';
-        resultHtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
-        resultHtml += '<h4 class="modal-title" id="searchResultsModalLabel">搜索结果</h4>';
-        resultHtml += '</div>';
-        resultHtml += '<div class="modal-body">';
-        resultHtml += '<ul class="list-group">';
-
-        results.forEach(function(result) {
-            resultHtml += '<li class="list-group-item"><a href="' + result.href + '">' + result.text + '</a></li>';
-        });
-
-        resultHtml += '</ul>';
-        resultHtml += '</div>';
-        resultHtml += '<div class="modal-footer">';
-        resultHtml += '<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>';
-        resultHtml += '</div>';
-        resultHtml += '</div>';
-        resultHtml += '</div>';
-        resultHtml += '</div>';
-
-        // 添加到页面
-        if (!document.getElementById('searchResultsModal')) {
-            document.body.insertAdjacentHTML('beforeend', resultHtml);
-        }
-
-        // 显示模态框
-        $('#searchResultsModal').modal('show');
-    } else {
-        alert('未找到匹配的菜单项');
-    }
-}
-
-// 回车键触发搜索
-document.addEventListener('DOMContentLoaded', function() {
-    var searchInput = document.getElementById('global-search');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performGlobalSearch();
-            }
-        });
-    }
-});
-</script>
+<body class="<?php echo $bodyClass; ?>">
 <!-- 页面加载指示器 -->
-<div class="page-loader" id="pageLoader">
-    <!-- From Uiverse.io by PriyanshuGupta28 -->
-    <div class="spinner">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
+<div class="page-loader is-hidden" id="pageLoader" aria-hidden="true">
+    <div class="page-loader__spinner">
+        <span></span>
+        <span></span>
+        <span></span>
     </div>
 </div>
 <div class="admin-bg-img"></div>
 <!-- BTPanel风格全局应用，保留原有PHP逻辑和内容输出区域 -->
-<?php if($islogin==1){?>
+<?php if($islogin==1){?> 
+    <div class="modal fade admin-search-modal" id="searchResultsModal" tabindex="-1" role="dialog" aria-labelledby="searchResultsModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="searchResultsModalLabel"><i class="fa fa-search"></i> 菜单搜索</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="admin-search-modal__summary" id="searchResultsSummary"></div>
+                    <div class="admin-search-modal__empty" id="searchResultsEmpty" hidden>未找到匹配的菜单项</div>
+                    <ul class="list-group admin-search-modal__list" id="searchResultsList"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- 全局聊天消息通知 -->
     <audio id="global-chat-notification" preload="auto" style="display:none;">
         <source src="/template/default/chat/kefu.wav" type="audio/wav">
@@ -773,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 全局变量
     var globalChatLastUnread = 0;
     var globalChatPollingTimer = null;
-
+    
     // 检查新消息
     function checkGlobalChatMessages() {
         $.get('ajax.php?act=chat_session_list', function(res) {
@@ -782,7 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 res.data.forEach(function(item) {
                     totalUnread += parseInt(item.unread || 0);
                 });
-
+                
                 // 如果有新消息，播放声音
                 if(totalUnread > globalChatLastUnread) {
                     var audio = document.getElementById('global-chat-notification');
@@ -792,19 +571,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
                 }
-
+                
                 globalChatLastUnread = totalUnread;
             }
         },'json');
     }
-
+    
     // 启动全局轮询
     function startGlobalChatPolling() {
         if(globalChatPollingTimer) clearInterval(globalChatPollingTimer);
         // 每5秒检查一次
         globalChatPollingTimer = setInterval(checkGlobalChatMessages, 5000);
     }
-
+    
     // 页面加载完成后启动轮询
     $(document).ready(function() {
         startGlobalChatPolling();
@@ -819,29 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <a href="javascript:void(0)" id="sidebar-alt-close" onclick="App.sidebar('toggle-sidebar-alt');"><i class="fa fa-times"></i></a>
 <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 888px;"><div id="sidebar-scroll-alt" style="overflow: hidden; width: auto; height: 888px;">
 <div class="sidebar-content">
-<div class="sidebar-section">
-<style>
-h4{font-family:"微软雅黑",Georgia,Serif;}
-/* 新拟态主题样式类 */
-.themed-background-neumorphic { background-color: #e0e5ec !important; }
-.themed-background-dark-neumorphic { background-color: #374249 !important; }
-/* 仅影响当前页面的主题列表，不影响其他页面 */
-#sidebar-scroll-alt .sidebar-content .sidebar-section .sidebar-themes {
-    opacity: 1 !important;
-}
-/* 仅影响当前页面的主题项悬停效果 */
-#sidebar-scroll-alt .sidebar-content .sidebar-section .sidebar-themes li:hover,
-#sidebar-scroll-alt .sidebar-content .sidebar-section .sidebar-themes li.active {
-    opacity: 1 !important;
-    transform: scale(1.05) !important;
-    transition: all 0.3s ease !important;
-}
-/* 仅影响当前页面的主题项默认样式 */
-#sidebar-scroll-alt .sidebar-content .sidebar-section .sidebar-themes li {
-    opacity: 1;
-    transition: all 0.3s ease;
-}
-</style>
+<div class="sidebar-section admin-theme-panel">
 <h4 class="text-light">框架变色</h4>
 <br>
 <ul class="sidebar-themes clearfix">
@@ -993,27 +750,43 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 </div><div class="slimScrollBar" style="background: rgb(187, 187, 187); width: 3px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 888px;"></div><div class="slimScrollRail" style="width: 3px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; background: rgb(51, 51, 51); opacity: 1; z-index: 90; right: 1px;"></div></div>
 </div>
             <div id="sidebar">
-                <div id="sidebar-brand" class="themed-background">
+                <div id="sidebar-brand">
 				<a href="./" class="sidebar-title">
                     <i class="fa fa-cube"></i> <span class="sidebar-nav-mini-hide">管理后台</span>
                 </a>
 				</div>
                 <div id="sidebar-scroll">
                     <div class="sidebar-content">
+                        <?php echo q8_render_action('admin_sidebar_before_menu', array('script' => basename($_SERVER['SCRIPT_NAME']), 'title' => $title)); ?>
                         <ul class="sidebar-nav">
 
+<?php
+$count2 = $DB->getColumn("SELECT count(*) from pre_workorder WHERE status=0 or status=1");
+$count_cloud = $DB->getColumn("SELECT count(*) from pre_workorder WHERE ts=1 and status=0");
+$count = $DB->getColumn("SELECT count(*) FROM `pre_tools` a
+	WHERE a.`active` = 1
+	AND a.`close` = 0
+	AND (
+		(a.`is_curl` = 4 AND NOT EXISTS (SELECT 1 FROM `pre_faka` b WHERE b.`orderid` = 0 AND b.`tid` = a.`tid`))
+		OR (a.`is_curl` <> 4 AND a.`stock` IS NOT NULL AND a.`stock` <= 0)
+	)");
+$count3 = $DB->getColumn("SELECT count(*) from pre_tools where goods_sid != 0 and audit_status=0");
+$renderMenuBadge = function($value) {
+	$value = intval($value);
+	if ($value <= 0) {
+		return '';
+	}
+	return ' <span class="label label-danger admin-menu-badge">' . $value . '</span>';
+};
+?>
 <li>
 	<a class="<?php echo checkIfActive('index,')?>" href="./">
 		<i class="fa fa-home sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">后台首页</span>
 	</a>
 </li>
-<li>
-	<a class="<?php echo checkIfActive('overview')?>" href="./overview.php">
-		<i class="fa fa-tachometer sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">系统概况</span>
-	</a>
-</li>
-<li class="<?php echo checkIfActive('list,export,payorder')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-list sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">订单管理</span></a>
+
+<li class="<?php echo checkIfActive('list,export,payorder,orderjk,set_autoreorder')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-list sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">订单与支付</span></a>
 	<ul>
 	<li>
 		<a class="<?php echo checkIfActive('list,export')?>" href="./list.php">
@@ -1025,85 +798,304 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 			支付订单
 		</a>
 	</li>
+	<li>
+		<a class="<?php echo checkIfActive("orderjk") ?>" href="./orderjk.php">
+			订单状态监控
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("set_autoreorder") ?>" href="./set_autoreorder.php">
+			自动补单设置
+		</a>
+	</li>
 	</ul>
 </li>
 
-<li class="<?php echo checkIfActive('classlist,shoplist,shopedit,price,shoprank,cardlist,toollogs,shopnoo,region_price,seckill,recommend')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-shopping-cart sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">商品管理</span></a>
+<li class="<?php echo checkIfActive('classlist,shoplist,shopedit,price,shoprank,cardlist,shopnoo,region_price,seckill,fakalist,fakakms,mailcon,toollogs,stock_notice,pricecontrol')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-shopping-cart sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">商品与发卡</span></a>
 	<ul>
-<li>
-	<a class="<?php echo checkIfActive("classlist") ?>" href="./classlist.php">
-		分类列表
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("shoplist,shopedit,shoprank") ?>" href="./shoplist.php">
-		商品列表
-	</a>
-</li>
-
-<li>
-	<a class="<?php echo checkIfActive("price") ?>" href="./price.php">
-		加价模板
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("region_price") ?>" href="./region_price.php">
-		指定地区加价
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("toollogs") ?>" href="./toollogs.php">
-		上架日志
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("cardlist") ?>" href="./cardlist.php">
-		兑换卡密
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("shopnoo") ?>" href="./shopnoo.php">
-		批量替换介绍
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("seckill") ?>" href="./seckill.php">
-		秒杀商品管理
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("recommend") ?>" href="./recommend.php">
-		商品推荐管理
-	</a>
-</li>
+	<li>
+		<a class="<?php echo checkIfActive("classlist") ?>" href="./classlist.php">
+			分类列表
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("shoplist,shopedit") ?>" href="./shoplist.php">
+			商品列表
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("shoprank") ?>" href="./shoprank.php">
+			商品销量排行
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("price") ?>" href="./price.php">
+			加价模板
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("region_price") ?>" href="./region_price.php">
+			指定地区加价
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("toollogs") ?>" href="./toollogs.php">
+			商品动态
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("shopnoo") ?>" href="./shopnoo.php">
+			批量替换介绍
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("seckill") ?>" href="./seckill.php">
+			秒杀商品管理
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("fakalist") ?>" href="./fakalist.php">
+			发卡库存
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("fakakms") ?>" href="./fakakms.php?my=add">
+			添加卡密
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("cardlist") ?>" href="./cardlist.php">
+			兑换卡密
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("mailcon") ?>" href="./set.php?mod=mailcon">
+			发信模板
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('stock_notice')?>" href="./stock_notice.php">
+			库存告急<?php echo $renderMenuBadge($count); ?>
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('pricecontrol') ?>" href="./pricecontrol.php">
+			控价管理
+		</a>
+	</li>
 	</ul>
 </li>
 
-<li class="<?php echo checkIfActive('fakalist,fakakms,mailcon')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-th sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">发卡管理</span></a>
+<li class="<?php echo checkIfActive('sitelist,mj,rank,userlist,message,siteprice,sitetask,sitetaskedit,fenzhan')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-users sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">用户与分站</span></a>
 	<ul>
-<li>
-	<a class="<?php echo checkIfActive("fakalist") ?>" href="./fakalist.php">
-		库存管理
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("fakakms") ?>" href="./fakakms.php?my=add">
-		添加卡密
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("mailcon") ?>" href="./set.php?mod=mailcon">
-		发信模板
-	</a>
-</li>
+	<li>
+		<a class="<?php echo checkIfActive("fenzhan") ?>" href="./set.php?mod=fenzhan">
+			分站相关配置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("1,siteprice") ?>" href="./sitelist.php?mod=1">
+			分站列表
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("userlist") ?>" href="./userlist.php">
+			用户列表
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("mj") ?>" href="./sitelist.php?mod=mj">
+			密价用户
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("rank") ?>" href="./rank.php">
+			分站排行
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("sitetask,sitetaskedit") ?>" href="./sitetask.php">
+			站点任务管理
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("message") ?>" href="./message.php">
+			消息群发
+		</a>
+	</li>
 	</ul>
 </li>
 
+<li class="<?php echo checkIfActive('record,tixian,profit,kmlist,pay,epay,rebaterecharge')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-credit-card sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">财务管理</span></a>
+	<ul>
+	<li>
+		<a class="<?php echo checkIfActive("record") ?>" href="./record.php">
+			收支明细
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('profit') ?>" href="./profit.php">
+			利润统计
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('settlement') ?>" href="./settlement.php">
+			&#36890;&#36947;&#32467;&#31639;
+		</a>
+	</li>
+	<?php if($conf['fenzhan_tixian']==1){?>
+	<li>
+		<a class="<?php echo checkIfActive("tixian") ?>" href="./tixian.php">
+			余额提现
+		</a>
+	</li>
+	<?php }?>
+	<li>
+		<a class="<?php echo checkIfActive("kmlist") ?>" href="./kmlist.php">
+			加款卡密
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("pay,epay") ?>" href="./set.php?mod=pay">
+			支付接口配置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("rebaterecharge") ?>" href="./set.php?mod=rebaterecharge">
+			充值返利设置
+		</a>
+	</li>
+	</ul>
+</li>
 
-<li class="<?php echo checkIfActive('article,rewrite,faq')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-book sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">文章管理</span></a>
+<li class="<?php echo checkIfActive('suplist,suptixian,suprecord,supshoplist,sup,supshoplist2')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-sitemap sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">供货管理</span><?php echo $renderMenuBadge($count3); ?></a>
+	<ul>
+	<li>
+		<a class="<?php echo checkIfActive("sup") ?>" href="./set.php?mod=sup">
+			供货商相关配置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("suplist,siteprice") ?>" href="./suplist.php">
+			供货商列表
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("supshoplist2") ?>" href="./supshoplist2.php">
+			商品列表
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("supshoplist") ?>" href="./supshoplist.php">
+			审核商品<?php echo $renderMenuBadge($count3); ?>
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("suprecord") ?>" href="./suprecord.php">
+			收支明细
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("suptixian") ?>" href="./suptixian.php">
+			余额提现
+		</a>
+	</li>
+	</ul>
+</li>
+
+<li class="<?php echo checkIfActive('qiandao,invite,invitelog,choujiang,choujiang_list,coupons,coupon_rules,user_coupons')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-gift sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">营销工具</span></a>
+	<ul>
+	<li>
+		<a class="<?php echo checkIfActive("qiandao") ?>" href="./set.php?mod=qiandao">
+			每日签到设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("invite,invitelog") ?>" href="./set.php?mod=invite">
+			推广链接设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("coupons") ?>" href="./coupons.php">
+			优惠券管理
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("coupon_rules") ?>" href="./coupon_rules.php">
+			优惠券发放规则
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("user_coupons") ?>" href="./user_coupons.php">
+			用户优惠券管理
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("choujiang") ?>" href="./choujiang.php">
+			抽奖商品设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("choujiang_list") ?>" href="./choujiang_list.php">
+			抽奖商品列表
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('agenttool') ?>" href="./agenttool.php">
+			代理工具管理
+		</a>
+	</li>
+	</ul>
+</li>
+
+<li class="<?php echo checkIfActive('shequlist,pricejk,log,clone,cloneset,shequ,batchgoods,batch_docking,batch_tool,cx-synchronization,cx-api-synchronization')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-plug sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">对接与同步</span></a>
+	<ul>
+	<li>
+		<a class="<?php echo checkIfActive("shequlist") ?>" href="./shequlist.php">
+			对接站点管理
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("pricejk") ?>" href="./pricejk.php">
+			价格监控
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("log") ?>" href="./log.php">
+			对接日志
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("batchgoods") ?>" href="./batchgoods.php">
+			通用批量对接
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("batch_tool") ?>" href="./batch_tool.php">
+			商品初始化工具
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("cx-synchronization") ?>" href="./cx-synchronization.php">
+			自动同步设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("clone,cloneset") ?>" href="./clone.php">
+			克隆站点
+		</a>
+	</li>
+	</ul>
+</li>
+
+<li class="<?php echo checkIfActive('article,rewrite,faq,gonggao,copygg,template,template2,upimg,upbgimg,beautify,beautify_admin,beautify_sidebar,beautify_font,beautify_background,customcss')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-paint-brush sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">内容与外观</span></a>
 	<ul>
 	<li>
 		<a class="<?php echo checkIfActive('article,rewrite')?>" href="./article.php">
@@ -1115,407 +1107,159 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 			常见问题
 		</a>
 	</li>
-	</ul>
-</li>
-
-<li class="<?php echo checkIfActive('shequlist,pricejk,log,clone,cloneset,shequ,orderjk,batchgoods,batch_docking,batch_tool,cx-synchronization,cx-api-synchronization,set_autoreorder')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-cubes sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">对接设置</span></a>
-	<ul>
-<li>
-	<a class="<?php echo checkIfActive("shequlist") ?>" href="./shequlist.php">
-		对接站点管理
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("pricejk") ?>" href="./pricejk.php">
-		价格监控
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("orderjk") ?>" href="./orderjk.php">
-		订单状态监控
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("log") ?>" href="./log.php">
-		对接日志
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("clone,cloneset") ?>" href="./clone.php">
-		克隆站点
-	</a>
-</li>
-<li>
-		<a class="<?php echo checkIfActive("batchgoods") ?>" href="./batchgoods.php">
-			通用批量对接
-		</a>
-	</li>
-
 	<li>
-		<a class="<?php echo checkIfActive("batch_tool") ?>" href="./batch_tool.php">
-			商品初始化工具
+		<a class="<?php echo checkIfActive("gonggao,copygg") ?>" href="./set.php?mod=gonggao">
+			网站公告配置
 		</a>
 	</li>
-
-
-
-<li>
-	<a class="<?php echo checkIfActive("set_autoreorder") ?>" href="./set_autoreorder.php">
-		自动补单设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("cx-synchronization") ?>" href="./cx-synchronization.php">
-		自动同步设置
-	</a>
-</li>
+	<li>
+		<a class="<?php echo checkIfActive("template,template2") ?>" href="./set.php?mod=template">
+			首页模板设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("upimg,upbgimg") ?>" href="./set.php?mod=upimg">
+			Logo与背景设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('beautify') ?>" href="./set.php?mod=beautify">
+			前台美化
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('beautify_admin') ?>" href="./set.php?mod=beautify_admin">
+			鼠标美化
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('beautify_sidebar') ?>" href="./set.php?mod=beautify_sidebar">
+			后台侧边栏框架美化
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('beautify_font') ?>" href="./set.php?mod=beautify_font">
+			字体美化
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('beautify_background') ?>" href="./set.php?mod=beautify_background">
+			背景美化
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('customcss') ?>" href="./customcss.php">
+			自定义 CSS
+		</a>
+	</li>
 	</ul>
 </li>
 
-<li class="<?php echo checkIfActive('site,gonggao,mail,pay,template,template2,upimg,upbgimg,clean,cleanbom,defend,proxy,copygg,mailtest,epay,captcha,cron,oauth,update,chat,set_domain_landing,set_wall_guide')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-cog sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">系统设置</span></a>
+<li class="<?php echo checkIfActive('workorder,workorder2')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-ticket sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">工单处理</span><?php echo $renderMenuBadge($count2); ?></a>
 	<ul>
-<li>
-	<a class="<?php echo checkIfActive("site") ?>" href="./set.php?mod=site">
-		网站信息配置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("gonggao,copygg") ?>" href="./set.php?mod=gonggao">
-		网站公告配置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("mail") ?>" href="./set.php?mod=mail">
-		邮箱与提醒配置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("pay,epay") ?>" href="./set.php?mod=pay">
-		支付接口配置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("template,template2") ?>" href="./set.php?mod=template">
-		首页模板设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("oauth") ?>" href="./set.php?mod=oauth">
-		快捷登录配置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("captcha") ?>" href="./set.php?mod=captcha">
-		验证与IP配置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("defend") ?>" href="./set.php?mod=defend">
-		防CC攻击设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("upimg,upbgimg") ?>" href="./set.php?mod=upimg">
-		Logo与背景设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("cron") ?>" href="./set.php?mod=cron">
-		计划任务设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("clean") ?>" href="./clean.php">
-		系统数据清理
-    </a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("update") ?>" href="./update.php">
-		检查版本更新
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive('chat') ?>" href="./set.php?mod=chat">
-		客服系统设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive('set_domain_landing') ?>" href="./set_domain_landing.php">
-		域名落地页
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive('set_wall_guide') ?>" href="./set_wall_guide.php">
-		防墙引导页
-	</a>
-</li>
-
+	<li>
+		<a class="<?php echo checkIfActive("workorder") ?>" href="./workorder.php">
+			工单列表<?php echo $renderMenuBadge($count2); ?>
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("workorder2") ?>" href="./workorder2.php">
+			网盘失效<?php echo $renderMenuBadge($count_cloud); ?>
+		</a>
+	</li>
 	</ul>
 </li>
 
-<!-- 新增网站美化顶级菜单 -->
-<li class="<?php echo checkIfActive('beautify,beautify_admin,beautify_sidebar,beautify_font,beautify_background')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-paint-brush sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">网站美化</span></a>
+<li class="<?php echo checkIfActive('site,mail,captcha,defend,oauth,cron,clean,cleanbom,update,datamove,dwz,set_domain_landing,set_wall_guide,cf_ip_whitelist,cf_ip_blocklist,sitelogs')?>">
+	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-shield sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">系统与安全</span></a>
 	<ul>
-<li>
-	<a class="<?php echo checkIfActive('beautify') ?>" href="./set.php?mod=beautify">
-		前台美化
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive('beautify_admin') ?>" href="./set.php?mod=beautify_admin">
-		鼠标美化
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive('beautify_sidebar') ?>" href="./set.php?mod=beautify_sidebar">
-		后台侧边栏框架美化
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive('beautify_font') ?>" href="./set.php?mod=beautify_font">
-		字体美化
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive('beautify_background') ?>" href="./set.php?mod=beautify_background">
-		背景美化
-	</a>
-</li>
-
-	</ul>
-</li>
-
-<li class="<?php echo checkIfActive('qiandao,invite,dwz,choujiang,choujiang_list,invitelog,datamove,appCreate,rebaterecharge,coupons,coupon_rules,user_coupons')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-cogs sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">其它组件</span></a>
-	<ul>
-<li>
-	<a class="<?php echo checkIfActive("qiandao") ?>" href="./set.php?mod=qiandao">
-		每日签到设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("invite,invitelog") ?>" href="./set.php?mod=invite">
-		推广链接设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("choujiang") ?>" href="./choujiang.php">
-		抽奖商品设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("choujiang_list") ?>" href="./choujiang_list.php">
-		抽奖商品列表
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("dwz") ?>" href="./set.php?mod=dwz">
-		防红接口设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("rebaterecharge") ?>" href="./set.php?mod=rebaterecharge">
-		充值返利设置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("coupons") ?>" href="./coupons.php">
-		优惠券管理
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("coupon_rules") ?>" href="./coupon_rules.php">
-		优惠券发放规则
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("user_coupons") ?>" href="./user_coupons.php">
-		用户优惠券管理
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("datamove") ?>" href="./datamove.php">
-		数据迁移
-	</a>
-</li>
-
+	<li>
+		<a class="<?php echo checkIfActive("site") ?>" href="./set.php?mod=site">
+			网站信息配置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("mail") ?>" href="./set.php?mod=mail">
+			邮箱与提醒配置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("oauth") ?>" href="./set.php?mod=oauth">
+			快捷登录配置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("captcha") ?>" href="./set.php?mod=captcha">
+			验证与IP配置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("defend") ?>" href="./set.php?mod=defend">
+			防CC攻击设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("dwz") ?>" href="./set.php?mod=dwz">
+			防红接口设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('set_domain_landing') ?>" href="./set_domain_landing.php">
+			域名落地页
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('set_wall_guide') ?>" href="./set_wall_guide.php">
+			防墙引导页
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('cf_ip_whitelist') ?>" href="./cf_ip_whitelist.php">
+			CF IP白名单
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('cf_ip_blocklist') ?>" href="./cf_ip_blocklist.php">
+			CF IP黑名单
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("cron") ?>" href="./set.php?mod=cron">
+			计划任务设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("clean") ?>" href="./clean.php">
+			系统数据清理
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("datamove") ?>" href="./datamove.php">
+			数据迁移
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("update") ?>" href="./update.php">
+			检查版本更新
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("sitelogs") ?>" href="./sitelogs.php">
+			站点日志
+		</a>
+	</li>
 	</ul>
 </li>
 
 <li>
 	<a class="<?php echo checkIfActive('account')?>" href="./account.php">
-		<i class="fa fa-user-circle-o sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">员工管理</span>
-	</a>
-</li>
-<?php
-                            $count2 = $DB->getColumn("SELECT count(*) from pre_workorder WHERE status=0 or status=1");
-                            $count_cloud = $DB->getColumn("SELECT count(*) from pre_workorder WHERE ts=1 and status=0");
-                            ?>
-<li class="<?php echo checkIfActive('sitelist,mj,tixian,record,rank,userlist,message,workorder,siteprice,kmlist,sitetask,sitetask-check,fenzhan')?>">
-	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-sitemap sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">用户/分站管理</span> <span class="label label-danger"><?php echo $count2?></span></a>
-	<ul>
-<li>
-	<a class="<?php echo checkIfActive("fenzhan") ?>" href="./set.php?mod=fenzhan">
-		分站相关配置
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("1,siteprice") ?>" href="./sitelist.php?mod=1">
-		分站列表
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("mj") ?>" href="./sitelist.php?mod=mj">
-		密价用户
-	</a>
-</li>
-<li>
-		<a class="<?php echo checkIfActive("workorder") ?>" href="./workorder.php">
-			工单列表
-			<span class="label label-danger"><?php echo $count2?></span>
-		</a>
-	</li>
-<li>
-	<a class="<?php echo checkIfActive("userlist") ?>" href="./userlist.php">
-		用户列表
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("record") ?>" href="./record.php">
-		收支明细
-	</a>
-</li>
-<?php if($conf['fenzhan_tixian']==1){?>
-<li>
-	<a class="<?php echo checkIfActive("tixian") ?>" href="./tixian.php">
-		余额提现
-	</a>
-</li>
-<?php }?>
-<li>
-	<a class="<?php echo checkIfActive("rank") ?>" href="./rank.php">
-		分站排行
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("message") ?>" href="./message.php">
-		站内通知
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("sitetask") ?>" href="./sitetask.php">
-		站点任务管理
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("sitetask-check") ?>" href="./sitetask-check.php">
-		站点任务审核
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("kmlist") ?>" href="./kmlist.php">
-		加款卡密
-	</a>
-</li>
-	</ul>
-</li>
-<?php
-                            $stockrows = $DB->getAll('SELECT `tid` FROM `pre_tools` WHERE `active` = 1 AND `close` = 0 AND `is_curl` = 4');
-                            $count = 0;
-                            foreach ($stockrows as $stockrow) {
-
-                                $stockTotal = $DB->getColumn('SELECT count(`tid`) FROM `pre_faka` WHERE `orderid` = 0 AND `tid` = :tid', [
-                                    ':tid' => $stockrow['tid'],
-                                ]);
-
-                                if ($stockTotal < 1) {
-                                    $count++;
-                                }
-                            }
-                            $count3 = $DB->getColumn("SELECT count(*) from pre_tools where goods_sid != 0 and audit_status=0");
-                            ?>
-                            <li class="<?php echo checkIfActive('suplist,suptixian,suprecord,supshoplist,sup,supshoplist2')?>">
-                                <a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-sitemap sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">供货管理</span> <span class="label label-danger"><?php echo $count3?></span></a>
-                                <ul>
-                                    <li>
-                                        <a class="<?php echo checkIfActive("sup") ?>" href="./set.php?mod=sup">
-                                            供货商相关配置
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="<?php echo checkIfActive("suplist,siteprice") ?>" href="./suplist.php">
-                                            供货商列表
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="<?php echo checkIfActive("supshoplist2") ?>" href="./supshoplist2.php">
-                                            商品列表
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="<?php echo checkIfActive("supshoplist") ?>" href="./supshoplist.php">
-                                            审核商品 <span class="label label-danger"><?php echo $count3?></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="<?php echo checkIfActive("suprecord") ?>" href="./suprecord.php">
-                                            收支明细
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="<?php echo checkIfActive("suptixian") ?>" href="./suptixian.php">
-                                            余额提现
-                                        </a>
-                                    </li>
-
-                                    <!--                                    <li>-->
-                                    <!--                                        <a class="--><?php //echo checkIfActive("workorder") ?><!--" href="./workorder.php">-->
-                                    <!--                                            工单列表-->
-                                    <!--                                        </a>-->
-                                    <!--                                    </li>-->
-                                    <!--                                    <li>-->
-                                    <!--                                        <a class="--><?php //echo checkIfActive("message") ?><!--" href="./message.php">-->
-                                    <!--                                            站内通知-->
-                                    <!--                                        </a>-->
-                                    <!--                                    </li>-->
-                                </ul>
-                            </li>
-<li>
-	<a class="<?php echo checkIfActive('stock_notice')?>" href="./stock_notice.php">
-		<i class="fa fa-bullhorn sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">库存告急</span>
-        <span class="label label-danger"><?php echo $count?></span>
-	</a>
-</li>
-<li>
-	<a class="<?php echo checkIfActive("workorder2") ?>" href="./workorder2.php">
-		<i class="fa fa-bullhorn sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">网盘失效</span>
-        <span class="label label-danger"><?php echo $count_cloud?></span>
-	</a>
-</li>
-
-<li>
-	<a class="<?php echo checkIfActive('chatwork') ?>" href="./chatwork.php">
-		<i class="fa fa-headphones sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">客服工作台</span>
-	</a>
-</li>
-
-<li>
-	<a class="<?php echo checkIfActive('support')?>" href="./support.php">
-		<i class="fa fa-paper-plane sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">联系与赞助</span>
-	</a>
-</li>
-
-<li>
-	<a class="" href="./changelog.php">
-		<i class="fa fa-list-alt sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">更新日志</span>
+		<i class="fa fa-user-circle-o sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">员工权限</span>
 	</a>
 </li>
 
 
+<?php echo q8_render_action('admin_sidebar_after_menu', array('script' => basename($_SERVER['SCRIPT_NAME']), 'title' => $title)); ?>
                         </ul>
                     </div>
                 </div>
@@ -1530,9 +1274,9 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
             </div>
             <div id="main-container">
                 <header class="navbar navbar-inverse navbar-fixed-top">
-
+ 
 <ul class="nav navbar-nav-custom">
-
+ 
 <li>
 <a href="javascript:void(0)" onclick="App.sidebar('toggle-sidebar');this.blur();">
 <i class="fa fa-ellipsis-v fa-fw animation-fadeInRight" id="sidebar-toggle-mini"></i>
@@ -1544,23 +1288,24 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 <i class="fa fa-reply fa-fw animation-fadeInRight"></i> 返回
 </a>
 </li>
-<li class="hidden-xs" style="margin-left: 20px;">
+<li class="hidden-xs admin-header-search">
 <div class="navbar-form navbar-form-sm">
 <div class="form-group">
 <div class="input-group">
-<input type="text" id="global-search" class="form-control input-sm" placeholder="全局搜索菜单...">
+<input type="text" id="global-search" class="form-control input-sm" placeholder="全局搜索菜单..." autocomplete="off">
 <span class="input-group-btn">
-<button class="btn btn-sm btn-primary" type="button" onclick="performGlobalSearch()">
+<button class="btn btn-sm btn-primary" type="button" onclick="performGlobalSearch()" aria-label="执行菜单搜索">
 <i class="fa fa-search"></i>
 </button>
 </span>
 </div>
 </div>
+</div>
 </li>
-
+ 
 </ul>
-
-
+ 
+ 
 <ul class="nav navbar-nav-custom pull-right">
 <li>
 <a href="javascript:void(0)" onclick="App.sidebar('toggle-sidebar-alt');this.blur();">
@@ -1581,7 +1326,6 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 扫码登录
 </a>
 </li>
-</li>
 <li>
 <a href="set.php?mod=account">
 <i class="fa fa-pencil-square fa-fw pull-right"></i>
@@ -1596,7 +1340,6 @@ h4{font-family:"微软雅黑",Georgia,Serif;}
 </li>
 <li class="divider">
 </li>
-<li>
 <li>
 <a href="login.php?logout">
 <i class="fa fa-power-off fa-fw pull-right"></i>

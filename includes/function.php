@@ -1,5 +1,29 @@
 <?php
 
+if (!function_exists('q8_admin_csrf_token')) {
+	function q8_admin_csrf_token()
+	{
+		return md5(session_id() . SYS_KEY);
+	}
+}
+
+if (!function_exists('q8_admin_check_csrf')) {
+	function q8_admin_check_csrf($token = null)
+	{
+		if ($token === null) {
+			if (isset($_POST['csrf_token'])) {
+				$token = $_POST['csrf_token'];
+			} elseif (isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+				$token = $_SERVER['HTTP_X_CSRF_TOKEN'];
+			} else {
+				$token = '';
+			}
+		}
+		$expected = q8_admin_csrf_token();
+		return function_exists('hash_equals') ? hash_equals($expected, (string)$token) : $expected === (string)$token;
+	}
+}
+
 if (!function_exists('q8_render_action')) {
 	function q8_render_action($hook)
 	{
@@ -913,7 +937,6 @@ function getClassOptionList($selected = 0) {
     }
     return $select;
 }
-
 
 
 
