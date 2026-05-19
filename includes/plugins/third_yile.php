@@ -25,7 +25,7 @@ class third_yile{
 		'name'        => 'third_yile',  //插件名称，必须和类名一致
 		'type'        => 'third',  //插件类型，固定为third
 		'title'       => '亿乐社区',  //插件显示名称
-		'author'      => '6v6',
+		'author'      => '岁岁 @qqfaka',
 		'version'     => '2.0',  //更新版本号，适配亿乐SUP新版API
 		'link'        => '',
 		'sort'        => 11,  //在对接列表显示的排序号

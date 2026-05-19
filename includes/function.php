@@ -1,5 +1,42 @@
 <?php
 
+if (!function_exists('q8_render_action')) {
+	function q8_render_action($hook)
+	{
+		return '';
+	}
+}
+
+if (!function_exists('q8_get_fenzhan_price_context')) {
+	function q8_get_fenzhan_price_context($conf, $isFenzhan = false, $siteRow = array())
+	{
+		$normal = isset($conf['fenzhan_price']) ? $conf['fenzhan_price'] : 0;
+		$professional = isset($conf['fenzhan_price2']) ? $conf['fenzhan_price2'] : $normal;
+
+		if ($isFenzhan && is_array($siteRow)) {
+			if (isset($siteRow['ktfz_price']) && $siteRow['ktfz_price'] !== '') {
+				$normal = $siteRow['ktfz_price'];
+			}
+			if (isset($siteRow['ktfz_price2']) && $siteRow['ktfz_price2'] !== '') {
+				$professional = $siteRow['ktfz_price2'];
+			}
+		}
+
+		return array(
+			'normal_price' => $normal,
+			'professional_price' => $professional
+		);
+	}
+}
+
+if (!function_exists('q8_format_currency_amount')) {
+	function q8_format_currency_amount($amount)
+	{
+		$amount = floatval($amount);
+		return $amount == intval($amount) ? (string)intval($amount) : rtrim(rtrim(number_format($amount, 2, '.', ''), '0'), '.');
+	}
+}
+
 function curl_get($url)
 
 {
@@ -876,7 +913,6 @@ function getClassOptionList($selected = 0) {
     }
     return $select;
 }
-
 
 
 

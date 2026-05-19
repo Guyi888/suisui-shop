@@ -2,7 +2,7 @@
 // 应用配置文件
 return [
     // 应用名称
-    'app_name' => '彩虹云商城系统',
+    'app_name' => '岁岁云商城',
     // 应用调试模式
     'debug' => true,
     // 应用时区
@@ -24,6 +24,6 @@ return [
     'session' => [
         'auto_start' => true,
         'expire' => 86400 * 3, // 3天
-        'name' => 'RAINBOW_SESSION'
+        'name' => 'SUISUI_SESSION'
     ]
 ];

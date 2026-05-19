@@ -37,7 +37,7 @@ class third_zhike{
 		'name'        => 'third_zhike',
 		'type'        => 'third',
 		'title'       => '直客SUP',
-		'author'      => '6v6',
+		'author'      => '岁岁 @qqfaka',
 		'version'     => '1.0',
 		'link'        => '',
 		'sort'        => 24,

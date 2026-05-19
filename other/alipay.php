@@ -1,7 +1,7 @@
 <?php
 /**
  * 支付宝当面付扫码支付页面
- * 作者：岁岁 @qqfaka 博客：zhonguo.ren Q群：qqfaka
+ * 作者：岁岁 @qqfaka 官网：t.me/qqfaka TG：@qqfaka
  */
 
 // 开启错误报告以便调试
@@ -31,7 +31,7 @@ if (!function_exists('ordername_replace')) {
      * @param string $name 商品名称
      * @param string $trade_no 交易订单号
      * @return string 替换后的订单名称
-     * 作者：岁岁 @qqfaka 博客：zhonguo.ren Q群：qqfaka
+     * 作者：岁岁 @qqfaka 官网：t.me/qqfaka TG：@qqfaka
      */
     function ordername_replace($template, $name, $trade_no) {
         $replacements = array(

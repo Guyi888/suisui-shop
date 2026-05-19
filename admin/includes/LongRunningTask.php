@@ -33,7 +33,7 @@ class LongRunningTask {
 
         // 设置进程标题
         if (function_exists('cli_set_process_title')) {
-            cli_set_process_title('彩虹商城-自动同步');
+            cli_set_process_title('岁岁云商城-自动同步');
         }
 
         // 生成任务ID

@@ -9,7 +9,7 @@ class third_kakayun{
 		'name'        => 'third_kakayun',
 		'type'        => 'third',
 		'title'       => '卡卡云（老）',
-		'author'      => '6v6',
+		'author'      => '岁岁 @qqfaka',
 		'version'     => '1.0',
 		'link'        => '',
 		'sort'        => 27,

@@ -17,6 +17,8 @@ if($admin_cdnpublic==1){
 }else{
 	$cdnpublic = '//lib.baomitu.com/';
 }
+$isAdminIndexPage = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
+$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260519q8ui01';
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -32,6 +34,7 @@ if($admin_cdnpublic==1){
   <link rel="stylesheet" href="../assets/appui/css/main.css">
   <link rel="stylesheet" href="../assets/appui/css/themes.css">
   <link id="theme-link" rel="stylesheet" href="<?php echo $_COOKIE['optionThemeColor']?$_COOKIE['optionThemeColor']:'../assets/appui/css/themes/flat-2.4.css'; ?>">
+  <?php if($isAdminIndexPage){ ?><link rel="stylesheet" href="./assets/css/admin-dashboard.css?v=<?php echo urlencode($adminAssetVersion); ?>"><?php } ?>
     <!-- 原admin-custom.css文件不存在，修复引用路径错误 -->
     <script src="<?php echo $cdnpublic?>jquery/2.1.4/jquery.min.js"></script>
 

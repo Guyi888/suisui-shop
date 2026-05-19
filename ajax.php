@@ -277,7 +277,7 @@ switch ($act) {
 		exit(json_encode($result));
 		break;
 	case 'gettoolnew':
-			// 设置脚本执行时间，避免超时 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
+			// 设置脚本执行时间，避免超时 - 作者：岁岁 @qqfaka 官网：t.me/qqfaka
 			set_time_limit(30);
 			$page = $_POST['page'] ? intval(trim(daddslashes($_POST['page']))) : 1;
 			$limit = $_POST['limit'] ? intval(trim(daddslashes($_POST['limit']))) : 9;
@@ -317,7 +317,7 @@ switch ($act) {
 			}
 		}
 
-			// 优化查询性能 - 作者：岁岁 @qqfaka 博客：zhonguo.ren
+			// 优化查询性能 - 作者：岁岁 @qqfaka 官网：t.me/qqfaka
 			$num = $DB->getColumn("SELECT count(tid) FROM pre_tools WHERE $where", $params);
 			$rs = $DB->query("SELECT * FROM pre_tools WHERE $where ORDER BY $orderBy LIMIT $page,$limit", $params);
 
@@ -422,7 +422,7 @@ switch ($act) {
 				unset($_SESSION['addsalt']);
 			}
 			$inputs = explode('|', $tool['inputs']);
-			// 检查哪些输入框是收货地址 - 博客地址：zhonguo.ren QQ群：qqfaka
+			// 检查哪些输入框是收货地址 - 官网：t.me/qqfaka TG：@qqfaka
 			$address_input_indices = [];
 			foreach ($inputs as $index => $input_name) {
 				if (strpos($input_name, '收货地址') !== false || strpos($input_name, '地址') !== false) {
@@ -536,7 +536,7 @@ switch ($act) {
 				$price = $price_obj->getFinalPrice($price, $num);
 				if (!$price) exit('{"code":-1,"msg":"当前商品批发价格优惠设置不正确"}');
 
-				// 地区加价计算 - 博客地址：zhonguo.ren QQ群：qqfaka
+				// 地区加价计算 - 官网：t.me/qqfaka TG：@qqfaka
 				if (!empty($address)) {
 					$regionPrice = new \lib\RegionPrice();
 					$region_result = $regionPrice->calculatePrice($price, $address, $tid, $tool['name']);
@@ -721,7 +721,7 @@ switch ($act) {
 
 			$trade_no = date("YmdHis") . mt_rand(111, 999);
 			$input = $inputvalue . ($inputvalue2 ? '|' . $inputvalue2 : null) . ($inputvalue3 ? '|' . $inputvalue3 : null) . ($inputvalue4 ? '|' . $inputvalue4 : null) . ($inputvalue5 ? '|' . $inputvalue5 : null);
-			// 地区加价计算 - 博客地址：zhonguo.ren QQ群：qqfaka
+			// 地区加价计算 - 官网：t.me/qqfaka TG：@qqfaka
 			$region_order_id = $trade_no;
 			if ($method == 'cart_add') {
 				$sql = "INSERT INTO `pre_cart` (`userid`,`zid`,`tid`,`input`,`num`,`money`,`addtime`,`blockdj`,`status`,`address`) VALUES (:userid, :zid, :tid, :input, :num, :money, NOW(), :blockdj, 0, :address)";
@@ -1406,7 +1406,7 @@ switch ($act) {
 		}
 		break;
 	case 'gift_start':
-		// 抽奖功能 - 岁岁 @qqfaka QQ群：qqfaka
+		// 抽奖功能 - 岁岁 @qqfaka TG：@qqfaka
 		if ($conf['gift_open'] != 1) {
 			exit('{"code":-1,"msg":"抽奖功能未开启"}');
 		}
@@ -1445,7 +1445,7 @@ switch ($act) {
 		exit(json_encode(array("code" => 0, "data" => $data)));
 		break;
 	case 'gift_stop':
-		// 抽奖停止确认 - 岁岁 @qqfaka QQ群：qqfaka
+		// 抽奖停止确认 - 岁岁 @qqfaka TG：@qqfaka
 		if ($conf['gift_open'] != 1) {
 			exit('{"code":-1,"msg":"抽奖功能未开启"}');
 		}

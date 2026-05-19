@@ -65,6 +65,10 @@ case 'getcount':
 		}
 
 		$count17=$DB->getColumn("SELECT count(*) FROM pre_workorder where status=0 or status=1");
+		$count18=$DB->getColumn("SELECT count(*) FROM pre_tools WHERE addtime>=:thtime AND active=1 AND close=0", array(':thtime' => $thtime));
+		$count19=$DB->getColumn("SELECT count(*) FROM pre_tools WHERE close=1 AND uptime>=:uptime", array(':uptime' => strtotime(date('Y-m-d'))));
+		$count20=$DB->getColumn("SELECT count(DISTINCT zid) FROM pre_qiandao WHERE date=:date", array(':date' => date('Y-m-d')));
+		$count21=$DB->getColumn("SELECT sum(rmb) FROM pre_site");
 
 	// 获取访问统计数据
 	$today = date('Y-m-d');
@@ -78,30 +82,63 @@ case 'getcount':
 	// 获取过去7天的访问统计数据
 	$visit_chart = array('date' => array(), 'visits' => array(), 'ips' => array());
 	try {
+		$point = 1;
 		for($i=6; $i>=0; $i--) {
 			$date = date('Y-m-d', strtotime("-$i days"));
 			$short_date = date('m-d', strtotime("-$i days"));
-			$visit_chart['date'][] = $short_date;
+			$visit_chart['date'][] = array($point, $short_date);
 
 			$stat = $DB->getRow("SELECT visits, ip_count FROM shua_visit_statistics WHERE date = :date", array(':date' => $date));
 			if($stat) {
-				$visit_chart['visits'][] = array($i, $stat['visits']);
-				$visit_chart['ips'][] = array($i, $stat['ip_count']);
+				$visit_chart['visits'][] = array($point, $stat['visits']);
+				$visit_chart['ips'][] = array($point, $stat['ip_count']);
 			} else {
-				$visit_chart['visits'][] = array($i, 0);
-				$visit_chart['ips'][] = array($i, 0);
+				$visit_chart['visits'][] = array($point, 0);
+				$visit_chart['ips'][] = array($point, 0);
 			}
+			$point++;
 		}
 	} catch (Exception $e) {
 		// 如果查询出错，设置空数据
 		$visit_chart = null;
 	}
 
-	$result=array("code"=>0,"yxts"=>$yxts,"count1"=>$count1,"count2"=>$count2,"count3"=>$count3,"count4"=>$count4,"count5"=>round($count5,2),"count6"=>$count6,"count7"=>$count7,"count8"=>round($count8,2),"count9"=>round($count9,2),"count10"=>round($count10,2),"count11"=>round($count11,2),"count12"=>round($count12,2),"count13"=>round($count13,2),"count14"=>round($count14,2),"count15"=>round($today_total_money,2),"count16"=>round($yesterday_total_money,2),"count17"=>$count17,"chart"=>getDatePoint(), "visit_today"=>$visit_today, "ip_today"=>$ip_today, "visit_chart"=>$visit_chart);
+	$result=array("code"=>0,"yxts"=>$yxts,"count1"=>$count1,"count2"=>$count2,"count3"=>$count3,"count4"=>$count4,"count5"=>round($count5,2),"count6"=>$count6,"count7"=>$count7,"count8"=>round($count8,2),"count9"=>round($count9,2),"count10"=>round($count10,2),"count11"=>round($count11,2),"count12"=>round($count12,2),"count13"=>round($count13,2),"count14"=>round($count14,2),"count15"=>round($today_total_money,2),"count16"=>round($yesterday_total_money,2),"count17"=>$count17,"count18"=>$count18,"count19"=>$count19,"count20"=>$count20,"count21"=>round($count21,2),"chart"=>getDatePoint(), "visit_today"=>$visit_today, "ip_today"=>$ip_today, "visit_chart"=>$visit_chart);
 		$CACHE->save('getcount', serialize(['time' => time(), 'data' => $result]));
 	}
 	exit(json_encode($result));
 break;
+case 'get_visit_details':
+	$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+	$pageSize = 20;
+	$offset = ($page - 1) * $pageSize;
+	$visitTable = DBQZ . '_visit_ips';
+	try {
+		$tableExists = $DB->getColumn("SHOW TABLES LIKE '{$visitTable}'");
+		if (!$tableExists) {
+			exit(json_encode(array('code' => 0, 'data' => array('total' => 0, 'page' => $page, 'page_size' => $pageSize, 'visits' => array()))));
+		}
+		$hasUsernameColumn = $DB->getColumn("SHOW COLUMNS FROM {$visitTable} LIKE 'username'");
+		$usernameSelect = $hasUsernameColumn ? "`username`" : "'' AS username";
+		$total = intval($DB->getColumn("SELECT COUNT(*) FROM {$visitTable}"));
+		$visits = $DB->getAll("SELECT `date`, `ip`, {$usernameSelect}, `url`, `user_agent`, `region`, `visits`, `updated_at` FROM {$visitTable} ORDER BY `updated_at` DESC LIMIT {$offset}, {$pageSize}");
+		$visitList = array();
+		foreach((array)$visits as $visit){
+			$visitList[] = array(
+				'ip' => isset($visit['ip']) ? $visit['ip'] : '',
+				'username' => isset($visit['username']) ? ($visit['username'] ?: '') : '',
+				'url' => !empty($visit['url']) ? $visit['url'] : '-',
+				'user_agent' => !empty($visit['user_agent']) ? $visit['user_agent'] : '-',
+				'visit_time' => !empty($visit['updated_at']) ? $visit['updated_at'] : (isset($visit['date']) ? $visit['date'] : ''),
+				'region' => !empty($visit['region']) ? $visit['region'] : 'unknown',
+				'visits' => isset($visit['visits']) ? intval($visit['visits']) : 0
+			);
+		}
+		exit(json_encode(array('code' => 0, 'data' => array('total' => $total, 'page' => $page, 'page_size' => $pageSize, 'visits' => $visitList))));
+	} catch (Exception $e) {
+		exit(json_encode(array('code' => 0, 'data' => array('total' => 0, 'page' => $page, 'page_size' => $pageSize, 'visits' => array()))));
+	}
+	break;
 case 'notice':
 	if(!isset($_SESSION['notice'])){
 		$_SESSION['notice'] = getNotice();

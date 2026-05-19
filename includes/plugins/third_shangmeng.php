@@ -9,7 +9,7 @@ class third_shangmeng{
 		'name'        => 'third_shangmeng',
 		'type'        => 'third',
 		'title'       => '商盟网',
-		'author'      => '6v6',
+		'author'      => '岁岁 @qqfaka',
 		'version'     => '1.0',
 		'link'        => '',
 		'sort'        => 23,

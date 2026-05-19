@@ -9,7 +9,7 @@ class third_daishua{
 		'name'        => 'third_daishua',
 		'type'        => 'third',
 		'title'       => '同系统对接',
-		'author'      => '6v6',
+		'author'      => '岁岁 @qqfaka',
 		'version'     => '1.0',
 		'link'        => '',
 		'sort'        => 32,

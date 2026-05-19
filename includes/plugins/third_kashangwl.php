@@ -9,7 +9,7 @@ class third_kashangwl{
 		'name'        => 'third_kashangwl',
 		'type'        => 'third',
 		'title'       => '卡商网',
-		'author'      => '6v6',
+		'author'      => '岁岁 @qqfaka',
 		'version'     => '1.0',
 		'sort'        => 21,
 		'link'        => '',

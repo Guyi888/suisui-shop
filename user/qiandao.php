@@ -181,7 +181,7 @@ foreach($qdrow as $row){
 网站 <?php echo $conf['sitename'] ?>
 
       全手游/端游科技辅助
-       代刷业务—游戏小号
+       数字商品—福利活动
       招收代理——无需成本
 全网最低价——全网最齐全
 等您来赚钱【点击】快速开通
@@ -193,7 +193,7 @@ foreach($qdrow as $row){
               </li>
               <li class="list-group-item">
                 <button data-clipboard-target="#fxggc" class="btn btn-sm btn-block btn-success fenx">点击一键复制分享语</button></li>
-              <li class="list-group-item">将网站分享给你的好友，有机会获取10W名片赞或者永久超级会员哟！</li>
+              <li class="list-group-item">将网站分享给你的好友，有机会获取平台活动奖励。</li>
             </div>
           </div>
         </div>
@@ -203,7 +203,7 @@ foreach($qdrow as $row){
 <script>
 var clipboard = new Clipboard('.fenx');
 clipboard.on('success', function(e) {
-	layer.msg("复制成功,快去分享给朋友一起来领免费名片赞吧！", {icon: 1});
+	layer.msg("复制成功，快去分享给朋友一起参与活动吧！", {icon: 1});
 });
 clipboard.on('error', function(e) {
      layer.msg("复制失败，请长按链接后手动复制", {icon: 2});

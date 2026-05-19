@@ -32,7 +32,7 @@ include 'head.php';
                                 <div id="collapseTwo" class="panel-collapse collapse" style="height: 0px;">
                                     <div class="panel-body">
 										你也可以通过（<a href="shoplist.php"><font color="#337ab7">商品管理</font></a>）把商品售价提高，那样利润就会更高，但是也要有分寸。<br>
-										最简单的方法就是QQ群，多加点互赞、名片赞群，发名片赞广告。空间互踩群，发空间人气、说说赞等相关广告。<br>
+										可以把推广链接发送给有需要的朋友或社群，介绍清楚商品内容、售后规则和下单地址。<br>
 										当然还有百度贴吧、网上各大论坛，你都可以去推广，付出越多，收益越大！不要局限在自己那几十个或者几百个QQ好友里面，互联网的陌生人才是你赚钱的方向！
 									</div>
                                 </div>

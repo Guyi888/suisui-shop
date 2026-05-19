@@ -18,6 +18,10 @@ include "./head.php";
                 <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> 2026-05-19 岁岁云商城维护更新</h4>
                     <ul>
+                        <li>参考 Q8 当前线上版本移植 XHY-01 模板视觉与交互骨架，补齐背景图、本地 vendor 依赖、查单卡片、赚钱/抽奖/更多服务等模块样式。</li>
+                        <li>参考 Q8 后台首页更新管理中心 UI，新增统计卡片、交易图表、访问统计、运营待办和访问详情弹窗资源。</li>
+                        <li>移除 XHY-01 中 chat.zkapi.cn 外部客服注入，在线客服兜底跳转岁岁 @qqfaka 官方 Telegram。</li>
+                        <li>补充二开版本品牌化清理：后台标题、搭建教程、插件作者元数据和默认推广文案统一为岁岁云商城。</li>
                         <li>新增后台“联系与赞助”页面，展示官网、客服/群组和 USDT TRC20 赞助地址。</li>
                         <li>官方维护信息统一为：岁岁 @qqfaka，官网 https://t.me/qqfaka。</li>
                         <li>安装默认客服/群组调整为 qqfaka，并更新默认公告、站点描述、邮件页脚和邀请文案。</li>

@@ -9,7 +9,7 @@ class third_yiqida{
 		'name'        => 'third_yiqida',
 		'type'        => 'third',
 		'title'       => '亿奇达',
-		'author'      => '6v6',
+		'author'      => '岁岁 @qqfaka',
 		'version'     => '1.0',
 		'link'        => '',
 		'sort'        => 23,

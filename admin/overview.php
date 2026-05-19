@@ -12,7 +12,7 @@ session_start();
 
 // 首先加载依赖文件
 include("../includes/common.php");
-$title = '系统概况 - 彩虹自助下单系统管理中心';
+$title = '系统概况 - 岁岁云商城管理中心';
 include './head.php';
 
 // 获取PHP会话运行时间

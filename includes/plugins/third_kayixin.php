@@ -9,7 +9,7 @@ class third_kayixin{
 		'name'        => 'third_kayixin',
 		'type'        => 'third',
 		'title'       => '卡易信',
-		'author'      => '6v6',
+		'author'      => '岁岁 @qqfaka',
 		'version'     => '1.0',
 		'link'        => '',
 		'sort'        => 13,

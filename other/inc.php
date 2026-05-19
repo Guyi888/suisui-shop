@@ -41,7 +41,7 @@ define('SYS_KEY', $conf['syskey']);
 $authcode = '';
 define('authcode', $authcode);
 // 修复Undefined variable: distid错误
-// 博客地址：zhonguo.ren | q群qqfaka
+// 官网：t.me/qqfaka | TG：@qqfaka
 // 岁岁 @qqfaka老师修复：添加distid变量默认值处理
 define('DIST_ID',hexdec(isset($distid) ? $distid : '0'));
 include ROOT.'includes/function.php';
