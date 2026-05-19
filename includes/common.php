@@ -448,8 +448,6 @@ function rmdirs($dir, $rmself = true)
 }
 
 
-define('API_URL', 'https://sq.6v6.ren');
-
 // 防墙引导页功能检测
 if($conf['wall_guide_open'] == 1) {
     $is_system_file = strpos($_SERVER['PHP_SELF'], 'admin/') !== false || strpos($_SERVER['PHP_SELF'], 'install/') !== false || strpos($_SERVER['PHP_SELF'], 'api/') !== false || strpos($_SERVER['PHP_SELF'], 'api.php') !== false || strpos($_SERVER['PHP_SELF'], 'cron.php') !== false;

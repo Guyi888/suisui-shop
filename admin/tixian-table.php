@@ -79,6 +79,10 @@ if ($page < $pages) {
 	  <form action="" id="editform" method="post" class="" role="form">
 		<div class="alert alert-success">安全提示：每次重启或重新打开浏览器后，请重新设置支付密码。</div>
 		<div class="form-group">
+		  <label class="control-label">Api_Url</label>
+		  <input type="text" name="api_url" value="<?php echo isset($conf["transfer_api_url"]) ? $conf["transfer_api_url"] : "";?>" class="form-control" placeholder="https://your-domain.example/transfer"/>
+		</div>
+		<div class="form-group">
 		  <label class="control-label">Api_Id</label>
 		  <input type="text" name="id" value="<?php echo isset($conf["transfer_id"]) ? $conf["transfer_id"] : "";?>" class="form-control" placeholder="对接ID"/>
 		</div>

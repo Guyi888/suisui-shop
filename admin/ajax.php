@@ -760,7 +760,9 @@ case 'transfer':
 	adminpermission('super', 2);
 	$id = intval($_POST['id']);
 	if(!$conf['fenzhan_daifu'])exit(json_encode(array('code'=>0,'msg'=>'请先在分站设置开启代付接口')));
-	if(!$conf['transfer_id'] || !$conf['transfer_key'] || !$conf['transfer_check'] || !$_SESSION["transfer_pass"])exit(json_encode(array('code'=>0,'msg'=>'请先配置好自动转账接口信息')));
+	if(!$conf['transfer_api_url'] || !$conf['transfer_id'] || !$conf['transfer_key'] || !$conf['transfer_check'] || !$_SESSION["transfer_pass"])exit(json_encode(array('code'=>0,'msg'=>'请先配置好自动转账接口信息')));
+	$transfer_api_url = trim($conf['transfer_api_url']);
+	if(!filter_var($transfer_api_url, FILTER_VALIDATE_URL))exit(json_encode(array('code'=>0,'msg'=>'自动转账接口地址格式错误')));
 	$res = $DB->getRow("SELECT * FROM pre_tixian WHERE id=:id AND status=0", array(':id' => $id));
 	if (!$res) exit(json_encode(array('code'=>0,'msg'=>'记录不存在或状态不是待处理！')));
 	if ($res['pay_type'].'' == '1') {
@@ -781,7 +783,7 @@ case 'transfer':
 		'pay_pass'=>$_SESSION["transfer_pass"],
 	];
 	$param['sign'] = yile_getSign($param, trim($conf['transfer_key']));
-	$data = get_curl('https://api.blog.6v6.ren/transfer', $param);
+	$data = get_curl($transfer_api_url, $param);
 	$json = json_decode($data,true);
 	if (isset($json['code']) && $json['code']) {
 		if($DB->exec("update pre_tixian set status=1,endtime=NOW() where id=:id", array(':id' => $id))===false) exit(json_encode(array('code'=>0,'msg'=>'汇款成功!但是结算记录状态改变失败！')));
@@ -793,8 +795,11 @@ break;
 case 'transfer_config':
 	adminpermission('super', 2);
 	if(!$conf['fenzhan_daifu'])exit(json_encode(array('code'=>0,'msg'=>'请先在分站设置开启代付接口')));
-	if (!$_POST['id'] || !$_POST['key'] || !$_POST['pass']) exit(json_encode(['code'=>0,'msg'=>'请填写完整']));
+	if (!$_POST['api_url'] || !$_POST['id'] || !$_POST['key'] || !$_POST['pass']) exit(json_encode(['code'=>0,'msg'=>'请填写完整']));
+	$transfer_api_url = trim($_POST['api_url']);
+	if(!filter_var($transfer_api_url, FILTER_VALIDATE_URL)) exit(json_encode(['code'=>0,'msg'=>'接口地址格式错误']));
 	if ($_POST['check'] !== 'NO_CHECK' && $_POST['check'] !== 'FORCE_CHECK') exit(json_encode(['code'=>0,'msg'=>'验证选项错误']));
+	saveSetting('transfer_api_url',$transfer_api_url);
 	saveSetting('transfer_id',$_POST['id']);
 	saveSetting('transfer_key',$_POST['key']);
 	saveSetting('transfer_check',$_POST['check']);

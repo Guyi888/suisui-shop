@@ -18,6 +18,7 @@ include "./head.php";
                 <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> 2026-05-19 岁岁云商城维护更新</h4>
                     <ul>
+                        <li>移除残留远程系统接口常量，自动转账接口改为后台自定义 Api_Url，不再写死第三方远程地址。</li>
                         <li>同步程序功能修复与后台管理页面更新，保留当前仓库的 config.php 配置文件。</li>
                         <li>同步数据库版本到 DB_VERSION 1013，并将静态资源缓存版本更新为 20260519。</li>
                         <li>移除后台赞助、推广 QQ、站长推荐轮播、推荐支付、防红推荐和对接推荐等展示信息。</li>
