@@ -322,7 +322,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                     </div>
                 </div>
                 <?php
-                // 处理更多输入框 - 官网：t.me/qqfaka TG：@qqfaka
+                // 处理更多输入框 - 作者：@qqfaka TG：@qqfaka
                 if (!empty($tool['inputs'])) {
                     $inputs = explode('|', $tool['inputs']);
                     $input_index = 2;
@@ -333,7 +333,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                             $is_address = (strpos($input_name, '收货地址') !== false || strpos($input_name, '地址') !== false);
                             $oninput_event = $is_address ? 'oninput="calculateRegionPrice()"' : '';
 
-                            // 根据输入框标题选择合适的图标 - 官网：t.me/qqfaka TG：@qqfaka
+                            // 根据输入框标题选择合适的图标 - 作者：@qqfaka TG：@qqfaka
                             $icon_class = 'fa-pencil-square-o';
                             if (strpos($input_name, '收货地址') !== false || strpos($input_name, '地址') !== false) {
                                 $icon_class = 'fa-map-marker';
@@ -413,7 +413,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
     function calculateRegionPrice() {
         if (isCalculating) return;
 
-        // 动态查找收货地址字段 - 官网：t.me/qqfaka TG：@qqfaka
+        // 动态查找收货地址字段 - 作者：@qqfaka TG：@qqfaka
         var addressInput = $('input[placeholder*="收货地址"], input[placeholder*="地址"]');
         var address = addressInput.length > 0 ? addressInput.val() : '';
         var num = parseInt($('#num').val()) || 1;
@@ -476,7 +476,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
             var tid = $("#tid").val();
             var inputvalue = $("#inputvalue").val();
             var num = $("#num").val();
-            // 动态查找收货地址字段 - 官网：t.me/qqfaka TG：@qqfaka
+            // 动态查找收货地址字段 - 作者：@qqfaka TG：@qqfaka
             var addressInput = $('input[placeholder*="收货地址"], input[placeholder*="地址"]');
             var address = addressInput.length > 0 ? addressInput.val() : '';
             <?php if($conf['captcha_open']==1){?>
@@ -486,7 +486,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
             if(inputvalue=='' || tid=='' || num==''){layer.alert('请确保每项不能为空！');return false;}
             if(num>1000){layer.alert('每次只能下单1000个！');return false;}
 
-            // 验证手机号码输入框 - 官网：t.me/qqfaka TG：@qqfaka
+            // 验证手机号码输入框 - 作者：@qqfaka TG：@qqfaka
             var mainInputLabel = $('.form-group:eq(0) label').text().trim();
             if(mainInputLabel.indexOf('手机号码') !== -1 || mainInputLabel.indexOf('手机号') !== -1 || mainInputLabel.indexOf('手机') !== -1){
                 if(!/^1\d{10}$/.test(inputvalue)){
@@ -495,7 +495,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                 }
             }
 
-            // 验证更多输入框中的手机号码 - 官网：t.me/qqfaka TG：@qqfaka
+            // 验证更多输入框中的手机号码 - 作者：@qqfaka TG：@qqfaka
             $('.form-group').each(function(){
                 var label = $(this).find('label').text().trim();
                 var input = $(this).find('input[type="text"]');
@@ -508,7 +508,7 @@ if($conf['agodn_stock_display'] == 1 && $count !== null){
                 }
             });
 
-            // 收集所有输入框数据 - 官网：t.me/qqfaka TG：@qqfaka
+            // 收集所有输入框数据 - 作者：@qqfaka TG：@qqfaka
             var data = {
                 type: "buy",
                 tid: tid,

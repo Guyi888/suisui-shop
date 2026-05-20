@@ -5,7 +5,7 @@ if (defined('IN_CRONLITE')) {
 	return;
 }
 define('CACHE_FILE', 0);
-define('VERSION', '2026052003');
+define('VERSION', '2026052004');
 define('IN_CRONLITE', true);
 define('tingdong', '3530793519');
 define('SYSTEM_ROOT', dirname(__FILE__) . '/');
@@ -14,8 +14,11 @@ define('TEMPLATE_ROOT', ROOT . 'template/');
 define('PLUGIN_ROOT', ROOT . 'includes/plugins/');
 define('OWNER_NAME', '岁岁');
 define('OWNER_HANDLE', '@qqfaka');
-define('OWNER_CONTACT', 'qqfaka');
+define('OWNER_CONTACT', 'https://t.me/suisuishop');
 define('OWNER_SITE_URL', 'https://t.me/qqfaka');
+define('OWNER_GROUP_URL', 'https://t.me/suisuishop');
+define('OWNER_CHANNEL_URL', 'https://t.me/suisuifaka');
+define('PROJECT_REPOSITORY_URL', 'https://github.com/Guyi888/suisui-shop');
 define('OWNER_USDT_TRC20', 'TLzcw5ydRjHCM6KKAprjD8yzf2Dddddddd');
 
 function site_contact_label($contact = null)
@@ -28,7 +31,10 @@ function site_contact_url($contact = null)
 {
 	$contact = trim((string)$contact);
 	if ($contact === '') {
-		return OWNER_SITE_URL;
+		return OWNER_GROUP_URL;
+	}
+	if (preg_match('/^https?:\/\//i', $contact)) {
+		return $contact;
 	}
 	if (preg_match('/^\d{5,12}$/', $contact)) {
 		return 'http://wpa.qq.com/msgrd?v=3&uin=' . rawurlencode($contact) . '&site=qq&menu=yes';

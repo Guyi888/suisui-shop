@@ -8,7 +8,7 @@ if ($islogin == 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 
-// 自动创建数据库表和字段 - 官网：t.me/qqfaka TG：@qqfaka
+// 自动创建数据库表和字段 - 作者：@qqfaka TG：@qqfaka
 function autoCreateTables() {
     global $DB;
 
@@ -106,7 +106,7 @@ if ($my == 'add') {
         }
 
         if ($regionPrice->addRule($data) !== false) {
-            // 清除缓存 - 官网：t.me/qqfaka TG：@qqfaka
+            // 清除缓存 - 作者：@qqfaka TG：@qqfaka
             $regionPrice->clearCache();
             exit("<script language='javascript'>alert('添加成功！');window.location.href='region_price.php';</script>");
         } else {
@@ -138,7 +138,7 @@ if ($my == 'add') {
         }
 
         if ($regionPrice->updateRule($id, $data) !== false) {
-            // 清除缓存 - 官网：t.me/qqfaka TG：@qqfaka
+            // 清除缓存 - 作者：@qqfaka TG：@qqfaka
             $regionPrice->clearCache();
             exit("<script language='javascript'>alert('修改成功！');window.location.href='region_price.php';</script>");
         } else {

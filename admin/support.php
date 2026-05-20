@@ -37,7 +37,8 @@ include "./head.php";
             <p>本页展示后台维护、版本支持与赞助信息，不影响前台站长自定义客服配置。</p>
         </div>
         <div class="admin-ops-hero__actions">
-            <a href="<?php echo htmlspecialchars(OWNER_SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="admin-ops-chip"><i class="fa fa-paper-plane"></i> 官方入口</a>
+            <a href="<?php echo htmlspecialchars(OWNER_GROUP_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="admin-ops-chip"><i class="fa fa-users"></i> 交流群组</a>
+            <a href="<?php echo htmlspecialchars(PROJECT_REPOSITORY_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="admin-ops-chip"><i class="fa fa-github"></i> 项目仓库</a>
             <a href="./changelog.php" class="admin-ops-chip"><i class="fa fa-list-alt"></i> 更新日志</a>
         </div>
     </section>
@@ -53,7 +54,7 @@ include "./head.php";
         </article>
         <article class="admin-ops-stat admin-ui-stat">
             <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--warning"><i class="fa fa-comments"></i></span>
-            <div><span>客服/群组</span><strong><?php echo htmlspecialchars(OWNER_CONTACT, ENT_QUOTES, 'UTF-8'); ?></strong></div>
+            <div><span>交流群组</span><strong><?php echo htmlspecialchars(OWNER_GROUP_URL, ENT_QUOTES, 'UTF-8'); ?></strong></div>
         </article>
         <article class="admin-ops-stat admin-ui-stat">
             <span class="admin-ops-stat__icon admin-ui-stat__icon admin-ops-stat__icon--accent"><i class="fa fa-shield"></i></span>
@@ -77,12 +78,20 @@ include "./head.php";
                         <td><?php echo htmlspecialchars(OWNER_NAME . ' ' . OWNER_HANDLE, ENT_QUOTES, 'UTF-8'); ?></td>
                     </tr>
                     <tr>
-                        <th>官网</th>
+                        <th>作者</th>
                         <td><a href="<?php echo htmlspecialchars(OWNER_SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank"><?php echo htmlspecialchars(OWNER_SITE_URL, ENT_QUOTES, 'UTF-8'); ?></a></td>
                     </tr>
                     <tr>
-                        <th>客服/群组</th>
-                        <td><?php echo htmlspecialchars(OWNER_CONTACT, ENT_QUOTES, 'UTF-8'); ?></td>
+                        <th>交流群组</th>
+                        <td><a href="<?php echo htmlspecialchars(OWNER_GROUP_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank"><?php echo htmlspecialchars(OWNER_GROUP_URL, ENT_QUOTES, 'UTF-8'); ?></a></td>
+                    </tr>
+                    <tr>
+                        <th>通知频道</th>
+                        <td><a href="<?php echo htmlspecialchars(OWNER_CHANNEL_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank"><?php echo htmlspecialchars(OWNER_CHANNEL_URL, ENT_QUOTES, 'UTF-8'); ?></a></td>
+                    </tr>
+                    <tr>
+                        <th>项目仓库</th>
+                        <td><a href="<?php echo htmlspecialchars(PROJECT_REPOSITORY_URL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank"><?php echo htmlspecialchars(PROJECT_REPOSITORY_URL, ENT_QUOTES, 'UTF-8'); ?></a></td>
                     </tr>
                     <tr>
                         <th>USDT TRC20 赞助地址</th>

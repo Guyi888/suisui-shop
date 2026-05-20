@@ -1,6 +1,6 @@
 <?php
 // 客服工作台
-// 官网：t.me/qqfaka
+// 作者：@qqfaka
 // TG：@qqfaka
 include "../includes/common.php";
 $title = "客服工作台";

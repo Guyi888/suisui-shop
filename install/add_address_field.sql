@@ -1,4 +1,4 @@
--- 官网：t.me/qqfaka
+-- 作者：@qqfaka
 -- TG：@qqfaka
 -- 开发者：岁岁 @qqfaka
 -- 文件说明：为pre_pay表添加address字段

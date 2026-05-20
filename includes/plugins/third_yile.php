@@ -1,7 +1,7 @@
 <?php
 /**
  * 亿乐社区对接插件
- * 官网：t.me/qqfaka
+ * 作者：@qqfaka
  * TG：@qqfaka
  * 开发者：岁岁 @qqfaka
  *

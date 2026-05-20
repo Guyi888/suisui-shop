@@ -146,7 +146,7 @@ insert  into `shua_config`(`k`,`v`) values
 ('admin_pwd','install_generated'),
 ('admin_user','admin'),
 ('alipay_api','2'),
-('anounce','<p><li class="list-group-item"><span class="btn btn-danger btn-xs">1</span> 售后问题请联系在线客服，默认官方客服 TG @qqfaka。</li><li class="list-group-item"><span class="btn btn-success btn-xs">2</span> 下单前请仔细阅读商品说明、补充信息和售后规则。</li><li class="list-group-item"><span class="btn btn-info btn-xs">3</span> 订单状态可在查询页面自助查看，请保存好下单账号或订单号。</li><li class="list-group-item"><span class="btn btn-warning btn-xs">4</span> 请勿重复下单，等待前一笔任务完成后再提交新的订单。</li><div class="btn-group btn-group-justified"><a target="_blank" class="btn btn-info" href="https://t.me/qqfaka"><i class="fa fa-paper-plane"></i> 联系客服</a><a target="_blank" class="btn btn-warning" href="https://t.me/qqfaka"><i class="fa fa-users"></i> 官方群组</a><a target="_blank" class="btn btn-success" href="https://t.me/qqfaka"><i class="fa fa-home"></i> 官方入口</a></div></p>'),
+('anounce','<p><li class="list-group-item"><span class="btn btn-danger btn-xs">1</span> 售后问题请联系在线客服，项目作者 TG @qqfaka。</li><li class="list-group-item"><span class="btn btn-success btn-xs">2</span> 下单前请仔细阅读商品说明、补充信息和售后规则。</li><li class="list-group-item"><span class="btn btn-info btn-xs">3</span> 订单状态可在查询页面自助查看，请保存好下单账号或订单号。</li><li class="list-group-item"><span class="btn btn-warning btn-xs">4</span> 请勿重复下单，等待前一笔任务完成后再提交新的订单。</li><div class="btn-group btn-group-justified"><a target="_blank" class="btn btn-info" href="https://t.me/qqfaka"><i class="fa fa-paper-plane"></i> 联系作者</a><a target="_blank" class="btn btn-warning" href="https://t.me/suisuishop"><i class="fa fa-users"></i> 交流群组</a><a target="_blank" class="btn btn-success" href="https://t.me/suisuifaka"><i class="fa fa-bullhorn"></i> 通知频道</a></div></p>'),
 ('bottom',''),
 ('build','2023-05-28'),
 ('cache',''),
@@ -896,7 +896,7 @@ CREATE TABLE IF NOT EXISTS `shua_coupon_rules` (
   KEY `active` (`active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='优惠券发放规则表';
 
--- 创建地区加价规则表 - 官网：t.me/qqfaka TG：@qqfaka
+-- 创建地区加价规则表 - 作者：@qqfaka TG：@qqfaka
 CREATE TABLE IF NOT EXISTS `pre_region_price_rules` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `region_name` varchar(100) NOT NULL COMMENT '地区名称',

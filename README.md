@@ -1,11 +1,12 @@
 # 岁岁云商城
 
-岁岁云商城是一套基于 6v6教主 PHP 的发卡/商城/分站运营系统，面向自营发卡、商品销售、代刷对接、分站代理、订单管理、财务流水和后台运营场景。
+岁岁云商城（suisui-shop）是一套面向自营发卡、商品销售、代刷对接、分站代理、订单管理、财务流水和后台运营场景的 PHP 商城系统。
 
 > ⚠️ **声明**: 本项目仅供学习、研究和二次开发参考。用于生产环境前，请自行完成安全审计、支付风控、数据备份和合规评估。
 
 ## 最近更新
 
+- **v1.0.1.4 / 2026-05-20**：项目公开仓库迁移为 `suisui-shop`，同步 README、搭建教程、后台版本入口和维护联系方式，统一作者、交流群组、通知频道和项目地址。完整记录见 [CHANGELOG.md](./CHANGELOG.md)。
 - **v1.0.1.3 / 2026-05-20**：返修工单/网盘失效详情按钮排版、客服微信二维码上传入口、更新日志左侧竖线，并将 `suisui` 模板缩略图更新为当前前台真实截图。完整记录见 [CHANGELOG.md](./CHANGELOG.md)。
 - **v1.0.1.2 / 2026-05-20**：重构 XHY-01 前台首页下单份数控件，改为 FontAwesome 图标按钮并修复移动端加减按钮错位；不支持多份下单的商品新增固定 1 份提示。完整记录见 [CHANGELOG.md](./CHANGELOG.md)。
 - **v1.0.1.1 / 2026-05-20**：更新 README 联系入口，交流群组改为 [https://t.me/suisuishop](https://t.me/suisuishop)，通知频道改为 [https://t.me/suisuifaka](https://t.me/suisuifaka)。完整记录见 [CHANGELOG.md](./CHANGELOG.md)。
@@ -71,8 +72,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/Guyi888/6v6faka.git
-cd 6v6faka
+git clone https://github.com/Guyi888/suisui-shop.git
+cd suisui-shop
 ```
 
 ### 2. 上传到站点目录
@@ -134,7 +135,7 @@ https://你的域名/admin/
 ## 📁 项目结构
 
 ```text
-6v6faka/
+suisui-shop/
 ├── admin/              # 后台管理入口和业务页面
 ├── user/               # 用户中心和分站后台
 ├── includes/           # 公共函数、核心业务、运行时辅助逻辑
@@ -170,11 +171,12 @@ USDT TRC20: TLzcw5ydRjHCM6KKAprjD8yzf2Dddddddd
 
 ## 💬 技术交流 / 意见反馈
 
-如有问题或建议，欢迎提交 [Issue](https://github.com/Guyi888/6v6faka/issues)。
+如有问题或建议，欢迎提交 [Issue](https://github.com/Guyi888/suisui-shop/issues)。
 
+- 作者: [@qqfaka](https://t.me/qqfaka)
 - 交流群组: [https://t.me/suisuishop](https://t.me/suisuishop)
 - 通知频道: [https://t.me/suisuifaka](https://t.me/suisuifaka)
-- 项目地址: [https://github.com/Guyi888/6v6faka](https://github.com/Guyi888/6v6faka)
+- 项目地址: [https://github.com/Guyi888/suisui-shop](https://github.com/Guyi888/suisui-shop)
 
 ## 🔧 私有定制
 

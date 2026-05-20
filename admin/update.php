@@ -7,7 +7,7 @@ if ($islogin != 1) {
 }
 
 include "./head.php";
-$githubUrl = 'https://github.com/Guyi888/6v6faka';
+$githubUrl = defined('PROJECT_REPOSITORY_URL') ? PROJECT_REPOSITORY_URL : 'https://github.com/Guyi888/suisui-shop';
 ?>
 <style>
 .q8-update-wrap{max-width:1120px;margin:0 auto 24px;float:none}
