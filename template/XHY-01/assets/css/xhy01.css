@@ -1,0 +1,39 @@
+body.suisui-variant-xhy01 {
+  background:
+    linear-gradient(135deg, rgba(219, 78, 81, .10), transparent 36%),
+    linear-gradient(245deg, rgba(242, 163, 52, .13), transparent 34%),
+    #f7f4f2;
+}
+
+.suisui-variant-xhy01 .suisui-topbar,
+.suisui-variant-xhy01 .suisui-order-card,
+.suisui-variant-xhy01 .suisui-panel {
+  border-color: rgba(226, 190, 176, .9);
+}
+
+.suisui-variant-xhy01 .suisui-logo {
+  background-image: url("/template/XHY-01/bg-fallback.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.suisui-variant-xhy01 .suisui-kicker {
+  color: #b42318;
+  background: rgba(219, 78, 81, .09);
+}
+
+.suisui-variant-xhy01 .suisui-tabs > li.active > a,
+.suisui-variant-xhy01 .suisui-submit,
+.suisui-variant-xhy01 .suisui-btn-primary,
+.suisui-variant-xhy01 .suisui-modal .modal-header {
+  background: linear-gradient(135deg, #c83232, #ec9b32);
+}
+
+.suisui-variant-xhy01 .suisui-submit-muted {
+  background: linear-gradient(135deg, #237a72, #d8842f);
+}
+
+.suisui-variant-xhy01 .suisui-panel-title i,
+.suisui-variant-xhy01 .suisui-product-meta em {
+  color: #c83232;
+}

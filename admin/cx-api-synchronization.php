@@ -178,6 +178,48 @@ function syncGenericCategoryChildren($cat)
     return [];
 }
 
+function syncFirstTextValue($row, $keys)
+{
+    if (!is_array($row)) return '';
+    foreach ($keys as $key) {
+        if (!isset($row[$key])) continue;
+        if (is_array($row[$key]) || is_object($row[$key])) continue;
+        $value = trim((string)$row[$key]);
+        if ($value !== '') return $value;
+    }
+    return '';
+}
+
+function syncNormalizeProductDetail($detail)
+{
+    if (!is_array($detail)) return [];
+    $detail = array_merge([], $detail);
+
+    if (empty($detail['desc'])) {
+        $detail['desc'] = syncFirstTextValue($detail, [
+            'desc', 'description', 'goodsDetail', 'goodsDesc', 'goods_desc',
+            'details', 'detail', 'particulars', 'content', 'intro', 'info', 'remark'
+        ]);
+    }
+    if (empty($detail['alert'])) {
+        $detail['alert'] = syncFirstTextValue($detail, ['alert', 'notice', 'tip', 'hint', 'tips', 'remark']);
+    }
+    if (empty($detail['shopimg'])) {
+        $detail['shopimg'] = syncFirstTextValue($detail, [
+            'shopimg', 'goodsThumb', 'thumb', 'img', 'image', 'image_url', 'imgurl'
+        ]);
+    }
+    if (!isset($detail['name']) || $detail['name'] === '') {
+        $detail['name'] = syncFirstTextValue($detail, ['name', 'goodsName', 'goodsname', 'title']);
+    }
+    if (!isset($detail['price']) && isset($detail['goodsPrice'])) $detail['price'] = $detail['goodsPrice'];
+    if (!isset($detail['min']) && isset($detail['minOrderNum'])) $detail['min'] = $detail['minOrderNum'];
+    if (!isset($detail['max']) && isset($detail['maxOrderNum'])) $detail['max'] = $detail['maxOrderNum'];
+    if (!isset($detail['value']) && isset($detail['min'])) $detail['value'] = $detail['min'];
+
+    return $detail;
+}
+
 function syncFlattenGenericCategories($categories, $parentRemoteId = 0, &$flat = null)
 {
     if ($flat === null) $flat = [];
@@ -468,8 +510,13 @@ function syncProducts($shequ, $config, $task) {
                     if(is_array($batch_result) && !empty($batch_result)) {
                         $batch_supported = true;
                         foreach($batch_result as $goodsSN => $detail) {
-                            if(isset($detail['goodsSN'])) {
-                                $product_details_cache[$detail['goodsSN']] = $detail;
+                            if(is_array($detail)) {
+                                $detail = syncNormalizeProductDetail($detail);
+                                if(isset($detail['goodsSN'])) {
+                                    $product_details_cache[$detail['goodsSN']] = $detail;
+                                } elseif(!empty($goodsSN)) {
+                                    $product_details_cache[$goodsSN] = $detail;
+                                }
                             }
                         }
                         $task->updateProgress("批量获取商品详情成功，共 " . count($product_details_cache) . " 个商品");
@@ -492,7 +539,7 @@ function syncProducts($shequ, $config, $task) {
                             try {
                                 $detail = third_call($shequ['type'], $shequ, 'goods_info', [$product_id]);
                                 if(is_array($detail)) {
-                                    $product_details_cache[$product_id] = $detail;
+                                    $product_details_cache[$product_id] = syncNormalizeProductDetail($detail);
                                 }
                             } catch(Exception $e) {
                                 // 获取商品详情失败，继续处理
@@ -551,7 +598,7 @@ function syncProducts($shequ, $config, $task) {
                         // 从缓存中获取商品详情
                         $cache_key = $product['id'];
                         if(isset($product_details_cache[$cache_key])) {
-                            $cached_detail = $product_details_cache[$cache_key];
+                            $cached_detail = syncNormalizeProductDetail($product_details_cache[$cache_key]);
                             $product_detail = array_merge($product_detail, $cached_detail);
                         }
 
@@ -684,7 +731,7 @@ function syncProducts($shequ, $config, $task) {
 
                 // 从缓存中获取商品详情
                 $cache_key = $product['id'];
-                $cached_detail = isset($product_details_cache[$cache_key]) ? $product_details_cache[$cache_key] : [];
+                $cached_detail = isset($product_details_cache[$cache_key]) ? syncNormalizeProductDetail($product_details_cache[$cache_key]) : [];
 
                 // 如果需要同步价格，使用缓存的价格信息
                 if($config['sync_price'] && isset($cached_detail['price'])) {
@@ -1245,6 +1292,39 @@ function syncResolveDaishuaCategory($config, $classMap, $remoteCid, $currentCid 
     return ['cid' => $currentCid, 'missing' => false];
 }
 
+function syncDaishuaFetchProductDetails($shequ, $ids, $task)
+{
+    $details = [];
+    $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+    if(empty($ids)) return $details;
+
+    $base = preg_replace('/^https?:\/\//i', '', $shequ['url']);
+    $url = ($shequ['protocol'] == 1 ? 'https://' : 'http://') . $base . '/api.php?act=goodsdetails';
+    $total = count($ids);
+    $done = 0;
+    foreach(array_chunk($ids, 20) as $chunk) {
+        foreach($chunk as $goodsId) {
+            try {
+                $post = 'tid=' . urlencode($goodsId) . '&user=' . urlencode($shequ['username']) . '&pass=' . urlencode($shequ['password']);
+                $cmd = 'curl -ks --connect-timeout 8 --max-time 20 -X POST -d ' . escapeshellarg($post) . ' ' . escapeshellarg($url);
+                $ret = shell_exec($cmd);
+                $json = is_string($ret) ? json_decode($ret, true) : null;
+                $detail = is_array($json) && isset($json['data']) && is_array($json['data']) ? $json['data'] : [];
+                if(is_array($detail)) {
+                    $details[$goodsId] = syncNormalizeProductDetail($detail);
+                }
+            } catch(Exception $e) {
+                // Keep the full sync running when a single upstream detail request fails.
+            }
+            $done++;
+        }
+        if($done === $total || $done % 200 === 0) {
+            $task->updateProgress("商品详情同步进度 {$done}/{$total}");
+        }
+    }
+    return $details;
+}
+
 function syncRepairDaishuaCategoryAssignments($shequ, $config, $remoteGoods, $classMap, $task) {
     global $DB, $date;
 
@@ -1457,6 +1537,24 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         }
     }
 
+    $detailCache = [];
+    if(!empty($config['sync_desc'])) {
+        $needDetailIds = [];
+        foreach($remoteGoods as $g) {
+            if(!isset($g['tid'])) continue;
+            $gid = intval($g['tid']);
+            if($gid <= 0) continue;
+            $old = isset($existing[$gid]) ? $existing[$gid] : null;
+            if(!$old || !isset($old['desc']) || trim((string)$old['desc']) === '') {
+                $needDetailIds[] = $gid;
+            }
+        }
+        if(!empty($needDetailIds)) {
+            $task->updateProgress("开始补取商品详情，共 " . count(array_unique($needDetailIds)) . " 个商品");
+            $detailCache = syncDaishuaFetchProductDetails($shequ, $needDetailIds, $task);
+        }
+    }
+
     usort($remoteGoods, function($a, $b) {
         $ac = intval(isset($a['cid']) ? $a['cid'] : 0);
         $bc = intval(isset($b['cid']) ? $b['cid'] : 0);
@@ -1472,6 +1570,11 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         $gid = intval($g['tid']);
         if($gid <= 0) continue;
         if(isset($seen[$gid])) continue;
+        $g = syncNormalizeProductDetail($g);
+        if(isset($detailCache[$gid])) {
+            $g = array_merge($g, $detailCache[$gid]);
+            $g = syncNormalizeProductDetail($g);
+        }
         $seen[$gid] = $gid;
         $scanned++;
         $old = isset($existing[$gid]) ? $existing[$gid] : null;

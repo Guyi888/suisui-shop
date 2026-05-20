@@ -85,6 +85,24 @@ class third_kakayun_new{
 		return $result;
 	}
 
+	private function firstTextValue($row, $keys) {
+		if (!is_array($row)) return '';
+		foreach ($keys as $key) {
+			if (!isset($row[$key])) continue;
+			if (is_array($row[$key]) || is_object($row[$key])) continue;
+			$value = trim((string)$row[$key]);
+			if ($value !== '') return $value;
+		}
+		return '';
+	}
+
+	private function extractDesc($row) {
+		return $this->firstTextValue($row, [
+			'desc', 'description', 'details', 'detail', 'goodsdesc',
+			'goods_desc', 'goodscontent', 'content', 'intro', 'info', 'remark'
+		]);
+	}
+
 	public function goods_list() {
 		$param = [
 			'userid' => $this->config['username'],
@@ -109,7 +127,7 @@ class third_kakayun_new{
 						'status' => $row['goodsstatus'],
 						'type' => $row['goodstype'],
 						'alert' => '',
-						'desc' => '',
+						'desc' => $this->extractDesc($row),
 						'min' => 1,
 						'max' => $row['stock'],
 						'stock' => $row['stock']
@@ -145,7 +163,7 @@ class third_kakayun_new{
 				'status' => $row['goodsstatus'],
 				'type' => $row['goodstype'],
 				'alert' => '',
-				'desc' => '',
+				'desc' => $this->extractDesc($row),
 				'min' => 1,
 				'max' => $row['stock'],
 				'stock' => $row['stock']
@@ -455,7 +473,7 @@ class third_kakayun_new{
 					'max' => $row['stock'],
 					'stock' => $row['stock'],
 					'alert' => '',
-					'desc' => '',
+					'desc' => $this->extractDesc($row),
 					'input' => '',
 					'inputs' => '',
 					'multi' => 1,

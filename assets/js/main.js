@@ -1759,8 +1759,10 @@ $(document).ready(function () {
         $("#tid").append('<option value="0">请选择商品</option>');
         if (data.code == 0) {
           if (data.info != null) {
-            $("#className").html(data.info.name);
-            $("#classImg").attr("src", data.info.shopimg);
+            if (!$("body").hasClass("suisui-page")) {
+              $("#className").html(data.info.name);
+              $("#classImg").attr("src", data.info.shopimg);
+            }
           }
           var num = 0;
           $.each(data.data, function (i, res) {

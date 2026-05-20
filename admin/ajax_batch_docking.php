@@ -20,6 +20,56 @@ $act=isset($_GET['act'])?daddslashes($_GET['act']):null;
 @header('Content-Type: application/json; charset=UTF-8');
 if(!checkRefererHost())exit('{"code":403}');
 @set_time_limit(0);
+
+function batchDockingFirstTextValue($row, $keys)
+{
+	if(!is_array($row)) return '';
+	foreach($keys as $key){
+		if(!isset($row[$key])) continue;
+		if(is_array($row[$key]) || is_object($row[$key])) continue;
+		$value = trim((string)$row[$key]);
+		if($value !== '') return $value;
+	}
+	return '';
+}
+
+function batchDockingNormalizeGoodsDetail($detail)
+{
+	if(!is_array($detail)) return array();
+	$detail = array_merge(array(), $detail);
+	if(empty($detail['desc'])){
+		$detail['desc'] = batchDockingFirstTextValue($detail, array(
+			'desc', 'description', 'goodsDetail', 'goodsDesc', 'goods_desc',
+			'details', 'detail', 'particulars', 'content', 'intro', 'info', 'remark'
+		));
+	}
+	if(empty($detail['alert'])){
+		$detail['alert'] = batchDockingFirstTextValue($detail, array('alert', 'notice', 'tip', 'hint', 'tips', 'remark'));
+	}
+	if(empty($detail['shopimg'])){
+		$detail['shopimg'] = batchDockingFirstTextValue($detail, array('shopimg', 'goodsThumb', 'thumb', 'img', 'image', 'image_url', 'imgurl'));
+	}
+	if(!isset($detail['price']) && isset($detail['goodsPrice'])) $detail['price'] = $detail['goodsPrice'];
+	if(!isset($detail['min']) && isset($detail['minOrderNum'])) $detail['min'] = $detail['minOrderNum'];
+	if(!isset($detail['max']) && isset($detail['maxOrderNum'])) $detail['max'] = $detail['maxOrderNum'];
+	if(!isset($detail['minnum']) && isset($detail['min'])) $detail['minnum'] = $detail['min'];
+	if(!isset($detail['maxnum']) && isset($detail['max'])) $detail['maxnum'] = $detail['max'];
+	return $detail;
+}
+
+function batchDockingMergeGoodsDetail($shequ, $row)
+{
+	if(!is_array($row) || empty($row['id'])) return $row;
+	$row = batchDockingNormalizeGoodsDetail($row);
+	if(!empty($row['desc'])) return $row;
+
+	$detail = third_call($shequ['type'], $shequ, 'goods_info', array($row['id']));
+	if(is_array($detail)){
+		$row = array_merge($row, batchDockingNormalizeGoodsDetail($detail));
+	}
+	return batchDockingNormalizeGoodsDetail($row);
+}
+
 switch($act){
 case 'upInputTitle':	//获取商品介绍里面的网络图片并下载到本地
 	$id=$_POST['shequ'];
@@ -823,6 +873,7 @@ case 'batchaddgoods':
 		}
 
 		// 确定当前商品要使用的分类ID
+		$row = batchDockingMergeGoodsDetail($row_shequ, $row);
 		$current_mcid = $mcid;
 
 		// 如果是"新建同名分类"，则为每个商品创建对应的原始分类

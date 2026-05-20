@@ -181,6 +181,10 @@ class third_zhike{
 						$item['minnum'] = $goods_info['minOrderNum'];
 						$item['maxnum'] = $goods_info['maxOrderNum'];
 						$item['close'] = $goods_info['isClose'];
+						$item['desc'] = isset($goods_info['desc']) ? $goods_info['desc'] : ($goods_info['goodsDetail'] ?? '');
+						$item['input'] = $goods_info['input'] ?? '';
+						$item['inputs'] = $goods_info['inputs'] ?? '';
+						$item['goods_param'] = $goods_info['goods_param'] ?? $goodsSN;
 						// 检查是否包含分类信息
 						if (isset($goods_info['categoryId'])) {
 							$item['category'] = $goods_info['categoryId'];
@@ -367,7 +371,11 @@ class third_zhike{
 						'price' => $goods_info['goodsPrice'],
 						'minnum' => $goods_info['minOrderNum'],
 						'maxnum' => $goods_info['maxOrderNum'],
-						'close' => $goods_info['isClose']
+						'close' => $goods_info['isClose'],
+						'desc' => isset($goods_info['desc']) ? $goods_info['desc'] : ($goods_info['goodsDetail'] ?? ''),
+						'input' => $goods_info['input'] ?? '',
+						'inputs' => $goods_info['inputs'] ?? '',
+						'goods_param' => $goods_info['goods_param'] ?? $v['goodsSN']
 					);
 				}
 			}
@@ -651,6 +659,18 @@ class third_zhike{
 						// 添加price字段，与goods_info方法保持一致
 						if (isset($goods_detail['goodsPrice'])) {
 							$goods_detail['price'] = $goods_detail['goodsPrice'];
+						}
+						if (!isset($goods_detail['desc']) || $goods_detail['desc'] === '') {
+							$goods_detail['desc'] = $goods_detail['goodsDetail'] ?? ($goods_detail['description'] ?? '');
+						}
+						if (!isset($goods_detail['name']) && isset($goods_detail['goodsName'])) {
+							$goods_detail['name'] = $goods_detail['goodsName'];
+						}
+						if (!isset($goods_detail['shopimg']) && isset($goods_detail['goodsThumb'])) {
+							$goods_detail['shopimg'] = $goods_detail['goodsThumb'];
+						}
+						if (!isset($goods_detail['close']) && isset($goods_detail['isClose'])) {
+							$goods_detail['close'] = $goods_detail['isClose'];
 						}
 						// 添加min和max字段
 						if (isset($goods_detail['minOrderNum'])) {

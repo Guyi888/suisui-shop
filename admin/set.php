@@ -1387,7 +1387,8 @@ if ($mod == "cleanbom") {
 			<div class="panel-body">
 				<form onsubmit="return saveSetting(this)" method="post" class="form-horizontal" role="form">
 					<div class="form-group">
-						<label>首页公告</label><br />
+						<label>首页公告（非弹窗）</label>
+						<p class="help-block">用于普通首页公告区域，当前 suisui 前台弹窗不会读取这里。</p>
 						<textarea class="form-control" name="anounce" rows="8" style="width:100%;"><?php echo htmlspecialchars($conf["anounce"]);?></textarea>
 					</div>
 					<div class="form-group">
@@ -1395,7 +1396,8 @@ if ($mod == "cleanbom") {
 						<select class="form-control" name="modal_show_type" style="width:auto;display:inline;margin-left:10px;" default="<?php echo isset($conf['modal_show_type']) ? $conf['modal_show_type'] : '0';?>">
 							<option value="0">每次进网站都弹</option>
 							<option value="1">只弹一次</option>
-						</select><br />
+						</select>
+						<p class="help-block">前台首页弹窗读取这里，修改弹窗内容请改这个文本框。</p>
 						<textarea class="form-control" name="modal" rows="5" style="width:100%;"><?php echo htmlspecialchars($conf["modal"]);?></textarea>
 					</div>
 					<div class="form-group">

@@ -4,15 +4,22 @@ namespace lib;
 class Template {
 
 	static public function defaultName(){
-		return 'XHY-01';
+		return 'suisui';
 	}
 
 	static public function getDisplayName($template){
 		$template = trim((string)$template);
-		return $template === 'XHY-01' ? 'suisui' : $template;
+		if ($template === 'suisui') return '岁岁云商城';
+		if ($template === 'XHY-01') return 'XHY-01 重构版';
+		return $template;
 	}
 
 	static public function getList(){
+		if (is_dir(TEMPLATE_ROOT.'suisui')) {
+			$list = array('suisui');
+			if (is_dir(TEMPLATE_ROOT.'XHY-01')) $list[] = 'XHY-01';
+			return $list;
+		}
 		$dir = TEMPLATE_ROOT;
 		$dirArray[] = NULL;
         if (false != ($handle = opendir($dir))) {
