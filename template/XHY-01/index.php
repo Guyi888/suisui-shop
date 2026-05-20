@@ -10,6 +10,7 @@ $q8XhyFenzhanNormalPriceText = q8_format_currency_amount($q8XhyFenzhanPricing['n
 $q8XhyFenzhanProfessionalPriceText = q8_format_currency_amount($q8XhyFenzhanPricing['professional_price']);
 $q8XhyWithdrawMinText = q8_format_currency_amount(isset($conf['tixian_min']) ? $conf['tixian_min'] : 0);
 $q8XhyFaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : '/assets/img/favicon/favicon.ico';
+$q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -31,12 +32,12 @@ $q8XhyFaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_
 		<script src="<?php echo $cdnpublic?>modernizr/2.8.3/modernizr.min.js"></script>
 		<script src="/assets/Agod/layer.js?v=suisuilocal1"></script>
 		<script>
-		var isModal = <?php echo empty($conf['anounce']) ? 'false' : 'true'; ?> ;
+		var isModal = <?php echo $q8XhyPopupNotice === '' ? 'false' : 'true'; ?> ;
 		var modalShowType = <?php echo isset($conf['modal_show_type']) ? intval($conf['modal_show_type']) : 0; ?>;
 		var homepage = true;
 		var hashsalt = <?php echo $addsalt_js ?> ;
 		</script>
-		<script src="<?php echo $cdnserver ?>assets/js/main.js?ver=<?php echo VERSION ?>-suisuiorder03"></script>
+		<script src="<?php echo $cdnserver ?>assets/js/main.js?ver=<?php echo VERSION ?>-suisuiorder04"></script>
 		<!--[if lt IE 9]>
 	    <script src="<?php echo $cdnpublic?>html5shiv/3.7.3/html5shiv.min.js"></script>
 	    <script src="<?php echo $cdnpublic?>respond.js/1.4.2/respond.min.js"></script>
@@ -2256,7 +2257,7 @@ setTimeout(function(){ setXhyBgFallback('/template/XHY-01/bg-fallback.jpg'); }, 
 				</div>
 				<div class="xhy-announce-body">
 					<div class="xhy-announce-content">
-						<?php echo $conf['anounce']?>
+						<?php echo $q8XhyPopupNotice?>
 					</div>
 				</div>
 				<div class="xhy-announce-footer">

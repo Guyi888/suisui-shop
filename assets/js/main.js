@@ -13,7 +13,9 @@ var $_GET = (function () {
     return {};
   }
 })();
-var isModal = false;
+if (typeof window.isModal === "undefined") {
+  window.isModal = false;
+}
 function getcount() {
   $.ajax({
     type: "GET",
@@ -2768,7 +2770,7 @@ $(document).ready(function () {
 
   if ($.cookie("sec_defend_time"))
     $.removeCookie("sec_defend_time", { path: "/" });
-  if (!$.cookie("op") && isModal == true) {
+  if (!$.cookie("op") && isModal == true && $("#myModal").length) {
     $("#myModal").modal({
       keyboard: true,
     });
