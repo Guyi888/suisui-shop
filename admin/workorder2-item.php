@@ -40,9 +40,15 @@ body{margin:0;background:#f6f9ff;color:#1f2f46;font-family:-apple-system,BlinkMa
 .gdan_xiaozhi>span{position:static;float:right;font-weight:600}
 .gdan_huifu{margin-top:16px;padding-top:16px;border-top:1px solid rgba(15,103,177,.1)}
 .gdan_srk{width:100%;height:130px;margin:0;border:1px solid rgba(22,119,255,.2);border-radius:14px;padding:12px;box-shadow:none}
-.gdan_huifu1{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:112px;height:38px;margin:10px 8px 10px 0;padding:0 14px;border-radius:999px;background:#1677ff;color:#fff;font-weight:800}
+.gdan_huifu1{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:112px;height:38px;margin:0;padding:0 14px;border-radius:999px;background:#1677ff;color:#fff;font-weight:800;text-decoration:none}
+.gdan_actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
+.gdan_actions .gdan_huifu1{width:100%;min-width:0;height:42px;border:0}
+.gdan_actions .gdan_complete{background:#18a058}
+.gdan_actions .gdan_speedy{background:#f59e0b}
+.gdan_speedy_head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px;color:#475569;font-weight:800}
 .gdan_jied{height:auto;padding:16px;border-radius:14px;background:#ecfdf5;color:#0f8a5f;font-weight:900}
 #speedyList{border-radius:14px!important;background:#f8fbff}.speedy-text{max-width:220px;margin:4px}
+@media(max-width:640px){.gdan_actions{grid-template-columns:1fr}.gdan_txt>span,.gdan_xiaozhi>span{float:none;display:block;margin-top:4px}.gdan_kjia1{margin-left:0;margin-top:12px}}
 </style>
 
 </head>
@@ -98,12 +104,14 @@ if ($my == "view") {
 <form action="./workorder2-item.php?my=reply&id=<?php echo $id;?>" method="POST">
 	<textarea class="gdan_srk" name="content" placeholder="回复后投诉状态自动变为已处理 ,分站站点将会收到通知哦！" required></textarea><br/>
 	<input type="checkbox" name="email" id="email" value="1" style="margin-left: 1%;"><label for="email">同时发送提醒邮件到用户邮箱</label><br/>
-	<input type="submit" name="submit" value="提交回复" class="gdan_huifu1" />
-	<input type="button" name="submit" value="完结投诉" class="gdan_huifu1" style="background-color: mediumseagreen;" onclick="window.location.href='./workorder2-item.php?my=complete&id=<?php echo $id;?>'"/>
-	<button type="button" class="gdan_huifu1" id="addSpeedy" style="width: 8em;background-color: #FFB800;">保存到快捷回复</button>
-	<div style="margin: 1%;">
+	<div class="gdan_actions">
+		<button type="submit" name="submit" class="gdan_huifu1"><i class="fa fa-send"></i>&nbsp;提交回复</button>
+		<a class="gdan_huifu1 gdan_complete" href="./workorder2-item.php?my=complete&id=<?php echo $id;?>"><i class="fa fa-check"></i>&nbsp;完结投诉</a>
+		<button type="button" class="gdan_huifu1 gdan_speedy" id="addSpeedy"><i class="fa fa-save"></i>&nbsp;保存快捷回复</button>
+	</div>
+	<div class="gdan_speedy_head">
 		<span>快捷回复列表</span>
-		<button type="button" class="btn btn-xs btn-danger pull-right" data-type="0" id="delSpeedy" title="删除快捷回复列表内容">删除</button>
+		<button type="button" class="btn btn-xs btn-danger" data-type="0" id="delSpeedy" title="删除快捷回复列表内容">删除</button>
 	</div>
 	<div class="form-group" id="speedyList" data-ids="" style="margin: 1%;padding: 5px;border: 1px solid #dedede;min-height: 50px;">
 		<?php

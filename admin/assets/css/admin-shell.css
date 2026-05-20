@@ -1334,8 +1334,20 @@ body.admin-shell-page .admin-userlist-actions {
 }
 
 body.admin-shell-page .admin-changelog-page .timeline-list {
-  border-left: 0;
+  border-left: 0 !important;
   padding-left: 0;
+  background: transparent;
+}
+
+body.admin-shell-page .admin-changelog-page .timeline-list::before,
+body.admin-shell-page .admin-changelog-page .timeline-list::after {
+  display: none !important;
+  content: none !important;
+}
+
+body.admin-shell-page .admin-changelog-page .timeline-list > .alert {
+  border-left: 0 !important;
+  margin-left: 0;
 }
 
 body.admin-shell-page .admin-support-ads {
@@ -1398,6 +1410,33 @@ body.admin-shell-page .admin-upload-card {
   padding: 20px;
 }
 
+body.admin-shell-page .admin-upload-form {
+  display: grid;
+  gap: 12px;
+}
+
+body.admin-shell-page .admin-upload-label {
+  margin: 0;
+  color: #14243c;
+  font-weight: 900;
+}
+
+body.admin-shell-page .admin-site-qrcode-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: stretch;
+}
+
+body.admin-shell-page .admin-site-qrcode-field .form-control {
+  min-width: 0;
+}
+
+body.admin-shell-page .admin-site-qrcode-btn {
+  min-width: 128px;
+  white-space: nowrap;
+}
+
 body.admin-shell-page .admin-upload-card .form-control-file {
   display: block;
   width: 100%;
@@ -1407,6 +1446,16 @@ body.admin-shell-page .admin-upload-card .form-control-file {
   background: #f8fbff;
 }
 
+body.admin-shell-page .admin-upload-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body.admin-shell-page .admin-upload-actions .btn {
+  width: 100%;
+}
+
 body.admin-shell-page .admin-upload-preview img {
   max-width: 220px;
   width: 100%;
@@ -1414,6 +1463,20 @@ body.admin-shell-page .admin-upload-preview img {
   border-radius: 16px;
   border: 1px solid rgba(15, 103, 177, 0.12);
   background: #fff;
+}
+
+@media (max-width: 640px) {
+  body.admin-shell-page .admin-site-qrcode-field {
+    grid-template-columns: 1fr;
+  }
+
+  body.admin-shell-page .admin-site-qrcode-btn {
+    width: 100%;
+  }
+
+  body.admin-shell-page .admin-upload-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 body.admin-shell-page .admin-workorder-layer.layui-layer {

@@ -588,7 +588,10 @@ if ($mod == "cleanbom") {
 					<div class="form-group">
 						<label class="col-sm-2 control-label">客服微信</label>
 						<div class="col-sm-10">
-							<div class="input-group"><input type="text" name="kfwx" value="<?php echo $conf["kfwx"];?>" class="form-control" placeholder="部分模板才显示" /><span class="input-group-btn"><a href="./set.php?mod=upwxqrcode" class="btn btn-default">上传二维码</a></span></div>
+							<div class="admin-site-qrcode-field">
+								<input type="text" name="kfwx" value="<?php echo $conf["kfwx"];?>" class="form-control" placeholder="部分模板才显示" />
+								<a href="./set.php?mod=upwxqrcode" class="btn btn-default admin-site-qrcode-btn"><i class="fa fa-qrcode"></i> 上传二维码</a>
+							</div>
 						</div>
 					</div>
 					<div class="form-group">
@@ -2999,7 +3002,7 @@ if($epay_key4){
 	if (file_exists(ROOT . "assets/img/wxqrcode.png")) {
 		unlink(ROOT . "assets/img/wxqrcode.png");
 	}
-	exit("<script language='javascript'>alert('删除成功');window.location.href='./uset.php?mod=upwxqrcode';</script>");
+	exit("<script language='javascript'>alert('删除成功');window.location.href='./set.php?mod=upwxqrcode';</script>");
 } elseif ($mod == "upwxqrcode") {
 	adminpermission("set", 1);
 	if ($_POST["s"] == 1) {
@@ -3038,12 +3041,14 @@ if($epay_key4){
 		</div>
 		<div class="admin-upload-card">
 
-			<form action="set.php?mod=upwxqrcode" method="POST" enctype="multipart/form-data">
-				<label for="file"></label>
+			<form action="set.php?mod=upwxqrcode" method="POST" enctype="multipart/form-data" class="admin-upload-form">
+				<label for="file" class="admin-upload-label">选择客服微信二维码图片</label>
 				<input type="file" name="file" id="file" accept="image/*" class="form-control-file" />
-				<input type="hidden" name="s" value="1" /><br>
-				<input type="submit" class="btn btn-primary btn-block" value="确认上传" /><br />
-				<a href="./set.php?mod=delwxqrcode" class="btn btn-danger btn-block btn-sm">删除图片</a>
+				<input type="hidden" name="s" value="1" />
+				<div class="admin-upload-actions">
+					<button type="submit" class="btn btn-primary"><i class="fa fa-upload"></i> 确认上传</button>
+					<a href="./set.php?mod=delwxqrcode" class="btn btn-danger"><i class="fa fa-trash"></i> 删除图片</a>
+				</div>
 			</form><br>
 			<div class="admin-upload-preview">现在的客服微信二维码：<br><img src="../assets/img/wxqrcode.png?r=<?php echo rand(10000, 99999);?>"></div>
 		</div>
