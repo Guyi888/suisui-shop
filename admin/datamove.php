@@ -1,6 +1,6 @@
 <?php
 include("../includes/common.php");
-$title = '&#25968;&#25454;&#36801;&#31227;&#20013;&#24515;';
+$title = '数据迁移中心';
 include './head.php';
 if ($islogin != 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
@@ -182,9 +182,21 @@ class MigrationPreflight
                 'base' => $base,
                 'level' => in_array($base, $this->coreBaseTables, true) ? 'danger' : ($this->looksLikeBackupTable($table) ? 'muted' : 'warning'),
                 'note' => $this->looksLikeBackupTable($table) ? '疑似备份或临时表' : (in_array($base, $this->coreBaseTables, true) ? '核心业务表' : '扩展或自定义表'),
+                'advice' => $this->tableAdvice($table, $base),
             );
         }
         return $items;
+    }
+
+    private function tableAdvice($table, $base)
+    {
+        if (in_array($base, $this->coreBaseTables, true)) {
+            return '先补目标库结构或建立字段映射，不能直接迁移';
+        }
+        if ($this->looksLikeBackupTable($table)) {
+            return '默认不迁移，保留源站备份即可';
+        }
+        return '确认业务是否仍在使用，需要保留则加入迁移清单';
     }
 
     private function looksLikeBackupTable($table)
@@ -234,6 +246,7 @@ class MigrationPreflight
                 'default' => isset($info[$column]['default']) ? $info[$column]['default'] : null,
                 'extra' => isset($info[$column]['extra']) ? $info[$column]['extra'] : '',
                 'level' => $this->columnRiskLevel($column, $direction),
+                'advice' => $this->columnAdvice($column, $direction),
             );
         }
         return $items;
@@ -248,6 +261,17 @@ class MigrationPreflight
             return 'warning';
         }
         return 'info';
+    }
+
+    private function columnAdvice($column, $direction)
+    {
+        if ($direction === 'missing' && in_array($column, $this->highValueColumns, true)) {
+            return '建议先在目标库补字段，再执行迁移';
+        }
+        if ($direction === 'missing') {
+            return '确认是否需要保留，必要时加入字段映射';
+        }
+        return '目标库新增能力字段，迁移时按默认值或规则填充';
     }
 
     private function businessChecks($sourceTables, $targetTables, $sourceProfile, $targetProfile, $columnDiff)
@@ -388,6 +412,18 @@ function migration_level_class($level)
         return 'label-default';
     }
     return 'label-info';
+}
+
+function migration_level_label($level)
+{
+    $labels = array(
+        'ok' => '&#36890;&#36807;',
+        'danger' => '&#39640;&#39118;&#38505;',
+        'warning' => '&#38656;&#30830;&#35748;',
+        'muted' => '&#22791;&#20221;/&#20020;&#26102;',
+        'info' => '&#26032;&#22686;',
+    );
+    return isset($labels[$level]) ? $labels[$level] : migration_h($level);
 }
 
 $report = null;
@@ -552,7 +588,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <tr>
                     <td><?php echo migration_h($check['title']); ?></td>
                     <td><?php echo migration_h($check['message']); ?></td>
-                    <td><span class="label <?php echo migration_level_class($check['level']); ?>"><?php echo migration_h($check['level']); ?></span></td>
+                    <td><span class="label <?php echo migration_level_class($check['level']); ?>"><?php echo migration_level_label($check['level']); ?></span></td>
                 </tr>
                 <?php } ?>
                 </tbody>
@@ -573,7 +609,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <tr>
                         <td><code><?php echo migration_h($table['name']); ?></code></td>
                         <td><?php echo migration_h($table['note']); ?></td>
-                        <td><span class="label <?php echo migration_level_class($table['level']); ?>"><?php echo migration_h($table['level']); ?></span></td>
+                        <td><?php echo migration_h($table['advice']); ?></td>
+                        <td><span class="label <?php echo migration_level_class($table['level']); ?>"><?php echo migration_level_label($table['level']); ?></span></td>
                     </tr>
                     <?php } ?>
                     </tbody>
@@ -594,7 +631,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <tr>
                         <td><code><?php echo migration_h($table['name']); ?></code></td>
                         <td><?php echo migration_h($table['note']); ?></td>
-                        <td><span class="label <?php echo migration_level_class($table['level']); ?>"><?php echo migration_h($table['level']); ?></span></td>
+                        <td><?php echo migration_h($table['advice']); ?></td>
+                        <td><span class="label <?php echo migration_level_class($table['level']); ?>"><?php echo migration_level_label($table['level']); ?></span></td>
                     </tr>
                     <?php } ?>
                     </tbody>
@@ -619,13 +657,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td>
                         <?php if (empty($table['missing_columns'])) { echo '<span class="text-muted">&#26080;</span>'; } ?>
                         <?php foreach ($table['missing_columns'] as $column) { ?>
-                            <div><span class="label <?php echo migration_level_class($column['level']); ?>"><?php echo migration_h($column['level']); ?></span> <code><?php echo migration_h($column['name']); ?></code> <small><?php echo migration_h($column['type']); ?></small></div>
+                            <div><span class="label <?php echo migration_level_class($column['level']); ?>"><?php echo migration_level_label($column['level']); ?></span> <code><?php echo migration_h($column['name']); ?></code> <small><?php echo migration_h($column['type']); ?></small><br><small><?php echo migration_h($column['advice']); ?></small></div>
                         <?php } ?>
                     </td>
                     <td>
                         <?php if (empty($table['extra_columns'])) { echo '<span class="text-muted">&#26080;</span>'; } ?>
                         <?php foreach ($table['extra_columns'] as $column) { ?>
-                            <div><span class="label <?php echo migration_level_class($column['level']); ?>"><?php echo migration_h($column['level']); ?></span> <code><?php echo migration_h($column['name']); ?></code> <small><?php echo migration_h($column['type']); ?></small></div>
+                            <div><span class="label <?php echo migration_level_class($column['level']); ?>"><?php echo migration_level_label($column['level']); ?></span> <code><?php echo migration_h($column['name']); ?></code> <small><?php echo migration_h($column['type']); ?></small><br><small><?php echo migration_h($column['advice']); ?></small></div>
                         <?php } ?>
                     </td>
                 </tr>
