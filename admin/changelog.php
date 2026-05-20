@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.0 / 2026-05-20 XHY-01 模板结构重构</h4>
+                    <ul>
+                        <li>重构 <code>XHY-01</code> 首页模板结构，保留原模板视觉和主要模块，不复用 <code>suisui</code> 模板结构。</li>
+                        <li>将页面内大段 <code>&lt;style&gt;</code> 和散落前端脚本拆分到 <code>template/XHY-01/assets/css/xhy01.css</code> 与 <code>template/XHY-01/assets/js/xhy01.js</code>。</li>
+                        <li>清理首页全部内联 <code>style</code> 属性，改为明确结构类名，便于后续继续按模块维护。</li>
+                        <li>保留客服弹窗、收藏、在线客服、购买成功查单、今日推荐和 URL 商品跳转等原有交互入口。</li>
+                        <li>程序缓存版本更新到 <code>2026052010</code>，XHY-01 专属资源版本更新到 <code>xhy01refactor02</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.1.9 / 2026-05-20 前台模板与商品同步体验修复</h4>
                     <ul>
                         <li>修复 <code>suisui</code> 模板分类图被公共 <code>main.js</code> 覆盖，导致默认图闪烁后出现破图的问题。</li>
