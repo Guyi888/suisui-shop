@@ -25,7 +25,7 @@ $isAdminLoginPage = basename($_SERVER['SCRIPT_NAME']) === 'login.php';
 $isAdminIndexPage = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
 $isAdminCustomCssPage = basename($_SERVER['SCRIPT_NAME']) === 'customcss.php';
 $adminScriptBase = basename($_SERVER['SCRIPT_NAME'], '.php');
-$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260520suisuiops13';
+$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260520suisuiops14';
 $adminCsrfToken = q8_admin_csrf_token();
 $adminFaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : '/assets/img/favicon/favicon.ico';
 

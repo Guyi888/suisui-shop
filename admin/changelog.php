@@ -27,6 +27,17 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.1.9 / 2026-05-20 前台模板与商品同步体验修复</h4>
+                    <ul>
+                        <li>修复 <code>suisui</code> 模板分类图被公共 <code>main.js</code> 覆盖，导致默认图闪烁后出现破图的问题。</li>
+                        <li>优化 <code>suisui</code> 模板下单/查询按钮、无二级分类隐藏、下单提醒位置和下单流程步骤状态。</li>
+                        <li>新增全局默认分类图配置，分类有自定义图时优先显示分类图，否则显示默认图。</li>
+                        <li>补充商品简介同步与历史空简介回填逻辑，兼容多个上游详情字段。</li>
+                        <li>恢复 <code>XHY-01</code> 独立模板入口，避免被错误替换为 <code>suisui</code> 换色版。</li>
+                        <li>程序缓存版本更新到 <code>2026052009</code>，后台资源版本更新到 <code>20260520suisuiops14</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.1.8 / 2026-05-20 &#39318;&#39029;&#24377;&#20986;&#20844;&#21578;&#38142;&#36335;&#20462;&#22797;</h4>
                     <ul>
                         <li>&#20462;&#22797; <code>suisui</code> &#21069;&#21488;&#27169;&#26495;&#39318;&#39029;&#24377;&#20986;&#20844;&#21578;&#19981;&#33258;&#21160;&#24377;&#20986;&#30340;&#38382;&#39064;&#12290;</li>
