@@ -17,6 +17,63 @@ class MigrationPreflight
         'points', 'kms', 'cart', 'price', 'supplier', 'suppoints', 'suptixian',
         'tixian', 'workorder', 'message', 'article', 'toollogs'
     );
+    private $requiredBaseTables = array(
+        'config', 'class', 'tools', 'orders', 'faka', 'pay', 'site', 'shequ',
+        'points', 'price'
+    );
+    private $optionalBaseTables = array(
+        'kms', 'cart', 'supplier', 'suppoints', 'suptixian', 'tixian',
+        'workorder', 'message', 'article', 'toollogs', 'toollogs_offline',
+        'qiandao', 'invite', 'invitelog', 'inviteshop', 'gift', 'giftlog',
+        'coupons', 'coupon_rules', 'coupon_logs', 'user_coupons', 'site_price',
+        'sitetask', 'sitetask_log', 'sync_category_map', 'sync_config'
+    );
+    private $tableDescriptions = array(
+        'config' => array('name' => '系统配置', 'desc' => '站点名称、模板、支付、开关和后台基础配置'),
+        'class' => array('name' => '商品分类', 'desc' => '前台分类、父子分类、排序和分类显示状态'),
+        'tools' => array('name' => '商品列表', 'desc' => '商品名称、价格、成本、对接、库存、描述和上下架状态'),
+        'orders' => array('name' => '订单记录', 'desc' => '用户下单、支付后状态、对接订单号和发货结果'),
+        'faka' => array('name' => '发卡卡密', 'desc' => '已导入卡密、售出状态、绑定订单和卡密内容'),
+        'pay' => array('name' => '支付记录', 'desc' => '支付流水、支付方式、支付状态和金额记录'),
+        'site' => array('name' => '分站资料', 'desc' => '分站账号、域名、余额、等级、到期和站点设置'),
+        'shequ' => array('name' => '对接站点', 'desc' => '上游接口地址、账号、密钥和对接配置'),
+        'points' => array('name' => '资金明细', 'desc' => '用户余额、分站余额、消费、充值、提成和退款流水'),
+        'price' => array('name' => '等级价格', 'desc' => '不同等级、分站或密价下的商品价格规则'),
+        'site_price' => array('name' => '分站密价', 'desc' => '分站独立价格、加价和指定商品价格规则'),
+        'kms' => array('name' => '加款卡密', 'desc' => '后台生成的充值卡、使用次数和兑换记录'),
+        'cart' => array('name' => '购物车', 'desc' => '未提交订单前的购物车商品和输入信息'),
+        'supplier' => array('name' => '供货商', 'desc' => '供货商账号、结算配置和供货关系'),
+        'suppoints' => array('name' => '供货商流水', 'desc' => '供货商收入、支出、消费和提成记录'),
+        'suptixian' => array('name' => '供货商提现', 'desc' => '供货商提现申请、账号和处理状态'),
+        'tixian' => array('name' => '用户提现', 'desc' => '用户或分站余额提现申请和处理记录'),
+        'workorder' => array('name' => '工单记录', 'desc' => '用户提交的问题、客服回复和处理状态'),
+        'message' => array('name' => '站内消息', 'desc' => '后台公告、弹窗消息和站内通知'),
+        'article' => array('name' => '文章公告', 'desc' => '文章、帮助文档、公告和前台内容'),
+        'toollogs' => array('name' => '商品动态', 'desc' => '商品上架、推荐、运营动态和前台展示日志'),
+        'toollogs_offline' => array('name' => '下架动态', 'desc' => '商品下架、失效或库存变化日志'),
+        'qiandao' => array('name' => '签到记录', 'desc' => '用户签到、连续签到和签到奖励'),
+        'invite' => array('name' => '邀请配置', 'desc' => '邀请活动、推广链接和邀请奖励规则'),
+        'invitelog' => array('name' => '邀请记录', 'desc' => '邀请访问、注册和奖励发放记录'),
+        'inviteshop' => array('name' => '邀请商品', 'desc' => '邀请活动绑定的商品和奖励商品配置'),
+        'gift' => array('name' => '抽奖奖品', 'desc' => '抽奖活动奖品、概率和库存'),
+        'giftlog' => array('name' => '抽奖记录', 'desc' => '用户抽奖结果、中奖和领取记录'),
+        'coupon_rules' => array('name' => '优惠券规则', 'desc' => '优惠券发放规则、门槛和适用范围'),
+        'coupons' => array('name' => '优惠券', 'desc' => '优惠券码、金额、状态和有效期'),
+        'user_coupons' => array('name' => '用户优惠券', 'desc' => '用户已领取优惠券和使用状态'),
+        'coupon_logs' => array('name' => '优惠券日志', 'desc' => '优惠券领取、使用和作废记录'),
+        'sitetask' => array('name' => '站点任务', 'desc' => '分站任务、奖励规则和达标配置'),
+        'sitetask_log' => array('name' => '任务记录', 'desc' => '分站任务完成、奖励发放和审核记录'),
+        'sync_category_map' => array('name' => '同步分类映射', 'desc' => '上游分类和本地分类的对应关系'),
+        'sync_config' => array('name' => '同步配置', 'desc' => '商品同步、分类同步和对接同步规则'),
+        'logs' => array('name' => '后台日志', 'desc' => '后台操作、登录、系统运行和安全日志'),
+        'account' => array('name' => '后台账号', 'desc' => '管理员、员工账号和权限配置'),
+        'cache' => array('name' => '系统缓存', 'desc' => '程序运行缓存，可按需重建'),
+        'sendcode' => array('name' => '验证码记录', 'desc' => '短信、邮箱或安全验证码发送记录'),
+        'visit_ips' => array('name' => '访问统计', 'desc' => '访问 IP、来源和站点访问统计'),
+        'front_visit_ips' => array('name' => '前台访问 IP', 'desc' => '前台访客 IP 明细和访问来源'),
+        'front_visit_statistics' => array('name' => '前台访问统计', 'desc' => '前台访问量、访客量和趋势统计'),
+        'price_history' => array('name' => '价格历史', 'desc' => '商品价格变更、上游成本和调价历史'),
+    );
     private $highValueColumns = array(
         'tid', 'cid', 'zid', 'sid', 'money', 'price', 'cost', 'sup_price',
         'upstream_cost', 'min_price', 'manual_price_lock', 'goods_id',
@@ -42,6 +99,7 @@ class MigrationPreflight
         $targetProfile = $this->profileDatabase($this->targetDb, $targetTables);
         $tableDiff = $this->compareTables($sourceTables, $targetTables, $sourceProfile, $targetProfile);
         $columnDiff = $this->compareColumns($sourceTables, $targetTables);
+        $tableCatalog = $this->buildTableCatalog($sourceTables, $targetTables, $columnDiff);
         $businessChecks = $this->businessChecks($sourceTables, $targetTables, $sourceProfile, $targetProfile, $columnDiff);
         $risk = $this->riskSummary($tableDiff, $columnDiff, $businessChecks);
 
@@ -51,6 +109,7 @@ class MigrationPreflight
             'target_profile' => $targetProfile,
             'table_diff' => $tableDiff,
             'column_diff' => $columnDiff,
+            'table_catalog' => $tableCatalog,
             'business_checks' => $businessChecks,
             'risk' => $risk,
         );
@@ -183,6 +242,9 @@ class MigrationPreflight
                 'level' => in_array($base, $this->coreBaseTables, true) ? 'danger' : ($this->looksLikeBackupTable($table) ? 'muted' : 'warning'),
                 'note' => $this->looksLikeBackupTable($table) ? '疑似备份或临时表' : (in_array($base, $this->coreBaseTables, true) ? '核心业务表' : '扩展或自定义表'),
                 'advice' => $this->tableAdvice($table, $base),
+                'title' => $this->tableTitle($table),
+                'description' => $this->tableDescription($table),
+                'category' => $this->tableCategory($table),
             );
         }
         return $items;
@@ -197,6 +259,103 @@ class MigrationPreflight
             return '默认不迁移，保留源站备份即可';
         }
         return '确认业务是否仍在使用，需要保留则加入迁移清单';
+    }
+
+    private function tableTitle($table)
+    {
+        $base = $this->baseTableName($table);
+        if (isset($this->tableDescriptions[$base])) {
+            return $this->tableDescriptions[$base]['name'];
+        }
+        if ($this->looksLikeBackupTable($table)) {
+            return '备份/临时表';
+        }
+        return '自定义扩展表';
+    }
+
+    private function tableDescription($table)
+    {
+        $base = $this->baseTableName($table);
+        if (isset($this->tableDescriptions[$base])) {
+            return $this->tableDescriptions[$base]['desc'];
+        }
+        if ($this->looksLikeBackupTable($table)) {
+            return '历史备份、修复前备份或临时处理表，通常不参与正式迁移';
+        }
+        return '当前版本未内置说明的扩展表，迁移前需要确认业务用途';
+    }
+
+    private function tableCategory($table)
+    {
+        $base = $this->baseTableName($table);
+        if ($this->looksLikeBackupTable($table)) {
+            return 'ignore';
+        }
+        if (in_array($base, $this->requiredBaseTables, true)) {
+            return 'required';
+        }
+        if (in_array($base, $this->optionalBaseTables, true) || in_array($base, $this->coreBaseTables, true)) {
+            return 'optional';
+        }
+        return 'custom';
+    }
+
+    private function tableCategoryLabel($category)
+    {
+        $labels = array(
+            'required' => '默认必迁',
+            'optional' => '可选迁移',
+            'custom' => '自定义表',
+            'ignore' => '默认忽略',
+        );
+        return isset($labels[$category]) ? $labels[$category] : '待确认';
+    }
+
+    private function buildTableCatalog($sourceTables, $targetTables, $columnDiff)
+    {
+        $columnLevels = array();
+        foreach ($columnDiff as $tableDiff) {
+            $level = 'ok';
+            foreach ($tableDiff['missing_columns'] as $column) {
+                if ($column['level'] === 'danger') {
+                    $level = 'danger';
+                    break;
+                }
+                if ($column['level'] === 'warning') {
+                    $level = 'warning';
+                }
+            }
+            $columnLevels[$tableDiff['table']] = $level;
+        }
+
+        $items = array();
+        foreach ($sourceTables as $table) {
+            $category = $this->tableCategory($table);
+            $existsInTarget = in_array($table, $targetTables, true);
+            $level = 'ok';
+            if ($category === 'ignore') {
+                $level = 'muted';
+            } elseif (!$existsInTarget && $category === 'required') {
+                $level = 'danger';
+            } elseif (!$existsInTarget) {
+                $level = 'warning';
+            } elseif (isset($columnLevels[$table])) {
+                $level = $columnLevels[$table];
+            }
+
+            $items[] = array(
+                'name' => $table,
+                'title' => $this->tableTitle($table),
+                'description' => $this->tableDescription($table),
+                'category' => $category,
+                'category_label' => $this->tableCategoryLabel($category),
+                'target_exists' => $existsInTarget,
+                'count' => $this->safeCount($this->sourceDb, $table),
+                'level' => $level,
+                'advice' => $this->tableAdvice($table, $this->baseTableName($table)),
+            );
+        }
+        return $items;
     }
 
     private function looksLikeBackupTable($table)
@@ -426,6 +585,20 @@ function migration_level_label($level)
     return isset($labels[$level]) ? $labels[$level] : migration_h($level);
 }
 
+function migration_category_class($category)
+{
+    if ($category === 'required') {
+        return 'label-primary';
+    }
+    if ($category === 'optional') {
+        return 'label-info';
+    }
+    if ($category === 'ignore') {
+        return 'label-default';
+    }
+    return 'label-warning';
+}
+
 $report = null;
 $errorMessage = '';
 $sourceConfig = migration_post_config('source');
@@ -579,6 +752,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="migration-card">
+        <h4>&#36801;&#31227;&#34920;&#28165;&#21333;</h4>
+        <div class="migration-scroll">
+            <table class="table table-striped migration-table">
+                <thead>
+                <tr>
+                    <th>&#34920;&#21517;</th>
+                    <th>&#20013;&#25991;&#21151;&#33021;</th>
+                    <th>&#24314;&#35758;&#31867;&#22411;</th>
+                    <th>&#28304;&#24211;&#34892;&#25968;</th>
+                    <th>&#30446;&#26631;&#24211;</th>
+                    <th>&#29366;&#24577;</th>
+                    <th>&#24314;&#35758;&#21160;&#20316;</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($report['table_catalog'] as $table) { ?>
+                <tr>
+                    <td><code><?php echo migration_h($table['name']); ?></code></td>
+                    <td><strong><?php echo migration_h($table['title']); ?></strong><br><small><?php echo migration_h($table['description']); ?></small></td>
+                    <td><span class="label <?php echo migration_category_class($table['category']); ?>"><?php echo migration_h($table['category_label']); ?></span></td>
+                    <td><?php echo $table['count'] === null ? '-' : (int)$table['count']; ?></td>
+                    <td><?php echo $table['target_exists'] ? '&#24050;&#23384;&#22312;' : '&#32570;&#23569;'; ?></td>
+                    <td><span class="label <?php echo migration_level_class($table['level']); ?>"><?php echo migration_level_label($table['level']); ?></span></td>
+                    <td><?php echo migration_h($table['advice']); ?></td>
+                </tr>
+                <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="migration-card">
         <h4>&#19994;&#21153;&#26816;&#26597;</h4>
         <div class="table-responsive">
             <table class="table table-striped migration-table">
@@ -604,10 +809,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="migration-empty">&#26080;&#24046;&#24322;</div>
                 <?php } else { ?>
                 <table class="table table-striped migration-table">
+                    <thead><tr><th>&#34920;&#21517;</th><th>&#20013;&#25991;&#21151;&#33021;</th><th>&#31867;&#22411;</th><th>&#24314;&#35758;</th><th>&#29366;&#24577;</th></tr></thead>
                     <tbody>
                     <?php foreach ($report['table_diff']['missing_in_target'] as $table) { ?>
                     <tr>
                         <td><code><?php echo migration_h($table['name']); ?></code></td>
+                        <td><strong><?php echo migration_h($table['title']); ?></strong><br><small><?php echo migration_h($table['description']); ?></small></td>
                         <td><?php echo migration_h($table['note']); ?></td>
                         <td><?php echo migration_h($table['advice']); ?></td>
                         <td><span class="label <?php echo migration_level_class($table['level']); ?>"><?php echo migration_level_label($table['level']); ?></span></td>
@@ -626,10 +833,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="migration-empty">&#26080;&#24046;&#24322;</div>
                 <?php } else { ?>
                 <table class="table table-striped migration-table">
+                    <thead><tr><th>&#34920;&#21517;</th><th>&#20013;&#25991;&#21151;&#33021;</th><th>&#31867;&#22411;</th><th>&#24314;&#35758;</th><th>&#29366;&#24577;</th></tr></thead>
                     <tbody>
                     <?php foreach ($report['table_diff']['extra_in_target'] as $table) { ?>
                     <tr>
                         <td><code><?php echo migration_h($table['name']); ?></code></td>
+                        <td><strong><?php echo migration_h($table['title']); ?></strong><br><small><?php echo migration_h($table['description']); ?></small></td>
                         <td><?php echo migration_h($table['note']); ?></td>
                         <td><?php echo migration_h($table['advice']); ?></td>
                         <td><span class="label <?php echo migration_level_class($table['level']); ?>"><?php echo migration_level_label($table['level']); ?></span></td>
