@@ -26,7 +26,7 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
     	<link href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
     	<link rel="stylesheet" href="<?php echo $cdnserver?>assets/simple/css/oneui.css">
 		<link rel="stylesheet" href="<?php echo $cdnserver?>assets/css/common.css?ver=<?php echo VERSION ?>">
-		<link rel="stylesheet" href="/template/XHY-01/assets/css/xhy01.css?ver=<?php echo VERSION ?>-xhy01refactor02">
+		<link rel="stylesheet" href="/template/XHY-01/assets/css/xhy01.css?ver=<?php echo VERSION ?>-xhy01refactor04">
 		<script src="/assets/vendor/jquery/3.5.1/jquery.min.js?v=suisuivendor1"></script>
 		<script src="/assets/vendor/jquery-cookie/1.4.1/jquery.cookie.min.js?v=suisuivendor1"></script>
 		<script src="<?php echo $cdnpublic?>twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -209,77 +209,44 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 <!-- 遮罩层 -->
 <div id="modalOverlay" class="xhy-modal-overlay"></div>
 
-<div class="col-xs-12 col-sm-10 col-md-8 col-lg-4 center-block xhy-main-column">
-		<br/>
-		<!--顶部导航-->
-		<div class="block block-link-hover3" href="javascript:void(0)">
-			<div class="block-content block-content-full text-center bg-image xhy-hero-bg">
-				<div>
-					<div>
-						<img class="img-avatar img-avatar80 img-avatar-thumb animated zoomInDown"
-						src="/assets/simple/img/head3.jpg">
-					</div>
-				</div>
+<main class="xhy-home-shell">
+		<section class="xhy-hero-card">
+			<div class="xhy-hero-media">
+				<img class="xhy-hero-avatar animated zoomInDown" src="/assets/simple/img/head3.jpg" alt="<?php echo htmlspecialchars($conf['sitename'], ENT_QUOTES, 'UTF-8'); ?>">
 			</div>
-			<div class="panel-body text-center">
+			<div class="xhy-hero-body">
 				<h3 class="xhy-title-wrap">
-					<a href="javascript:void(alert('<?php echo $conf['sitename']?>，建议收藏本站，避免丢失访问地址。'));"><b><span class="xhy-brand-red"><?php echo $conf['sitename']?></span></b></a>
+					<a href="javascript:void(alert('<?php echo $conf['sitename']?>&#65292;&#24314;&#35758;&#25910;&#34255;&#26412;&#31449;&#65292;&#36991;&#20813;&#20002;&#22833;&#35775;&#38382;&#22320;&#22336;&#12290;'));"><b><span class="xhy-brand-red"><?php echo $conf['sitename']?></span></b></a>
 				</h3>
-				<div class="xhy-site-slogan xhy-site-slogan">正品服务 · 稳定处理 · 售后无忧</div>
+				<div class="xhy-site-slogan">&#27491;&#21697;&#26381;&#21153; &middot; &#31283;&#23450;&#22788;&#29702; &middot; &#21806;&#21518;&#26080;&#24551;</div>
 			</div>
-		</div>
-		<aside id="php_text-8" class="widget php_text wow fadelnUp" data-wow-delay="3.0s">
-			<div class="textwidget widget-text">
-				</table>
+		</section>
+		<section class="xhy-quick-panel" aria-label="&#39318;&#39029;&#24555;&#25463;&#20837;&#21475;">
+			<div class="xhy-quick-grid xhy-quick-grid-main">
+				<a class="xhy-quick-btn" href="javascript:void(0);" onclick="$('#anounce').modal('show');">
+					<i class="fa fa-bullhorn"></i>
+					<span>&#24179;&#21488;&#20844;&#21578;</span>
 				</a>
-				<!--主按钮组-->
-				<div class="widget-content text-center">
-					<div class="btn-group btn-group-justified xhy-nav-row-top">
-						<!-- 平台公告 -->
-<div class="btn-group">
-								<a class="btn nav-btn" href="javascript:void(0);" onclick="$('#anounce').modal('show');">
-									<i class="fa fa-bullhorn"></i>
-									<span class="xhy-fw-600">平台公告</span>
-								</a>
-							</div>
-
-						<!-- 供货商入口 -->
-						<div class="btn-group">
-							<a href="./sup" target="_blank" class="btn nav-btn">
-								<i class="fa fa-shopping-cart"></i>
-								<span class="xhy-fw-600">供货上架</span>
-							</a>
-						</div>
-
-						<!-- 登录/注册 -->
-						<div class="btn-group">
-							<a class="btn nav-btn" href="./user/login.php" target="_blank">
-								<i class="fa fa-users"></i>
-								<span>登录后台</span>
-							</a>
-						</div>
-					</div>
-
-					<!-- 客服链接 -->
-					<div class="btn-group btn-group-justified xhy-nav-row">
-						<div class="btn-group">
-							<a class="btn nav-btn" href="/toollogs.php" target="_blank">
-								<i class="fa fa-comment"></i>
-								<span class="xhy-fw-600">今日新上架项目</span>
-							</a>
-						</div>
-						<div class="btn-group">
-							<a class="btn nav-btn" href="#lxkf" data-toggle="modal">
-								<i class="fa fa-comment"></i>
-								<span class="xhy-fw-600">点我咨询100%处理</span>
-							</a>
-						</div>
-					</div>
-				</div>
-				<!--主按钮组结束-->
-				<!--logo下面按钮结束-->
-
-
+				<a href="./sup" target="_blank" class="xhy-quick-btn">
+					<i class="fa fa-shopping-cart"></i>
+					<span>&#20379;&#36135;&#19978;&#26550;</span>
+				</a>
+				<a class="xhy-quick-btn" href="./user/login.php" target="_blank">
+					<i class="fa fa-users"></i>
+					<span>&#30331;&#24405;&#21518;&#21488;</span>
+				</a>
+			</div>
+			<div class="xhy-quick-grid xhy-quick-grid-sub">
+				<a class="xhy-quick-btn" href="/toollogs.php" target="_blank">
+					<i class="fa fa-comment"></i>
+					<span>&#20170;&#26085;&#26032;&#19978;&#26550;&#39033;&#30446;</span>
+				</a>
+				<a class="xhy-quick-btn" href="#lxkf" data-toggle="modal">
+					<i class="fa fa-headphones"></i>
+					<span>&#28857;&#25105;&#21672;&#35810;100%&#22788;&#29702;</span>
+				</a>
+			</div>
+		</section>
 <!--TAB标签-->
 
 <!--TAB标签-->
@@ -333,8 +300,8 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 					</div>
 				</div>
 				<!--查单说明结束-->
-				<div class="block animated bounceInDown btn-rounded xhy-tabs-card">
-					<ul class="nav nav-tabs btn btn-block animated fadeInUp btn-rounded q8-main-tabs" data-toggle="tabs">
+				<section class="xhy-module-card xhy-tabs-card">
+					<ul class="nav nav-tabs q8-main-tabs" data-toggle="tabs">
 						<li class="active q8-tab-shop xhy-tab-cell" align="center">
 							<a href="#shop" data-toggle="tab"><i class="fa fa-shopping-bag fa-fw"></i>&#19979;&#21333;</a>
 						</li>
@@ -354,7 +321,7 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 				<!-- 添加警告信息和下单步骤 -->
 
 					<!--TAB-->
-					<div class="block-content tab-content">
+					<div class="xhy-tab-content tab-content">
 						<!--在线下单-->
 						<div class="tab-pane fade fade-up in active" id="shop">
 							<?php include TEMPLATE_ROOT.'default/shop.inc.php'; ?>
@@ -525,7 +492,7 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 								</section>
 							</div>
 										</div>
-				</div>
+				</section>
 				<div class="modal fade xhy-site-modal" id="userjs" tabindex="-1" role="dialog" aria-hidden="true">
 					<div class="modal-dialog modal-dialog-popin">
 						<div class="modal-content">
@@ -764,7 +731,7 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 <!-- remove invalid music player script -->
 <!-- 收藏代码结束-->
 
-	</div>
+	</main>
 	<!--音乐代码-->
 	<!--音乐代码-->
 	<div id="audio-play" class="<?php echo empty($conf['musicurl']) ? 'xhy-is-hidden' : ''; ?>">
@@ -773,6 +740,6 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 	  </div>
 	</div>
 	<script src="<?php echo $cdnserver ?>assets/appui/js/app.js?v=<?php echo VERSION; ?>"></script>
-	<script src="/template/XHY-01/assets/js/xhy01.js?ver=<?php echo VERSION; ?>-xhy01refactor02"></script>
+	<script src="/template/XHY-01/assets/js/xhy01.js?ver=<?php echo VERSION; ?>-xhy01refactor04"></script>
 </body>
 </html>
