@@ -135,9 +135,9 @@ window.AddFavorite = AddFavorite;
 		        hh += 1;
 		        mm = 0
 		    }
-		    ss_str = (ss < 10 ? "0" + ss : ss);
-		    mm_str = (mm < 10 ? "0" + mm : mm);
-		    tMsg = "" + hh + "小时" + mm_str + "分" + ss_str + "秒";
+		    var ss_str = (ss < 10 ? "0" + ss : ss);
+		    var mm_str = (mm < 10 ? "0" + mm : mm);
+		    var tMsg = "" + hh + "小时" + mm_str + "分" + ss_str + "秒";
 		    var stimeElement = document.getElementById("stime");
 		    if (stimeElement) {
 		        stimeElement.innerHTML = tMsg;

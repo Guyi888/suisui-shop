@@ -11,6 +11,7 @@ $q8XhyFenzhanProfessionalPriceText = q8_format_currency_amount($q8XhyFenzhanPric
 $q8XhyWithdrawMinText = q8_format_currency_amount(isset($conf['tixian_min']) ? $conf['tixian_min'] : 0);
 $q8XhyFaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : '/assets/img/favicon/favicon.ico';
 $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
+$q8XhyHomeNotice = isset($conf['anounce']) ? trim((string)$conf['anounce']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
@@ -49,7 +50,7 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 <div id="anime-bg"></div>
 <!--弹出公告-->
 	<!--Announcement Modal-->
-					<div class="modal fade" id="anounce" tabindex="-1" role="dialog" aria-labelledby="anounceLabel">
+					<div class="modal fade xhy-notice-modal" id="anounce" tabindex="-1" role="dialog" aria-labelledby="anounceLabel">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="xhy-announce-head">
@@ -74,6 +75,32 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 		</div>
 	</div>
 	<!--Announcement Modal End-->
+	<!--Home Notice Modal-->
+	<div class="modal fade xhy-notice-modal" id="homeNotice" tabindex="-1" role="dialog" aria-labelledby="homeNoticeLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="xhy-announce-head">
+					<button type="button" class="xhy-announce-close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="xhy-announce-title" id="homeNoticeLabel">
+						<i class="fa fa-bullhorn"></i>
+						<span>&#39318;&#39029;&#20844;&#21578;</span>
+					</h4>
+					<div class="xhy-announce-subtitle">&#31449;&#28857;&#20844;&#21578;&#19982;&#26368;&#26032;&#25552;&#37266;</div>
+				</div>
+				<div class="xhy-announce-body">
+					<div class="xhy-announce-content">
+						<?php echo $q8XhyHomeNotice?>
+					</div>
+				</div>
+				<div class="xhy-announce-footer">
+					<button type="button" class="xhy-announce-btn" data-dismiss="modal">
+						<i class="fa fa-check-circle"></i> &#25105;&#30693;&#36947;&#20102;
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--Home Notice Modal End-->
 	<!--Customer Service Modal-->
 	<div id="lxkf" class="xhy-service-modal">
 	<!-- 标题部分 -->
@@ -223,7 +250,7 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 		</section>
 		<section class="xhy-quick-panel" aria-label="&#39318;&#39029;&#24555;&#25463;&#20837;&#21475;">
 			<div class="xhy-quick-grid xhy-quick-grid-main">
-				<a class="xhy-quick-btn" href="javascript:void(0);" onclick="$('#anounce').modal('show');">
+				<a class="xhy-quick-btn" href="javascript:void(0);" onclick="$('#homeNotice').modal('show');">
 					<i class="fa fa-bullhorn"></i>
 					<span>&#24179;&#21488;&#20844;&#21578;</span>
 				</a>

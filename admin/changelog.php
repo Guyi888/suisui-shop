@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.10 / 2026-05-22 XHY-01 首页公告字段修复</h4>
+                    <ul>
+                        <li>修复后台修改“首页公告（非弹窗）”后，XHY-01 前台点击“平台公告”仍显示首页弹出公告内容的问题。</li>
+                        <li>首页自动弹窗继续读取“首页弹出公告”字段，手动点击“平台公告”现在读取“首页公告（非弹窗）”字段。</li>
+                        <li>恢复 XHY-01 首页顶部快捷入口第一排 3 个、第二排 2 个的稳定布局，PC 与手机端保持一致。</li>
+                        <li>修复 XHY-01 计时脚本未声明变量导致控制台报错的问题。</li>
+                        <li>程序缓存版本更新到 <code>2026052204</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.9 / 2026-05-21 首页下单验证与客服文案优化</h4>
                     <ul>
                         <li>修复用户长时间停留首页后点击下单，可能提示“验证失败，请刷新页面重试”的问题。</li>
