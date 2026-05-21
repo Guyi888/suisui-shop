@@ -329,6 +329,29 @@ class Price {
 		return $cost;
 	}
 
+	public function getManageSelfCostPrice($tid){
+		if($this->power==2){
+			if(isset($this->tool['cost2']) && $this->tool['cost2']>0){
+				return $this->tool['cost2'];
+			}elseif(isset($this->tool['cost']) && $this->tool['cost']>0){
+				return $this->tool['cost'];
+			}
+		}
+		return $this->getToolCost($tid);
+	}
+
+	public function getManageChildProfessionalPrice($tid){
+		return $this->getToolCost2($tid);
+	}
+
+	public function getManageChildNormalPrice($tid){
+		return $this->getToolCost($tid);
+	}
+
+	public function getManageSalePrice($tid){
+		return $this->getToolPrice($tid);
+	}
+
 	public function getToolDel($tid){
 		return isset($this->price_array[$tid]['del']) ? $this->price_array[$tid]['del'] : 0;
 	}

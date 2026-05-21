@@ -5094,3 +5094,14 @@ a.text-#000000:hover {
   }
 }
 
+.q8-user-preview-img {
+  display: block;
+  max-width: min(220px, 100%);
+  height: auto;
+  margin-top: 10px;
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px;
+}
+

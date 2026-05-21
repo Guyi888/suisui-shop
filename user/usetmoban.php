@@ -585,11 +585,18 @@ if ($mod === 'site_n') {
                     if (!$image_info) {
                         exit('无法识别图片内容');
                     }
-                    copy($_FILES['shoukuan']['tmp_name'], ROOT . 'assets/img/skimg/sk_' . $userrow['zid'] . '.png');
+                    $skimg_dir = ROOT . 'assets/img/skimg/';
+                    if (!is_dir($skimg_dir) && !mkdir($skimg_dir, 0755, true)) {
+                        exit('收款图目录创建失败，请联系管理员检查目录权限');
+                    }
+                    $skimg_save = $skimg_dir . 'sk_' . $userrow['zid'] . '.png';
+                    if (!move_uploaded_file($_FILES['shoukuan']['tmp_name'], $skimg_save)) {
+                        exit('收款图保存失败，请联系管理员检查目录权限');
+                    }
                     echo '<div class="alert alert-success">收款图上传成功，若未立即生效请按 Ctrl+F5 强制刷新。</div>';
                 }
                 $skimg_path = ROOT . 'assets/img/skimg/sk_' . $userrow['zid'] . '.png';
-                $skimg = file_exists($skimg_path) ? '../assets/img/skimg/sk_' . $userrow['zid'] . '.png?t=' . filemtime($skimg_path) : '../assets/img/skimg/sk.png';
+                $skimg = file_exists($skimg_path) ? '../assets/img/skimg/sk_' . $userrow['zid'] . '.png?t=' . filemtime($skimg_path) : '';
                 ?>
                 <form action="./usetmoban.php?mod=skimg" method="post" enctype="multipart/form-data">
                     <input type="file" name="shoukuan" id="shoukuan">
@@ -599,7 +606,11 @@ if ($mod === 'site_n') {
                 </form>
                 <br>
                 <div>当前图片：</div>
-                <img src="<?php echo htmlspecialchars($skimg, ENT_QUOTES, 'UTF-8'); ?>" alt="收款图" style="max-width:30%">
+                <?php if ($skimg !== '') { ?>
+                <img src="<?php echo htmlspecialchars($skimg, ENT_QUOTES, 'UTF-8'); ?>" alt="收款图" class="q8-user-preview-img">
+                <?php } else { ?>
+                <strong>当前未上传收款图</strong>
+                <?php } ?>
             </div>
         </div>
 
@@ -631,11 +642,18 @@ if ($mod === 'site_n') {
                     if (!$image_info) {
                         exit('无法识别图片内容');
                     }
-                    copy($_FILES['wxqrcode']['tmp_name'], ROOT . 'assets/img/qrcode/wxqrcode_' . $userrow['zid'] . '.png');
+                    $qrcode_dir = ROOT . 'assets/img/qrcode/';
+                    if (!is_dir($qrcode_dir) && !mkdir($qrcode_dir, 0755, true)) {
+                        exit('二维码目录创建失败，请联系管理员检查目录权限');
+                    }
+                    $qrcode_save = $qrcode_dir . 'wxqrcode_' . $userrow['zid'] . '.png';
+                    if (!move_uploaded_file($_FILES['wxqrcode']['tmp_name'], $qrcode_save)) {
+                        exit('二维码保存失败，请联系管理员检查目录权限');
+                    }
                     echo '<div class="alert alert-success">二维码上传成功，若未立即生效请按 Ctrl+F5 强制刷新。</div>';
                 }
                 if (file_exists(ROOT . 'assets/img/qrcode/wxqrcode_' . $userrow['zid'] . '.png')) {
-                    $wxqrcode = '<br><img src="../assets/img/qrcode/wxqrcode_' . $userrow['zid'] . '.png" style="max-width:30%">';
+                    $wxqrcode = '<br><img src="../assets/img/qrcode/wxqrcode_' . $userrow['zid'] . '.png" alt="客服微信二维码" class="q8-user-preview-img">';
                 } elseif (!empty($userrow['kfqq'])) {
                     $wxqrcode = '<strong>当前使用根据客服 QQ 自动生成的二维码</strong>';
                 } else {

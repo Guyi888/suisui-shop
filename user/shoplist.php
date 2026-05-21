@@ -225,13 +225,13 @@ if($cid > 0 || !empty($kw)) {
 	<div class="panel panel-default"><div class="panel-heading font-bold">'.$title_text.' - [<a href="shoplist.php" style="color:#fff00f">&#26597;&#30475;&#20840;&#37096;</a>]</div>
 	<div class="well well-sm" style="margin: 0;">&#20849;&#25214;&#21040; <b>'.$numrows.'</b> &#20010;&#21830;&#21697;</div>
 	<div class="wrapper">
-    <a href="#" data-toggle="modal" data-target="#search2" id="search2" class="btn btn-primary"><i class="fa fa-navicon"></i>&nbsp;&#21830;&#21697;&#26597;&#25214;</a>&nbsp;<a class="btn btn-info" href="javascript:void(0)" onclick="up_price('.$cid.')"><i class="fa fa-plus-circle"></i>&nbsp;&#25552;&#21319;&#38144;&#21806;&#20215;</a></div>';
+    <a href="#" data-toggle="modal" data-target="#search2" class="btn btn-primary"><i class="fa fa-navicon"></i>&nbsp;&#21830;&#21697;&#26597;&#25214;</a>&nbsp;<a class="btn btn-info" href="javascript:void(0)" onclick="up_price('.$cid.')"><i class="fa fa-plus-circle"></i>&nbsp;&#25552;&#21319;&#38144;&#21806;&#20215;</a></div>';
 } else {
 	$con='
 	<div class="panel panel-default"><div class="panel-heading font-bold">&#21830;&#21697;&#21015;&#34920;</div>
 	<div class="well well-sm" style="margin: 0;">&#31995;&#32479;&#20849;&#26377; <b>'.$numrows.'</b> &#20010;&#21830;&#21697;&#65292;&#35831;&#26681;&#25454;&#33258;&#36523;&#32463;&#33829;&#38656;&#27714;&#21512;&#29702;&#35843;&#20215;&#12290;</div>
     <div class="wrapper">
-    <a href="#" data-toggle="modal" data-target="#search2" id="search2" class="btn btn-primary"><i class="fa fa-navicon"></i>&nbsp;&#21830;&#21697;&#26597;&#25214;</a>&nbsp;<a class="btn btn-success" href="#" data-toggle="modal" data-target="#resetPriceModal"><i class="fa fa-refresh"></i>&nbsp;&#24674;&#22797;&#20215;&#26684;</a>&nbsp;<a class="btn btn-warning" href="#" data-toggle="modal" data-target="#batchPriceModal"><i class="fa fa-calculator"></i>&nbsp;&#25209;&#37327;&#20462;&#25913;</a>&nbsp;<a class="btn btn-info" href="javascript:void(0)" onclick="restoreLastPrice()"><i class="fa fa-undo"></i>&nbsp;&#24674;&#22797;&#21040;&#19978;&#19968;&#27425;&#20462;&#25913;</a>&nbsp;<a class="btn btn-danger" href="javascript:void(0)" onclick="showPriceHistory()"><i class="fa fa-history"></i>&nbsp;&#21382;&#21490;&#35760;&#24405;</a></div>';
+    <a href="#" data-toggle="modal" data-target="#search2" class="btn btn-primary"><i class="fa fa-navicon"></i>&nbsp;&#21830;&#21697;&#26597;&#25214;</a>&nbsp;<a class="btn btn-success" href="#" data-toggle="modal" data-target="#resetPriceModal"><i class="fa fa-refresh"></i>&nbsp;&#24674;&#22797;&#20215;&#26684;</a>&nbsp;<a class="btn btn-warning" href="#" data-toggle="modal" data-target="#batchPriceModal"><i class="fa fa-calculator"></i>&nbsp;&#25209;&#37327;&#20462;&#25913;</a>&nbsp;<a class="btn btn-info" href="javascript:void(0)" onclick="restoreLastPrice()"><i class="fa fa-undo"></i>&nbsp;&#24674;&#22797;&#21040;&#19978;&#19968;&#27425;&#20462;&#25913;</a>&nbsp;<a class="btn btn-danger" href="javascript:void(0)" onclick="showPriceHistory()"><i class="fa fa-history"></i>&nbsp;&#21382;&#21490;&#35760;&#24405;</a></div>';
 }
 
 // 设置最终 SQL 条件
@@ -246,13 +246,17 @@ echo $con;
           <tbody>
 <?php
 $pagesize=30;
-$pages=ceil($numrows/$pagesize);
+$pages=max(1, ceil($numrows/$pagesize));
 $page=isset($_GET['page'])?intval($_GET['page']):1;
+if($page<1)$page=1;
+if($page>$pages)$page=$pages;
 $offset=$pagesize*($page - 1);
 
 $rs=$DB->query("SELECT * FROM pre_tools WHERE{$sql} ORDER BY sort ASC LIMIT $offset,$pagesize");
+$list_count=0;
 while($res = $rs->fetch())
 {
+	$list_count++;
 	$price_obj->setToolInfo($res['tid'],$res);
 echo '<tr>
 			<td>
@@ -266,6 +270,10 @@ if($userrow['power']==2){
 echo '<td><font color="#FF0ff0">'.$price_obj->getManageSalePrice($res['tid']).'&#20803;</font></td>
 			<td>'.($price_obj->getToolDel($res['tid'])==1 || $res['close']==1?'<font color=red>&#24050;&#19979;&#26550;</font>':'<font color=green>&#19978;&#26550;&#20013;</font>').'</td>
 		</tr>';}
+if($list_count==0){
+	$empty_colspan = $userrow['power']==2 ? 7 : 5;
+	echo '<tr><td colspan="'.$empty_colspan.'" class="text-center text-muted">&#26242;&#26080;&#31526;&#21512;&#26465;&#20214;&#30340;&#21830;&#21697;&#26126;&#32454;</td></tr>';
+}
 ?>
 
           </tbody>
@@ -582,7 +590,7 @@ function resetPrice() {
     });
 }
 function up_price(cid){
-    // 鑾峰彇褰撳墠绛涢€夋潯浠?    var kw = '';
+    var kw = '';
     var urlParams = new URLSearchParams(window.location.search);
     if(urlParams.has('kw')){
         kw = urlParams.get('kw');
@@ -693,7 +701,7 @@ function restoreLastPrice() {
     }, function(index) {
         layer.close(index);
 
-        // 鏄剧ず鍔犺浇灞?        var loadingIndex = layer.load(1, {shade: [0.1,'#fff']});
+        var loadingIndex = layer.load(1, {shade: [0.1,'#fff']});
 
         // 鍙戦€丄JAX璇锋眰
         $.ajax({
@@ -826,7 +834,7 @@ function restoreFromHistory(id) {
     }, function(index) {
         layer.close(index);
 
-        // 鏄剧ず鍔犺浇灞?        var loadingIndex = layer.load(1, {shade: [0.1,'#fff']});
+        var loadingIndex = layer.load(1, {shade: [0.1,'#fff']});
 
         // 鍙戦€丄JAX璇锋眰
         $.ajax({

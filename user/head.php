@@ -61,12 +61,12 @@ $q8FaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_hre
   <link href="../assets/vendor/bootstrap341/css/bootstrap.min.css?v=q8vendor2" rel="stylesheet"/>
   <link href="../assets/vendor/font-awesome/4.7.0/css/font-awesome.min.css?v=q8vendor1" rel="stylesheet"/>
   <link href="../assets/Agod/theme/default/layer.css?v=q8userclean3" rel="stylesheet"/>
-  <link rel="stylesheet" href="<?php echo $cdnserver?>assets/user/css/animate.css" type="text/css" />
-  <link rel="stylesheet" href="<?php echo $cdnserver?>assets/user/css/app.css" type="text/css" />
+  <link rel="stylesheet" href="<?php echo $cdnserver?>assets/user/css/animate.css?v=<?php echo VERSION?>" type="text/css" />
+  <link rel="stylesheet" href="<?php echo $cdnserver?>assets/user/css/app.css?v=<?php echo VERSION?>" type="text/css" />
     <script src="../assets/vendor/jquery/1.12.4/jquery.min.js?v=q8vendor1"></script>
     <script src="../assets/vendor/bootstrap341/js/bootstrap.min.js?v=q8vendor2"></script>
     <script src="../assets/Agod/layer.js?v=q8vendor1"></script>
-    <script src="<?php echo $cdnserver?>assets/user/js/app.js"></script>
+    <script src="<?php echo $cdnserver?>assets/user/js/app.js?v=<?php echo VERSION?>"></script>
   <style id="user-nav-fouc-fixed">
     .app-header .navbar-header.bg-primary,
     .app-header .navbar-header.bg-dark,
