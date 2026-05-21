@@ -25,7 +25,7 @@ $isAdminLoginPage = basename($_SERVER['SCRIPT_NAME']) === 'login.php';
 $isAdminIndexPage = basename($_SERVER['SCRIPT_NAME']) === 'index.php';
 $isAdminCustomCssPage = basename($_SERVER['SCRIPT_NAME']) === 'customcss.php';
 $adminScriptBase = basename($_SERVER['SCRIPT_NAME'], '.php');
-$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260520suisuiops14';
+$adminAssetVersion = (defined('VERSION') ? VERSION : '1.0.0') . '.20260521suisuiops16';
 $adminCsrfToken = q8_admin_csrf_token();
 $adminFaviconHref = function_exists('q8_brand_favicon_href') ? q8_brand_favicon_href() : '/assets/img/favicon/favicon.ico';
 
@@ -136,6 +136,7 @@ if ($adminScriptBase === 'set' && isset($_GET['mod'])) {
   <link id="theme-link" rel="stylesheet" href="<?php echo $_COOKIE['optionThemeColor']?$_COOKIE['optionThemeColor']:'../assets/appui/css/themes/flat-2.4.css';?>">
   <link rel="stylesheet" href="./assets/css/admin-shell.css?v=<?php echo urlencode($adminAssetVersion); ?>">
   <?php if($isAdminIndexPage){ ?><link rel="stylesheet" href="./assets/css/admin-dashboard.css?v=<?php echo urlencode($adminAssetVersion); ?>"><?php } ?>
+  <?php if($adminScriptBase === 'update'){ ?><link rel="stylesheet" href="./assets/css/admin-update.css?v=<?php echo urlencode($adminAssetVersion); ?>"><?php } ?>
   <?php if($isAdminCustomCssPage){ ?><link rel="stylesheet" href="./assets/css/admin-custom-css.css?v=<?php echo urlencode($adminAssetVersion); ?>"><?php } ?>
   <script src="<?php echo $cdnpublic?>jquery/2.1.4/jquery.min.js"></script>
   <script src="<?php echo $cdnpublic?>twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>

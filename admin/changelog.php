@@ -27,6 +27,17 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.6 / 2026-05-21 在线更新中心</h4>
+                    <ul>
+                        <li>新增后台在线更新中心，支持一键更新、环境预检、版本检查、更新包下载、完整性校验、自动备份、解压、覆盖、数据库升级、缓存清理和最终自检。</li>
+                        <li>更新过程会逐步显示当前执行阶段，让站长清楚看到系统正在做什么。</li>
+                        <li>新增“流程演练”模式，可在测试站已经是最新版本时验证下载、校验、备份、解压和自检链路，不覆盖程序文件，也不执行数据库迁移。</li>
+                        <li>更新覆盖时自动跳过 <code>config.php</code>、上传目录、备份目录和 <code>install/install.lock</code> 等运行环境文件。</li>
+                        <li>未配置 <code>update.json</code> 时，会使用 GitHub Release 源码包作为兜底更新包。</li>
+                        <li>程序缓存版本更新到 <code>2026052115</code>，后台资源版本更新到 <code>20260521suisuiops16</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.5 / 2026-05-21 后台充值返利设置修复</h4>
                     <ul>
                         <li>修复后台“充值返利设置”入口打开后内容区空白的问题。</li>
