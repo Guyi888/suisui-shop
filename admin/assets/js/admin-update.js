@@ -5,6 +5,7 @@
   var steps = ['precheck', 'remote', 'download', 'verify', 'backup', 'extract', 'apply', 'migrate', 'cleanup', 'selfcheck'];
   var checkOnlySteps = ['precheck', 'remote'];
   var dryRunSteps = ['precheck', 'remote', 'download', 'verify', 'backup', 'extract', 'dryrun', 'cleanup', 'selfcheck'];
+  var flowRunning = false;
   var labels = {
     precheck: '\u73af\u5883\u9884\u68c0',
     remote: '\u7248\u672c\u68c0\u67e5',
@@ -63,10 +64,25 @@
       $box.append(
         '<div class="admin-update-check ' + cls + '">' +
           '<i class="fa ' + icon + '"></i>' +
-          '<div><b>' + escapeHtml(item.name) + '</b><small>' + escapeHtml(item.detail || '') + '</small></div>' +
+          '<div><b>' + escapeHtml(item.name) + '</b><small>' + escapeHtml(item.detail || '') + '</small>' +
+          (item.ok ? '' : '<p><strong>\u539f\u56e0\uff1a</strong>' + escapeHtml(item.reason || '\u672a\u901a\u8fc7\u8be5\u9879\u68c0\u67e5') + '</p><p><strong>\u89e3\u51b3\u529e\u6cd5\uff1a</strong>' + escapeHtml(item.fix || '\u8bf7\u6309\u63d0\u793a\u4fee\u590d\u540e\u91cd\u65b0\u68c0\u67e5') + '</p>') +
+          '</div>' +
         '</div>'
       );
     });
+  }
+
+  function buildFailedCheckMessage(checks, fallback) {
+    var failed = [];
+    (checks || []).forEach(function (item) {
+      if (!item.ok && item.critical) {
+        failed.push(item.name + '\uff1a' + (item.fix || item.reason || '\u8bf7\u4fee\u590d\u540e\u91cd\u8bd5'));
+      }
+    });
+    if (!failed.length) return fallback || '\u73af\u5883\u9884\u68c0\u672a\u901a\u8fc7';
+    return '\u73af\u5883\u9884\u68c0\u672a\u901a\u8fc7\uff0c\u9700\u5148\u5904\u7406\uff1a<br><br>' + failed.map(function (text) {
+      return '\u2022 ' + escapeHtml(text);
+    }).join('<br>');
   }
 
   function escapeHtml(text) {
@@ -89,6 +105,8 @@
   }
 
   function runFlow(activeSteps, options) {
+    if (flowRunning) return;
+    flowRunning = true;
     var current = 0;
     options = options || {};
     resetSteps(activeSteps);
@@ -100,6 +118,7 @@
         setProgress(activeSteps.length, activeSteps.length);
         setStatus(options.checkOnly ? '\u68c0\u67e5\u5b8c\u6210' : '\u66f4\u65b0\u5b8c\u6210', options.checkOnly ? '\u53ef\u6839\u636e\u7ed3\u679c\u51b3\u5b9a\u662f\u5426\u66f4\u65b0' : '\u6700\u7ec8\u81ea\u68c0\u5df2\u901a\u8fc7');
         $('#startOnlineUpdate, #dryRunOnlineUpdate, #checkOnlineUpdate').prop('disabled', false);
+        flowRunning = false;
         if (window.layer) layer.msg(options.checkOnly ? '\u68c0\u67e5\u5b8c\u6210' : (options.dryRun ? '\u6f14\u7ec3\u5b8c\u6210' : '\u66f4\u65b0\u5b8c\u6210'), {icon: 1});
         return;
       }
@@ -111,9 +130,14 @@
       postStep(step).done(function (res) {
         if (!res || Number(res.code) !== 1) {
           var msg = res && res.msg ? res.msg : '\u8bf7\u6c42\u5931\u8d25';
+          if (step === 'precheck' && res && res.checks) {
+            renderChecks(res.checks || []);
+            msg = buildFailedCheckMessage(res.checks, msg);
+          }
           setStepState(step, 'error', msg);
           setStatus('\u66f4\u65b0\u5931\u8d25', msg);
           $('#startOnlineUpdate, #dryRunOnlineUpdate, #checkOnlineUpdate').prop('disabled', false);
+          flowRunning = false;
           if (window.layer) layer.alert(msg, {icon: 2, title: '\u64cd\u4f5c\u5931\u8d25'});
           return;
         }
@@ -130,6 +154,7 @@
           if (!options.checkOnly && !options.allowCurrent && !res.has_update) {
             setStatus('\u5df2\u662f\u6700\u65b0', '\u65e0\u9700\u6267\u884c\u66f4\u65b0');
             $('#startOnlineUpdate, #dryRunOnlineUpdate, #checkOnlineUpdate').prop('disabled', false);
+            flowRunning = false;
             if (window.layer) layer.msg('\u5f53\u524d\u5df2\u662f\u6700\u65b0\u7248\u672c', {icon: 1});
             return;
           }
@@ -141,6 +166,7 @@
         setStepState(step, 'error', msg);
         setStatus('\u66f4\u65b0\u5931\u8d25', msg);
         $('#startOnlineUpdate, #dryRunOnlineUpdate, #checkOnlineUpdate').prop('disabled', false);
+        flowRunning = false;
         if (window.layer) layer.alert(msg, {icon: 2, title: '\u8bf7\u6c42\u5931\u8d25'});
       });
     }
@@ -149,10 +175,12 @@
   }
 
   $('#checkOnlineUpdate').on('click', function () {
+    if (flowRunning) return;
     runFlow(checkOnlySteps, {checkOnly: true});
   });
 
   $('#startOnlineUpdate').on('click', function () {
+    if (flowRunning) return;
     var start = function () {
       runFlow(steps, {checkOnly: false});
     };
@@ -161,13 +189,17 @@
         icon: 3,
         title: '\u786e\u8ba4\u7acb\u5373\u66f4\u65b0',
         btn: ['\u7acb\u5373\u66f4\u65b0', '\u53d6\u6d88']
-      }, start);
+      }, function (index) {
+        layer.close(index);
+        start();
+      });
     } else if (window.confirm('\u786e\u8ba4\u7acb\u5373\u66f4\u65b0\uff1f')) {
       start();
     }
   });
 
   $('#dryRunOnlineUpdate').on('click', function () {
+    if (flowRunning) return;
     var start = function () {
       runFlow(dryRunSteps, {checkOnly: false, dryRun: true, allowCurrent: true});
     };
@@ -176,7 +208,10 @@
         icon: 3,
         title: '\u786e\u8ba4\u6d41\u7a0b\u6f14\u7ec3',
         btn: ['\u5f00\u59cb\u6f14\u7ec3', '\u53d6\u6d88']
-      }, start);
+      }, function (index) {
+        layer.close(index);
+        start();
+      });
     } else if (window.confirm('\u786e\u8ba4\u5f00\u59cb\u6d41\u7a0b\u6f14\u7ec3\uff1f')) {
       start();
     }

@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.7 / 2026-05-21 在线更新体验修复</h4>
+                    <ul>
+                        <li>修复“立即更新”和“流程演练”确认弹窗可重复点击的问题，确认后会先关闭弹窗并锁定当前流程。</li>
+                        <li>环境预检未通过时新增失败原因和解决办法，页面会直接告诉站长是目录权限、缓存目录、PHP 扩展还是网络访问问题。</li>
+                        <li>更新包新增根目录 <code>cache/</code> 占位目录，减少新站点因缺少缓存目录导致预检失败的情况。</li>
+                        <li>环境检查失败项在 PC 和手机端都会展示原因与处理建议，方便按提示逐项修复。</li>
+                        <li>程序缓存版本更新到 <code>2026052117</code>，后台资源版本更新到 <code>20260521suisuiops18</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.6 / 2026-05-21 在线更新中心</h4>
                     <ul>
                         <li>新增后台在线更新中心，支持一键更新、环境预检、版本检查、更新包下载、完整性校验、自动备份、解压、覆盖、数据库升级、缓存清理和最终自检。</li>

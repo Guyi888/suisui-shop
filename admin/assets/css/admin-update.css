@@ -250,6 +250,16 @@
   word-break: break-all;
 }
 
+.admin-update-check p {
+  margin: 7px 0 0;
+  color: var(--admin-shell-muted);
+  line-height: 1.6;
+}
+
+.admin-update-check p strong {
+  color: var(--admin-shell-text);
+}
+
 .admin-update-release {
   max-height: 280px;
   overflow: auto;

@@ -141,20 +141,40 @@ if (!function_exists('q8_update_precheck')) {
         $checks = array();
         $critical = false;
         $items = array(
-            array('PHP 版本', version_compare(PHP_VERSION, '7.4.0', '>='), PHP_VERSION, true),
-            array('ZipArchive 扩展', class_exists('ZipArchive'), class_exists('ZipArchive') ? '可用' : '不可用', true),
-            array('下载能力', function_exists('curl_init') || ini_get('allow_url_fopen'), (function_exists('curl_init') ? 'cURL' : (ini_get('allow_url_fopen') ? 'file_get_contents' : '不可用')), true),
-            array('站点目录写入', is_writable(ROOT), ROOT, true),
-            array('临时目录写入', is_writable(q8_update_workspace()), q8_update_workspace(), true),
-            array('配置文件保护', is_file(ROOT . 'config.php'), 'config.php', true),
-            array('安装锁保护', is_file(ROOT . 'install/install.lock'), 'install/install.lock', false),
+            array('PHP 版本', version_compare(PHP_VERSION, '7.4.0', '>='), PHP_VERSION, true, '当前服务器 PHP 版本低于在线更新要求。', '请在宝塔面板把站点 PHP 版本切换到 7.4 或更高版本，然后重试。'),
+            array('ZipArchive 扩展', class_exists('ZipArchive'), class_exists('ZipArchive') ? '可用' : '不可用', true, '服务器没有启用 ZipArchive，程序无法解压更新包。', '请在 PHP 扩展管理中安装或启用 zip 扩展，然后重启 PHP 服务。'),
+            array('下载能力', function_exists('curl_init') || ini_get('allow_url_fopen'), (function_exists('curl_init') ? 'cURL' : (ini_get('allow_url_fopen') ? 'file_get_contents' : '不可用')), true, '服务器当前无法通过 PHP 下载远程更新包。', '请启用 PHP cURL 扩展，或开启 allow_url_fopen，并确认服务器能访问 GitHub。'),
+            array('站点目录写入', is_writable(ROOT), ROOT, true, 'PHP 运行用户没有站点根目录写入权限，无法创建临时目录或覆盖程序文件。', '请把站点目录权限调整为 PHP 运行用户可写；宝塔常见做法是将站点目录所有者设为 www:www。'),
+            array('临时目录写入', is_writable(q8_update_workspace()), q8_update_workspace(), true, '更新临时目录无法写入，更新包、解压文件和备份文件无法保存。', '请创建 cache 目录并给 PHP 运行用户写入权限，或修复站点根目录权限后重新检查。'),
+            array('配置文件保护', is_file(ROOT . 'config.php'), 'config.php', true, '没有检测到 config.php，程序无法确认当前站点运行配置。', '请确认站点根目录存在 config.php；不要用示例配置文件替代正式配置。'),
+            array('安装锁保护', is_file(ROOT . 'install/install.lock'), 'install/install.lock', false, '没有检测到 install/install.lock，站点可能存在重新安装风险。', '请确认站点已安装完成，并在 install 目录下保留 install.lock 文件。'),
         );
         foreach ($items as $item) {
             $ok = (bool)$item[1];
             if (!$ok && $item[3]) $critical = true;
-            $checks[] = array('name' => $item[0], 'ok' => $ok, 'detail' => $item[2], 'critical' => (bool)$item[3]);
+            $checks[] = array(
+                'name' => $item[0],
+                'ok' => $ok,
+                'detail' => $item[2],
+                'critical' => (bool)$item[3],
+                'reason' => $item[4],
+                'fix' => $item[5],
+            );
         }
         return array('checks' => $checks, 'critical' => $critical);
+    }
+}
+
+if (!function_exists('q8_update_failed_check_names')) {
+    function q8_update_failed_check_names($checks)
+    {
+        $names = array();
+        foreach ($checks as $check) {
+            if (empty($check['ok']) && !empty($check['critical'])) {
+                $names[] = $check['name'];
+            }
+        }
+        return $names;
     }
 }
 
@@ -293,7 +313,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['act']) && $_POST['act
             $state = array('started_at' => date('Y-m-d H:i:s'), 'local_version' => q8_update_local_version(), 'cache_version' => defined('VERSION') ? VERSION : '');
             $state['precheck'] = $precheck;
             q8_update_save_state($state);
-            q8_update_json($precheck['critical'] ? 0 : 1, $precheck['critical'] ? '环境预检未通过' : '环境预检通过', array('checks' => $precheck['checks'], 'state' => $state));
+            $failedNames = q8_update_failed_check_names($precheck['checks']);
+            $message = $precheck['critical'] ? ('环境预检未通过：' . implode('、', $failedNames)) : '环境预检通过';
+            q8_update_json($precheck['critical'] ? 0 : 1, $message, array('checks' => $precheck['checks'], 'state' => $state));
         }
         if ($step === 'remote') {
             $manifest = q8_update_remote_manifest();
