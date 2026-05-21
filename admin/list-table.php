@@ -80,6 +80,11 @@ if (isset($_GET["kw"]) && !empty($_GET["kw"])) {
 	$numrows = $DB->getColumn("SELECT count(*) from pre_orders A WHERE" . $sql);
 	$con = "用户ID:" . $_GET["uid"] . " " . $addstr . "共有 <b>" . $numrows . "</b> 个订单";
 	$link = "&uid=" . $_GET["uid"] . $links;
+} elseif (isset($_GET["abnormal"]) && $_GET["abnormal"] == 1) {
+	$sql = " (A.`status` NOT IN (1,4,6) OR A.`djzt`<>3)" . $sqls;
+	$numrows = $DB->getColumn("SELECT count(*) from pre_orders A WHERE" . $sql);
+	$con = "异常订单共有 <b>" . $numrows . "</b> 个，包含对接状态未发卡，或订单状态不是已完成、已退单、退款的订单";
+	$link = "&abnormal=1" . $links;
 } elseif (isset($_GET["type"]) && $_GET["type"] >= 0) {
 	$sql = " A.`status`='" . $_GET["type"] . "'" . $sqls;
 	$numrows = $DB->getColumn("SELECT count(*) from pre_orders A WHERE" . $sql);

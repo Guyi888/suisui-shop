@@ -96,6 +96,36 @@ $todayDate = date('Y-m-d');
             </div>
         </a>
 
+        <a class="admin-stat-card admin-stat-card--danger" href="./tixian.php?status=0" aria-label="查看待提现金额" title="查看待处理提现">
+            <div class="admin-stat-card__icon">
+                <i class="fa fa-credit-card"></i>
+            </div>
+            <div class="admin-stat-card__content">
+                <p class="admin-stat-card__value">￥<span id="count22">--</span></p>
+                <p class="admin-stat-card__label">待提现金额</p>
+            </div>
+        </a>
+
+        <a class="admin-stat-card admin-stat-card--success" href="./record.php?action=%E5%85%85%E5%80%BC&amp;start=<?php echo $todayDate; ?>&amp;end=<?php echo $todayDate; ?>" aria-label="查看今日充值" title="查看今日充值流水">
+            <div class="admin-stat-card__icon">
+                <i class="fa fa-plus-circle"></i>
+            </div>
+            <div class="admin-stat-card__content">
+                <p class="admin-stat-card__value">￥<span id="count23">--</span></p>
+                <p class="admin-stat-card__label">今日充值</p>
+            </div>
+        </a>
+
+        <a class="admin-stat-card admin-stat-card--warning" href="./list.php?abnormal=1" aria-label="查看异常订单" title="包含对接状态未发卡，或订单状态不是已完成、已退单、退款的订单">
+            <div class="admin-stat-card__icon">
+                <i class="fa fa-exclamation-triangle"></i>
+            </div>
+            <div class="admin-stat-card__content">
+                <p class="admin-stat-card__value"><span id="count24">--</span></p>
+                <p class="admin-stat-card__label">异常订单</p>
+            </div>
+        </a>
+
         <a class="admin-stat-card admin-stat-card--info" href="./index.php#visitChartSection" aria-label="查看今日访问量" title="当前访问统计在后台首页展示，没有独立列表页">
             <div class="admin-stat-card__icon">
                 <i class="fa fa-eye"></i>
@@ -352,6 +382,6 @@ $todayDate = date('Y-m-d');
 </div>
 </div>
 
-<script src="./assets/js/admin-dashboard.js?v=<?php echo urlencode($dashboardAssetVersion); ?>-balance01"></script>
+<script src="./assets/js/admin-dashboard.js?v=<?php echo urlencode($dashboardAssetVersion); ?>-dashboardstats03"></script>
 </body>
 </html>

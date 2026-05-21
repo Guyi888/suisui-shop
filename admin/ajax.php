@@ -24,13 +24,34 @@ function q8_admin_dashboard_trade_chart(){
 		if($i == 6) $chart['range_start'] = $date;
 		if($i == 0) $chart['range_end'] = $date;
 		$orderCount = $DB->getColumn("SELECT count(*) FROM pre_orders WHERE addtime>='{$start}' AND addtime<='{$end}'");
-		$payMoney = $DB->getColumn("SELECT COALESCE(sum(money),0) FROM pre_pay WHERE addtime>='{$start}' AND addtime<='{$end}' AND status=1");
+		$payMoney = $DB->getColumn("SELECT COALESCE(sum(money),0) FROM pre_orders WHERE addtime>='{$start}' AND addtime<='{$end}' AND status IN (0,1,2)");
 		$chart['date'][] = array($point, date('m-d', strtotime($date)));
 		$chart['date_full'][] = $date;
 		$chart['orders'][] = array($point, intval($orderCount));
 		$chart['money'][] = array($point, round($payMoney, 2));
 	}
 	return $chart;
+}
+
+function q8_admin_dashboard_valid_order_where($start, $end){
+	$start = addslashes($start);
+	$end = addslashes($end);
+	return "addtime>='{$start}' AND addtime<='{$end}' AND status IN (0,1,2)";
+}
+
+function q8_admin_dashboard_order_money($start, $end){
+	global $DB;
+	return floatval($DB->getColumn("SELECT COALESCE(SUM(money),0) FROM pre_orders WHERE " . q8_admin_dashboard_valid_order_where($start, $end)));
+}
+
+function q8_admin_dashboard_owner_profit($start, $end){
+	global $DB;
+	$commissionAction = hex2bin('e68f90e68890');
+	$where = q8_admin_dashboard_valid_order_where($start, $end);
+	$commissionWhere = "O.addtime>='" . addslashes($start) . "' AND O.addtime<='" . addslashes($end) . "' AND O.status IN (0,1,2)";
+	$orderProfit = floatval($DB->getColumn("SELECT COALESCE(SUM(money-cost),0) FROM pre_orders WHERE {$where}"));
+	$commission = floatval($DB->getColumn("SELECT COALESCE(SUM(P.point),0) FROM pre_points P INNER JOIN pre_orders O ON O.id=P.orderid WHERE {$commissionWhere} AND P.action=:action AND (P.status IS NULL OR P.status<>4)", array(':action' => $commissionAction)));
+	return $orderProfit - $commission;
 }
 
 function q8_admin_message_scope_labels(){
@@ -150,7 +171,7 @@ switch($act){
 case 'getcount':
 	@header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 	@header('Pragma: no-cache');
-	$countCacheKey = 'getcount_admin10';
+	$countCacheKey = 'getcount_admin13';
 	$result = $CACHE->read($countCacheKey);
 	$isUpdate = false;
 	if (!empty($result)) {
@@ -163,13 +184,17 @@ case 'getcount':
 		$isUpdate = true;
 	}
 	if($isUpdate){
-		$thtime=date("Y-m-d").' 00:00:00';
-		$yesterday_time = date("Y-m-d",strtotime("-1 day")).' 00:00:00';
+		$todayStart=date("Y-m-d").' 00:00:00';
+		$todayEnd=date("Y-m-d").' 23:59:59';
+		$yesterdayStart = date("Y-m-d",strtotime("-1 day")).' 00:00:00';
+		$yesterdayEnd = date("Y-m-d",strtotime("-1 day")).' 23:59:59';
+		$thtime=$todayStart;
+		$yesterday_time = $yesterdayStart;
 		$count1=$DB->getColumn("SELECT count(*) FROM pre_orders");
 		$count2=$DB->getColumn("SELECT count(*) FROM pre_orders WHERE status=1");
 		$count3=$DB->getColumn("SELECT count(*) FROM pre_orders WHERE status=0");
-		$count4=$DB->getColumn("SELECT count(*) FROM pre_orders WHERE addtime>='$thtime'");
-		$count5=$DB->getColumn("SELECT sum(money) FROM pre_pay WHERE `type` IN ('qqpay','wxpay','alipay') AND addtime>='$thtime' AND status=1");
+		$count4=$DB->getColumn("SELECT count(*) FROM pre_orders WHERE addtime>='$todayStart'");
+		$count5=q8_admin_dashboard_order_money($todayStart, $todayEnd);
 
 		$strtotime=strtotime($conf['build']);
 		$now=time();
@@ -183,27 +208,16 @@ case 'getcount':
         $count9=0;
         $count10=0;
 
-		$count11=$DB->getColumn("SELECT sum(realmoney) FROM `pre_tixian` WHERE `status` = 0");
+		$count11=$DB->getColumn("SELECT COALESCE(sum(realmoney),0) FROM `pre_tixian` WHERE `status` = 0");
 
 		$count12=$DB->getColumn("SELECT sum(money) FROM `pre_pay` WHERE `type` = 'qqpay' AND `addtime` > '$thtime' AND `status` = 1");
 		$count13=$DB->getColumn("SELECT sum(money) FROM `pre_pay` WHERE `type` = 'wxpay' AND `addtime` > '$thtime' AND `status` = 1");
 		$count14=$DB->getColumn("SELECT sum(money) FROM `pre_pay` WHERE `type` = 'alipay' AND `addtime` > '$thtime' AND `status` = 1");
-
-		$id1 = $DB->getColumn("SELECT id FROM pre_orders WHERE `addtime`<'$thtime' ORDER BY id DESC LIMIT 1");
-		$id2 = $DB->getColumn("SELECT id FROM pre_orders WHERE `addtime`<'$yesterday_time' ORDER BY id DESC LIMIT 1");
-		$sql="select money,cost from pre_orders where (status = 1 or status = 2) and id > '$id1'";
-		$today_list = $DB->getAll($sql);
-		$today_total_money = 0;
-		foreach($today_list as $k=>$v){
-			$today_total_money += ($v['money'] - $v['cost']);
-		}
-
-		$sql="select money,cost from pre_orders where (status = 1 or status = 2) and id <= '$id1' and id > '$id2'";
-		$yesterday_list = $DB->getAll($sql);
-		$yesterday_total_money = 0;
-		foreach($yesterday_list as $k=>$v){
-			$yesterday_total_money += ($v['money'] - $v['cost']);
-		}
+		$today_total_money = q8_admin_dashboard_owner_profit($todayStart, $todayEnd);
+		$yesterday_total_money = q8_admin_dashboard_owner_profit($yesterdayStart, $yesterdayEnd);
+		$count22=$count11;
+		$count23=$DB->getColumn("SELECT COALESCE(SUM(point),0) FROM pre_points WHERE action=:action AND addtime>=:start AND addtime<=:end", array(':action' => hex2bin('e58585e580bc'), ':start' => $todayStart, ':end' => $todayEnd));
+		$count24=$DB->getColumn("SELECT count(*) FROM pre_orders WHERE status NOT IN (1,4,6) OR djzt<>3");
 
 		$count17=$DB->getColumn("SELECT count(*) FROM pre_workorder where status=0 or status=1");
 		$todayGoodsListed=$DB->getColumn("SELECT count(*) FROM pre_tools WHERE addtime>=:thtime AND active=1 AND close=0", array(':thtime' => $thtime));
@@ -248,7 +262,7 @@ case 'getcount':
 		$visit_chart = null;
 	}
 
-	$result=array("code"=>0,"yxts"=>$yxts,"count1"=>$count1,"count2"=>$count2,"count3"=>$count3,"count4"=>$count4,"count5"=>round($count5,2),"count6"=>$count6,"count7"=>$count7,"count8"=>round($count8,2),"count9"=>round($count9,2),"count10"=>round($count10,2),"count11"=>round($count11,2),"count12"=>round($count12,2),"count13"=>round($count13,2),"count14"=>round($count14,2),"count15"=>round($today_total_money,2),"count16"=>round($yesterday_total_money,2),"count17"=>$count17,"count18"=>$todayGoodsListed,"count19"=>$todayGoodsDown,"count20"=>$todaySignUsers,"count21"=>round($count21,2),"chart"=>q8_admin_dashboard_trade_chart(), "visit_today"=>$visit_today, "ip_today"=>$ip_today, "visit_chart"=>$visit_chart);
+	$result=array("code"=>0,"yxts"=>$yxts,"count1"=>$count1,"count2"=>$count2,"count3"=>$count3,"count4"=>$count4,"count5"=>round($count5,2),"count6"=>$count6,"count7"=>$count7,"count8"=>round($count8,2),"count9"=>round($count9,2),"count10"=>round($count10,2),"count11"=>round($count11,2),"count12"=>round($count12,2),"count13"=>round($count13,2),"count14"=>round($count14,2),"count15"=>round($today_total_money,2),"count16"=>round($yesterday_total_money,2),"count17"=>$count17,"count18"=>$todayGoodsListed,"count19"=>$todayGoodsDown,"count20"=>$todaySignUsers,"count21"=>round($count21,2),"count22"=>round($count22,2),"count23"=>round($count23,2),"count24"=>$count24,"chart"=>q8_admin_dashboard_trade_chart(), "visit_today"=>$visit_today, "ip_today"=>$ip_today, "visit_chart"=>$visit_chart);
 		$CACHE->save($countCacheKey, serialize(['time' => time(), 'data' => $result]));
 	}
 	exit(json_encode($result));

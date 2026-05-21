@@ -124,7 +124,8 @@
       var mappings = [
         'count1', 'count2', 'count3', 'count4', 'count5', 'count6', 'count7',
         'count8', 'count12', 'count13', 'count14', 'count15', 'count16',
-        'count17', 'count18', 'count19', 'count20', 'count21', 'visit_today', 'ip_today'
+        'count17', 'count18', 'count19', 'count20', 'count21', 'count22',
+        'count23', 'count24', 'visit_today', 'ip_today'
       ];
 
       mappings.forEach(function(id) {
