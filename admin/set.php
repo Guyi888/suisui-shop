@@ -3828,76 +3828,43 @@ $("select[name='fanghong_api']").change(function(){
 } elseif ($mod == "chat") {
     adminpermission("set", 1);
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['do']) && $_POST['do'] == 'save') {
-        // 保存客服系统基本设置
         $chat_enable = intval($_POST['chat_enable']);
+        $chat_mode = in_array($_POST['chat_mode'], array('link', 'qq', 'chatwoot', 'custom')) ? $_POST['chat_mode'] : 'link';
         $chat_title = trim($_POST['chat_title']);
-        $chat_welcome = trim($_POST['chat_welcome']);
-        $chat_polling = intval($_POST['chat_polling']);
-        $chat_autoclose = intval($_POST['chat_autoclose']);
-        $chat_auto_delete = intval($_POST['chat_auto_delete']);
-        $chat_delete_days = intval($_POST['chat_delete_days']);
+        $chat_button_text = trim($_POST['chat_button_text']);
+        $chat_button_icon = trim($_POST['chat_button_icon']);
         $chat_btn_color = trim($_POST['chat_btn_color']);
-        $chat_window_color = trim($_POST['chat_window_color']);
-        $chat_sound = intval($_POST['chat_sound']);
-        $chat_base_path = trim($_POST['chat_base_path']);
+        $chat_button_text_color = trim($_POST['chat_button_text_color']);
+        $chat_position = in_array($_POST['chat_position'], array('right-bottom', 'left-bottom', 'right-middle', 'left-middle')) ? $_POST['chat_position'] : 'right-bottom';
+        $chat_offset_x = max(0, intval($_POST['chat_offset_x']));
+        $chat_offset_y = max(0, intval($_POST['chat_offset_y']));
+        $chat_mobile_show = intval($_POST['chat_mobile_show']);
+        $chat_open_new = intval($_POST['chat_open_new']);
+        $chat_link_url = trim($_POST['chat_link_url']);
+        $chat_qq = trim($_POST['chat_qq']);
+        $chatwoot_base_url = trim($_POST['chatwoot_base_url']);
+        $chatwoot_website_token = trim($_POST['chatwoot_website_token']);
+        $chat_custom_code = trim($_POST['chat_custom_code']);
         saveSetting('chat_enable', $chat_enable);
+        saveSetting('chat_mode', $chat_mode);
         saveSetting('chat_title', $chat_title);
-        saveSetting('chat_welcome', $chat_welcome);
-        saveSetting('chat_polling', $chat_polling);
-        saveSetting('chat_autoclose', $chat_autoclose);
-        saveSetting('chat_auto_delete', $chat_auto_delete);
-        saveSetting('chat_delete_days', $chat_delete_days);
+        saveSetting('chat_button_text', $chat_button_text);
+        saveSetting('chat_button_icon', $chat_button_icon);
         saveSetting('chat_btn_color', $chat_btn_color);
-        saveSetting('chat_window_color', $chat_window_color);
-        saveSetting('chat_sound', $chat_sound);
-        saveSetting('chat_base_path', $chat_base_path);
-        $chat_image_limit_enable = intval($_POST['chat_image_limit_enable']);
-        $chat_image_max_size = intval($_POST['chat_image_max_size']);
-        $chat_image_formats = trim($_POST['chat_image_formats']);
-        saveSetting('chat_image_limit_enable', $chat_image_limit_enable);
-        saveSetting('chat_image_max_size', $chat_image_max_size);
-        saveSetting('chat_image_formats', $chat_image_formats);
-        $chat_video_enable = intval($_POST['chat_video_enable']);
-        $chat_video_max_size = intval($_POST['chat_video_max_size']);
-        saveSetting('chat_video_enable', $chat_video_enable);
-        saveSetting('chat_video_max_size', $chat_video_max_size);
-        $chat_anti_spam_enable = intval($_POST['chat_anti_spam_enable']);
-        $chat_max_messages = intval($_POST['chat_max_messages']);
-        $chat_first_ban_time = intval($_POST['chat_first_ban_time']);
-        $chat_second_ban_time = intval($_POST['chat_second_ban_time']);
-        saveSetting('chat_anti_spam_enable', $chat_anti_spam_enable);
-        saveSetting('chat_max_messages', $chat_max_messages);
-        saveSetting('chat_first_ban_time', $chat_first_ban_time);
-        saveSetting('chat_second_ban_time', $chat_second_ban_time);
+        saveSetting('chat_button_text_color', $chat_button_text_color);
+        saveSetting('chat_position', $chat_position);
+        saveSetting('chat_offset_x', $chat_offset_x);
+        saveSetting('chat_offset_y', $chat_offset_y);
+        saveSetting('chat_mobile_show', $chat_mobile_show);
+        saveSetting('chat_open_new', $chat_open_new);
+        saveSetting('chat_link_url', $chat_link_url);
+        saveSetting('chat_qq', $chat_qq);
+        saveSetting('chatwoot_base_url', $chatwoot_base_url);
+        saveSetting('chatwoot_website_token', $chatwoot_website_token);
+        saveSetting('chat_custom_code', $chat_custom_code);
         $ad = $CACHE->clear();
         if ($ad) {
-            showmsg('客服系统设置保存成功！', 1);
-        } else {
-            showmsg('保存失败！<br/>' . $DB->error(), 4);
-        }
-    } else if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['do']) && $_POST['do'] == 'save_keyword') {
-        // 保存关键词自动回复设置
-        $chat_keyword_enable = intval($_POST['chat_keyword_enable']);
-        $chat_keywords = trim($_POST['chat_keywords']);
-        saveSetting('chat_keyword_enable', $chat_keyword_enable);
-        saveSetting('chat_keywords', $chat_keywords);
-        $ad = $CACHE->clear();
-        if ($ad) {
-            showmsg('关键词自动回复设置保存成功！', 1);
-        } else {
-            showmsg('保存失败！<br/>' . $DB->error(), 4);
-        }
-    } else if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['do']) && $_POST['do'] == 'save_prohibited') {
-        // 保存违禁词过滤设置
-        $chat_prohibited_enable = intval($_POST['chat_prohibited_enable']);
-        $chat_prohibited_words = trim($_POST['chat_prohibited_words']);
-        $chat_prohibited_msg = trim($_POST['chat_prohibited_msg']);
-        saveSetting('chat_prohibited_enable', $chat_prohibited_enable);
-        saveSetting('chat_prohibited_words', $chat_prohibited_words);
-        saveSetting('chat_prohibited_msg', $chat_prohibited_msg);
-        $ad = $CACHE->clear();
-        if ($ad) {
-            showmsg('违禁词过滤设置保存成功！', 1);
+            showmsg('客服窗口配置保存成功！', 1);
         } else {
             showmsg('保存失败！<br/>' . $DB->error(), 4);
         }
@@ -3905,889 +3872,137 @@ $("select[name='fanghong_api']").change(function(){
 ?>
     <div class="block">
         <div class="block-title">
-            <h3 class="panel-title">客服系统设置</h3>
+            <h3 class="panel-title">浮动客服配置</h3>
         </div>
         <div class="panel panel-info">
             <div class="panel-heading">使用说明</div>
             <div class="panel-body" style="background:#e6f3fb;">
-                <b>如何在网站中添加客服系统？</b><br>
-                1. 在需要显示客服系统的PHP页面中，找到已有的<?php ?>标签，在其中添加如下代码：<br>
-                <code>include ROOT."template/default/chat/widget.php";</code><br>
-                2. 添加后将在页面右下角显示客服图标，用户点击即可打开对话窗口<br>
-                3. 管理员可在 客服工作台 查看和回复用户消息<br>
-                4. 请先在下方开启客服系统并完成相关配置
+                <p>开启后，前台会按当前配置显示一个全站浮动客服按钮。客户可选择跳转链接、QQ 对话、Chatwoot 或自定义代码。</p>
+                <p>自定义代码会直接输出到前台页面，请只粘贴可信客服服务商提供的代码。</p>
             </div>
         </div>
         <form method="post" class="form-horizontal form-bordered" role="form">
             <input type="hidden" name="do" value="save">
             <div class="form-group">
-                <label class="col-sm-2 control-label">客服系统开关</label>
+                <label class="col-sm-2 control-label">客服开关</label>
                 <div class="col-sm-10">
                     <select class="form-control" name="chat_enable" default="<?php echo $conf['chat_enable'] ?? 0;?>">
-                        <option value="1" <?php if($conf['chat_enable']==1)echo 'selected';?>>开启</option>
-                        <option value="0" <?php if($conf['chat_enable']!=1)echo 'selected';?>>关闭</option>
+                        <option value="1">开启</option>
+                        <option value="0">关闭</option>
                     </select>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">客服系统基础路径</label>
+                <label class="col-sm-2 control-label">客服方式</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" name="chat_base_path" value="<?php echo htmlspecialchars($conf['chat_base_path'] ?? '');?>" placeholder="留空则自动检测，例如：/shop">
-                    <span class="help-block">设置客服系统的基础路径，适用于网站放在子目录的情况，留空则自动检测</span>
+                    <select class="form-control" name="chat_mode" default="<?php echo htmlspecialchars($conf['chat_mode'] ?? 'link');?>">
+                        <option value="link">跳转链接</option>
+                        <option value="qq">QQ 对话</option>
+                        <option value="chatwoot">Chatwoot 嵌入</option>
+                        <option value="custom">自定义代码</option>
+                    </select>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">客服窗口标题</label>
+                <label class="col-sm-2 control-label">客服标题</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" name="chat_title" value="<?php echo htmlspecialchars($conf['chat_title'] ?? '在线客服');?>" placeholder="在线客服">
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">客服欢迎语</label>
+                <label class="col-sm-2 control-label">按钮文字</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" name="chat_welcome" value="<?php echo htmlspecialchars($conf['chat_welcome'] ?? '请问有什么可以帮您？');?>" placeholder="请问有什么可以帮您？">
+                    <input type="text" class="form-control" name="chat_button_text" value="<?php echo htmlspecialchars($conf['chat_button_text'] ?? '在线客服');?>" placeholder="在线客服">
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">轮询时间(秒)</label>
+                <label class="col-sm-2 control-label">按钮图标</label>
                 <div class="col-sm-10">
-                    <input type="number" class="form-control" name="chat_polling" value="<?php echo intval($conf['chat_polling'] ?? 3);?>" min="1" max="60">
-                    <span class="help-block">建议设置3-5秒，太短会增加服务器压力，太长会影响实时性</span>
+                    <input type="text" class="form-control" name="chat_button_icon" value="<?php echo htmlspecialchars($conf['chat_button_icon'] ?? 'fa-comments');?>" placeholder="fa-comments">
+                    <span class="help-block">填写 FontAwesome 图标类名，例如 <code>fa-comments</code>、<code>fa-qq</code>、<code>fa-headphones</code>。</span>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">自动关闭时间(分钟)</label>
-                <div class="col-sm-10">
-                    <input type="number" class="form-control" name="chat_autoclose" value="<?php echo intval($conf['chat_autoclose'] ?? 30);?>" min="1" max="1440">
-                    <span class="help-block">超过设定时间未收到新消息的会话自动关闭，设为0则不自动关闭</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">自动删除聊天记录</label>
-                <div class="col-sm-10">
-                    <select class="form-control" name="chat_auto_delete" default="<?php echo $conf['chat_auto_delete'] ?? 0;?>">
-                        <option value="1" <?php if($conf['chat_auto_delete']==1)echo 'selected';?>>开启</option>
-                        <option value="0" <?php if($conf['chat_auto_delete']!=1)echo 'selected';?>>关闭</option>
-                    </select>
-                    <span class="help-block">开启后将自动删除超过设定天数的聊天记录</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">删除天数(天)</label>
-                <div class="col-sm-10">
-                    <input type="number" class="form-control" name="chat_delete_days" value="<?php echo intval($conf['chat_delete_days'] ?? 30);?>" min="1" max="365">
-                    <span class="help-block">超过设定天数的聊天记录将被自动删除，建议设置30-90天</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">客服按钮颜色</label>
-                <div class="col-sm-10">
+                <label class="col-sm-2 control-label">按钮颜色</label>
+                <div class="col-sm-5">
                     <input type="text" class="form-control colorpicker" name="chat_btn_color" value="<?php echo htmlspecialchars($conf['chat_btn_color'] ?? '#2196F3');?>" placeholder="#2196F3">
-                    <span class="help-block">设置客服悬浮按钮的背景颜色，默认为蓝色(#2196F3)</span>
+                    <span class="help-block">按钮背景色。</span>
+                </div>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control colorpicker" name="chat_button_text_color" value="<?php echo htmlspecialchars($conf['chat_button_text_color'] ?? '#FFFFFF');?>" placeholder="#FFFFFF">
+                    <span class="help-block">文字和图标颜色。</span>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">聊天窗口头部颜色</label>
+                <label class="col-sm-2 control-label">按钮位置</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control colorpicker" name="chat_window_color" value="<?php echo htmlspecialchars($conf['chat_window_color'] ?? '#FFFFFF');?>" placeholder="#FFFFFF">
-                    <span class="help-block">设置前台客服聊天窗口顶部区域的背景颜色，默认为白色(#FFFFFF)</span>
-                </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label">提示音开关</label>
-            <div class="col-sm-10">
-                <select class="form-control" name="chat_sound" default="<?php echo $conf['chat_sound'] ?? 1;?>">
-                    <option value="1" <?php if($conf['chat_sound']==1)echo 'selected';?>>开启</option>
-                    <option value="0" <?php if($conf['chat_sound']!=1)echo 'selected';?>>关闭</option>
-                </select>
-                <span class="help-block">开启后，客服工作台收到新消息时会播放提示音</span>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label">图片上传限制开关</label>
-            <div class="col-sm-10">
-                <select class="form-control" name="chat_image_limit_enable" default="<?php echo $conf['chat_image_limit_enable'] ?? 1;?>">
-                    <option value="1" <?php if($conf['chat_image_limit_enable']==1)echo 'selected';?>>开启</option>
-                    <option value="0" <?php if($conf['chat_image_limit_enable']!=1)echo 'selected';?>>关闭</option>
-                </select>
-                <span class="help-block">开启后将限制用户上传的图片大小和格式</span>
-            </div>
-        </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">最大图片大小(KB)</label>
-                <div class="col-sm-10">
-                    <input type="number" class="form-control" name="chat_image_max_size" value="<?php echo intval($conf['chat_image_max_size'] ?? 2048);?>" min="100" max="10240">
-                    <span class="help-block">限制用户上传的图片大小，单位为KB，默认2048KB(2MB)</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">允许的图片格式</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="chat_image_formats" value="<?php echo htmlspecialchars($conf['chat_image_formats'] ?? 'jpg,jpeg,png,gif');?>" placeholder="jpg,jpeg,png,gif">
-                    <span class="help-block">允许用户上传的图片格式，多个格式用逗号分隔，如：jpg,jpeg,png,gif</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">视频上传开关</label>
-                <div class="col-sm-10">
-                    <select class="form-control" name="chat_video_enable" default="<?php echo $conf['chat_video_enable'] ?? 1;?>">
-                        <option value="1" <?php if($conf['chat_video_enable']==1)echo 'selected';?>>开启</option>
-                        <option value="0" <?php if($conf['chat_video_enable']!=1)echo 'selected';?>>关闭</option>
-                    </select>
-                    <span class="help-block">开启后用户可以在客服聊天中上传MP4视频</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">最大视频大小(MB)</label>
-                <div class="col-sm-10">
-                    <input type="number" class="form-control" name="chat_video_max_size" value="<?php echo intval($conf['chat_video_max_size'] ?? 10);?>" min="1" max="100">
-                    <span class="help-block">限制用户上传的视频大小，单位为MB，默认10MB</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">防刷屏功能开关</label>
-                <div class="col-sm-10">
-                    <select class="form-control" name="chat_anti_spam_enable" default="<?php echo $conf['chat_anti_spam_enable'] ?? 1;?>">
-                        <option value="1" <?php if($conf['chat_anti_spam_enable']==1)echo 'selected';?>>开启</option>
-                        <option value="0" <?php if($conf['chat_anti_spam_enable']!=1)echo 'selected';?>>关闭</option>
-                    </select>
-                    <span class="help-block">开启后将限制用户在短时间内发送过多消息</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">分钟内最大消息数</label>
-                <div class="col-sm-10">
-                    <input type="number" class="form-control" name="chat_max_messages" value="<?php echo intval($conf['chat_max_messages'] ?? 10);?>" min="5" max="100">
-                    <span class="help-block">用户在一分钟内允许发送的最大消息数，默认10条</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">首次封禁时长(分钟)</label>
-                <div class="col-sm-10">
-                    <input type="number" class="form-control" name="chat_first_ban_time" value="<?php echo intval($conf['chat_first_ban_time'] ?? 3);?>" min="1" max="60">
-                    <span class="help-block">首次违规时的封禁时长，默认3分钟</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">二次封禁时长(小时)</label>
-                <div class="col-sm-10">
-                    <input type="number" class="form-control" name="chat_second_ban_time" value="<?php echo intval($conf['chat_second_ban_time'] ?? 24);?>" min="1" max="168">
-                    <span class="help-block">二次违规时的封禁时长，默认24小时(1天)</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <input type="submit" value="保存设置" class="btn btn-primary btn-block">
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <div class="block">
-        <div class="block-title">
-            <h3 class="panel-title">关键词自动回复设置</h3>
-        </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">使用说明</div>
-            <div class="panel-body" style="background:#e6f3fb;">
-                <b>关键词自动回复功能说明：</b><br>
-                1. 开启后，当用户发送包含设置的关键词的消息时，系统将自动回复对应的内容<br>
-                2. 可设置多个关键词-回复对，每行一个<br>
-                3. 格式：关键词|回复内容（例如：你好|您好，请问有什么可以帮您？）<br>
-                4. 支持模糊匹配，只要用户消息中包含设置的关键词，就会触发自动回复
-            </div>
-        </div>
-        <form method="post" class="form-horizontal form-bordered" role="form">
-            <input type="hidden" name="do" value="save_keyword">
-            <div class="form-group">
-                <label class="col-sm-2 control-label">关键词自动回复开关</label>
-                <div class="col-sm-10">
-                    <select class="form-control" name="chat_keyword_enable" default="<?php echo $conf['chat_keyword_enable'] ?? 0;?>">
-                        <option value="1" <?php if($conf['chat_keyword_enable']==1)echo 'selected';?>>开启</option>
-                        <option value="0" <?php if($conf['chat_keyword_enable']!=1)echo 'selected';?>>关闭</option>
+                    <select class="form-control" name="chat_position" default="<?php echo htmlspecialchars($conf['chat_position'] ?? 'right-bottom');?>">
+                        <option value="right-bottom">右下</option>
+                        <option value="left-bottom">左下</option>
+                        <option value="right-middle">右中</option>
+                        <option value="left-middle">左中</option>
                     </select>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">关键词-回复设置</label>
-                <div class="col-sm-10">
-                    <textarea class="form-control" name="chat_keywords" rows="10" placeholder="每行一个关键词-回复对，格式：关键词|回复内容"><?php echo htmlspecialchars($conf['chat_keywords'] ?? '');?></textarea>
-                    <span class="help-block">示例：
-                    <br>你好|您好，欢迎咨询，请问有什么可以帮您？
-                    <br>价格|我们的产品价格合理，请访问商城查看详情
-                    <br>帮助|请查看我们的帮助中心：<a href="/user/faq.php" target="_blank">帮助中心</a></span>
+                <label class="col-sm-2 control-label">边缘距离</label>
+                <div class="col-sm-5">
+                    <input type="number" class="form-control" name="chat_offset_x" value="<?php echo intval($conf['chat_offset_x'] ?? 24);?>" min="0" max="300" placeholder="横向距离">
+                    <span class="help-block">横向距离，单位 px。</span>
+                </div>
+                <div class="col-sm-5">
+                    <input type="number" class="form-control" name="chat_offset_y" value="<?php echo intval($conf['chat_offset_y'] ?? 24);?>" min="0" max="300" placeholder="纵向距离">
+                    <span class="help-block">纵向距离，单位 px。</span>
                 </div>
             </div>
             <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <input type="submit" value="保存设置" class="btn btn-primary btn-block">
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <div class="block">
-        <div class="block-title">
-            <h3 class="panel-title">违禁词过滤设置</h3>
-        </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">使用说明</div>
-            <div class="panel-body" style="background:#e6f3fb;">
-                <b>违禁词过滤功能说明：</b><br>
-                1. 开启后，系统将自动检测用户发送的消息中是否包含违禁词<br>
-                2. 如果检测到违禁词，系统将拒绝发送该消息并给出提示<br>
-                3. 可设置多个违禁词，每行一个<br>
-                4. 支持精确匹配，只要用户消息中包含设置的违禁词，就会被拦截
-            </div>
-        </div>
-        <form method="post" class="form-horizontal form-bordered" role="form">
-            <input type="hidden" name="do" value="save_prohibited">
-            <div class="form-group">
-                <label class="col-sm-2 control-label">违禁词过滤开关</label>
+                <label class="col-sm-2 control-label">手机端显示</label>
                 <div class="col-sm-10">
-                    <select class="form-control" name="chat_prohibited_enable" default="<?php echo $conf['chat_prohibited_enable'] ?? 0;?>">
-                        <option value="1" <?php if($conf['chat_prohibited_enable']==1)echo 'selected';?>>开启</option>
-                        <option value="0" <?php if($conf['chat_prohibited_enable']!=1)echo 'selected';?>>关闭</option>
+                    <select class="form-control" name="chat_mobile_show" default="<?php echo $conf['chat_mobile_show'] ?? 1;?>">
+                        <option value="1">显示</option>
+                        <option value="0">隐藏</option>
                     </select>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">违禁词列表</label>
+                <label class="col-sm-2 control-label">新窗口打开</label>
                 <div class="col-sm-10">
-                    <textarea class="form-control" name="chat_prohibited_words" rows="10" placeholder="每行一个违禁词"><?php echo htmlspecialchars($conf['chat_prohibited_words'] ?? '');?></textarea>
-                    <span class="help-block">示例：
-                    <br>违禁词1
-                    <br>违禁词2
-                    <br>违禁词3</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">违禁提示语</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="chat_prohibited_msg" value="<?php echo htmlspecialchars($conf['chat_prohibited_msg'] ?? '您的消息包含违禁内容，无法发送！');?>">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <input type="submit" value="保存设置" class="btn btn-primary btn-block">
-                </div>
-            </div>
-        </form>
-    </div>
-<?php
-} elseif ($mod == "beautify_sidebar") {
-?>
-    <div class="block">
-        <div class="block-title">
-            <h3 class="panel-title">后台侧边栏框架美化</h3>
-        </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">使用说明</div>
-            <div class="panel-body" style="background:#e6f3fb;">
-                <b>后台侧边栏框架美化功能说明：</b><br>
-                1. 框架变色：可以选择不同的后台框架主题颜色<br>
-                2. 点击对应的主题即可立即切换<br>
-                3. 切换后会自动保存到浏览器缓存中
-            </div>
-        </div>
-        <div class="block-content">
-            <div class="sidebar-section">
-            <style>
-            h4{font-family:"微软雅黑",Georgia,Serif;}
-            /* 新拟态主题样式类 */
-            .themed-background-neumorphic { background-color: #e0e5ec !important; }
-            .themed-background-dark-neumorphic { background-color: #374249 !important; }
-            /* 仅影响当前页面的主题列表，不影响其他页面 */
-            .block-content .sidebar-section .sidebar-themes {
-                opacity: 1 !important;
-            }
-            /* 仅影响当前页面的主题项悬停效果 */
-            .block-content .sidebar-section .sidebar-themes li:hover,
-            .block-content .sidebar-section .sidebar-themes li.active {
-                opacity: 1 !important;
-                transform: scale(1.05) !important;
-                transition: all 0.3s ease !important;
-            }
-            /* 仅影响当前页面的主题项默认样式 */
-            .block-content .sidebar-section .sidebar-themes li {
-                opacity: 1;
-                transition: all 0.3s ease;
-            }
-            </style>
-
-            <ul class="sidebar-themes clearfix">
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-default" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/themes-2.2.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="" data-original-title="">
-            <span class="section-side themed-background-dark-default"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-classy" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/classy-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="" data-original-title="">
-            <span class="section-side themed-background-dark-classy"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-social" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/social-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="" data-original-title="">
-            <span class="section-side themed-background-dark-social"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-flat" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/flat-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="" data-original-title="">
-            <span class="section-side themed-background-dark-flat"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-amethyst" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/amethyst-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="" data-original-title="">
-            <span class="section-side themed-background-dark-amethyst"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-creme" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/creme-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="" data-original-title="">
-            <span class="section-side themed-background-dark-creme"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-passion" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/passion-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="" data-original-title="">
-            <span class="section-side themed-background-dark-passion"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-neumorphic" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/neumorphic-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="" data-original-title="">
-            <span class="section-side themed-background-dark-neumorphic"></span>
-            <span class="section-content"></span>
-            </a>
-            <br>
-            </li>
-            <li>
-            <a href="javascript:void(0)" class="themed-background-classy" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/classy-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="sidebar-light" data-original-title="">
-            <span class="section-side"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li>
-            <a href="javascript:void(0)" class="themed-background-social" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/social-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="sidebar-light" data-original-title="">
-            <span class="section-side"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li>
-            <a href="javascript:void(0)" class="themed-background-flat" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/flat-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="sidebar-light" data-original-title="">
-            <span class="section-side"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li>
-            <a href="javascript:void(0)" class="themed-background-amethyst" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/amethyst-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="sidebar-light" data-original-title="">
-            <span class="section-side"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li>
-            <a href="javascript:void(0)" class="themed-background-creme" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/creme-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="sidebar-light" data-original-title="">
-            <span class="section-side"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li>
-            <a href="javascript:void(0)" class="themed-background-passion" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/passion-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="sidebar-light" data-original-title="">
-            <span class="section-side"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li>
-            <a href="javascript:void(0)" class="themed-background-neumorphic" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/neumorphic-2.4.css" data-theme-navbar="navbar-inverse" data-theme-sidebar="sidebar-light" data-original-title="">
-            <span class="section-side"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-classy" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/classy-2.4.css" data-theme-navbar="navbar-default" data-theme-sidebar="" data-original-title="">
-            <span class="section-header"></span>
-            <span class="section-side themed-background-dark-classy"></span>
-            <span class="section-content"></span>
-            </a>
-            <br>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-social" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/social-2.4.css" data-theme-navbar="navbar-default" data-theme-sidebar="" data-original-title="">
-            <span class="section-header"></span>
-            <span class="section-side themed-background-dark-social"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li>
-            <a href="javascript:void(0)" class="themed-background-flat" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/flat-2.4.css" data-theme-navbar="navbar-default" data-theme-sidebar="" data-original-title="">
-            <span class="section-header"></span>
-            <span class="section-side themed-background-dark-flat"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-amethyst" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/amethyst-2.4.css" data-theme-navbar="navbar-default" data-theme-sidebar="" data-original-title="">
-            <span class="section-header"></span>
-            <span class="section-side themed-background-dark-amethyst"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-creme" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/creme-2.4.css" data-theme-navbar="navbar-default" data-theme-sidebar="" data-original-title="">
-            <span class="section-header"></span>
-            <span class="section-side themed-background-dark-creme"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-passion" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/passion-2.4.css" data-theme-navbar="navbar-default" data-theme-sidebar="" data-original-title="">
-            <span class="section-header"></span>
-            <span class="section-side themed-background-dark-passion"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            <li class="">
-            <a href="javascript:void(0)" class="themed-background-neumorphic" data-toggle="tooltip" title="" data-theme="../assets/appui/css/themes/neumorphic-2.4.css" data-theme-navbar="navbar-default" data-theme-sidebar="" data-original-title="">
-            <span class="section-header"></span>
-            <span class="section-side themed-background-dark-neumorphic"></span>
-            <span class="section-content"></span>
-            </a>
-            </li>
-            </ul>
-            </div>
-        </div>
-    </div>
-<?php
-} elseif ($mod == "beautify_admin") {
-?>
-    <div class="block">
-        <div class="block-title">
-            <h3 class="panel-title">鼠标美化设置</h3>
-        </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">使用说明</div>
-            <div class="panel-body" style="background:#e6f3fb;">
-                <b>鼠标美化功能说明：</b><br>
-                1. 开启鼠标美化：可以启用或关闭鼠标美化功能<br>
-                2. 选择鼠标样式：可以选择不同的鼠标指针样式<br>
-                3. 保存设置后将立即生效到所有页面
-            </div>
-        </div>
-        <form method="post" class="form-horizontal form-bordered" role="form" enctype="multipart/form-data" onsubmit="return saveSetting(this)">
-            <input type="hidden" name="do" value="submit">
-            <input type="hidden" name="mod" value="beautify_admin_n">
-            <div class="form-group">
-                <label class="col-sm-2 control-label">开启鼠标美化</label>
-                <div class="col-sm-10">
-                    <select class="form-control" name="mouse_beautify" default="<?php echo $conf['mouse_beautify'] ?? 0;?>">
-                        <option value="0" <?php if(($conf['mouse_beautify']??0)==0)echo 'selected';?>>关闭</option>
-                        <option value="1" <?php if(($conf['mouse_beautify']??0)==1)echo 'selected';?>>开启</option>
+                    <select class="form-control" name="chat_open_new" default="<?php echo $conf['chat_open_new'] ?? 1;?>">
+                        <option value="1">是</option>
+                        <option value="0">否</option>
                     </select>
-                    <span class="help-block">开启后将应用自定义鼠标样式</span>
+                    <span class="help-block">适用于跳转链接和 QQ 对话。</span>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">鼠标样式</label>
+                <label class="col-sm-2 control-label">跳转链接</label>
                 <div class="col-sm-10">
-                    <select class="form-control" name="mouse_style" default="<?php echo $conf['mouse_style'] ?? 'default';?>">
-                        <option value="default" <?php if(($conf['mouse_style']??'default')=='default')echo 'selected';?>>默认样式</option>
-                        <option value="cute" <?php if(($conf['mouse_style']??'default')=='cute')echo 'selected';?>>可爱风格</option>
-                        <option value="modern" <?php if(($conf['mouse_style']??'default')=='modern')echo 'selected';?>>现代风格</option>
-                        <option value="game" <?php if(($conf['mouse_style']??'default')=='game')echo 'selected';?>>游戏风格</option>
-                        <option value="star" <?php if(($conf['mouse_style']??'default')=='star')echo 'selected';?>>星形</option>
-                        <option value="heart" <?php if(($conf['mouse_style']??'default')=='heart')echo 'selected';?>>心形</option>
-                        <option value="arrow" <?php if(($conf['mouse_style']??'default')=='arrow')echo 'selected';?>>箭头形</option>
-                        <option value="cross" <?php if(($conf['mouse_style']??'default')=='cross')echo 'selected';?>>十字形</option>
-                        <option value="drop" <?php if(($conf['mouse_style']??'default')=='drop')echo 'selected';?>>水滴形</option>
-                        <option value="triangle" <?php if(($conf['mouse_style']??'default')=='triangle')echo 'selected';?>>三角形</option>
-                    </select>
-                    <span class="help-block">选择您喜欢的鼠标指针样式</span>
+                    <input type="url" class="form-control" name="chat_link_url" value="<?php echo htmlspecialchars($conf['chat_link_url'] ?? '');?>" placeholder="https://example.com/service">
                 </div>
             </div>
             <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <input type="submit" value="保存设置" class="btn btn-primary btn-block">
-                </div>
-            </div>
-        </form>
-    </div>
-<?php
-} elseif ($mod == "beautify_font") {
-?>
-    <div class="block">
-        <div class="block-title">
-            <h3 class="panel-title">字体美化设置</h3>
-        </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">使用说明</div>
-            <div class="panel-body" style="background:#e6f3fb;">
-                <b>字体美化功能说明：</b><br>
-                1. 开启字体美化：可以启用或关闭字体美化功能<br>
-                2. 选择字体家族：可以选择不同的字体样式<br>
-                3. 调整字体大小：可以调整全局字体大小<br>
-                4. 保存设置后将立即生效到所有页面
-            </div>
-        </div>
-        <form method="post" class="form-horizontal form-bordered" role="form" enctype="multipart/form-data" onsubmit="return saveSetting(this)">
-            <input type="hidden" name="do" value="submit">
-            <input type="hidden" name="mod" value="beautify_font_n">
-            <div class="form-group">
-                <label class="col-sm-2 control-label">开启字体美化</label>
+                <label class="col-sm-2 control-label">QQ 号码</label>
                 <div class="col-sm-10">
-                    <select class="form-control" name="font_beautify" default="<?php echo $conf['font_beautify'] ?? 0;?>">
-                        <option value="0" <?php if(($conf['font_beautify']??0)==0)echo 'selected';?>>关闭</option>
-                        <option value="1" <?php if(($conf['font_beautify']??0)==1)echo 'selected';?>>开启</option>
-                    </select>
-                    <span class="help-block">开启后将应用自定义字体样式</span>
+                    <input type="text" class="form-control" name="chat_qq" value="<?php echo htmlspecialchars($conf['chat_qq'] ?? '');?>" placeholder="例如：800000000">
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">字体家族</label>
+                <label class="col-sm-2 control-label">Chatwoot 地址</label>
                 <div class="col-sm-10">
-                    <select class="form-control" name="font_family" default="<?php echo $conf['font_family'] ?? 'default';?>">
-                        <option value="default" <?php if(($conf['font_family']??'default')=='default')echo 'selected';?>>默认字体</option>
-                        <!-- 常规字体 -->
-                        <option value="sans-serif" <?php if(($conf['font_family']??'default')=='sans-serif')echo 'selected';?>>无衬线字体</option>
-                        <option value="serif" <?php if(($conf['font_family']??'default')=='serif')echo 'selected';?>>衬线字体</option>
-                        <option value="monospace" <?php if(($conf['font_family']??'default')=='monospace')echo 'selected';?>>等宽字体</option>
-                        <option value="cursive" <?php if(($conf['font_family']??'default')=='cursive')echo 'selected';?>>手写体</option>
-                        <option value="fantasy" <?php if(($conf['font_family']??'default')=='fantasy')echo 'selected';?>>艺术字体</option>
-                        <!-- 特色中文字体 -->
-                        <option value="lisu" <?php if(($conf['font_family']??'default')=='lisu')echo 'selected';?>>隶书</option>
-                        <option value="kaiti" <?php if(($conf['font_family']??'default')=='kaiti')echo 'selected';?>>楷体</option>
-                        <option value="fangsong" <?php if(($conf['font_family']??'default')=='fangsong')echo 'selected';?>>仿宋</option>
-                        <!-- 特色英文字体 -->
-                        <option value="playfair" <?php if(($conf['font_family']??'default')=='playfair')echo 'selected';?>>Playfair Display</option>
-                        <option value="montserrat" <?php if(($conf['font_family']??'default')=='montserrat')echo 'selected';?>>Montserrat</option>
-                        <option value="pacifico" <?php if(($conf['font_family']??'default')=='pacifico')echo 'selected';?>>Pacifico</option>
-                        <option value="dancing" <?php if(($conf['font_family']??'default')=='dancing')echo 'selected';?>>Dancing Script</option>
-                        <option value="lobster" <?php if(($conf['font_family']??'default')=='lobster')echo 'selected';?>>Lobster</option>
-                        <option value="raleway" <?php if(($conf['font_family']??'default')=='raleway')echo 'selected';?>>Raleway</option>
-                        <option value="oswald" <?php if(($conf['font_family']??'default')=='oswald')echo 'selected';?>>Oswald</option>
-                    </select>
-                    <span class="help-block">选择您喜欢的字体家族</span>
+                    <input type="url" class="form-control" name="chatwoot_base_url" value="<?php echo htmlspecialchars($conf['chatwoot_base_url'] ?? '');?>" placeholder="https://app.chatwoot.com">
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">字体大小</label>
+                <label class="col-sm-2 control-label">Chatwoot Token</label>
                 <div class="col-sm-10">
-                    <input type="number" name="font_size" value="<?php echo $conf['font_size'] ?? 14;?>" min="12" max="20" class="form-control">
-                    <span class="help-block">设置全局字体大小，单位为像素，建议范围：12-20px</span>
+                    <input type="text" class="form-control" name="chatwoot_website_token" value="<?php echo htmlspecialchars($conf['chatwoot_website_token'] ?? '');?>" placeholder="Website token">
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">字体颜色</label>
+                <label class="col-sm-2 control-label">自定义代码</label>
                 <div class="col-sm-10">
-                    <input type="text" name="font_color" value="<?php echo $conf['font_color'] ?? '#333333';?>" class="form-control" placeholder="#333333">
-                    <span class="help-block">设置全局字体颜色，格式为十六进制颜色代码，如：#333333</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <input type="submit" value="保存设置" class="btn btn-primary btn-block">
-                </div>
-            </div>
-        </form>
-    </div>
-<?php
-} elseif ($mod == "rebaterecharge") {
-	adminpermission("set", 1);
-	?>      <div class="block">
-			<div class="block-title">
-				<h3 class="panel-title">充值返利设置</h3>
-			</div>
-			<div class="">
-				<form onsubmit="return saveSetting(this)" method="post" class="form-horizontal form-bordered" role="form">
-					<div class="form-group">
-						<label class="col-sm-2 control-label">启用充值返利</label>
-						<div class="col-sm-10"><select class="form-control" name="recharge_rebate_enabled" default="<?php echo isset($conf["recharge_rebate_enabled"]) ? $conf["recharge_rebate_enabled"] : 1;?>">
-								<option value="0">关闭</option>
-								<option value="1">开启</option>
-							</select></div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label">返利比例</label>
-						<div class="col-sm-10"><input type="text" name="recharge_rebate_rate" value="<?php echo isset($conf["recharge_rebate_rate"]) ? $conf["recharge_rebate_rate"] : 3;?>" class="form-control" /> <span class="help-block">单位：%，例如：3 表示3%</span></div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label">&#28385;&#22810;&#23569;&#25165;&#36865;</label>
-						<div class="col-sm-10"><input type="text" name="recharge_rebate_min" value="<?php echo isset($conf["recharge_rebate_min"]) ? $conf["recharge_rebate_min"] : 0;?>" class="form-control" /> <span class="help-block">&#30041;&#31354;&#25110;0&#34920;&#31034;&#19981;&#38480;&#21046;&#65292;&#20363;&#22914;100&#34920;&#31034;&#21333;&#27425;&#20805;&#20540;&#28385;100&#20803;&#25165;&#36865;&#12290;</span></div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label">&#38454;&#26799;&#36820;&#21033;&#35268;&#21017;</label>
-						<div class="col-sm-10"><input type="text" name="recharge_rebate_rules" value="<?php echo isset($conf["recharge_rebate_rules"]) ? $conf["recharge_rebate_rules"] : (isset($conf["fenzhan_gift"]) ? $conf["fenzhan_gift"] : "");?>" class="form-control" placeholder="100:3|500:5|1000:8" /> <span class="help-block">&#20248;&#20808;&#32423;&#39640;&#20110;&#19978;&#38754;&#30340;&#22266;&#23450;&#27604;&#20363;&#65292;&#34920;&#31034;&#28385;100&#20803;&#36865;3%&#65292;&#28385;500&#20803;&#36865;5%&#12290;</span></div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label">&#26368;&#20302;&#20805;&#20540;&#37329;&#39069;</label>
-						<div class="col-sm-10"><input type="text" name="recharge_min" value="<?php echo isset($conf["recharge_min"]) ? $conf["recharge_min"] : 0;?>" class="form-control" /> <span class="help-block">&#29992;&#25143;&#21069;&#31471;&#25552;&#20132;&#22312;&#32447;&#20805;&#20540;&#30340;&#26368;&#20302;&#37329;&#39069;&#12290;</span></div>
-					</div>
-					<div class="form-group">
-						<label class="col-sm-2 control-label">&#21152;&#27454;&#21345;&#20805;&#20540;</label>
-						<div class="col-sm-10"><select class="form-control" name="fenzhan_jiakuanka" default="<?php echo isset($conf["fenzhan_jiakuanka"]) ? $conf["fenzhan_jiakuanka"] : 0;?>">
-								<option value="0">&#20851;&#38381;</option>
-								<option value="1">&#24320;&#21551;</option>
-							</select><span class="help-block">&#21152;&#27454;&#21345;&#21644;&#21518;&#21488;&#25163;&#21160;&#21152;&#27454;&#20063;&#25353;&#26412;&#39029;&#35268;&#21017;&#35745;&#31639;&#36820;&#21033;&#12290;</span></div>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-offset-2 col-sm-10"><input type="submit" name="submit" value="修改" class="btn btn-primary btn-block" />
-						</div>
-					</div>
-				</form>
-			</div>
-			<div class="panel-footer">
-				<span class="fa fa-info-circle"></span>
-				设置用户充值时的返利比例，所有充值方式（在线充值、加款卡充值）均按此比例计算返利。<br />
-				返利金额会在充值成功后自动发放到用户账户。
-			</div>
-		</div>
-	<?php
-} elseif ($mod == "beautify_n" && $_POST["do"] == "submit") {
-	$sakura_enable = $_POST["sakura_enable"];
-	$sakura_num = $_POST["sakura_num"];
-	$sakura_limit_times = $_POST["sakura_limit_times"];
-	saveSetting("sakura_enable", $sakura_enable);
-	saveSetting("sakura_num", $sakura_num);
-	saveSetting("sakura_limit_times", $sakura_limit_times);
-	$ad = $CACHE->clear();
-	if ($ad) {
-		showmsg("前台美化设置保存成功！", 1);
-	} else {
-		showmsg("前台美化设置保存失败！<br/>" . $DB->error(), 4);
-	}
-} elseif ($mod == "beautify_admin_n" && $_POST["do"] == "submit") {
-	// 鼠标美化设置处理
-	$mouse_beautify = $_POST["mouse_beautify"];
-	$mouse_style = $_POST["mouse_style"];
-	saveSetting("mouse_beautify", $mouse_beautify);
-	saveSetting("mouse_style", $mouse_style);
-	$ad = $CACHE->clear();
-	if ($ad) {
-		showmsg("鼠标美化设置保存成功！", 1);
-	} else {
-		showmsg("鼠标美化设置保存失败！<br/>" . $DB->error(), 4);
-	}
-} elseif ($mod == "beautify_font_n" && $_POST["do"] == "submit") {
-	// 字体美化设置处理
-	$font_beautify = $_POST["font_beautify"];
-	$font_family = $_POST["font_family"];
-	$font_size = $_POST["font_size"];
-	$font_color = $_POST["font_color"];
-	saveSetting("font_beautify", $font_beautify);
-	saveSetting("font_family", $font_family);
-	saveSetting("font_size", $font_size);
-	saveSetting("font_color", $font_color);
-	$ad = $CACHE->clear();
-	if ($ad) {
-		showmsg("字体美化设置保存成功！", 1);
-	} else {
-		showmsg("字体美化设置保存失败！<br/>" . $DB->error(), 4);
-	}
-} elseif ($mod == "beautify_background_n" && $_POST["do"] == "submit") {
-	// 背景美化设置处理
-	$background_enable = $_POST["background_enable"];
-	$background_type = $_POST["background_type"];
-	$background_speed = $_POST["background_speed"];
-	$background_color = $_POST["background_color"];
-	$background_image_enable = $_POST["background_image_enable"];
-	$ui_colorto = $_POST["ui_colorto"];
-	$ui_color1 = $_POST["ui_color1"];
-	$ui_color2 = $_POST["ui_color2"];
-	saveSetting("background_enable", $background_enable);
-	saveSetting("background_type", $background_type);
-	saveSetting("background_speed", $background_speed);
-	saveSetting("background_color", $background_color);
-	saveSetting("background_image_enable", $background_image_enable);
-	saveSetting("ui_colorto", $ui_colorto);
-	saveSetting("ui_color1", $ui_color1);
-	saveSetting("ui_color2", $ui_color2);
-
-	// 处理背景图片上传
-	if (isset($_FILES["background_image"]) && $_FILES["background_image"]["error"] == 0) {
-		$allowedExts = array("gif", "jpeg", "jpg", "png");
-		$temp = explode(".", $_FILES["background_image"]["name"]);
-		$extension = end($temp);
-		if ((($_FILES["background_image"]["type"] == "image/gif") || ($_FILES["background_image"]["type"] == "image/jpeg") || ($_FILES["background_image"]["type"] == "image/jpg") || ($_FILES["background_image"]["type"] == "image/pjpeg") || ($_FILES["background_image"]["type"] == "image/x-png") || ($_FILES["background_image"]["type"] == "image/png")) && ($_FILES["background_image"]["size"] < 10485760) && in_array($extension, $allowedExts)) {
-			// 上传目录
-			$uploadDir = ROOT . "assets/img/";
-			if (!file_exists($uploadDir)) {
-				mkdir($uploadDir, 0777, true);
-			}
-			// 保存文件，覆盖bj.png
-			$targetFile = $uploadDir . "bj.png";
-			if (move_uploaded_file($_FILES["background_image"]["tmp_name"], $targetFile)) {
-				// 保存成功
-			} else {
-				showmsg("背景图片上传失败！", 4);
-			}
-		} else {
-			showmsg("背景图片格式错误或文件过大！", 4);
-		}
-	}
-
-	$ad = $CACHE->clear();
-	if ($ad) {
-		showmsg("背景美化设置保存成功！", 1);
-	} else {
-		showmsg("背景美化设置保存失败！<br/>" . $DB->error(), 4);
-	}
-} elseif ($mod == "beautify") {
-?>
-    <div class="block">
-        <div class="block-title">
-            <h3 class="panel-title">前台美化设置</h3>
-        </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">使用说明</div>
-            <div class="panel-body" style="background:#e6f3fb;">
-                <b>前台美化功能说明：</b><br>
-                1. 樱花落叶效果：在网站页面添加樱花飘落动画效果<br>
-                2. 开启后将在所有页面显示樱花飘落效果<br>
-                3. 可以调整樱花数量和飘落限制次数<br>
-                4. 建议在性能较好的设备上使用，避免影响页面加载速度
-            </div>
-        </div>
-        <form method="post" class="form-horizontal form-bordered" role="form" onsubmit="return saveSetting(this)">
-            <input type="hidden" name="do" value="submit">
-            <input type="hidden" name="mod" value="beautify_n">
-            <div class="form-group">
-                <label class="col-sm-2 control-label">樱花落叶效果</label>
-                <div class="col-sm-10">
-                    <select class="form-control" name="sakura_enable" default="<?php echo $conf['sakura_enable'] ?? 0;?>">
-                        <option value="1" <?php if($conf['sakura_enable']==1)echo 'selected';?>>开启</option>
-                        <option value="0" <?php if($conf['sakura_enable']!=1)echo 'selected';?>>关闭</option>
-                    </select>
-                    <span class="help-block">开启后将在网站页面显示樱花飘落效果</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">樱花数量</label>
-                <div class="col-sm-10">
-                    <input type="number" class="form-control" name="sakura_num" value="<?php echo intval($conf['sakura_num'] ?? 21);?>" min="1" max="100">
-                    <span class="help-block">建议设置10-50个，数量过多可能影响页面性能</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">飘落限制次数</label>
-                <div class="col-sm-10">
-                    <input type="number" class="form-control" name="sakura_limit_times" value="<?php echo intval($conf['sakura_limit_times'] ?? 2);?>" min="-1" max="10">
-                    <span class="help-block">设置-1为无限循环，0-10为限制次数</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <input type="submit" value="保存设置" class="btn btn-primary btn-block">
-                </div>
-            </div>
-        </form>
-    </div>
-<?php
-} elseif ($mod == "beautify_background") {
-?>
-    <div class="block">
-        <div class="block-title">
-            <h3 class="panel-title">背景美化设置</h3>
-        </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">使用说明</div>
-            <div class="panel-body" style="background:#e6f3fb;">
-                <b>背景美化功能说明：</b><br>
-                1. 背景动画效果：在网站页面添加动态背景效果<br>
-                2. 提供多种背景动画类型选择<br>
-                3. 可以调整动画速度和颜色<br>
-                4. 建议在性能较好的设备上使用，避免影响页面加载速度
-            </div>
-        </div>
-        <form method="post" class="form-horizontal form-bordered" role="form" enctype="multipart/form-data" onsubmit="return saveSetting(this)">
-            <input type="hidden" name="do" value="submit">
-            <input type="hidden" name="mod" value="beautify_background_n">
-            <div class="form-group">
-                <label class="col-sm-2 control-label">开启背景美化</label>
-                <div class="col-sm-10">
-                    <select class="form-control" name="background_enable" default="<?php echo $conf['background_enable'] ?? 0;?>">
-                        <option value="1" <?php if(($conf['background_enable']??0)==1)echo 'selected';?>>开启</option>
-                        <option value="0" <?php if(($conf['background_enable']??0)!=1)echo 'selected';?>>关闭</option>
-                    </select>
-                    <span class="help-block">开启后将在网站页面显示动态背景效果</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">背景动画类型</label>
-                <div class="col-sm-10">
-                    <select class="form-control" name="background_type" default="<?php echo $conf['background_type'] ?? 'particles';?>">
-                        <option value="particles" <?php if(($conf['background_type']??'particles')=='particles')echo 'selected';?>>粒子效果</option>
-                        <option value="gradient" <?php if(($conf['background_type']??'particles')=='gradient')echo 'selected';?>>渐变背景</option>
-                        <option value="matrix" <?php if(($conf['background_type']??'particles')=='matrix')echo 'selected';?>>黑客效果</option>
-                        <option value="bubbles" <?php if(($conf['background_type']??'particles')=='bubbles')echo 'selected';?>>气泡效果</option>
-                        <option value="grid" <?php if(($conf['background_type']??'particles')=='grid')echo 'selected';?>>网格背景</option>
-                        <option value="image" <?php if(($conf['background_type']??'particles')=='image')echo 'selected';?>>自定义背景图片</option>
-                    </select>
-                    <span class="help-block">选择您喜欢的背景动画类型</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">启用背景图片</label>
-                <div class="col-sm-10">
-                    <select class="form-control" name="background_image_enable" default="<?php echo $conf['background_image_enable'] ?? 1;?>">
-                        <option value="1" <?php if(($conf['background_image_enable']??1)==1)echo 'selected';?>>启用</option>
-                        <option value="0" <?php if(($conf['background_image_enable']??1)!=1)echo 'selected';?>>禁用</option>
-                    </select>
-                    <span class="help-block">控制背景图片的显示/隐藏</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">背景图片上传</label>
-                <div class="col-sm-10">
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="当前背景图片：assets/img/bj.png" readonly style="height: 34px;">
-                        <span class="input-group-btn">
-                            <input type="file" name="background_image" class="btn btn-default" accept="image/*" style="height: 34px;">
-                        </span>
-                    </div>
-                    <span class="help-block">上传背景图片，将会覆盖默认的bj.png文件</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">动画速度</label>
-                <div class="col-sm-10">
-                    <input type="range" min="1" max="10" value="<?php echo intval($conf['background_speed'] ?? 5);?>" name="background_speed" class="form-control">
-                    <span class="help-block">调整背景动画的速度，1为最慢，10为最快</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">主色调</label>
-                <div class="col-sm-10">
-                    <input type="color" name="background_color" value="<?php echo $conf['background_color'] ?? '#3498db';?>">
-                    <span class="help-block">选择背景动画的主色调</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">背景颜色</label>
-                <div class="col-sm-10">
-                    <div class="row">
-                        <div class="col-xs-4">
-                            <select class="form-control" name="ui_colorto" default="<?php echo $conf['ui_colorto'] ?? 0;?>">
-                                <option value="0" <?php if(($conf['ui_colorto']??0)==0)echo 'selected';?>>纵向渐变</option>
-                                <option value="1" <?php if(($conf['ui_colorto']??0)==1)echo 'selected';?>>横向渐变</option>
-                            </select>
-                        </div>
-                        <div class="col-xs-4">
-                            <div class="input-group input-colorpicker colorpicker-element">
-                                <input type="text" name="ui_color1" class="form-control" placeholder="颜色16进制代码" maxlength="7" value="<?php echo $conf['ui_color1'] ?? '#3498db';?>">
-                                <span class="input-group-addon"><i></i></span>
-                            </div>
-                        </div>
-                        <div class="col-xs-4">
-                            <div class="input-group input-colorpicker colorpicker-element">
-                                <input type="text" name="ui_color2" class="form-control" placeholder="颜色16进制代码" maxlength="7" value="<?php echo $conf['ui_color2'] ?? '#2980b9';?>">
-                                <span class="input-group-addon"><i></i></span>
-                            </div>
-                        </div>
-                    </div>
+                    <textarea class="form-control" name="chat_custom_code" rows="8" placeholder="可粘贴第三方客服 JS 或 HTML 代码"><?php echo htmlspecialchars($conf['chat_custom_code'] ?? '');?></textarea>
+                    <span class="help-block">高级模式：代码会输出到前台，请确认来源可信并自行测试。</span>
                 </div>
             </div>
             <div class="form-group">

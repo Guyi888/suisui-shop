@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.3 / 2026-05-21 浮动客服配置</h4>
+                    <ul>
+                        <li>前台客服入口调整为全站浮动客服配置，支持跳转链接、QQ 对话、Chatwoot 和自定义代码。</li>
+                        <li>支持配置按钮文字、FontAwesome 图标、按钮颜色、文字颜色、显示位置、边缘距离、手机端显示和新窗口打开。</li>
+                        <li>移除旧内置客服窗口入口、后台旧客服消息轮询和提示音引用，减少无用资源请求。</li>
+                        <li>左侧菜单“内容与外观”下新增“浮动客服配置”入口。</li>
+                        <li>程序缓存版本更新到 <code>2026052106</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.2 / 2026-05-21 库存展示与后台细节修复</h4>
                     <ul>
                         <li>对接商品库存展示统一为本地卡密库存 + 对接站库存，前台、API 和后台商品列表口径保持一致。</li>

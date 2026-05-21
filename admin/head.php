@@ -636,50 +636,6 @@ if ($adminScriptBase === 'set' && isset($_GET['mod'])) {
             </div>
         </div>
     </div>
-    <!-- 全局聊天消息通知 -->
-    <audio id="global-chat-notification" preload="auto" style="display:none;">
-        <source src="/template/default/chat/kefu.wav" type="audio/wav">
-   </audio>
-    <script>
-    // 全局变量
-    var globalChatLastUnread = 0;
-    var globalChatPollingTimer = null;
-
-    // 检查新消息
-    function checkGlobalChatMessages() {
-        $.get('ajax.php?act=chat_session_list', function(res) {
-            if(res.code === 0) {
-                var totalUnread = 0;
-                res.data.forEach(function(item) {
-                    totalUnread += parseInt(item.unread || 0);
-                });
-
-                // 如果有新消息，播放声音
-                if(totalUnread > globalChatLastUnread) {
-                    var audio = document.getElementById('global-chat-notification');
-                    if(audio) {
-                        audio.play().catch(function(error) {
-                        });
-                    }
-                }
-
-                globalChatLastUnread = totalUnread;
-            }
-        },'json');
-    }
-
-    // 启动全局轮询
-    function startGlobalChatPolling() {
-        if(globalChatPollingTimer) clearInterval(globalChatPollingTimer);
-        // 每5秒检查一次
-        globalChatPollingTimer = setInterval(checkGlobalChatMessages, 5000);
-    }
-
-    // 页面加载完成后启动轮询
-    $(document).ready(function() {
-        startGlobalChatPolling();
-    });
-    </script>
 <div class="bg"></div>
 <div id="root">
 <!-- 后台内容区开始 -->
@@ -1185,7 +1141,7 @@ $renderMenuBadge = function($value) {
 	</ul>
 </li>
 
-<li class="<?php echo checkIfActive('article,rewrite,faq,gonggao,copygg,template,template2,upimg,upbgimg,beautify,beautify_admin,beautify_sidebar,beautify_font,beautify_background,customcss')?>">
+<li class="<?php echo checkIfActive('article,rewrite,faq,gonggao,copygg,template,template2,upimg,upbgimg,chat,beautify,beautify_admin,beautify_sidebar,beautify_font,beautify_background,customcss')?>">
 	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-paint-brush sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">内容与外观</span></a>
 	<ul>
 	<li>
@@ -1211,6 +1167,11 @@ $renderMenuBadge = function($value) {
 	<li>
 		<a class="<?php echo checkIfActive("upimg,upbgimg") ?>" href="./set.php?mod=upimg">
 			Logo与背景设置
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive('chat') ?>" href="./set.php?mod=chat">
+			浮动客服配置
 		</a>
 	</li>
 	<li>
