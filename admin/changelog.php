@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.5 / 2026-05-21 后台充值返利设置修复</h4>
+                    <ul>
+                        <li>修复后台“充值返利设置”入口打开后内容区空白的问题。</li>
+                        <li>新增独立充值返利设置页，可配置返利开关、最低金额、固定比例、阶梯规则、加款卡开关和最低充值金额。</li>
+                        <li>修复用户列表和分站列表点击余额时只出现黑色遮罩的问题，余额调整弹窗现在会稳定显示。</li>
+                        <li>充值返利规则继续覆盖在线充值、加款卡充值和后台手动加款，后台扣除余额不会触发返利。</li>
+                        <li>程序缓存版本更新到 <code>2026052110</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.4 / 2026-05-21 商品列表库存入口修复</h4>
                     <ul>
                         <li>修复后台商品列表点击库存时提示“服务器请求失败，请稍后重试”的问题。</li>
