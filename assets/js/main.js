@@ -16,6 +16,88 @@ var $_GET = (function () {
 if (typeof window.isModal === "undefined") {
   window.isModal = false;
 }
+function q8SetOrderHashsalt(value) {
+  if (!value) return;
+  window.hashsalt = value;
+  try {
+    hashsalt = value;
+  } catch (e) {}
+}
+function q8PatchHashsaltData(data, value) {
+  if (!value) return data;
+  if (typeof data === "string") {
+    if (data.indexOf("hashsalt=") >= 0) {
+      return data.replace(/(^|&)hashsalt=[^&]*/g, "$1hashsalt=" + encodeURIComponent(value));
+    }
+    return data + (data ? "&" : "") + "hashsalt=" + encodeURIComponent(value);
+  }
+  if ($.isPlainObject(data)) {
+    data.hashsalt = value;
+  }
+  return data;
+}
+function q8NeedHashsaltRefresh(data) {
+  return data && (data.code == -9 || data.refresh == 1);
+}
+function q8RefreshOrderHashsalt(callback, fallback) {
+  $.ajax({
+    type: "POST",
+    url: "ajax.php?act=refresh_hashsalt",
+    dataType: "json",
+    success: function (data) {
+      if (data && data.code == 0 && data.hashsalt) {
+        q8SetOrderHashsalt(data.hashsalt);
+        callback(data.hashsalt);
+      } else if ($.isFunction(fallback)) {
+        fallback();
+      }
+    },
+    error: function () {
+      if ($.isFunction(fallback)) fallback();
+    },
+  });
+}
+(function () {
+  var q8OriginalAjax = $.ajax;
+  $.ajax = function (options) {
+    if (!options || typeof options !== "object") {
+      return q8OriginalAjax.apply($, arguments);
+    }
+    var ajaxOptions = $.extend({}, options);
+    var url = String(ajaxOptions.url || "");
+    var shouldRetry =
+      /ajax\.php\?act=pay(?:&|$)/.test(url) && !ajaxOptions._q8HashsaltRetried;
+    if (!shouldRetry) {
+      return q8OriginalAjax.call($, ajaxOptions);
+    }
+    var originalSuccess = ajaxOptions.success;
+    ajaxOptions.success = function (data) {
+      var successContext = this;
+      var successArgs = arguments;
+      if (q8NeedHashsaltRefresh(data)) {
+        q8RefreshOrderHashsalt(
+          function (newHashsalt) {
+            var retryOptions = $.extend({}, ajaxOptions, {
+              _q8HashsaltRetried: true,
+            });
+            retryOptions.data = q8PatchHashsaltData(retryOptions.data, newHashsalt);
+            q8OriginalAjax.call($, retryOptions);
+          },
+          function () {
+            if ($.isFunction(originalSuccess)) {
+              originalSuccess.apply(successContext, successArgs);
+            }
+          }
+        );
+        return;
+      }
+      if ($.isFunction(originalSuccess)) {
+        originalSuccess.apply(successContext, successArgs);
+      }
+    };
+    return q8OriginalAjax.call($, ajaxOptions);
+  };
+})();
 function getcount() {
   $.ajax({
     type: "GET",

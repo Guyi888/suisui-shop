@@ -27,6 +27,17 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.9 / 2026-05-21 首页下单验证与客服文案优化</h4>
+                    <ul>
+                        <li>修复用户长时间停留首页后点击下单，可能提示“验证失败，请刷新页面重试”的问题。</li>
+                        <li>新增前台下单令牌刷新接口，验证失效时会自动刷新令牌并对原下单请求重试一次。</li>
+                        <li>自动重试只作用于 <code>ajax.php?act=pay</code> 下单请求，不影响余额支付、支付跳转和订单查询链路。</li>
+                        <li>下单令牌仍保持校验机制，不关闭验证、不放宽商品、价格、库存或支付校验。</li>
+                        <li>XHY-01 客服弹窗底部客服卡片标题由“岁岁云商城人工客服”改为“客服中心”。</li>
+                        <li>程序缓存版本更新到 <code>2026052120</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.8 / 2026-05-21 分站用户中心推广体验修复</h4>
                     <ul>
                         <li>修复用户中心商品列表在渲染价格列时中断，导致只显示统计数量但下方商品明细为空的问题。</li>

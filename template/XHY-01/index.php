@@ -177,7 +177,7 @@ $q8XhyPopupNotice = isset($conf['modal']) ? trim((string)$conf['modal']) : '';
 				<!-- 客服信息 -->
 				<div class="xhy-flex-one">
 					<div class="xhy-service-contact-title">
-						岁岁云商城人工客服
+						客服中心
 					</div>
 					<div class="xhy-service-contact-time">
 						<i class="fa fa-clock-o xhy-icon-gap-sm"></i>

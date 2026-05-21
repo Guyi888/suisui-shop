@@ -36,6 +36,20 @@ if (!function_exists('q8_front_stock_count')) {
 	}
 }
 
+if (!function_exists('q8_create_order_hashsalt')) {
+	function q8_create_order_hashsalt() {
+		$hashsalt = md5(mt_rand(0, 999) . time() . mt_rand(1000, 9999));
+		$_SESSION['addsalt'] = $hashsalt;
+		return $hashsalt;
+	}
+}
+
+if (!function_exists('q8_exit_hashsalt_refresh_required')) {
+	function q8_exit_hashsalt_refresh_required() {
+		exit(json_encode(array('code' => -9, 'msg' => '验证已失效，正在重新验证下单信息', 'refresh' => 1)));
+	}
+}
+
 if (!function_exists('q8_build_tool_payload')) {
 	function q8_build_tool_payload($DB, $conf, $price_obj, $res) {
 		if (isset($_SESSION['gift_id']) && isset($_SESSION['gift_tid']) && $_SESSION['gift_tid'] == $res['tid']) {
@@ -85,6 +99,9 @@ if ($conf['cjmsg'] != '') {
 	$cjmsg = '您今天的抽奖次数已经达到上限！';
 }
 switch ($act) {
+	case 'refresh_hashsalt':
+		exit(json_encode(array('code' => 0, 'hashsalt' => q8_create_order_hashsalt())));
+		break;
 	case 'toollogsgroup':
 	case 'toollogsoffline':
 		if (function_exists('q8_toollog_ensure_tables')) q8_toollog_ensure_tables();
@@ -551,7 +568,7 @@ switch ($act) {
 			if ($conf['verify_open'] == 1) {
 				// 如果没有提供hashsalt或session中的addsalt不存在，跳过验证
 				if (!empty($hashsalt) && !empty($_SESSION['addsalt']) && $hashsalt != $_SESSION['addsalt']) {
-					exit('{"code":-1,"msg":"验证失败，请刷新页面重试"}');
+					q8_exit_hashsalt_refresh_required();
 				}
 				// 验证通过后，清除session中的addsalt，防止重复使用
 				unset($_SESSION['addsalt']);
@@ -952,7 +969,7 @@ switch ($act) {
 				if ($conf['verify_open'] == 1) {
 					// 如果没有提供hashsalt或session中的addsalt不存在，跳过验证
 					if (!empty($hashsalt) && !empty($_SESSION['addsalt']) && $hashsalt != $_SESSION['addsalt']) {
-						exit('{"code":-1,"msg":"验证失败，请刷新页面重试"}');
+						q8_exit_hashsalt_refresh_required();
 					}
 					// 验证通过后，清除session中的addsalt，防止重复使用
 					unset($_SESSION['addsalt']);
@@ -1058,7 +1075,7 @@ switch ($act) {
 		if ($conf['verify_open'] == 1) {
 			// 如果没有提供hashsalt或session中的addsalt不存在，跳过验证
 			if (!empty($hashsalt) && !empty($_SESSION['addsalt']) && $hashsalt != $_SESSION['addsalt']) {
-				exit('{"code":-1,"msg":"验证失败，请刷新页面重试"}');
+				q8_exit_hashsalt_refresh_required();
 			}
 			// 注意：这里不清除session中的addsalt，因为后续还需要在card_pay中使用
 		}
@@ -1105,7 +1122,7 @@ switch ($act) {
 				if ($conf['verify_open'] == 1) {
 					// 如果没有提供hashsalt或session中的addsalt不存在，跳过验证
 					if (!empty($hashsalt) && !empty($_SESSION['addsalt']) && $hashsalt != $_SESSION['addsalt']) {
-						exit('{"code":-1,"msg":"验证失败，请刷新页面重试"}');
+						q8_exit_hashsalt_refresh_required();
 					}
 					// 验证通过后，清除session中的addsalt，防止重复使用
 					unset($_SESSION['addsalt']);
