@@ -31,37 +31,40 @@ include './head.php';
 if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
     <div class="col-md-12 center-block" style="float: none;">
-<div class="modal" align="left" id="search" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myModalLabel">搜索分站</h4>
-      </div>
-      <div class="modal-body">
-<input type="text" class="form-control" name="kw" placeholder="请输入分站ID或用户名或域名或站长QQ"><br/>
-<button type="button" class="btn btn-primary btn-block" id="search_submit">搜索</button>
-</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
+<div class="admin-site-dialog" id="siteSearchDialog" style="display:none;">
+  <div class="admin-simple-dialog admin-site-dialog__body">
+    <p class="admin-simple-dialog__eyebrow">Site Search</p>
+    <h3 class="admin-simple-dialog__title">搜索分站</h3>
+    <p class="admin-simple-dialog__desc">按分站 ID、用户名、域名或站长 QQ 查询分站。</p>
+    <div class="admin-simple-dialog__fields">
+      <label class="admin-simple-dialog__field">
+        <span>搜索关键词</span>
+        <input type="text" class="form-control" name="kw" placeholder="请输入分站ID或用户名或域名或站长QQ">
+      </label>
+    </div>
+    <div class="admin-simple-dialog__footer">
+      <button type="button" class="btn btn-default" data-site-dialog-close>取消</button>
+      <button type="button" class="btn btn-primary" id="search_submit">搜索</button>
     </div>
   </div>
 </div>
-<div class="modal" align="left" id="search2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myModalLabel">分类查看</h4>
-      </div>
-      <div class="modal-body">
-<select name="power" class="form-control"><option value="1">普及版</option><option value="2">专业版</option></select><br/>
-<button type="button" class="btn btn-primary btn-block" id="search2_submit">查看</button>
-</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
+<div class="admin-site-dialog" id="sitePowerDialog" style="display:none;">
+  <div class="admin-simple-dialog admin-site-dialog__body">
+    <p class="admin-simple-dialog__eyebrow">Site Filter</p>
+    <h3 class="admin-simple-dialog__title">分类查看</h3>
+    <p class="admin-simple-dialog__desc">按分站版本筛选当前列表。</p>
+    <div class="admin-simple-dialog__fields">
+      <label class="admin-simple-dialog__field">
+        <span>分站类型</span>
+        <select name="power" class="form-control">
+          <option value="1">普及版</option>
+          <option value="2">专业版</option>
+        </select>
+      </label>
+    </div>
+    <div class="admin-simple-dialog__footer">
+      <button type="button" class="btn btn-default" data-site-dialog-close>取消</button>
+      <button type="button" class="btn btn-primary" id="search2_submit">查看</button>
     </div>
   </div>
 </div>
@@ -413,7 +416,7 @@ $numrows=$DB->getColumn("SELECT count(*) FROM pre_site WHERE power>0");
 <div class="block-title clearfix">
 <h2>系统共有 <b><?php echo $numrows?></b> 个分站</h2>
 </div>
-<a href="./sitelist.php?my=add" class="btn btn-primary">添加分站</a>&nbsp;<a href="#" data-toggle="modal" data-target="#search" id="search" class="btn btn-success">搜索</a>&nbsp;<a href="#" data-toggle="modal" data-target="#search2" id="search2" class="btn btn-warning">分类查看</a>&nbsp;<div class="btn-group">
+<a href="./sitelist.php?my=add" class="btn btn-primary">添加分站</a>&nbsp;<a href="javascript:void(0)" id="openSiteSearch" class="btn btn-success">搜索</a>&nbsp;<a href="javascript:void(0)" id="openSitePowerFilter" class="btn btn-warning">分类查看</a>&nbsp;<div class="btn-group">
   <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     更多 <span class="caret"></span>
   </button>

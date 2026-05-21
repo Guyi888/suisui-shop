@@ -127,12 +127,15 @@ $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
 $offset = $pagesize * ($page - 1);
 $rs = $DB->query("SELECT A.*,B.name classname, (SELECT COUNT(*) FROM pre_pay WHERE tid=A.tid AND status=1) as sales FROM pre_tools A LEFT JOIN pre_class B ON A.cid=B.cid WHERE" . $sql . " order by " . $orderby . " limit " . $offset . "," . $pagesize);
 while ($res = $rs->fetch()) {
+	$localStock = q8_local_faka_stock_count($DB, $res["tid"]);
 	if ($res["is_curl"] == 4) {
-		$stock = "发卡";
+		$stock = $localStock;
+	} elseif ($res["stock"] === null && $localStock > 0) {
+		$stock = $localStock;
 	} elseif ($res["stock"] === null) {
 		$stock = "无限";
 	} else {
-		$stock = $res["stock"];
+		$stock = $localStock + max(0, intval($res["stock"]));
 	}
 	echo "<tr><td style=\"word-break:break-word;width:42%\"><input type=\"checkbox\" name=\"checkbox[]\" id=\"list1\" value=\"" . $res["tid"] . "\" onClick=\"unselectall1()\">&nbsp;<a href=\"javascript:show(" . $res["tid"] . ")\" style=\"color:#000\">" . $res["name"] . "</a></td><td>" . $res["sales"] . "</td>" . ($res["prid"] > 0 ? "<td><span onclick=\"getPrice(" . $res["tid"] . ")\"><font color=\"blue\">" . $price_class[$res["prid"]] . "</font>&nbsp;(成本:" . $res["price"] . ")</span></td>" : "<td><span onclick=\"getPrice(" . $res["tid"] . ")\">" . $res["price"] . "｜" . $res["cost"] . "｜" . $res["cost2"] . "</span></td>") . "<td>" . display_shoptype($res["is_curl"], $res["shequ"], $res["tid"]) . "\r\n</td><td class=\"" . (isset($_GET["cid"]) ? "hide" : "") . "\"><a href=\"./shoplist.php?cid=" . $res["cid"] . "\">" . ($res["classname"] ?: "未分类") . "</a></td><td class=\"" . (isset($_GET["cid"]) ? "" : "hide") . "\"><a class=\"btn btn-xs sort_btn\" title=\"移到顶部\" onclick=\"sort(" . $res["cid"] . "," . $res["tid"] . ",0)\"><i class=\"fa fa-long-arrow-up\"></i></a><a class=\"btn btn-xs sort_btn\" title=\"移到上一行\" onclick=\"sort(" . $res["cid"] . "," . $res["tid"] . ",1)\"><i class=\"fa fa-chevron-circle-up\"></i></a><a class=\"btn btn-xs sort_btn\" title=\"移到下一行\" onclick=\"sort(" . $res["cid"] . "," . $res["tid"] . ",2)\"><i class=\"fa fa-chevron-circle-down\"></i></a><a class=\"btn btn-xs sort_btn\" title=\"移到底部\" onclick=\"sort(" . $res["cid"] . "," . $res["tid"] . ",3)\"><i class=\"fa fa-long-arrow-down\"></i></a></td><td><a href=\"javascript:setStock(" . $res["tid"] . ",'" . $stock . "')\">" . $stock . "</a></td><td>" . ($res["close"] == 1 ? "<span class=\"btn btn-xs btn-warning\" onclick=\"setClose(" . $res["tid"] . ",0)\">已下架</span>" : "<span class=\"btn btn-xs btn-success\" onclick=\"setClose(" . $res["tid"] . ",1)\">上架中</span>") . "&nbsp;" . ($res["active"] == 1 ? "<span class=\"btn btn-xs btn-success\" onclick=\"setActive(" . $res["tid"] . ",0)\">显示</span>" : "<span class=\"btn btn-xs btn-warning\" onclick=\"setActive(" . $res["tid"] . ",1)\">隐藏</span>") . "</td><td><a href=\"./shopedit.php?my=edit&tid=" . $res["tid"] . "\" class=\"btn btn-info btn-xs\">编辑</a>&nbsp;<a href=\"./list.php?tid=" . $res["tid"] . "\" class=\"btn btn-warning btn-xs\">订单</a>&nbsp;<span href=\"./shopedit.php?my=delete&tid=" . $res["tid"] . "\" class=\"btn btn-xs btn-danger\" onclick=\"delTool(" . $res["tid"] . ")\">删除</span></td></tr>\r\n";
 }

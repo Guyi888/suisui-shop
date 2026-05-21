@@ -28,9 +28,10 @@ if (!function_exists('q8_local_faka_stock_count')) {
 
 if (!function_exists('q8_front_stock_count')) {
 	function q8_front_stock_count($DB, $tool) {
-		if ($tool['is_curl'] == 4) return q8_local_faka_stock_count($DB, $tool['tid']);
-		if ($tool['is_curl'] == 2 && $tool['stock'] !== null) return q8_local_faka_stock_count($DB, $tool['tid']) + max(0, intval($tool['stock']));
-		if ($tool['stock'] !== null) return $tool['stock'];
+		$local_stock = q8_local_faka_stock_count($DB, $tool['tid']);
+		if ($tool['is_curl'] == 4) return $local_stock;
+		if ($tool['stock'] !== null) return $local_stock + max(0, intval($tool['stock']));
+		if ($local_stock > 0) return $local_stock;
 		return null;
 	}
 }
@@ -405,7 +406,7 @@ switch ($act) {
 			}
 			// 计算销量 - 通过查询pre_pay表中status=1的订单数量
 			$sales = $DB->getColumn("SELECT COUNT(*) FROM pre_pay WHERE tid=:tid AND status=1", array(':tid' => $res['tid']));
-			$data[] = array('tid' => $res['tid'], 'cid' => $res['cid'], 'sort' => $res['sort'], 'name' => $res['name'], 'value' => $res['value'], 'price' => $price, 'input' => $res['input'], 'inputs' => $res['inputs'], 'desc' => $res['desc'], 'alert' => $res['alert'], 'shopimg' => $res['shopimg'], 'repeat' => $res['repeat'], 'multi' => $res['multi'], 'close' => $res['close'], 'prices' => $res['prices'], 'min' => $res['min'], 'max' => $res['max'], 'sales' => $sales, 'isfaka' => $isfaka, 'stock' => $res['stock'], 'isinvitegift' => $isinvitegift, 'invitegift_money' => $invitegift_money, 'invite_gift' => $invite_gift, 'goods_sid' => $res['goods_sid']);
+			$data[] = array('tid' => $res['tid'], 'cid' => $res['cid'], 'sort' => $res['sort'], 'name' => $res['name'], 'value' => $res['value'], 'price' => $price, 'input' => $res['input'], 'inputs' => $res['inputs'], 'desc' => $res['desc'], 'alert' => $res['alert'], 'shopimg' => $res['shopimg'], 'repeat' => $res['repeat'], 'multi' => $res['multi'], 'close' => $res['close'], 'prices' => $res['prices'], 'min' => $res['min'], 'max' => $res['max'], 'sales' => $sales, 'isfaka' => $isfaka, 'stock' => q8_front_stock_count($DB, $res), 'isinvitegift' => $isinvitegift, 'invitegift_money' => $invitegift_money, 'invite_gift' => $invite_gift, 'goods_sid' => $res['goods_sid']);
 		}
 		$result = array("code" => 0, "msg" => "succ", "data" => $data, "info" => $info);
 		exit(json_encode($result));
@@ -479,14 +480,13 @@ switch ($act) {
 			}
 
 			$is_stock_err = 0;
+			$count = q8_front_stock_count($DB, $res);
 			if ($res['is_curl'] == 4) {
 				$isfaka = 1;
-				$count = $DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid=:tid AND orderid=0", array(':tid' => $res['tid']));
 				if ($count == 0) $is_stock_err = 1;
 				$res['input'] = getFakaInput();
-			} elseif ($res['stock'] !== null) {
+			} elseif ($count !== null) {
 				$isfaka = 0;
-				$count = $res['stock'];
 				if ($count == 0) $is_stock_err = 1;
 			} else {
 				$isfaka = 0;
@@ -501,7 +501,8 @@ switch ($act) {
 		break;
 	case 'getleftcount':
 		$tid = intval($_POST['tid']);
-		$count = $DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid=:tid AND orderid=0", array(':tid' => $tid));
+		$tool = $DB->getRow("SELECT * FROM pre_tools WHERE tid=:tid LIMIT 1", array(':tid' => $tid));
+		$count = $tool ? q8_front_stock_count($DB, $tool) : 0;
 		if ($conf['faka_showleft'] == 1) $count = $count > 0 ? '充足' : '缺货';
 		$result = array("code" => 0, "count" => $count);
 		exit(json_encode($result));
@@ -617,17 +618,20 @@ switch ($act) {
 				exit('{"code":-1,"msg":"验证失败"}');
 			}
 			if (in_array($inputvalue, explode("|", $conf['blacklist']))) exit('{"code":-1,"msg":"你的下单账号已被拉黑，无法下单！"}');
+			$local_faka_count = q8_local_faka_stock_count($DB, $tid);
+			$nums = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
+			$required_faka_count = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
 			if ($tool['is_curl'] == 4) {
 				if (!$islogin2 && $conf['faka_input'] == 0 && !checkEmail($inputvalue)) {
 					exit('{"code":-1,"msg":"邮箱格式不正确"}');
 				}
-				$count = $DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid=:tid AND orderid=0", array(':tid' => $tid));
-				$nums = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
+				$count = $local_faka_count;
+				$nums = $required_faka_count;
 				if ($count == 0) exit('{"code":-1,"msg":"该商品库存卡密不足，请联系站长加卡！"}');
 				if ($nums > $count) exit('{"code":-1,"msg":"你所购买的数量超过库存数量！"}');
-			} elseif ($tool['stock'] !== null) {
-				if ($tool['stock'] == 0) exit('{"code":-1,"msg":"该商品库存不足，请联系站长增加库存！"}');
-				if ($num > $tool['stock']) exit('{"code":-1,"msg":"你所购买的数量超过库存数量！"}');
+			} elseif (($front_stock_count = q8_front_stock_count($DB, $tool)) !== null) {
+				if ($front_stock_count == 0) exit('{"code":-1,"msg":"该商品库存不足，请联系站长增加库存！"}');
+				if ($required_faka_count > $front_stock_count) exit('{"code":-1,"msg":"你所购买的数量超过库存数量！"}');
 			} elseif ($tool['repeat'] == 0) {
 				$thtime = date("Y-m-d") . ' 00:00:00';
 				$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid' => $tid, ':input' => $inputvalue]);
@@ -965,14 +969,16 @@ switch ($act) {
 			}
 			if ($num == 0) exit('{"code":-1,"msg":"下单账号不能为空"}');
 
+			$local_faka_count = q8_local_faka_stock_count($DB, $tid);
+			$nums = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
 			if ($tool['is_curl'] == 4) {
-				$count = $DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid='$tid' AND orderid=0");
+				$count = $local_faka_count;
 				$nums = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
 				if ($count == 0) exit('{"code":-1,"msg":"该商品库存卡密不足，请联系站长加卡！"}');
 				if ($nums > $count) exit('{"code":-1,"msg":"你所购买的数量超过库存数量！"}');
-			} elseif ($tool['stock'] !== null) {
-				if ($tool['stock'] == 0) exit('{"code":-1,"msg":"该商品库存不足，请联系站长增加库存！"}');
-				if ($num > $tool['stock']) exit('{"code":-1,"msg":"你所购买的数量超过库存数量！"}');
+			} elseif (($front_stock_count = q8_front_stock_count($DB, $tool)) !== null) {
+				if ($front_stock_count == 0) exit('{"code":-1,"msg":"该商品库存不足，请联系站长增加库存！"}');
+				if ($nums > $front_stock_count) exit('{"code":-1,"msg":"你所购买的数量超过库存数量！"}');
 			}
 			if (isset($price_obj)) {
 				$price_obj->setToolInfo($tid, $tool);

@@ -859,7 +859,7 @@ $count = $DB->getColumn("SELECT count(*) FROM `pre_tools` a
 	AND a.`close` = 0
 	AND (
 		(a.`is_curl` = 4 AND NOT EXISTS (SELECT 1 FROM `pre_faka` b WHERE b.`orderid` = 0 AND b.`tid` = a.`tid`))
-		OR (a.`is_curl` <> 4 AND a.`stock` IS NOT NULL AND a.`stock` <= 0)
+		OR (a.`is_curl` <> 4 AND a.`stock` IS NOT NULL AND (a.`stock` + (SELECT COUNT(*) FROM `pre_faka` b WHERE b.`orderid` = 0 AND b.`tid` = a.`tid`)) <= 0)
 	)");
 $count3 = $DB->getColumn("SELECT count(*) from pre_tools where goods_sid != 0 and audit_status=0");
 $renderMenuBadge = function($value) {

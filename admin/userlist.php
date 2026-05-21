@@ -252,6 +252,35 @@ $numrows=$DB->getColumn("SELECT count(*) from pre_site");
 <h2>&#31995;&#32479;&#20849;&#26377; <b><?php echo $numrows?></b> &#20010;&#29992;&#25143;&#65288;&#21547;&#20998;&#31449;&#29992;&#25143;&#65289;</h2>
 </div>
 <a href="./userlist.php?my=add" class="btn btn-primary">添加用户</a>&nbsp;<a href="#" data-toggle="modal" data-target="#search" id="search" class="btn btn-success">搜索</a>&nbsp;<a href="javascript:listTable('start')" class="btn btn-default" title="刷新用户列表"><i class="fa fa-refresh"></i></a>
+<div class="form-inline admin-user-filter">
+	<div class="form-group">
+		<label for="userPowerFilter">类型</label>
+		<select class="form-control" id="userPowerFilter">
+			<option value="">全部用户</option>
+			<option value="0">普通用户</option>
+			<option value="1">普及版分站</option>
+			<option value="2">专业版分站</option>
+		</select>
+	</div>
+	<div class="form-group">
+		<label for="userStatusFilter">状态</label>
+		<select class="form-control" id="userStatusFilter">
+			<option value="">全部状态</option>
+			<option value="1">开启</option>
+			<option value="0">关闭</option>
+		</select>
+	</div>
+	<div class="form-group">
+		<label for="userSortFilter">余额</label>
+		<select class="form-control" id="userSortFilter">
+			<option value="">默认排序</option>
+			<option value="1">余额从高到低</option>
+			<option value="0">余额从低到高</option>
+		</select>
+	</div>
+	<button type="button" class="btn btn-info" id="userFilterSubmit"><i class="fa fa-filter"></i> 筛选</button>
+	<button type="button" class="btn btn-default" id="userFilterReset"><i class="fa fa-refresh"></i> 重置</button>
+</div>
 <div id="listTable"></div>
     </div>
   </div>

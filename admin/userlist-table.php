@@ -8,29 +8,38 @@ adminpermission("site", 1);
 $params = array();
 $orderby = "zid desc";
 $allowedOrderby = array('zid desc', 'zid asc', 'rmb asc', 'rmb desc');
-$where = "1";
-$link = "";
+$whereParts = array("1");
+$linkParams = array();
 
-if (isset($_GET["zid"])) {
-	$where = "zid=:zid";
+if (isset($_GET["zid"]) && $_GET["zid"] !== "") {
+	$whereParts[] = "zid=:zid";
 	$params[':zid'] = intval($_GET["zid"]);
-	$link = "&zid=" . intval($_GET["zid"]);
-} elseif (isset($_GET["kw"])) {
+	$linkParams['zid'] = intval($_GET["zid"]);
+} elseif (isset($_GET["kw"]) && trim($_GET["kw"]) !== "") {
 	$kw = trim($_GET["kw"]);
-	$where = "(user=:kw OR qq=:kw OR zid=:zid)";
+	$whereParts[] = "(user=:kw OR qq=:kw OR zid=:kw_zid)";
 	$params[':kw'] = $kw;
-	$params[':zid'] = intval($kw);
-	$link = "&kw=" . urlencode($kw);
-} elseif (isset($_GET["power"])) {
-	$where = "power=:power";
+	$params[':kw_zid'] = intval($kw);
+	$linkParams['kw'] = $kw;
+}
+if (isset($_GET["power"]) && $_GET["power"] !== "") {
+	$whereParts[] = "power=:power";
 	$params[':power'] = intval($_GET["power"]);
-	$link = "&power=" . intval($_GET["power"]);
-} elseif (isset($_GET["sort"])) {
+	$linkParams['power'] = intval($_GET["power"]);
+}
+if (isset($_GET["status"]) && $_GET["status"] !== "") {
+	$whereParts[] = "status=:status";
+	$params[':status'] = intval($_GET["status"]);
+	$linkParams['status'] = intval($_GET["status"]);
+}
+if (isset($_GET["sort"]) && $_GET["sort"] !== "") {
 	if ($_GET["sort"] == "0") $orderby = "rmb asc";
 	if ($_GET["sort"] == "1") $orderby = "rmb desc";
-	$link = "&sort=" . intval($_GET["sort"]);
+	$linkParams['sort'] = intval($_GET["sort"]);
 }
 if (!in_array($orderby, $allowedOrderby, true)) $orderby = "zid desc";
+$where = implode(" AND ", $whereParts);
+$link = $linkParams ? "&" . http_build_query($linkParams) : "";
 
 $numrows = intval($DB->getColumn("SELECT COUNT(*) FROM pre_site WHERE {$where}", $params));
 $pagesize = 30;

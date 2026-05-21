@@ -30,6 +30,24 @@ function listTable(query){
 		}
 	});
 }
+var siteDialogIndex = null;
+function openSiteDialog(selector, title){
+	var dialogWidth = Math.min(520, $(window).width() - 24);
+	siteDialogIndex = layer.open({
+		type: 1,
+		title: title,
+		area: [dialogWidth + 'px', 'auto'],
+		shade: 0,
+		skin: 'admin-shell-layer',
+		content: $(selector)
+	});
+}
+function closeSiteDialog(){
+	if(siteDialogIndex !== null){
+		layer.close(siteDialogIndex);
+		siteDialogIndex = null;
+	}
+}
 function showRecharge(zid) {
 	$("input[name='zid']").val(zid);
 	$('#modal-rmb').modal('show');
@@ -142,7 +160,7 @@ $(document).ready(function(){
 	$("#search_submit").click(function(){
 		var kw=$("input[name='kw']").val();
 		var zid=$("input[name='zid']").val();
-		$("#search").modal('hide');
+		closeSiteDialog();
 		if(kw != ''){
 			listTable('kw='+kw);
 		}else if(zid != ''){
@@ -153,7 +171,7 @@ $(document).ready(function(){
 	});
 	$("#search2_submit").click(function(){
 		var power=$("select[name='power']").val();
-		$("#search2").modal('hide');
+		closeSiteDialog();
 		if(power == '0'){
 			listTable('start');
 		}else{
@@ -168,6 +186,15 @@ $(document).ready(function(){
 		}else{
 			listTable('start');
 		}
+	});
+	$("#openSiteSearch").click(function(){
+		openSiteDialog('#siteSearchDialog', '\u641c\u7d22\u5206\u7ad9');
+	});
+	$("#openSitePowerFilter").click(function(){
+		openSiteDialog('#sitePowerDialog', '\u5206\u7c7b\u67e5\u770b');
+	});
+	$("[data-site-dialog-close]").click(function(){
+		closeSiteDialog();
 	});
 });
 $(document).ready(function(){

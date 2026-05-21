@@ -27,6 +27,26 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.2 / 2026-05-21 库存展示与后台细节修复</h4>
+                    <ul>
+                        <li>对接商品库存展示统一为本地卡密库存 + 对接站库存，前台、API 和后台商品列表口径保持一致。</li>
+                        <li>下单时优先使用本地已有卡密，本地卡密不足时继续走原有对接流程，不改变原有对接配置。</li>
+                        <li>发卡库存管理页现在会展示有本地卡密的对接商品，便于统一管理剩余卡密和已售数量。</li>
+                        <li>用户列表新增用户类型、状态和余额排序筛选入口，翻页时保留筛选条件。</li>
+                        <li>修复分站列表分类查看弹窗黑色遮罩问题，并修复后台加载动画圆点偏离圆环的问题。</li>
+                        <li>程序缓存版本更新到 <code>2026052105</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.1 / 2026-05-20 XHY-01 首页顶部体验优化</h4>
+                    <ul>
+                        <li>优化 <code>XHY-01</code> 首页顶部模块结构，减少旧 Bootstrap 布局约束。</li>
+                        <li>新增独立首页品牌卡片与快捷入口模块样式，PC 和手机端表现更稳定。</li>
+                        <li>统一顶部品牌模块、快捷入口和主内容卡片的圆角、阴影与半透明背景。</li>
+                        <li>更新 XHY-01 前台资源缓存版本，部署后浏览器会加载新样式。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.0 / 2026-05-20 XHY-01 模板结构重构</h4>
                     <ul>
                         <li>重构 <code>XHY-01</code> 首页模板结构，保留原模板视觉和主要模块，不复用 <code>suisui</code> 模板结构。</li>

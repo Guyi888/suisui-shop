@@ -49,7 +49,7 @@ if ($my === "move") {
 
 $cid = isset($_GET["cid"]) ? intval($_GET["cid"]) : 0;
 $tid = isset($_GET["tid"]) ? intval($_GET["tid"]) : 0;
-$where = " is_curl=4";
+$where = " (is_curl=4 OR tid IN (SELECT DISTINCT tid FROM pre_faka))";
 $link = "";
 if ($cid > 0) {
     $where .= " AND cid='{$cid}'";
@@ -60,9 +60,10 @@ if ($cid > 0) {
 }
 
 $numrows = intval($DB->getColumn("SELECT COUNT(*) FROM pre_tools WHERE{$where}"));
-$totalCardGoods = intval($DB->getColumn("SELECT COUNT(*) FROM pre_tools WHERE is_curl=4"));
-$visibleCardGoods = intval($DB->getColumn("SELECT COUNT(*) FROM pre_tools WHERE is_curl=4 AND active=1"));
-$hiddenCardGoods = intval($DB->getColumn("SELECT COUNT(*) FROM pre_tools WHERE is_curl=4 AND active=0"));
+$cardGoodsWhere = "is_curl=4 OR tid IN (SELECT DISTINCT tid FROM pre_faka)";
+$totalCardGoods = intval($DB->getColumn("SELECT COUNT(*) FROM pre_tools WHERE {$cardGoodsWhere}"));
+$visibleCardGoods = intval($DB->getColumn("SELECT COUNT(*) FROM pre_tools WHERE ({$cardGoodsWhere}) AND active=1"));
+$hiddenCardGoods = intval($DB->getColumn("SELECT COUNT(*) FROM pre_tools WHERE ({$cardGoodsWhere}) AND active=0"));
 $totalCards = intval($DB->getColumn("SELECT COUNT(*) FROM pre_faka"));
 $leftCards = intval($DB->getColumn("SELECT COUNT(*) FROM pre_faka WHERE orderid=0"));
 $soldCards = max(0, $totalCards - $leftCards);

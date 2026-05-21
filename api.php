@@ -11,6 +11,16 @@ $authcode=daddslashes($_GET['authcode']);
 
 @header('Content-Type: application/json; charset=UTF-8');
 
+if (!function_exists('q8_front_stock_count')) {
+	function q8_front_stock_count($DB, $tool) {
+		$local_stock = q8_local_faka_stock_count($DB, $tool['tid']);
+		if ($tool['is_curl'] == 4) return $local_stock;
+		if ($tool['stock'] !== null) return $local_stock + max(0, intval($tool['stock']));
+		if ($local_stock > 0) return $local_stock;
+		return null;
+	}
+}
+
 if($act=='clone')
 {
 	$key=daddslashes($_GET['key']);
@@ -139,7 +149,7 @@ elseif($act == 'goodslistbycid')
 		}else{
 			$isfaka = 0;
 		}
-		$data[]=array('tid'=>$res['tid'],'cid'=>$res['cid'],'sort'=>$res['sort'],'name'=>$res['name'],'value'=>$res['value'],'price'=>$price,'input'=>$res['input'],'inputs'=>$res['inputs'],'desc'=>$res['desc'],'alert'=>$res['alert'],'shopimg'=>$res['shopimg'],'validate'=>$res['validate'],'valiserv'=>$res['valiserv'],'repeat'=>$res['repeat'],'multi'=>$res['multi'],'close'=>$res['close'],'prices'=>$res['prices'],'min'=>$res['min'],'max'=>$res['max'],'sales'=>$res['sales'],'isfaka'=>$isfaka,'stock'=>$res['stock']);
+		$data[]=array('tid'=>$res['tid'],'cid'=>$res['cid'],'sort'=>$res['sort'],'name'=>$res['name'],'value'=>$res['value'],'price'=>$price,'input'=>$res['input'],'inputs'=>$res['inputs'],'desc'=>$res['desc'],'alert'=>$res['alert'],'shopimg'=>$res['shopimg'],'validate'=>$res['validate'],'valiserv'=>$res['valiserv'],'repeat'=>$res['repeat'],'multi'=>$res['multi'],'close'=>$res['close'],'prices'=>$res['prices'],'min'=>$res['min'],'max'=>$res['max'],'sales'=>$res['sales'],'isfaka'=>$isfaka,'stock'=>q8_front_stock_count($DB, $res));
 	}
 	$result=array("code"=>0,"msg"=>"succ","data"=>$data,"count"=>count($data));
 	exit(json_encode($result));
@@ -169,11 +179,11 @@ elseif($act == 'goodslist')
 			$price = $res['price'];
 		}
 		if($res['is_curl']==4){
-			$count = $DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid='{$res['tid']}' AND orderid=0");
+			$count = q8_local_faka_stock_count($DB, $res['tid']);
 			//if($count==0)$res['close']=1;
 			$isfaka = 1;
 		}else{
-			$count = $res['stock'];
+			$count = q8_front_stock_count($DB, $res);
 			$isfaka = 0;
 		}
 		$data[] = array('tid' => $res['tid'] , 'cid' => $res['cid'] , 'name' => $res['name'] , 'value' => $res['value'] , 'shopimg' => $res['shopimg'] , 'close' => $res['close'] , 'price' => $price , 'isfaka' => $isfaka , 'stock' => $count);
@@ -208,12 +218,12 @@ elseif($act == 'goodsdetails')
 		$price = $tool['price'];
 	}
 	if($tool['is_curl']==4){
-		$count = $DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid='{$tool['tid']}' AND orderid=0");
+		$count = q8_local_faka_stock_count($DB, $tool['tid']);
 		if($count==0)$tool['close']=1;
 		$isfaka = 1;
 		$tool['input'] = getFakaInput();
 	}else{
-		$count = $tool['stock'];
+		$count = q8_front_stock_count($DB, $tool);
 		$isfaka = 0;
 		if(empty($tool['input']))$tool['input']='下单账号';
 	}
@@ -235,9 +245,9 @@ elseif($act == 'getleftcount')
 			$tool = $DB->getRow("SELECT * FROM `pre_tools` WHERE `tid` = ".intval($tid)." LIMIT 1");
 			if(!$tool)continue;
 			if($tool['is_curl']==4){
-				$count = $DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid='$tid' AND orderid=0");
-			}elseif($tool['stock']!==null){
-				$count = $tool['stock'];
+				$count = q8_local_faka_stock_count($DB, $tid);
+			}elseif(($count = q8_front_stock_count($DB, $tool)) !== null){
+				$count = $count;
 			}else{
 				$count = null;
 			}
@@ -248,9 +258,9 @@ elseif($act == 'getleftcount')
 		$tool = $DB->getRow("SELECT * FROM `pre_tools` WHERE `tid` = ".intval($tid)." LIMIT 1");
 		if(!$tool)exit('{"code":-1,"message":"商品不存在"}');
 		if($tool['is_curl']==4){
-			$count = $DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid='$tid' AND orderid=0");
-		}elseif($tool['stock']!==null){
-			$count = $tool['stock'];
+			$count = q8_local_faka_stock_count($DB, $tid);
+		}elseif(($count = q8_front_stock_count($DB, $tool)) !== null){
+			$count = $count;
 		}else{
 			exit('{"code":-2,"message":"该商品不限库存"}');
 		}
@@ -284,15 +294,17 @@ elseif($act == 'pay')
 		if ($userrow && $userrow['user'] == $user && $userrow['pwd'] == $pass && $userrow['status'] == 1) {
 			$result['code'] = 0;
 			if(in_array($input1,explode("|",$conf['blacklist']))) exit('{"code":-1,"message":"你的下单账号已被拉黑，无法下单！"}');
+			$front_stock_count = q8_front_stock_count($DB, $tool);
+			$nums=($tool['value']>1?$tool['value']:1)*$num;
 			if($tool['is_curl']==4){
-				$count = $DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid='$tid' AND orderid=0");
+				$count = q8_local_faka_stock_count($DB, $tid);
 				$nums=($tool['value']>1?$tool['value']:1)*$num;
 				if($count==0)exit('{"code":-1,"message":"该商品库存卡密不足，请联系站长加卡！"}');
 				if($nums>$count)exit('{"code":-1,"message":"你所购买的数量超过库存数量！"}');
 			}
-			elseif($tool['stock']!==null){
-				if($tool['stock']==0)exit('{"code":-1,"message":"该商品库存不足，请联系站长增加库存！"}');
-				if($num>$tool['stock'])exit('{"code":-1,"message":"你所购买的数量超过库存数量！"}');
+			elseif($front_stock_count!==null){
+				if($front_stock_count==0)exit('{"code":-1,"message":"该商品库存不足，请联系站长增加库存！"}');
+				if($nums>$front_stock_count)exit('{"code":-1,"message":"你所购买的数量超过库存数量！"}');
 			}
 			elseif($tool['repeat']==0){
 				$thtime=date("Y-m-d").' 00:00:00';

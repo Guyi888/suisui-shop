@@ -56,12 +56,11 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 10px;
-  height: 10px;
-  margin: -5px 0 0 -5px;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--admin-shell-accent), #5cb7ff);
-  transform-origin: 0 -26px;
   animation: admin-shell-orbit 1.5s linear infinite;
 }
 
@@ -81,12 +80,12 @@
 
 @keyframes admin-shell-orbit {
   from {
-    transform: rotate(0deg) translateY(-26px);
+    transform: rotate(0deg) translateY(-20px);
     opacity: 1;
   }
 
   to {
-    transform: rotate(360deg) translateY(-26px);
+    transform: rotate(360deg) translateY(-20px);
     opacity: 1;
   }
 }
@@ -1331,6 +1330,41 @@ body.admin-shell-page .admin-rank-tabs a:focus {
 
 body.admin-shell-page .admin-userlist-actions {
   white-space: nowrap;
+}
+
+body.admin-shell-page .admin-user-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 14px 0 16px;
+  padding: 12px;
+  border: 1px solid rgba(22, 119, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(248, 251, 255, 0.86);
+}
+
+body.admin-shell-page .admin-user-filter .form-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+body.admin-shell-page .admin-user-filter label {
+  margin-bottom: 0;
+  color: #49637f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  body.admin-shell-page .admin-user-filter,
+  body.admin-shell-page .admin-user-filter .form-group,
+  body.admin-shell-page .admin-user-filter .form-control,
+  body.admin-shell-page .admin-user-filter .btn {
+    width: 100%;
+  }
 }
 
 body.admin-shell-page .admin-changelog-page .timeline-list {

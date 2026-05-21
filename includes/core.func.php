@@ -86,6 +86,52 @@ function sitetask_type($type)
 	}
 	return "商品推广";
 }
+if (!function_exists('q8_local_faka_stock_count')) {
+	function q8_local_faka_stock_count($DB, $tid) {
+		return intval($DB->getColumn("SELECT count(*) FROM pre_faka WHERE tid='" . intval($tid) . "' AND orderid=0"));
+	}
+}
+if (!function_exists('q8_build_faka_text')) {
+	function q8_build_faka_text($km, $pw = '') {
+		if (!empty($pw)) return "&#21345;&#21495;&#65306;" . $km . " &#23494;&#30721;&#65306;" . $pw . "<br/>";
+		return $km . "<br/>";
+	}
+}
+if (!function_exists('q8_send_faka_mail')) {
+	function q8_send_faka_mail($conf, $tools, $input, $kmdata, $date) {
+		$to = null;
+		if (is_numeric($input[0]) && strlen($input[0]) <= 10) {
+			$to = $input[0] . "@qq.com";
+		} elseif (strpos($input[0], "@")) {
+			$to = $input[0];
+		}
+		if (!checkEmail($to)) return;
+		$sub = $conf['sitename'] . " 卡密购买提醒";
+		$msg = $conf['faka_mail'];
+		$msg = str_replace("[kmdata]", $kmdata, $msg);
+		$msg = str_replace("[alert]", $tools['alert'] ?: $tools['desc'], $msg);
+		$msg = str_replace("[name]", $tools['name'], $msg);
+		$msg = str_replace("[date]", $date, $msg);
+		$msg = str_replace("[email]", $to, $msg);
+		$msg = str_replace("[domain]", $_SERVER['HTTP_HOST'], $msg);
+		$msg = str_replace("[sitename]", $conf['sitename'], $msg);
+		send_mail($to, $sub, $msg);
+	}
+}
+if (!function_exists('q8_deliver_local_faka')) {
+	function q8_deliver_local_faka($DB, $conf, $date, $orderid, $tid, $limit, $input, $tools) {
+		$rs = $DB->query("SELECT * FROM pre_faka WHERE tid='" . intval($tid) . "' AND orderid=0 LIMIT " . intval($limit));
+		$kmdata = '';
+		while ($res = $rs->fetch()) {
+			$kmdata .= q8_build_faka_text($res['km'], $res['pw']);
+			$DB->exec("UPDATE `pre_faka` SET `orderid`='" . intval($orderid) . "',`usetime`='" . $date . "' WHERE `kid`='" . intval($res['kid']) . "'");
+		}
+		if ($kmdata === '') return false;
+		$DB->exec("UPDATE `pre_orders` SET `status`='1',`result`='" . addslashes($kmdata) . "',`djzt`='3' WHERE `id`='" . intval($orderid) . "'");
+		q8_send_faka_mail($conf, $tools, $input, $kmdata, $date);
+		return true;
+	}
+}
 function processOrder($srow, $is_fenzhan = true)
 {
 	global $islogin2;
@@ -291,6 +337,9 @@ function processOrder($srow, $is_fenzhan = true)
 		}
 		$param = "url:" . $tools['curl'] . " data:" . http_build_query($input);
 		log_result("自动访问URL", $param, $result, 0);
+	} elseif ($tools['is_curl'] == 2 && $srow['blockdj'] == 0 && q8_local_faka_stock_count($DB, $srow['tid']) >= $num) {
+		$result = array('faka' => true);
+		$status = q8_deliver_local_faka($DB, $conf, $date, $orderid, $srow['tid'], $num, $input, $tools) ? 1 : 0;
 	} elseif ($tools['is_curl'] == 2 && $srow['blockdj'] == 0) {
 		$inputsname = $tools['inputs'] ? $tools['input'] . "|" . $tools['inputs'] : $tools['input'];
 		$shequ = $DB->getRow("SELECT * FROM `pre_shequ` WHERE `id`='" . $tools['shequ'] . "' limit 1");
@@ -505,6 +554,12 @@ function do_goods($orderid, $url = '', $post = '')
 		$DB->exec("UPDATE `pre_orders` SET `status`='" . $status . "' WHERE `id`='" . $orderid . "'");
 		$param = "url:" . $tools['curl'] . " data:" . http_build_query($input);
 		log_result("自动访问URL", $param, $result, 0);
+	} elseif ($tools['is_curl'] == 2 && q8_local_faka_stock_count($DB, $order_row['tid']) >= $num) {
+		if (q8_deliver_local_faka($DB, $conf, $date, $orderid, $order_row['tid'], $num, $input, $tools)) {
+			$message = "发卡成功，商品发货成功！";
+		} else {
+			$message = "卡密库存不足，发卡失败！";
+		}
 	} elseif ($tools['is_curl'] == 2) {
 		$inputsname = $tools['inputs'] ? $tools['input'] . "|" . $tools['inputs'] : $tools['input'];
 		$shequ = $DB->getRow("select * from pre_shequ where id='" . $tools['shequ'] . "' limit 1");
