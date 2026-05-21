@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.4 / 2026-05-21 商品列表库存入口修复</h4>
+                    <ul>
+                        <li>修复后台商品列表点击库存时提示“服务器请求失败，请稍后重试”的问题。</li>
+                        <li>商品列表库存列新增“加卡”快捷入口，可直接进入对应商品添加卡密页面。</li>
+                        <li>商品列表行输出补齐新后台交互所需数据属性，库存、价格、详情和批量操作统一走新结构。</li>
+                        <li>库存列保持本地卡密库存与站点库存合计展示，编辑库存时仍只维护站点库存。</li>
+                        <li>程序缓存版本更新到 <code>2026052108</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.3 / 2026-05-21 浮动客服配置</h4>
                     <ul>
                         <li>前台客服入口调整为全站浮动客服配置，支持跳转链接、QQ 对话、Chatwoot 和自定义代码。</li>
