@@ -1055,6 +1055,82 @@ if ($mod == "cleanbom") {
 			});
 		</script>
 	<?php
+} elseif ($mod == "rebaterecharge") {
+	adminpermission("set", 1);
+	$rebate_enabled = isset($conf["recharge_rebate_enabled"]) ? $conf["recharge_rebate_enabled"] : "0";
+	$rebate_min = isset($conf["recharge_rebate_min"]) ? $conf["recharge_rebate_min"] : "0";
+	$rebate_rate = isset($conf["recharge_rebate_rate"]) ? $conf["recharge_rebate_rate"] : "0";
+	$rebate_rules = isset($conf["recharge_rebate_rules"]) ? $conf["recharge_rebate_rules"] : "";
+	$recharge_min = isset($conf["recharge_min"]) ? $conf["recharge_min"] : "0";
+	$fenzhan_jiakuanka = isset($conf["fenzhan_jiakuanka"]) ? $conf["fenzhan_jiakuanka"] : "0";
+	?>		<div class="block">
+			<div class="block-title">
+				<h3 class="panel-title"><i class="fa fa-gift"></i> 充值返利设置</h3>
+			</div>
+			<div class="">
+				<div class="alert alert-info">
+					<i class="fa fa-info-circle"></i>
+					本页统一管理在线充值、加款卡充值、后台手动加款的返利规则。后台扣除余额不会触发返利。
+				</div>
+				<form onsubmit="return saveSetting(this)" method="post" class="form-horizontal form-bordered" role="form">
+					<div class="form-group">
+						<label class="col-sm-3 control-label">开启充值返利</label>
+						<div class="col-sm-9">
+							<select class="form-control" name="recharge_rebate_enabled" default="<?php echo htmlspecialchars($rebate_enabled, ENT_QUOTES, 'UTF-8');?>">
+								<option value="0">关闭</option>
+								<option value="1">开启</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">返利最低金额</label>
+						<div class="col-sm-9">
+							<input type="number" step="0.01" min="0" name="recharge_rebate_min" value="<?php echo htmlspecialchars($rebate_min, ENT_QUOTES, 'UTF-8');?>" class="form-control" placeholder="例如：100">
+							<span class="help-block">未填写阶梯规则时使用此门槛；充值金额低于该值不返利。</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">固定返利比例</label>
+						<div class="col-sm-9">
+							<div class="input-group">
+								<input type="number" step="0.01" min="0" name="recharge_rebate_rate" value="<?php echo htmlspecialchars($rebate_rate, ENT_QUOTES, 'UTF-8');?>" class="form-control" placeholder="例如：1">
+								<span class="input-group-addon">%</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">阶梯返利规则</label>
+						<div class="col-sm-9">
+							<textarea name="recharge_rebate_rules" rows="3" class="form-control" placeholder="例如：100:1|200:2|500:5"><?php echo htmlspecialchars($rebate_rules, ENT_QUOTES, 'UTF-8');?></textarea>
+							<span class="help-block">格式：金额:比例，多个规则用英文竖线分隔。填写后优先按阶梯规则计算，例如 100:1 表示满 100 元送 1%。</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">开启加款卡充值</label>
+						<div class="col-sm-9">
+							<select class="form-control" name="fenzhan_jiakuanka" default="<?php echo htmlspecialchars($fenzhan_jiakuanka, ENT_QUOTES, 'UTF-8');?>">
+								<option value="0">关闭</option>
+								<option value="1">开启</option>
+							</select>
+							<span class="help-block"><a href="./kmlist.php"><i class="fa fa-credit-card"></i> 管理加款卡密</a></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">最低充值金额</label>
+						<div class="col-sm-9">
+							<input type="number" step="0.01" min="0" name="recharge_min" value="<?php echo htmlspecialchars($recharge_min, ENT_QUOTES, 'UTF-8');?>" class="form-control" placeholder="不填写则不限制">
+							<span class="help-block">用于限制用户中心在线充值的最低金额。</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-9">
+							<button type="submit" class="btn btn-primary btn-block"><i class="fa fa-save"></i> 保存设置</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	<?php
 } elseif ($mod == "fenzhan") {
 	adminpermission("set", 1);
 	?>		<div class="block">

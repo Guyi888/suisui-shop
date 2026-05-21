@@ -45,8 +45,12 @@ function buildUserFilterQuery(){
 	return params.length ? params.join('&') : 'start';
 }
 function showRecharge(zid) {
+	var $modal = $('#modal-rmb');
 	$("input[name='zid']").val(zid);
-	$('#modal-rmb').modal('show');
+	if ($modal.parent()[0] !== document.body) {
+		$modal.appendTo(document.body);
+	}
+	$modal.modal('show');
 }
 function setActive(zid,active) {
 	$.ajax({
