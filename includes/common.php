@@ -5,7 +5,7 @@ if (defined('IN_CRONLITE')) {
 	return;
 }
 define('CACHE_FILE', 0);
-define('VERSION', '2026052010');
+define('VERSION', '2026052101');
 define('IN_CRONLITE', true);
 define('tingdong', '3530793519');
 define('SYSTEM_ROOT', dirname(__FILE__) . '/');
