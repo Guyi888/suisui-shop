@@ -36,6 +36,25 @@ case 'getPrice':
 	$rows=$DB->getRow("select * from pre_tools where tid=:tid limit 1", array(':tid' => $tid));
 	if(!$rows)
 		exit('{"code":-1,"msg":"商品不存在"}');
+	$display_price = round(floatval($rows['price']), 2);
+	$display_cost = round(floatval($rows['cost']), 2);
+	$display_cost2 = round(floatval($rows['cost2']), 2);
+	if(intval($rows['prid']) > 0){
+		$rule = $DB->getRow("SELECT kind,p_0,p_1,p_2 FROM pre_price WHERE id=:id LIMIT 1", array(':id' => intval($rows['prid'])));
+		if($rule){
+			if(intval($rule['kind']) == 1){
+				$display_price = round(floatval($rows['price']) + floatval($rule['p_0']), 2);
+				$display_cost = round(floatval($rows['price']) + floatval($rule['p_1']), 2);
+				$display_cost2 = round(floatval($rows['price']) + floatval($rule['p_2']), 2);
+			}else{
+				$display_price = round(floatval($rows['price']) * floatval($rule['p_0']), 2);
+				$display_cost = round(floatval($rows['price']) * floatval($rule['p_1']), 2);
+				$display_cost2 = round(floatval($rows['price']) * floatval($rule['p_2']), 2);
+			}
+		}
+	}
+	if($display_cost <= 0) $display_cost = $display_price;
+	if($display_cost2 <= 0) $display_cost2 = $display_cost;
 	if($_SESSION['priceselect']){
 		$priceselect = $_SESSION['priceselect'];
 	}else{
@@ -52,9 +71,9 @@ case 'getPrice':
 <tbody>
 <tr align="center"><td>销售价格</td><td>普及版价格</td><td>专业版价格</td></tr>
 <tr>
-<td><input type="text" id="price_s" value="'.$rows['price'].'" class="form-control input-sm" disabled/></td>
-<td><input type="text" id="cost_s" value="'.$rows['cost'].'" class="form-control input-sm" disabled/></td>
-<td><input type="text" id="cost2_s" value="'.$rows['cost2'].'" class="form-control input-sm" disabled/></td>
+<td><input type="text" id="price_s" value="'.$display_price.'" class="form-control input-sm" disabled/></td>
+<td><input type="text" id="cost_s" value="'.$display_cost.'" class="form-control input-sm" disabled/></td>
+<td><input type="text" id="cost2_s" value="'.$display_cost2.'" class="form-control input-sm" disabled/></td>
 </tr>
 </table>
 	<input type="submit" id="save" onclick="editPrice('.$tid.')" class="btn btn-primary btn-block" value="保存">

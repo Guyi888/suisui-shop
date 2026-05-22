@@ -20,6 +20,42 @@ if (!function_exists('q8_admin_shop_table_attr')) {
 	}
 }
 
+if (!function_exists('q8_admin_shop_effective_prices')) {
+	function q8_admin_shop_effective_prices($row, $priceRules)
+	{
+		$price = round(floatval($row['price']), 2);
+		$cost = round(floatval($row['cost']), 2);
+		$cost2 = round(floatval($row['cost2']), 2);
+		$prid = intval($row['prid']);
+
+		if ($prid > 0 && isset($priceRules[$prid])) {
+			$rule = $priceRules[$prid];
+			if (intval($rule['kind']) === 1) {
+				$cost2 = round($price + floatval($rule['p_2']), 2);
+				$cost = round($price + floatval($rule['p_1']), 2);
+				$price = round($price + floatval($rule['p_0']), 2);
+			} else {
+				$cost2 = round($price * floatval($rule['p_2']), 2);
+				$cost = round($price * floatval($rule['p_1']), 2);
+				$price = round($price * floatval($rule['p_0']), 2);
+			}
+		}
+
+		if ($cost <= 0) {
+			$cost = $price;
+		}
+		if ($cost2 <= 0) {
+			$cost2 = $cost;
+		}
+
+		return array(
+			'price' => number_format($price, 2, '.', ''),
+			'cost' => number_format($cost, 2, '.', ''),
+			'cost2' => number_format($cost2, 2, '.', '')
+		);
+	}
+}
+
 if (!function_exists('q8_admin_shop_stock_meta')) {
 	function q8_admin_shop_stock_meta($row, $localStock)
 	{
@@ -116,6 +152,11 @@ if ($_SESSION["price_class"]) {
 	foreach ($pricelist as $res) {
 		$price_class[$res["id"]] = $res["name"];
 	}
+}
+$price_rules_map = array();
+$price_rule_rows = $DB->getAll("SELECT id,kind,p_0,p_1,p_2 FROM pre_price order by id asc");
+foreach ($price_rule_rows as $price_rule_row) {
+	$price_rules_map[intval($price_rule_row['id'])] = $price_rule_row;
 }
 $pagesize = isset($_GET["num"]) ? intval($_GET["num"]) : 30;
 $orderby = "A.tid desc";
@@ -220,6 +261,7 @@ while ($res = $rs->fetch()) {
 	$localStock = q8_local_faka_stock_count($DB, $res["tid"]);
 	$stockMeta = q8_admin_shop_stock_meta($res, $localStock);
 	$typeMeta = q8_admin_shop_type_meta($res["is_curl"], $res["shequ"], $res["tid"]);
+	$effectivePrices = q8_admin_shop_effective_prices($res, $price_rules_map);
 	$classname = $res["classname"] ?: "未分类";
 	$priceName = isset($price_class[$res["prid"]]) ? $price_class[$res["prid"]] : "不加价";
 	$frontUrl = q8_admin_shop_front_url($res["cid"], $res["tid"]);
@@ -229,8 +271,9 @@ while ($res = $rs->fetch()) {
 		q8_admin_shop_table_attr('data-cid', $res['cid']),
 		q8_admin_shop_table_attr('data-name', $res['name']),
 		q8_admin_shop_table_attr('data-price', $res['price']),
-		q8_admin_shop_table_attr('data-cost', $res['cost']),
-		q8_admin_shop_table_attr('data-cost2', $res['cost2']),
+		q8_admin_shop_table_attr('data-cost', $effectivePrices['cost']),
+		q8_admin_shop_table_attr('data-cost2', $effectivePrices['cost2']),
+		q8_admin_shop_table_attr('data-effective-price', $effectivePrices['price']),
 		q8_admin_shop_table_attr('data-prid', $res['prid']),
 		q8_admin_shop_table_attr('data-price-name', $priceName),
 		q8_admin_shop_table_attr('data-stock', $stockMeta['edit']),

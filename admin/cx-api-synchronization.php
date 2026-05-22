@@ -1281,15 +1281,16 @@ function syncProducts($shequ, $config, $task) {
 function handleDeletedProducts($shequ_id, $active_product_ids, $delete_rule, $task) {
     global $DB, $date;
 
+    syncEnsureGoodsMapTable();
     $count = 0;
     // 使用 pre_tools 表而非 pre_goods 表
-    $query = "SELECT tid, name, close FROM pre_tools WHERE is_curl=2 AND shequ=? AND active=1";
+    $query = "SELECT t.tid, t.name, t.close, m.remote_goods_id FROM pre_sync_goods_map m INNER JOIN pre_tools t ON t.tid=m.local_tid WHERE t.is_curl=2 AND t.shequ=? AND t.active=1 AND t.shequ=m.shequ_id AND t.goods_id=m.remote_goods_id";
     $params = [$shequ_id];
 
     if(!empty($active_product_ids)) {
         // 使用参数化查询处理IN子句，防止SQL注入
         $placeholders = implode(',', array_fill(0, count($active_product_ids), '?'));
-        $query .= " AND goods_id NOT IN ({$placeholders})";
+        $query .= " AND m.remote_goods_id NOT IN ({$placeholders})";
         $params = array_merge($params, $active_product_ids);
     }
 
@@ -1308,6 +1309,7 @@ function handleDeletedProducts($shequ_id, $active_product_ids, $delete_rule, $ta
             // 删除商品
             syncAddPublicToolLog('offline', $product['name'], $product['tid']);
             $DB->delete('pre_tools', ['tid' => $product['tid']]);
+            $DB->exec("DELETE FROM pre_sync_goods_map WHERE shequ_id=:shequ_id AND remote_goods_id=:remote_goods_id", [':shequ_id'=>intval($shequ_id), ':remote_goods_id'=>intval($product['remote_goods_id'])]);
             $task->updateProgress("删除商品: {$product['name']}");
             $count++;
         }
@@ -1352,6 +1354,7 @@ function syncDaishuaFull($shequ, $config, $task) {
 
     syncEnsureLogTables();
     syncEnsureCategoryMapTable();
+    syncEnsureGoodsMapTable();
     $lockName = 'q8_daishua_sync_' . intval($shequ['id']);
     $locked = intval($DB->getColumn("SELECT GET_LOCK(:lock_name, 5)", array(':lock_name' => $lockName)));
     if($locked !== 1) {
@@ -1499,6 +1502,39 @@ function syncEnsureCategoryMapTable() {
         UNIQUE KEY `shequ_remote` (`shequ_id`,`remote_cid`),
         KEY `local_cid` (`local_cid`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function syncEnsureGoodsMapTable() {
+    global $DB;
+    $DB->exec("CREATE TABLE IF NOT EXISTS `pre_sync_goods_map` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `shequ_id` int(11) NOT NULL,
+        `remote_goods_id` int(11) NOT NULL,
+        `local_tid` int(11) NOT NULL,
+        `name` varchar(255) NOT NULL DEFAULT '',
+        `addtime` datetime DEFAULT NULL,
+        `uptime` datetime DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `shequ_remote_goods` (`shequ_id`,`remote_goods_id`),
+        KEY `local_tid` (`local_tid`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function syncUpsertGoodsMap($shequId, $goodsId, $tid, $name) {
+    global $DB, $date;
+    $shequId = intval($shequId);
+    $goodsId = intval($goodsId);
+    $tid = intval($tid);
+    if($shequId <= 0 || $goodsId <= 0 || $tid <= 0) return;
+    syncEnsureGoodsMapTable();
+    $DB->exec("INSERT INTO pre_sync_goods_map (`shequ_id`,`remote_goods_id`,`local_tid`,`name`,`addtime`,`uptime`) VALUES (:shequ_id,:remote_goods_id,:local_tid,:name,:now,:now)
+        ON DUPLICATE KEY UPDATE local_tid=VALUES(local_tid),name=VALUES(name),uptime=VALUES(uptime)", [
+        ':shequ_id'=>$shequId,
+        ':remote_goods_id'=>$goodsId,
+        ':local_tid'=>$tid,
+        ':name'=>mb_substr((string)$name, 0, 255, 'UTF-8'),
+        ':now'=>$date
+    ]);
 }
 
 function syncEnsureLogTables() {
@@ -1732,6 +1768,7 @@ function syncRepairDaishuaCategoryAssignments($shequ, $config, $remoteGoods, $cl
 function syncDaishuaHandleDeletedProducts($shequId, $remoteGoods, $deleteRule, $task) {
     global $DB, $date;
 
+    syncEnsureGoodsMapTable();
     $remoteIds = [];
     foreach($remoteGoods as $g) {
         $gid = syncRemoteProductId($g);
@@ -1744,11 +1781,12 @@ function syncDaishuaHandleDeletedProducts($shequId, $remoteGoods, $deleteRule, $
         if($index > 0) continue;
         $placeholders = implode(',', array_fill(0, count($remoteIds), '?'));
         $params = array_merge([intval($shequId)], array_values($remoteIds));
-        $rs = $DB->query("SELECT tid,name,close FROM pre_tools WHERE shequ=? AND goods_id NOT IN ({$placeholders})", $params);
+        $rs = $DB->query("SELECT t.tid,t.name,t.close,m.remote_goods_id FROM pre_sync_goods_map m INNER JOIN pre_tools t ON t.tid=m.local_tid WHERE m.shequ_id=? AND m.remote_goods_id NOT IN ({$placeholders}) AND t.is_curl=2 AND t.shequ=m.shequ_id AND t.goods_id=m.remote_goods_id", $params);
         while($row = $rs->fetch()) {
             if($deleteRule == 2) {
                 syncAddPublicToolLog('offline', $row['name'], $row['tid']);
                 $DB->exec("DELETE FROM pre_tools WHERE tid=:tid", [':tid'=>$row['tid']]);
+                $DB->exec("DELETE FROM pre_sync_goods_map WHERE shequ_id=:shequ_id AND remote_goods_id=:remote_goods_id", [':shequ_id'=>intval($shequId), ':remote_goods_id'=>intval($row['remote_goods_id'])]);
                 $deleted++;
             } else {
                 if(intval($row['close']) == 0) {
@@ -1882,11 +1920,6 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
     $updateSamples = [];
     $seen = [];
     $repairExistingOnly = syncRepairExistingOnly();
-    $priceTemplate = null;
-    if(!empty($config['markup_template'])) {
-        $priceTemplate = $DB->getRow("SELECT * FROM pre_price WHERE id=:id AND zid=0 LIMIT 1", [':id'=>$config['markup_template']]);
-    }
-
     $ids = [];
     foreach($remoteGoods as $g) {
         $gid = syncRemoteProductId($g);
@@ -1959,8 +1992,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         $remoteActive = intval(isset($g['active']) ? $g['active'] : 1);
         if($remoteActive != 1) $remoteClose = 1;
         $remotePrice = floatval(isset($g['price']) ? $g['price'] : 0);
-        $templateId = intval(isset($config['markup_template']) ? $config['markup_template'] : 0);
-        // Keep the upstream base price in pre_tools; the template is applied later by the pricing layer.
+        $templateId = 0;
         $priceSet = syncBuildStoredPriceSet($remotePrice, $templateId);
         $name = syncRemoteProductName($g);
         if($name === '') {
@@ -1976,6 +2008,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         if($value < 1) $value = 1;
 
         if($old) {
+            syncUpsertGoodsMap($shequ['id'], $gid, $old['tid'], $name);
             $fields = ['uptime=:uptime','stock=:stock','close=:close','active=1'];
             $params = [
                 ':uptime'=>$date,
@@ -1986,9 +2019,18 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
             if(!empty($config['sync_goods_sort']) && isset($g['sort'])) { $fields[] = 'sort=:sort'; $params[':sort'] = intval($g['sort']); }
             if(!empty($config['sync_class'])) { $fields[] = 'cid=:cid'; $params[':cid'] = $localCid; }
             if(!empty($config['sync_name']) || syncStoredNameIsEmpty($old)) { $fields[] = 'name=:name'; $params[':name'] = $name; }
-            if(!empty($config['sync_price'])) { $fields[] = 'price=:price'; $params[':price'] = $priceSet['price']; }
+            if(!empty($config['sync_price'])) {
+                $fields[] = 'price=:price';
+                $fields[] = 'cost=:cost';
+                $fields[] = 'cost2=:cost2';
+                $fields[] = 'prid=:prid';
+                $params[':price'] = $priceSet['price'];
+                $params[':cost'] = $priceSet['cost'];
+                $params[':cost2'] = $priceSet['cost2'];
+                $params[':prid'] = $templateId;
+            }
             if($remotePrices !== null) { $fields[] = 'prices=:prices'; $params[':prices'] = $remotePrices; }
-            if(!empty($config['sync_cost'])) { $fields[] = 'cost=:cost'; $fields[] = 'cost2=:cost2'; $params[':cost'] = $priceSet['cost']; $params[':cost2'] = $priceSet['cost2']; }
+            if(!empty($config['sync_cost']) && empty($config['sync_price'])) { $fields[] = 'cost=:cost'; $fields[] = 'cost2=:cost2'; $params[':cost'] = $priceSet['cost']; $params[':cost2'] = $priceSet['cost2']; }
             $newDesc = trim((string)(isset($g['desc']) ? $g['desc'] : ''));
             if($newDesc !== '' && (!empty($config['sync_desc']) || trim((string)(isset($old['desc']) ? $old['desc'] : '')) === '')) {
                 $fields[] = '`desc`=:desc';
@@ -2017,7 +2059,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
             if(intval($old['active']) != 1) $changedFields[] = 'active';
             $compareMap = [
                 ':stock'=>'stock', ':close'=>'close', ':sort'=>'sort', ':cid'=>'cid', ':name'=>'name',
-                ':price'=>'price', ':cost'=>'cost', ':cost2'=>'cost2', ':desc'=>'desc', ':shopimg'=>'shopimg',
+                ':price'=>'price', ':cost'=>'cost', ':cost2'=>'cost2', ':prid'=>'prid', ':desc'=>'desc', ':shopimg'=>'shopimg',
                 ':prices'=>'prices', ':input'=>'input', ':inputs'=>'inputs', ':alert'=>'alert', ':goods_type'=>'goods_type', ':value'=>'value', ':min'=>'min',
                 ':max'=>'max', ':repeat'=>'repeat', ':multi'=>'multi', ':validate'=>'validate', ':valiserv'=>'valiserv'
             ];
@@ -2086,6 +2128,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
                 $newTid = intval($DB->getColumn("SELECT tid FROM pre_tools WHERE shequ=:shequ AND goods_id=:goods_id ORDER BY tid DESC LIMIT 1", [':shequ'=>intval($shequ['id']), ':goods_id'=>$gid]));
             }
             if($newTid > 0) {
+                syncUpsertGoodsMap($shequ['id'], $gid, $newTid, $name);
                 $newRow = $DB->getRow("SELECT * FROM pre_tools WHERE tid=:tid LIMIT 1", [':tid'=>$newTid]);
                 if($newRow) $existing[$gid] = $newRow;
             }
@@ -2109,15 +2152,17 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
     }
 
     if(!$repairExistingOnly && !empty($seen) && intval($config['delete_rule']) > 0) {
+        syncEnsureGoodsMapTable();
         foreach(array_chunk($seen, 800) as $i => $chunk) {
             if($i == 0) {
                 $placeholders = implode(',', array_fill(0, count($seen), '?'));
                 $params = array_merge([intval($shequ['id'])], $seen);
-                $rs = $DB->query("SELECT tid,name,close FROM pre_tools WHERE shequ=? AND goods_id NOT IN ({$placeholders})", $params);
+                $rs = $DB->query("SELECT t.tid,t.name,t.close,m.remote_goods_id FROM pre_sync_goods_map m INNER JOIN pre_tools t ON t.tid=m.local_tid WHERE m.shequ_id=? AND m.remote_goods_id NOT IN ({$placeholders}) AND t.is_curl=2 AND t.shequ=m.shequ_id AND t.goods_id=m.remote_goods_id", $params);
                 while($row = $rs->fetch()) {
                     if(intval($config['delete_rule']) == 2) {
                         syncAddPublicToolLog('offline', $row['name'], $row['tid']);
                         $DB->exec("DELETE FROM pre_tools WHERE tid=:tid", [':tid'=>$row['tid']]);
+                        $DB->exec("DELETE FROM pre_sync_goods_map WHERE shequ_id=:shequ_id AND remote_goods_id=:remote_goods_id", [':shequ_id'=>intval($shequ['id']), ':remote_goods_id'=>intval($row['remote_goods_id'])]);
                         $deleted++;
                     } else {
                         if(intval($row['close']) == 0) {

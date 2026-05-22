@@ -460,7 +460,11 @@ class Price {
 
 		if($this->power==2){
 
-			$profit=$toolPrice - $this->getToolCost2($tid);
+			$selfCost = $this->getManageSelfCostPrice($tid);
+			if($selfCost <= 0){
+				$selfCost = $this->getToolCost2($tid);
+			}
+			$profit=$toolPrice - $selfCost;
 
 			if($profit>0 && $profit<$money){
 
