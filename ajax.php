@@ -1441,6 +1441,18 @@ switch ($act) {
 					$order_state = third_call($shequ['type'], $shequ, 'query_order', array($row['djorder'], $tool_row['goods_id'], $inputs));
 					if ($order_state && is_array($order_state)) {
 						$list = $order_state;
+						$remote_kmdata = q8_sync_remote_faka_to_order($DB, $date, $id, $row['tid'], $order_state);
+						if ($remote_kmdata) {
+							$row['status'] = 1;
+							$row['djzt'] = 3;
+							$row['result'] = $remote_kmdata;
+							$list['订单结果'] = $remote_kmdata;
+						} elseif (q8_remote_order_completed($order_state) && intval($row['status']) == 2) {
+							$DB->exec("UPDATE `pre_orders` SET `uptime`=" . time() . " WHERE id='" . intval($id) . "'");
+						} elseif (q8_remote_order_failed($order_state) && intval($row['status']) < 3) {
+							$DB->exec("UPDATE `pre_orders` SET `status`=3,`uptime`=" . time() . " WHERE id='" . intval($id) . "'");
+							$row['status'] = 3;
+						}
 					}
 				}
 			}

@@ -417,11 +417,16 @@ elseif($act == 'search')
 			$shequ = $DB->getRow("SELECT * FROM pre_shequ WHERE id='{$tool['shequ']}' LIMIT 1");
 			$list = third_call($shequ['type'], $shequ, 'query_order', [$row['djorder'], $tool['goods_id'], [$row['input'], $row['input2'], $row['input3'], $row['input4'], $row['input5']]]);
 			if($list && is_array($list)){
-				if(($list['order_state']=='已完成'||$list['order_state']=='订单已完成'||$list['订单状态']=='已完成'||$list['订单状态']=='已发货'||$list['订单状态']=='交易成功'||$list['订单状态']=='已支付') && $row['status']==2){
-					$DB->exec("UPDATE `pre_orders` SET `status`=1 WHERE id='{$id}'");
+				$remote_kmdata = q8_sync_remote_faka_to_order($DB, $date, $id, $row['tid'], $list);
+				if($remote_kmdata){
 					$row['status'] = 1;
+					$row['djzt'] = 3;
+					$row['result'] = $remote_kmdata;
+					$list['订单结果'] = $remote_kmdata;
+				}elseif(q8_remote_order_completed($list) && $row['status']==2){
+					$DB->exec("UPDATE `pre_orders` SET `uptime`=".time()." WHERE id='{$id}'");
 				}
-				if((strpos($list['order_state'],'异常')!==false||strpos($list['order_state'],'退单')!==false||$list['订单状态']=='异常'||$list['订单状态']=='已退单') && $row['status']<3){
+				if(q8_remote_order_failed($list) && $row['status']<3){
 					$DB->exec("UPDATE `pre_orders` SET `status`=3 WHERE id='{$id}'");
 					$row['status'] = 3;
 				}

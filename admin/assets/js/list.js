@@ -359,6 +359,7 @@
       footer: [
         '<button type="button" class="btn btn-default js-dialog-order-edit" data-order-id="', id, '"><i class="fa fa-pencil"></i> \u7f16\u8f91\u6570\u636e</button>',
         '<button type="button" class="btn btn-default js-dialog-order-num" data-order-id="', id, '"><i class="fa fa-sort-numeric-asc"></i> \u4fee\u6539\u6570\u91cf</button>',
+        '<button type="button" class="btn btn-warning js-dialog-order-manual-faka" data-order-id="', id, '"><i class="fa fa-key"></i> \u624b\u52a8\u53d1\u5361</button>',
         '<button type="button" class="btn btn-primary js-dialog-order-progress" data-order-id="', id, '"><i class="fa fa-line-chart"></i> \u67e5\u770b\u8fdb\u5ea6</button>'
       ].join('')
     });
@@ -405,6 +406,27 @@
       footer: [
         '<button type="button" class="btn btn-default js-dialog-cancel"><i class="fa fa-times"></i> \u53d6\u6d88</button>',
         '<button type="button" class="btn btn-primary js-dialog-save-result" data-order-id="', id, '" data-result-title="', escapeHtml(title), '"><i class="fa fa-save"></i> \u4fdd\u5b58\u5185\u5bb9</button>'
+      ].join('')
+    });
+  }
+
+  function renderManualFakaDialog(id) {
+    return renderDialog({
+      modifier: 'admin-order-dialog--manual-faka',
+      eyebrow: 'Manual Delivery',
+      heading: '\u624b\u52a8\u53d1\u5361',
+      description: '\u7528\u4e8e\u4e0a\u6e38\u5bf9\u63a5\u5931\u8d25\u3001\u672c\u5730\u65e0\u5e93\u5b58\u5361\u5bc6\u65f6\uff0c\u7531\u7ba1\u7406\u5458\u624b\u52a8\u586b\u5165\u5361\u5bc6\u5e76\u5b8c\u6210\u8ba2\u5355\u3002',
+      meta: [{ label: '\u8ba2\u5355 ID', value: '#' + id }],
+      body: [
+        '<div class="admin-order-dialog__field">',
+        '<label for="manualFakaInput">\u5361\u5bc6\u5185\u5bb9</label>',
+        '<textarea id="manualFakaInput" class="form-control js-manual-faka-input" rows="7" placeholder="\u6bcf\u884c\u4e00\u6761\uff0c\u652f\u6301\uff1a\u5361\u53f7----\u5bc6\u7801 \u6216 \u5361\u53f7"></textarea>',
+        '<p class="admin-order-dialog__hint">\u63d0\u4ea4\u540e\u4f1a\u5199\u5165\u5361\u5bc6\u8868\uff0c\u5e76\u5c06\u8ba2\u5355\u6539\u4e3a\u5df2\u5b8c\u6210\u3001\u5df2\u53d1\u5361\u3002</p>',
+        '</div>'
+      ].join(''),
+      footer: [
+        '<button type="button" class="btn btn-default js-dialog-cancel"><i class="fa fa-times"></i> \u53d6\u6d88</button>',
+        '<button type="button" class="btn btn-warning js-dialog-submit-manual-faka" data-order-id="', id, '"><i class="fa fa-key"></i> \u786e\u8ba4\u53d1\u5361</button>'
       ].join('')
     });
   }
@@ -561,6 +583,10 @@
               layer.close(index);
               inputNum(id);
             });
+            $(layero).on('click', '.js-dialog-order-manual-faka', function () {
+              layer.close(index);
+              manualFaka(id);
+            });
             $(layero).on('click', '.js-dialog-order-progress', function () {
               layer.close(index);
               showStatus(id);
@@ -659,6 +685,62 @@
     });
   }
 
+  function submitManualFaka(id, text, confirmUpstream, modalIndex) {
+    requestJson({
+      type: 'POST',
+      url: 'ajax_order.php?act=manualFaka',
+      data: {
+        id: id,
+        kmdata: text,
+        confirm_upstream: confirmUpstream ? 1 : 0
+      }
+    }).done(function (response) {
+      if (response.code === 0) {
+        layer.close(modalIndex);
+        layer.alert(response.msg || '\u624b\u52a8\u53d1\u5361\u6210\u529f', { icon: 1, shadeClose: true }, function () {
+          layer.closeAll();
+          loadTable(getCurrentListQuery());
+        });
+        return;
+      }
+      if (response.code === -2) {
+        layer.confirm(response.msg || '\u8be5\u8ba2\u5355\u5df2\u6709\u4e0a\u6e38\u8ba2\u5355\u53f7\uff0c\u662f\u5426\u7ee7\u7eed\uff1f', {
+          icon: 3,
+          btn: ['\u7ee7\u7eed\u53d1\u5361', '\u53d6\u6d88']
+        }, function (confirmIndex) {
+          layer.close(confirmIndex);
+          submitManualFaka(id, text, true, modalIndex);
+        });
+        return;
+      }
+      layer.alert(response.msg || '\u624b\u52a8\u53d1\u5361\u5931\u8d25', { shadeClose: true });
+    }).fail(function () {
+      showErrorMessage('\u670d\u52a1\u5668\u9519\u8bef');
+    });
+  }
+
+  function manualFaka(id) {
+    openHtmlModal('\u624b\u52a8\u53d1\u5361', renderManualFakaDialog(id), 'compact', {
+      onSuccess: function (layero, index) {
+        var $textarea = $(layero).find('.js-manual-faka-input');
+        $textarea.focus();
+
+        $(layero).on('click', '.js-dialog-cancel', function () {
+          layer.close(index);
+        });
+        $(layero).on('click', '.js-dialog-submit-manual-faka', function () {
+          var text = $.trim($textarea.val() || '');
+          if (!text) {
+            layer.msg('\u8bf7\u5148\u586b\u5199\u5361\u5bc6\u5185\u5bb9');
+            $textarea.focus();
+            return;
+          }
+          submitManualFaka(id, text, false, index);
+        });
+      }
+    });
+  }
+
   function submitStatusChange(id, status) {
     requestJson({
       type: 'GET',
@@ -688,6 +770,10 @@
     }
     if (String(status) === '6') {
       refund(id);
+      return;
+    }
+    if (String(status) === '7') {
+      manualFaka(id);
       return;
     }
     if (String(status) === '5') {
@@ -1046,6 +1132,10 @@
       confirmResubmit($(this).data('orderResubmit'));
     });
 
+    $(document).on('click', '.js-order-manual-faka', function () {
+      manualFaka($(this).data('orderManualFaka'));
+    });
+
     $(document).on('click', '.js-order-result', function () {
       setResult($(this).data('orderResult'), $(this).data('resultTitle'));
     });
@@ -1079,6 +1169,7 @@
   window.inputOrder = inputOrder;
   window.inputNum = inputNum;
   window.refund = refund;
+  window.manualFaka = manualFaka;
   window.setStatus = setStatus;
   window.setResult = setResult;
   window.saveOrder = saveOrder;

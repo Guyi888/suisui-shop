@@ -337,6 +337,11 @@ class Price {
 	}
 
 	public function getToolCost($tid){
+		if(isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0){
+			if($this->power==1 || ($this->power==2 && (!isset($this->price_array[$tid]['cost']) || $this->price_array[$tid]['cost']<=0))){
+				return $this->iprice_array[$tid];
+			}
+		}
 		$cost2 = $this->getToolCost2($tid);
 		if($this->power<2 && isset($this->up_price_array[$tid]['cost']) && $this->up_price_array[$tid]['cost'] && $this->up_price_array[$tid]['cost']>=$cost2){
 			$cost = $this->up_price_array[$tid]['cost'];
@@ -351,6 +356,9 @@ class Price {
 	}
 
 	public function getToolCost2($tid){
+		if($this->power==2 && isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0){
+			return $this->iprice_array[$tid];
+		}
 		$baseCost2 = 0;
 		if(isset($this->tool['cost2']) && $this->tool['cost2']>0){
 			$baseCost2 = $this->tool['cost2'];

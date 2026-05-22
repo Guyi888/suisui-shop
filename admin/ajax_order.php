@@ -218,6 +218,51 @@ case 'setresult':
 	else
 		exit('{"code":-1,"msg":"修改订单失败！'.$DB->error().'"}');
 break;
+case 'manualFaka':
+	adminpermission('order', 2);
+	$id = intval($_POST['id']);
+	$confirm_upstream = isset($_POST['confirm_upstream']) ? intval($_POST['confirm_upstream']) : 0;
+	$kmdata_input = isset($_POST['kmdata']) ? trim((string)$_POST['kmdata']) : '';
+	$row = $DB->getRow("select * from pre_orders where id='$id' limit 1");
+	if(!$row)
+		exit('{"code":-1,"msg":"当前订单不存在！"}');
+	if(intval($row['status']) == 4)
+		exit('{"code":-1,"msg":"该订单已退单，不能手动发卡"}');
+	if(intval($DB->getColumn("SELECT COUNT(*) FROM pre_faka WHERE orderid='$id'")) > 0)
+		exit('{"code":-1,"msg":"该订单已经存在卡密，请勿重复发卡"}');
+	if(!empty($row['djorder']) && $confirm_upstream != 1)
+		exit('{"code":-2,"msg":"该订单已有上游订单号，确认手动发卡可能造成重复发货。是否继续？"}');
+	if($kmdata_input === '')
+		exit('{"code":-1,"msg":"请先填写卡密内容"}');
+	$cards = function_exists('q8_extract_remote_faka_rows') ? q8_extract_remote_faka_rows(array('kmdata' => $kmdata_input)) : array();
+	if(empty($cards))
+		exit('{"code":-1,"msg":"没有识别到有效卡密，请每行填写一条卡密"}');
+	$tool = $DB->getRow("select * from pre_tools where tid='{$row['tid']}' limit 1");
+	if(!$tool)
+		exit('{"code":-1,"msg":"订单商品不存在，无法发卡"}');
+	$result_text = '';
+	$insert_count = 0;
+	foreach($cards as $card_row){
+		$card = trim((string)$card_row['card']);
+		$pass = trim((string)$card_row['pass']);
+		if($card === '') continue;
+		$card_sql = daddslashes($card);
+		$pass_sql = daddslashes($pass);
+		$DB->query("INSERT INTO `pre_faka` (`tid`,`km`,`pw`,`orderid`,`addtime`,`usetime`) VALUES ('{$row['tid']}','{$card_sql}','{$pass_sql}','{$id}',NOW(),NOW())");
+		$result_text .= q8_build_faka_text($card, $pass);
+		$insert_count++;
+	}
+	if($insert_count <= 0 || $result_text === '')
+		exit('{"code":-1,"msg":"没有写入有效卡密"}');
+	if($DB->exec("UPDATE `pre_orders` SET `status`='1',`djzt`='3',`result`='" . daddslashes($result_text) . "',`uptime`='" . time() . "' WHERE `id`='{$id}'") !== false){
+		if(function_exists('q8_send_faka_mail')){
+			$input = array($row['input'], $row['input2'], $row['input3'], $row['input4'], $row['input5']);
+			q8_send_faka_mail($conf, $tool, $input, $result_text, $date);
+		}
+		exit(json_encode(array('code'=>0,'msg'=>'手动发卡成功，已写入'.$insert_count.'条卡密')));
+	}
+	exit('{"code":-1,"msg":"订单状态更新失败！'.$DB->error().'"}');
+break;
 case 'getmoney': //退款查询
 	adminpermission('refund', 2);
 	$id=intval($_POST['id']);

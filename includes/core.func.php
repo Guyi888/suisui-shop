@@ -97,6 +97,102 @@ if (!function_exists('q8_build_faka_text')) {
 		return $km . "<br/>";
 	}
 }
+if (!function_exists('q8_remote_order_completed')) {
+	function q8_remote_order_completed($list) {
+		if (!is_array($list)) return false;
+		$states = array('order_state', '订单状态', '状态');
+		foreach ($states as $key) {
+			if (!isset($list[$key])) continue;
+			$value = (string)$list[$key];
+			if (strpos($value, '已完成') !== false || strpos($value, '已发货') !== false || strpos($value, '交易成功') !== false || strpos($value, '充值成功') !== false || strpos($value, '已支付') !== false) {
+				return true;
+			}
+		}
+		return false;
+	}
+}
+if (!function_exists('q8_remote_order_failed')) {
+	function q8_remote_order_failed($list) {
+		if (!is_array($list)) return false;
+		$states = array('order_state', '订单状态', '状态');
+		foreach ($states as $key) {
+			if (!isset($list[$key])) continue;
+			$value = (string)$list[$key];
+			if (strpos($value, '异常') !== false || strpos($value, '退单') !== false || strpos($value, '退款') !== false || strpos($value, '失败') !== false) {
+				return true;
+			}
+		}
+		return false;
+	}
+}
+if (!function_exists('q8_extract_remote_faka_rows')) {
+	function q8_extract_remote_faka_rows($list) {
+		if (!is_array($list)) return array();
+		$source = null;
+		foreach (array('kmdata', '卡密信息', '卡密', '订单结果') as $key) {
+			if (isset($list[$key]) && $list[$key] !== '') {
+				$source = $list[$key];
+				break;
+			}
+		}
+		if ($source === null) return array();
+		$rows = array();
+		if (is_array($source)) {
+			foreach ($source as $item) {
+				if (is_array($item)) {
+					$card = isset($item['card']) ? trim((string)$item['card']) : (isset($item['km']) ? trim((string)$item['km']) : '');
+					$pass = isset($item['pass']) ? trim((string)$item['pass']) : (isset($item['pw']) ? trim((string)$item['pw']) : '');
+					if ($card !== '' || $pass !== '') $rows[] = array('card' => $card !== '' ? $card : $pass, 'pass' => $card !== '' ? $pass : '');
+				} else {
+					$text = trim((string)$item);
+					if ($text !== '') $rows[] = array('card' => $text, 'pass' => '');
+				}
+			}
+			return $rows;
+		}
+		$text = html_entity_decode((string)$source, ENT_QUOTES, 'UTF-8');
+		$text = preg_replace('/<\s*br\s*\/?\s*>/i', "\n", $text);
+		$text = trim(strip_tags($text));
+		foreach (preg_split('/[\r\n]+/', $text) as $line) {
+			$line = trim($line);
+			if ($line === '') continue;
+			$card = $line;
+			$pass = '';
+			if (preg_match('/卡号[:：]\s*(.*?)\s+密码[:：]\s*(.*)$/u', $line, $match)) {
+				$card = trim($match[1]);
+				$pass = trim($match[2]);
+			} elseif (strpos($line, '----') !== false) {
+				list($card, $pass) = array_map('trim', explode('----', $line, 2));
+			}
+			if ($card !== '' || $pass !== '') $rows[] = array('card' => $card !== '' ? $card : $pass, 'pass' => $card !== '' ? $pass : '');
+		}
+		return $rows;
+	}
+}
+if (!function_exists('q8_sync_remote_faka_to_order')) {
+	function q8_sync_remote_faka_to_order($DB, $date, $orderid, $tid, $list) {
+		$orderid = intval($orderid);
+		$tid = intval($tid);
+		if ($orderid <= 0 || $tid <= 0) return false;
+		if (intval($DB->getColumn("SELECT COUNT(*) FROM pre_faka WHERE orderid='{$orderid}'")) > 0) return false;
+		$rows = q8_extract_remote_faka_rows($list);
+		if (empty($rows)) return false;
+		$kmdata = '';
+		foreach ($rows as $row) {
+			$card = daddslashes($row['card']);
+			$pass = daddslashes($row['pass']);
+			if ($card === '') continue;
+			$exists = intval($DB->getColumn("SELECT COUNT(*) FROM pre_faka WHERE orderid='{$orderid}' AND tid='{$tid}' AND km='{$card}' AND pw='{$pass}'"));
+			if ($exists == 0) {
+				$DB->query("INSERT INTO `pre_faka` (`tid`,`km`,`pw`,`orderid`,`addtime`,`usetime`) VALUES ('{$tid}','{$card}','{$pass}','{$orderid}',NOW(),NOW())");
+			}
+			$kmdata .= q8_build_faka_text($row['card'], $row['pass']);
+		}
+		if ($kmdata === '') return false;
+		$DB->exec("UPDATE `pre_orders` SET `status`='1',`djzt`='3',`result`='" . daddslashes($kmdata) . "',`uptime`='" . time() . "' WHERE `id`='{$orderid}'");
+		return $kmdata;
+	}
+}
 if (!function_exists('q8_send_faka_mail')) {
 	function q8_send_faka_mail($conf, $tools, $input, $kmdata, $date) {
 		$to = null;

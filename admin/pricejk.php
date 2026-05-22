@@ -90,9 +90,20 @@ for (i = 0; i < items.length; i++) {
 }
 function showresult(){
 	var url = '../cron.php?do=pricejk&key=<?php echo $conf["cronkey"];?>&test=1';
-	var content = '<div id="loadiframe" style="text-align:center;"><i class="fa fa-spinner fa-spin"></i>正在加载...</div><iframe src="'+url+'" frameborder="0" scrolling="auto" seamless="seamless" width="100%"  onload="$(\'#loadiframe\').hide();"></iframe>';
-	$("#showresult").modal('show');
-	$("#result_content").html(content);
+	var isMobile = $(window).width() < 768;
+	layer.open({
+		type: 2,
+		title: '\u624b\u52a8\u540c\u6b65\u4ef7\u683c',
+		shade: [0.08, '#000'],
+		shadeClose: false,
+		closeBtn: 1,
+		maxmin: !isMobile,
+		area: [isMobile ? '94%' : '860px', isMobile ? '82%' : '640px'],
+		content: url,
+		end: function(){
+			$('.layui-layer-shade').remove();
+		}
+	});
 }
 
 </script>
