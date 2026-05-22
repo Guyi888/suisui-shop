@@ -330,24 +330,59 @@ if (!function_exists('q8_admin_sync_cron_schedule')) {
     }
 }
 
+if (!function_exists('q8_admin_sync_start_monitor_request')) {
+    function q8_admin_sync_start_monitor_request($url, $host)
+    {
+        $parts = parse_url($url);
+        if (!$parts || empty($parts['path'])) {
+            return false;
+        }
+
+        $path = $parts['path'] . (!empty($parts['query']) ? '?' . $parts['query'] : '');
+        $host = $host !== '' ? $host : (!empty($parts['host']) ? $parts['host'] : 'localhost');
+        $request = "GET {$path} HTTP/1.1\r\n";
+        $request .= "Host: {$host}\r\n";
+        $request .= "User-Agent: SuiSuiSync/1.0\r\n";
+        $request .= "Connection: Close\r\n\r\n";
+
+        foreach (array('127.0.0.1:80', 'ssl://127.0.0.1:443') as $target) {
+            $targetParts = explode(':', $target);
+            $scheme = count($targetParts) > 2 ? $targetParts[0] : '';
+            $port = intval($targetParts[count($targetParts) - 1]);
+            $address = $scheme === 'ssl' ? 'ssl://127.0.0.1' : '127.0.0.1';
+            $errno = 0;
+            $errstr = '';
+            $fp = @fsockopen($address, $port, $errno, $errstr, 2);
+            if (!$fp) {
+                continue;
+            }
+            stream_set_timeout($fp, 2);
+            fwrite($fp, $request);
+            fclose($fp);
+            return true;
+        }
+
+        if (function_exists('curl_init')) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_exec($ch);
+            $errno = curl_errno($ch);
+            curl_close($ch);
+            return $errno === 0 || $errno === 28;
+        }
+
+        return false;
+    }
+}
+
 if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'run_sync_now') {
     @header('Content-Type: text/plain; charset=utf-8');
-
-    $monitorKey = (string)$DB->getColumn("SELECT `v` FROM `pre_config` WHERE `k`='monitor_key'");
-    $scriptDir = __DIR__;
-    $cliHost = !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
-    $cliHttps = is_https() ? 'on' : 'off';
-    $phpSnippet = '$_GET["key"]=$argv[1]; $_SERVER["HTTP_HOST"]=' . var_export($cliHost, true) . '; $_SERVER["SCRIPT_NAME"]="/admin/cx-api-synchronization.php"; $_SERVER["HTTPS"]=' . var_export($cliHttps, true) . '; chdir(' . var_export($scriptDir, true) . '); include "cx-api-synchronization.php";';
-    $output = '';
-
-    if (function_exists('shell_exec')) {
-        $command = 'cd ' . escapeshellarg($scriptDir) . ' && php -r ' . escapeshellarg($phpSnippet) . ' ' . escapeshellarg($monitorKey) . ' 2>&1';
-        $output = shell_exec($command);
-        if ($output !== null && trim((string)$output) !== '') {
-            echo $output;
-            exit;
-        }
-    }
 
     $scheme = is_https() ? 'https://' : 'http://';
     $host = !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
@@ -355,46 +390,15 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'run_sync_now') {
     if ($scriptBase === '.' || $scriptBase === '/') {
         $scriptBase = '/admin';
     }
+    $monitorKey = (string)$DB->getColumn("SELECT `v` FROM `pre_config` WHERE `k`='monitor_key'");
     $monitorUrl = $scheme . $host . rtrim($scriptBase, '/') . '/cx-api-synchronization.php?key=' . rawurlencode($monitorKey) . '&test=1&__cv=' . time();
 
-    if (function_exists('curl_init')) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $monitorUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 180);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        $output = curl_exec($ch);
-        curl_close($ch);
-
-        if ($output !== false && trim((string)$output) !== '') {
-            echo $output;
-            exit;
-        }
+    if (q8_admin_sync_start_monitor_request($monitorUrl, $host)) {
+        echo '同步任务已启动，请稍后查看同步结果和站点日志。';
+        exit;
     }
 
-    if (filter_var($monitorUrl, FILTER_VALIDATE_URL) && ini_get('allow_url_fopen')) {
-        $context = stream_context_create(array(
-            'http' => array(
-                'method' => 'GET',
-                'timeout' => 180,
-                'ignore_errors' => true
-            ),
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false
-            )
-        ));
-        $output = @file_get_contents($monitorUrl, false, $context);
-        if ($output !== false && trim((string)$output) !== '') {
-            echo $output;
-            exit;
-        }
-    }
-
-    echo '同步请求失败，请检查 shell_exec、curl 或 allow_url_fopen';
+    echo '同步请求失败，请检查本机 HTTP、curl 或站点访问配置';
     exit;
 }
 

@@ -7,6 +7,7 @@
 ini_set('max_execution_time', 3600); // 设置执行时间为1小时
 ini_set('memory_limit', '512M'); // 设置内存限制为512M
 ini_set('default_socket_timeout', 300); // 设置socket超时为5分钟
+ignore_user_abort(true);
 
 header("Content-Type: text/html;charset=utf-8");
 include("../includes/common.php");
@@ -190,6 +191,41 @@ function syncFirstTextValue($row, $keys)
     return '';
 }
 
+function syncFirstPositiveIdValue($row, $keys)
+{
+    if (!is_array($row)) return 0;
+    foreach ($keys as $key) {
+        if (!isset($row[$key])) continue;
+        if (is_array($row[$key]) || is_object($row[$key])) continue;
+        $value = intval($row[$key]);
+        if ($value > 0) return $value;
+    }
+    return 0;
+}
+
+function syncRemoteProductId($row)
+{
+    return syncFirstPositiveIdValue($row, ['id', 'tid', 'goods_id', 'goodsId', 'goodsSN', 'goods_sn', 'sn']);
+}
+
+function syncRemoteProductName()
+{
+    $rows = func_get_args();
+    foreach ($rows as $row) {
+        $name = syncFirstTextValue($row, [
+            'name', 'goodsName', 'goodsname', 'goods_name', 'goodsTitle',
+            'goods_title', 'title', 'product_name', 'productName', 'subject'
+        ]);
+        if ($name !== '') return $name;
+    }
+    return '';
+}
+
+function syncStoredNameIsEmpty($row)
+{
+    return !is_array($row) || !isset($row['name']) || trim((string)$row['name']) === '';
+}
+
 function syncNormalizeProductDetail($detail)
 {
     if (!is_array($detail)) return [];
@@ -210,7 +246,7 @@ function syncNormalizeProductDetail($detail)
         ]);
     }
     if (!isset($detail['name']) || $detail['name'] === '') {
-        $detail['name'] = syncFirstTextValue($detail, ['name', 'goodsName', 'goodsname', 'title']);
+        $detail['name'] = syncRemoteProductName($detail);
     }
     if (!isset($detail['price']) && isset($detail['goodsPrice'])) $detail['price'] = $detail['goodsPrice'];
     if (!isset($detail['min']) && isset($detail['minOrderNum'])) $detail['min'] = $detail['minOrderNum'];
@@ -474,23 +510,29 @@ function syncProducts($shequ, $config, $task) {
             $need_desc_ids = [];
 
             foreach($batch_products as $product) {
-                $shequ_product_ids[] = $product['id'];
-                $product_ids[] = $product['id'];
-                $all_shequ_product_ids[] = $product['id'];
+                $product = syncNormalizeProductDetail($product);
+                $product_id = syncRemoteProductId($product);
+                if($product_id <= 0) {
+                    $task->updateProgress("跳过缺少远端 ID 的商品");
+                    continue;
+                }
+                $shequ_product_ids[] = $product_id;
+                $product_ids[] = $product_id;
+                $all_shequ_product_ids[] = $product_id;
 
                 // 检查是否需要获取商品详情
                 if(empty($product['cid']) || !isset($category_map[$product['cid']])) {
-                    $need_detail_ids[] = $product['id'];
+                    $need_detail_ids[] = $product_id;
                 }
 
                 // 检查是否需要同步价格
                 if($config['sync_price']) {
-                    $need_price_ids[] = $product['id'];
+                    $need_price_ids[] = $product_id;
                 }
 
                 // 检查是否需要同步描述
-                if($config['sync_desc']) {
-                    $need_desc_ids[] = $product['id'];
+                if($config['sync_desc'] || syncRemoteProductName($product) === '') {
+                    $need_desc_ids[] = $product_id;
                 }
             }
 
@@ -566,21 +608,26 @@ function syncProducts($shequ, $config, $task) {
             }
 
             foreach($batch_products as $product) {
+                $product = syncNormalizeProductDetail($product);
+                $product_id = syncRemoteProductId($product);
+                if($product_id <= 0) {
+                    continue;
+                }
                 // 检查任务超时
                 $task->checkTimeout();
 
                 // 检查商品是否已存在 - 使用批量查询的结果
-                $existing_product = isset($existing_products[$product['id']]) ? $existing_products[$product['id']] : null;
+                $existing_product = isset($existing_products[$product_id]) ? $existing_products[$product_id] : null;
 
                 // 新增商品逻辑
                 if(!$existing_product) {
                     // 检查是否允许新增商品
                     if($config['add_goods']) {
-                        $task->updateProgress("开始处理新增商品: {$product['name']} (ID: {$product['id']})");
+                        $task->updateProgress("开始处理新增商品: " . syncRemoteProductName($product) . " (ID: {$product_id})");
 
                         // 构建商品详情数据
                         $product_detail = [
-                            'name' => $product['name'],
+                            'name' => syncRemoteProductName($product),
                             'price' => $product['price'],
                             'shopimg' => $product['shopimg'],
                             'close' => $product['close'],
@@ -596,10 +643,15 @@ function syncProducts($shequ, $config, $task) {
                         }
 
                         // 从缓存中获取商品详情
-                        $cache_key = $product['id'];
+                        $cache_key = $product_id;
                         if(isset($product_details_cache[$cache_key])) {
                             $cached_detail = syncNormalizeProductDetail($product_details_cache[$cache_key]);
                             $product_detail = array_merge($product_detail, $cached_detail);
+                        }
+                        $product_detail['name'] = syncRemoteProductName($product_detail, $product);
+                        if($product_detail['name'] === '') {
+                            $task->updateProgress("跳过空商品名新增: ID={$product_id}");
+                            continue;
                         }
 
                         // 查找对应的本地分类
@@ -687,7 +739,7 @@ function syncProducts($shequ, $config, $task) {
                         $new_product_data = [
                             'sort' => 0,
                             'cid' => $cid,
-                            'name' => $product_detail['name'] ?? $product['name'] ?? '未命名商品',
+                            'name' => $product_detail['name'],
                             'price' => floatval($price),
                             'cost' => floatval($cost_price),
                             'cost2' => 0,
@@ -702,7 +754,7 @@ function syncProducts($shequ, $config, $task) {
                             'is_curl' => 2,
                             'curl' => '',
                             'shequ' => intval($shequ['id']),
-                            'goods_id' => strval($product['id']),
+                            'goods_id' => strval($product_id),
                             'goods_type' => 0,
                             'goods_param' => isset($product_detail['goods_param']) ? $product_detail['goods_param'] : (isset($product_detail['id']) ? $product_detail['id'] : ''),
                             'repeat' => intval($product_detail['repeat'] ?? 0),
@@ -721,7 +773,7 @@ function syncProducts($shequ, $config, $task) {
                         // 添加到批量插入数组
                         $new_products[] = $new_product_data;
                     } else {
-                        $task->updateProgress("不允许新增商品，跳过: {$product['name']}");
+                        $task->updateProgress("不允许新增商品，跳过: " . syncRemoteProductName($product));
                     }
                     continue;
                 }
@@ -730,7 +782,7 @@ function syncProducts($shequ, $config, $task) {
                 $cost_price = $product['price'];
 
                 // 从缓存中获取商品详情
-                $cache_key = $product['id'];
+                $cache_key = $product_id;
                 $cached_detail = isset($product_details_cache[$cache_key]) ? syncNormalizeProductDetail($product_details_cache[$cache_key]) : [];
 
                 // 如果需要同步价格，使用缓存的价格信息
@@ -811,8 +863,11 @@ function syncProducts($shequ, $config, $task) {
                 }
 
                 // 同步商品名称
-                if($config['sync_name'] && isset($product['name'])) {
-                    $update_data['name'] = $product['name'];
+                if($config['sync_name'] || syncStoredNameIsEmpty($existing_product)) {
+                    $syncName = syncRemoteProductName($product, $cached_detail);
+                    if($syncName !== '') {
+                        $update_data['name'] = $syncName;
+                    }
                 }
 
                 // 同步商品图片
@@ -859,7 +914,7 @@ function syncProducts($shequ, $config, $task) {
                     ];
                 }
 
-                $task->updateProgress("收集更新商品: {$product['name']}");
+                $task->updateProgress("收集更新商品: " . syncRemoteProductName($product, $cached_detail));
             }
 
             // 批量插入新商品
@@ -1080,26 +1135,29 @@ function syncDaishuaFull($shequ, $config, $task) {
     $lockName = 'q8_daishua_sync_' . intval($shequ['id']);
     $locked = intval($DB->getColumn("SELECT GET_LOCK(:lock_name, 5)", array(':lock_name' => $lockName)));
     if($locked !== 1) {
-        throw new Exception('another sync task is running for this supplier');
+        throw new Exception('该供货站点已有同步任务正在运行，请等待上一轮同步结束后再执行');
     }
     register_shutdown_function(function() use ($DB, $lockName) {
         $DB->getColumn("SELECT RELEASE_LOCK(:lock_name)", array(':lock_name' => $lockName));
     });
-    syncDeduplicateDaishuaTools(intval($shequ['id']));
 
-    $classes = syncDaishuaApi($shequ, 'classlist');
-    $goods = syncDaishuaApi($shequ, 'goodslist');
-    if(!is_array($classes) || !isset($classes['data']) || !is_array($classes['data'])) {
-        throw new Exception('获取分类列表失败');
-    }
-    if(!is_array($goods) || !isset($goods['data']) || !is_array($goods['data'])) {
-        throw new Exception('获取商品列表失败');
-    }
+    try {
+        syncDeduplicateDaishuaTools(intval($shequ['id']));
 
-    $classMap = syncDaishuaCategories($shequ['id'], $classes['data'], $task);
-    $goodsResult = syncDaishuaProducts($shequ, $config, $goods['data'], $classMap, $task);
-    $DB->getColumn("SELECT RELEASE_LOCK(:lock_name)", array(':lock_name' => $lockName));
-    return $goodsResult;
+        $classes = syncDaishuaApi($shequ, 'classlist');
+        $goods = syncDaishuaApi($shequ, 'goodslist');
+        if(!is_array($classes) || !isset($classes['data']) || !is_array($classes['data'])) {
+            throw new Exception('获取分类列表失败');
+        }
+        if(!is_array($goods) || !isset($goods['data']) || !is_array($goods['data'])) {
+            throw new Exception('获取商品列表失败');
+        }
+
+        $classMap = syncDaishuaCategories($shequ['id'], $classes['data'], $task);
+        return syncDaishuaProducts($shequ, $config, $goods['data'], $classMap, $task);
+    } finally {
+        $DB->getColumn("SELECT RELEASE_LOCK(:lock_name)", array(':lock_name' => $lockName));
+    }
 }
 
 function syncDaishuaApi($shequ, $act) {
@@ -1306,11 +1364,14 @@ function syncDaishuaFetchProductDetails($shequ, $ids, $task)
         foreach($chunk as $goodsId) {
             try {
                 $post = 'tid=' . urlencode($goodsId) . '&user=' . urlencode($shequ['username']) . '&pass=' . urlencode($shequ['password']);
-                $cmd = 'curl -ks --connect-timeout 8 --max-time 20 -X POST -d ' . escapeshellarg($post) . ' ' . escapeshellarg($url);
-                $ret = shell_exec($cmd);
+                $ret = get_curl($url, $post);
+                if((!is_string($ret) || trim($ret) === '') && function_exists('shell_exec')) {
+                    $cmd = 'curl -ks --connect-timeout 8 --max-time 20 -X POST -d ' . escapeshellarg($post) . ' ' . escapeshellarg($url);
+                    $ret = shell_exec($cmd);
+                }
                 $json = is_string($ret) ? json_decode($ret, true) : null;
                 $detail = is_array($json) && isset($json['data']) && is_array($json['data']) ? $json['data'] : [];
-                if(is_array($detail)) {
+                if(is_array($detail) && !empty($detail)) {
                     $details[$goodsId] = syncNormalizeProductDetail($detail);
                 }
             } catch(Exception $e) {
@@ -1334,8 +1395,7 @@ function syncRepairDaishuaCategoryAssignments($shequ, $config, $remoteGoods, $cl
 
     $targets = [];
     foreach($remoteGoods as $g) {
-        if(!isset($g['tid'])) continue;
-        $gid = intval($g['tid']);
+        $gid = syncRemoteProductId($g);
         if($gid < 1) continue;
         $target = syncResolveDaishuaCategory($config, $classMap, isset($g['cid']) ? $g['cid'] : 0, 0);
         $targets[$gid] = [
@@ -1521,10 +1581,8 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
 
     $ids = [];
     foreach($remoteGoods as $g) {
-        if(isset($g['tid'])) {
-            $gid = intval($g['tid']);
-            if($gid > 0) $ids[$gid] = $gid;
-        }
+        $gid = syncRemoteProductId($g);
+        if($gid > 0) $ids[$gid] = $gid;
     }
     $ids = array_values($ids);
     $existing = [];
@@ -1538,19 +1596,23 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
     }
 
     $detailCache = [];
-    if(!empty($config['sync_desc'])) {
-        $needDetailIds = [];
-        foreach($remoteGoods as $g) {
-            if(!isset($g['tid'])) continue;
-            $gid = intval($g['tid']);
-            if($gid <= 0) continue;
-            $old = isset($existing[$gid]) ? $existing[$gid] : null;
-            if(!$old || !isset($old['desc']) || trim((string)$old['desc']) === '') {
-                $needDetailIds[] = $gid;
-            }
+    $needDetailIds = [];
+    foreach($remoteGoods as $g) {
+        $gid = syncRemoteProductId($g);
+        if($gid <= 0) continue;
+        $old = isset($existing[$gid]) ? $existing[$gid] : null;
+        if(!$old || !isset($old['desc']) || trim((string)$old['desc']) === '' || syncRemoteProductName($g) === '' || syncStoredNameIsEmpty($old)) {
+            $needDetailIds[] = $gid;
         }
+    }
+    $needDetailIds = array_values(array_unique($needDetailIds));
+    $detailLimit = !empty($config['sync_limit']) ? max(1, intval($config['sync_limit'])) : 50;
+    if(count($needDetailIds) > $detailLimit) {
+        $needDetailIds = array_slice($needDetailIds, 0, $detailLimit);
+    }
+    if(!empty($config['sync_desc']) || !empty($needDetailIds)) {
         if(!empty($needDetailIds)) {
-            $task->updateProgress("开始补取商品详情，共 " . count(array_unique($needDetailIds)) . " 个商品");
+            $task->updateProgress("开始补取商品详情，本轮 " . count($needDetailIds) . " 个商品");
             $detailCache = syncDaishuaFetchProductDetails($shequ, $needDetailIds, $task);
         }
     }
@@ -1561,13 +1623,12 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         if($ac != $bc) return $ac - $bc;
         $as = intval(isset($a['sort']) ? $a['sort'] : 0);
         $bs = intval(isset($b['sort']) ? $b['sort'] : 0);
-        if($as == $bs) return intval($a['tid']) - intval($b['tid']);
+        if($as == $bs) return syncRemoteProductId($a) - syncRemoteProductId($b);
         return $as - $bs;
     });
 
     foreach($remoteGoods as $g) {
-        if(!isset($g['tid'])) continue;
-        $gid = intval($g['tid']);
+        $gid = syncRemoteProductId($g);
         if($gid <= 0) continue;
         if(isset($seen[$gid])) continue;
         $g = syncNormalizeProductDetail($g);
@@ -1588,7 +1649,11 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         $templateId = intval(isset($config['markup_template']) ? $config['markup_template'] : 0);
         // Keep the upstream base price in pre_tools; the template is applied later by the pricing layer.
         $priceSet = syncBuildStoredPriceSet($remotePrice, $templateId);
-        $name = isset($g['name']) ? $g['name'] : '';
+        $name = syncRemoteProductName($g);
+        if($name === '') {
+            $task->updateProgress("跳过空商品名商品: ID={$gid}");
+            continue;
+        }
         $shopimg = syncNormalizeImage($shequ, isset($g['shopimg']) ? $g['shopimg'] : '');
         $remotePrices = syncExtractWholesalePrices($g);
         $isFakaGoods = !empty($g['isfaka']) || ($old && intval($old['goods_type']) == 1);
@@ -1607,7 +1672,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
             ];
             if(!empty($config['sync_goods_sort']) && isset($g['sort'])) { $fields[] = 'sort=:sort'; $params[':sort'] = intval($g['sort']); }
             if(!empty($config['sync_class'])) { $fields[] = 'cid=:cid'; $params[':cid'] = $localCid; }
-            if(!empty($config['sync_name'])) { $fields[] = 'name=:name'; $params[':name'] = $name; }
+            if(!empty($config['sync_name']) || syncStoredNameIsEmpty($old)) { $fields[] = 'name=:name'; $params[':name'] = $name; }
             if(!empty($config['sync_price'])) { $fields[] = 'price=:price'; $params[':price'] = $priceSet['price']; }
             if($remotePrices !== null) { $fields[] = 'prices=:prices'; $params[':prices'] = $remotePrices; }
             if(!empty($config['sync_cost'])) { $fields[] = 'cost=:cost'; $fields[] = 'cost2=:cost2'; $params[':cost'] = $priceSet['cost']; $params[':cost2'] = $priceSet['cost2']; }

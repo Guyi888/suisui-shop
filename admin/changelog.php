@@ -26,6 +26,16 @@ include "./head.php";
         </div>
         <div class="panel-body">
             <div class="timeline-list">
+                <div class="alert alert-warning">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.12-beta / 2026-05-22 自动同步立即执行测试版修复</h4>
+                    <ul>
+                        <li>修复“立即执行同步”可能重复触发同一轮同步，导致提示“已有同步任务正在运行”的问题。</li>
+                        <li>立即执行改为快速发起后台同步任务，避免浏览器或网关等待超时后误提示同步失败。</li>
+                        <li>增强远端商品 ID 和商品名称字段兼容，避免字段名不一致时写入空商品名。</li>
+                        <li>本地商品名为空时会优先用远端有效名称修正；远端名称仍为空的新商品会跳过写入。</li>
+                        <li>程序缓存版本更新到 <code>2026052206</code>。</li>
+                    </ul>
+                </div>
                 <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.11 / 2026-05-22 后台工单与分类批量操作修复</h4>
                     <ul>
