@@ -103,11 +103,16 @@ function batchOperation() {
 }
 
 function executeBatchOperation() {
+	var aid = $("select[name='aid']").val();
+	var postData = {aid: aid, checkbox: []};
+	$("input[name='checkbox[]']:checked").each(function() {
+		postData.checkbox.push($(this).val());
+	});
 	var ii = layer.load(2, {shade:[0.1,'#fff']});
 	$.ajax({
 		type : 'POST',
 		url : 'ajax_class.php?act=batchOperation',
-		data : $('#classlist').serialize(),
+		data : postData,
 		dataType : 'json',
 		success : function(data) {
 			layer.close(ii);

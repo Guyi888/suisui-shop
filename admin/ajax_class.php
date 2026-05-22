@@ -147,21 +147,52 @@ break;
 case 'batchOperation': //批量操作分类
 	adminpermission('shop', 2);
 	$aid=intval($_POST['aid']);
-	$checkbox=$_POST['checkbox'];
-	$i=0;
+	$checkbox=isset($_POST['checkbox']) && is_array($_POST['checkbox']) ? $_POST['checkbox'] : array();
+	$cids=array();
 	foreach($checkbox as $cid){
 		$cid=intval($cid);
-		if($aid==1){
-			$DB->exec("update shua_class set active=1 where cid=:cid limit 1", array(':cid' => $cid));
-		}elseif($aid==2){
-			$DB->exec("update shua_class set active=0 where cid=:cid limit 1", array(':cid' => $cid));
-		}elseif($aid==3){
-			$DB->exec("DELETE FROM shua_class WHERE cid=:cid limit 1", array(':cid' => $cid));
-			$DB->exec("DELETE FROM shua_tools WHERE cid=:cid", array(':cid' => $cid));
-		}
-		$i++;
+		if($cid>0)$cids[$cid]=$cid;
 	}
-	exit('{"code":0,"msg":"成功改变'.$i.'个分类"}');
+	if(empty($cids)){
+		exit('{"code":-1,"msg":"请至少选择一个分类"}');
+	}
+	if($aid==1 || $aid==2){
+		$i=0;
+		foreach($cids as $cid){
+			if($DB->exec("update shua_class set active=:active where cid=:cid limit 1", array(':active' => $aid==1 ? 1 : 0, ':cid' => $cid))!==false)$i++;
+		}
+		exit('{"code":0,"msg":"成功改变'.$i.'个分类"}');
+	}elseif($aid==3){
+		$all=$cids;
+		do{
+			$before=count($all);
+			$placeholders=implode(',', array_fill(0, count($all), '?'));
+			$rs=$DB->query("SELECT cid FROM shua_class WHERE pid IN ({$placeholders})", array_values($all));
+			while($row=$rs->fetch()){
+				$subCid=intval($row['cid']);
+				if($subCid>0)$all[$subCid]=$subCid;
+			}
+		}while(count($all)>$before);
+
+		$ids=array_values($all);
+		$placeholders=implode(',', array_fill(0, count($ids), '?'));
+		$DB->exec("DELETE FROM shua_tools WHERE cid IN ({$placeholders})", $ids);
+		$rs=$DB->query("SELECT cid FROM shua_class WHERE cid IN ({$placeholders}) ORDER BY pid DESC,cid DESC", $ids);
+		$deleteIds=array();
+		while($row=$rs->fetch()){
+			$deleteIds[]=intval($row['cid']);
+		}
+		$deleted=0;
+		foreach($deleteIds as $cid){
+			$ret=$DB->exec("DELETE FROM shua_class WHERE cid=:cid limit 1", array(':cid'=>$cid));
+			if($ret!==false)$deleted++;
+		}
+		if($deleted<1){
+			exit('{"code":-1,"msg":"没有删除任何分类，请刷新后重试"}');
+		}
+		exit('{"code":0,"msg":"成功删除'.$deleted.'个分类"}');
+	}
+	exit('{"code":-1,"msg":"请选择批量操作"}');
 break;
 
 // 设置二级分类提示语 - 岁岁 @qqfaka修改，岁岁 @qqfaka

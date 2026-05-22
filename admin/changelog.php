@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.11 / 2026-05-22 后台工单与分类批量操作修复</h4>
+                    <ul>
+                        <li>修复分类列表全选后执行批量删除时，因整页表单字段干扰导致提示“请选择批量操作”的问题。</li>
+                        <li>修复删除一级分类时下级分类和对应商品未完整清理，造成提示已删除但二级分类仍残留的问题。</li>
+                        <li>工单详情和网盘失效详情页登录校验提前到页面输出前，避免弹窗 iframe 误跳登录页并提示“您已登陆！”。</li>
+                        <li>未登录访问详情页时改为跳转顶层登录页，不再在弹窗内嵌套登录页。</li>
+                        <li>程序缓存版本更新到 <code>2026052205</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.10 / 2026-05-22 XHY-01 首页公告字段修复</h4>
                     <ul>
                         <li>修复后台修改“首页公告（非弹窗）”后，XHY-01 前台点击“平台公告”仍显示首页弹出公告内容的问题。</li>

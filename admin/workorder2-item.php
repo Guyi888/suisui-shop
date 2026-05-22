@@ -1,3 +1,10 @@
+<?php
+include "../includes/common.php";
+if ($islogin != 1) {
+	exit("<script language='javascript'>top.location.href='./login.php';</script>");
+}
+adminpermission("workorder", 1);
+?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -57,12 +64,6 @@ body{margin:0;background:#f6f9ff;color:#1f2f46;font-family:-apple-system,BlinkMa
     <div class="col-sm-12 col-md-10 center-block" style="float: none;">
 
 <?php
-include "../includes/common.php";
-if ($islogin == 1) {
-} else {
-	exit("<script language='javascript'>window.location.href='./login.php';</script>");
-}
-adminpermission("workorder", 1);
 $my = isset($_GET["my"]) ? $_GET["my"] : null;
 if ($my == "view") {
 	$id = intval($_GET["id"]);
