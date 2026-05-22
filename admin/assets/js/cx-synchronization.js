@@ -13,9 +13,10 @@
     requestError: '\u670d\u52a1\u8bf7\u6c42\u5931\u8d25\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5',
     runConfirm: '\u786e\u5b9a\u7acb\u5373\u6267\u884c\u4e00\u6b21\u81ea\u52a8\u540c\u6b65\u5417\uff1f',
     runTitle: '\u624b\u52a8\u540c\u6b65',
-    runSuccess: '\u540c\u6b65\u8bf7\u6c42\u5df2\u6267\u884c',
+    runSuccess: '\u540c\u6b65\u4efb\u52a1\u5df2\u521b\u5efa\uff0c\u53ef\u5728\u4efb\u52a1\u8bb0\u5f55\u67e5\u770b\u8fdb\u5ea6',
     runFail: '\u540c\u6b65\u8bf7\u6c42\u5931\u8d25',
     runTimeout: '\u8bf7\u6c42\u8d85\u65f6\uff0c\u8bf7\u7a0d\u540e\u53bb\u7ad9\u70b9\u65e5\u5fd7\u91cc\u7ee7\u7eed\u786e\u8ba4\u7ed3\u679c',
+    taskEmpty: '\u6682\u65e0\u540c\u6b65\u4efb\u52a1\u8bb0\u5f55',
     copied: '\u5df2\u590d\u5236\u5230\u526a\u8d34\u677f',
     copyFail: '\u590d\u5236\u5931\u8d25\uff0c\u8bf7\u624b\u52a8\u590d\u5236',
     noSiteSelected: '\u5f53\u524d\u6ca1\u6709\u542f\u7528\u4efb\u4f55\u7ad9\u70b9\uff0c\u4f9d\u7136\u4f1a\u4fdd\u5b58\u5168\u5c40\u8bbe\u7f6e',
@@ -27,6 +28,7 @@
     copyMonitor: '\u590d\u5236\u76d1\u63a7\u5730\u5740',
     invalidMonitor: '\u76d1\u63a7\u5730\u5740\u4e3a\u7a7a\uff0c\u8bf7\u5148\u4fdd\u5b58\u8bbe\u7f6e'
   };
+  var activeTaskTimer = null;
 
   function showMessage(message, icon) {
     if (window.layer && typeof window.layer.msg === 'function') {
@@ -279,6 +281,110 @@
     fallbackCopy(text);
   }
 
+  function escapeHtml(value) {
+    return String(value === null || value === undefined ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function taskIsFinished(task) {
+    return task && (task.status === 'success' || task.status === 'failed');
+  }
+
+  function renderTask(task) {
+    var status = task.status || 'queued';
+    var updatedAt = task.updated_at || task.finished_at || task.started_at || task.addtime || '';
+    var lines = '';
+
+    if (task.error_reason) {
+      lines += '<small>' + escapeHtml(task.error_reason) + '</small>';
+    }
+    if (task.upstream_summary) {
+      lines += '<small>' + escapeHtml(task.upstream_summary) + '</small>';
+    }
+
+    return [
+      '<article class="admin-sync-task is-' + escapeHtml(status) + '" data-sync-task="' + escapeHtml(task.task_key) + '">',
+      '<div class="admin-sync-task__main">',
+      '<strong>' + escapeHtml(task.status_text || status) + ' \u00b7 ' + escapeHtml(task.task_key || '') + '</strong>',
+      '<p>' + escapeHtml(task.summary || '') + '</p>',
+      lines,
+      '</div>',
+      '<div class="admin-sync-task__side">',
+      '<span>' + parseInt(task.progress || 0, 10) + '%</span>',
+      '<time>' + escapeHtml(updatedAt) + '</time>',
+      '</div>',
+      '</article>'
+    ].join('');
+  }
+
+  function renderTaskList(tasks) {
+    var $list = $('#syncTaskList');
+    var html = '';
+
+    if (!$list.length) {
+      return;
+    }
+
+    if (!tasks || !tasks.length) {
+      $list.html('<div class="admin-sync-task-empty">' + MSG.taskEmpty + '</div>');
+      return;
+    }
+
+    $.each(tasks, function (_, task) {
+      html += renderTask(task);
+    });
+    $list.html(html);
+  }
+
+  function fetchTasks(taskId, callback) {
+    $.ajax({
+      type: 'GET',
+      url: pageUrl,
+      data: {
+        action: 'sync_task_status',
+        task_id: taskId || ''
+      },
+      dataType: 'json',
+      timeout: 15000
+    }).done(function (response) {
+      if (response && response.task) {
+        renderTaskList([response.task]);
+        if (typeof callback === 'function') {
+          callback(response.task);
+        }
+        return;
+      }
+      if (response && response.tasks) {
+        renderTaskList(response.tasks);
+      }
+    });
+  }
+
+  function pollTask(taskId) {
+    if (activeTaskTimer) {
+      window.clearTimeout(activeTaskTimer);
+      activeTaskTimer = null;
+    }
+    if (!taskId) {
+      fetchTasks();
+      return;
+    }
+
+    fetchTasks(taskId, function (task) {
+      if (taskIsFinished(task)) {
+        showMessage(task.status === 'success' ? '\u540c\u6b65\u4efb\u52a1\u5df2\u5b8c\u6210' : '\u540c\u6b65\u4efb\u52a1\u5931\u8d25\uff0c\u8bf7\u67e5\u770b\u4efb\u52a1\u8bb0\u5f55', task.status === 'success' ? 1 : 2);
+        return;
+      }
+      activeTaskTimer = window.setTimeout(function () {
+        pollTask(taskId);
+      }, 5000);
+    });
+  }
+
   function submitForm() {
     var $form = $('#syncConfigForm');
     var $submit = $('#syncConfigSubmit');
@@ -349,11 +455,16 @@
           action: 'run_sync_now',
           monitor_url: currentMonitorUrl
         },
-        dataType: 'text',
-        timeout: 180000
+        dataType: 'json',
+        timeout: 30000
       }).done(function (response) {
         closeLoading(loading);
-        showAlert(response || MSG.runSuccess);
+        if (response && parseInt(response.code, 10) === 1) {
+          showMessage(response.msg || MSG.runSuccess, 1);
+          pollTask(response.task_id);
+          return;
+        }
+        showAlert((response && response.msg) || MSG.runFail);
       }).fail(function (xhr, status) {
         closeLoading(loading);
         if (status === 'timeout') {
@@ -416,6 +527,10 @@
 
     $('#syncCopyMonitor').on('click', function () {
       copyText($('#syncMonitorUrl').val());
+    });
+
+    $('#syncRefreshTasks').on('click', function () {
+      fetchTasks();
     });
 
     $('[data-sync-copy="monitor-url"]').on('click', function () {

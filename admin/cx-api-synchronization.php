@@ -8,14 +8,161 @@ ini_set('max_execution_time', 3600); // 设置执行时间为1小时
 ini_set('memory_limit', '512M'); // 设置内存限制为512M
 ini_set('default_socket_timeout', 300); // 设置socket超时为5分钟
 ignore_user_abort(true);
+set_time_limit(0);
 
 header("Content-Type: text/html;charset=utf-8");
-include("../includes/common.php");
+include(__DIR__ . "/../includes/common.php");
+
+if (PHP_SAPI === 'cli' && !empty($argv)) {
+    foreach (array_slice($argv, 1) as $arg) {
+        if (strpos($arg, '=') === false) continue;
+        list($key, $value) = explode('=', $arg, 2);
+        $_GET[$key] = $value;
+    }
+}
 
 // 检查监控密钥
 $monitor_key = $DB->getColumn("SELECT v FROM pre_config WHERE k='monitor_key'");
 if($monitor_key && $_GET['key'] != $monitor_key) {
     exit('Access Denied');
+}
+
+function syncTaskEnsureSchema() {
+    global $DB;
+    $DB->exec("CREATE TABLE IF NOT EXISTS `pre_sync_tasks` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `task_key` varchar(40) NOT NULL DEFAULT '',
+        `trigger_type` varchar(32) NOT NULL DEFAULT 'manual',
+        `status` varchar(16) NOT NULL DEFAULT 'queued',
+        `progress` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `summary` varchar(255) NOT NULL DEFAULT '',
+        `error_reason` varchar(255) NOT NULL DEFAULT '',
+        `upstream_summary` text,
+        `output_tail` text,
+        `detail` mediumtext,
+        `started_at` datetime DEFAULT NULL,
+        `finished_at` datetime DEFAULT NULL,
+        `updated_at` datetime DEFAULT NULL,
+        `addtime` datetime DEFAULT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `task_key` (`task_key`),
+        KEY `status` (`status`),
+        KEY `addtime` (`addtime`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function syncTaskKey() {
+    return isset($_GET['task_id']) ? preg_replace('/[^a-zA-Z0-9]/', '', (string)$_GET['task_id']) : '';
+}
+
+function syncRepairExistingOnly() {
+    return isset($_GET['repair_existing']) && intval($_GET['repair_existing']) === 1;
+}
+
+function syncGetPosition($shequId) {
+    global $DB;
+    $value = $DB->getColumn("SELECT v FROM pre_config WHERE k=:key", array(':key' => 'sync_pos_' . intval($shequId)));
+    return $value !== null && $value !== '' ? max(0, intval($value)) : 0;
+}
+
+function syncSetPosition($shequId, $position) {
+    global $DB;
+    $DB->exec("REPLACE INTO pre_config SET k=:key,v=:value", array(
+        ':key' => 'sync_pos_' . intval($shequId),
+        ':value' => (string)max(0, intval($position))
+    ));
+}
+
+function syncResetPosition($shequId) {
+    syncSetPosition($shequId, 0);
+}
+
+function syncTaskTrim($value, $length = 240) {
+    $value = trim(preg_replace('/\s+/u', ' ', strip_tags((string)$value)));
+    if(function_exists('mb_substr')) {
+        return mb_substr($value, 0, $length, 'UTF-8');
+    }
+    return substr($value, 0, $length);
+}
+
+function syncTaskUpdate($taskKey, $status, $progress, $summary, $extra = array()) {
+    global $DB;
+    if($taskKey === '') return;
+    syncTaskEnsureSchema();
+    $fields = array('status=:status', 'progress=:progress', 'summary=:summary', 'updated_at=NOW()');
+    $params = array(
+        ':status' => $status,
+        ':progress' => max(0, min(100, intval($progress))),
+        ':summary' => syncTaskTrim($summary),
+        ':task_key' => $taskKey
+    );
+    if($status === 'running') {
+        $fields[] = 'started_at=IFNULL(started_at,NOW())';
+    }
+    if($status === 'success' || $status === 'failed') {
+        $fields[] = 'finished_at=NOW()';
+    }
+    foreach(array('error_reason', 'upstream_summary', 'output_tail', 'detail') as $key) {
+        if(array_key_exists($key, $extra)) {
+            $fields[] = "`{$key}`=:{$key}";
+            $params[':' . $key] = is_scalar($extra[$key]) ? (string)$extra[$key] : json_encode($extra[$key], JSON_UNESCAPED_UNICODE);
+        }
+    }
+    $DB->exec("UPDATE `pre_sync_tasks` SET " . implode(',', $fields) . " WHERE `task_key`=:task_key", $params);
+}
+
+function syncTaskSiteLabel($shequ) {
+    if(!is_array($shequ)) return '未知供货站点';
+    $parts = array();
+    $parts[] = 'ID ' . intval($shequ['id']);
+    if(!empty($shequ['type'])) $parts[] = strtoupper($shequ['type']);
+    if(!empty($shequ['url'])) $parts[] = preg_replace('/^https?:\/\//i', '', $shequ['url']);
+    return implode(' / ', $parts);
+}
+
+function syncTaskActLabel($act) {
+    $map = array(
+        'classlist' => '分类接口',
+        'goodslist' => '商品接口',
+        'goodsdetails' => '商品详情接口',
+        'class_list' => '分类接口',
+        'goods_list' => '商品接口',
+        'goods_detail' => '商品详情接口'
+    );
+    return isset($map[$act]) ? $map[$act] : $act;
+}
+
+function syncTaskResponseMessage($message) {
+    $message = trim((string)$message);
+    if($message === '') return '';
+    $lower = strtolower($message);
+    $map = array(
+        'succ' => '成功',
+        'success' => '成功',
+        'ok' => '成功',
+        'error' => '接口返回错误',
+        'fail' => '接口返回失败',
+        'failed' => '接口返回失败'
+    );
+    return isset($map[$lower]) ? $map[$lower] : $message;
+}
+
+function syncTaskUpstreamSummary($shequ, $act, $result = null, $raw = '') {
+    $summary = syncTaskSiteLabel($shequ) . ' · ' . syncTaskActLabel($act);
+    if(is_array($result)) {
+        $code = isset($result['code']) ? $result['code'] : (isset($result['status']) ? $result['status'] : '');
+        $message = isset($result['message']) ? $result['message'] : (isset($result['msg']) ? $result['msg'] : '');
+        $count = isset($result['data']) && is_array($result['data']) ? count($result['data']) : null;
+        if($code !== '') $summary .= ' · 状态码=' . $code;
+        if($count !== null) $summary .= ' · 数据=' . $count . ' 条';
+        $message = syncTaskResponseMessage($message);
+        if($message !== '') $summary .= ' · ' . syncTaskTrim($message, 80);
+        return syncTaskTrim($summary, 255);
+    }
+    if($raw !== '') {
+        $summary .= ' · 原始响应摘要：' . syncTaskTrim($raw, 120);
+    }
+    return syncTaskTrim($summary, 255);
 }
 
 // 设置同步任务开始时间
@@ -25,26 +172,70 @@ echo "同步任务开始时间：{$date}<br/>";
 // 模拟任务管理器功能
 class SimpleTask {
     private $name;
+    private $taskKey;
     private $outputBuffer = [];
+    private $recentMessages = [];
     private $bufferSize = 50; // 每50条输出一次，减少I/O操作
     private $lastFlushTime = 0;
     private $flushInterval = 5; // 每5秒至少刷新一次
+    private $progress = 1;
+    private $lastDbUpdateTime = 0;
+    private $dbUpdateInterval = 3;
 
-    public function __construct($name) {
+    public function __construct($name, $taskKey = '') {
         $this->name = $name;
+        $this->taskKey = $taskKey;
         $this->lastFlushTime = time();
+        $this->lastDbUpdateTime = 0;
+        syncTaskUpdate($this->taskKey, 'running', 1, '同步任务已启动');
         // 启用输出缓冲
         if(!ob_get_level()) {
             ob_start();
         }
     }
 
-    public function updateProgress($message) {
+    public function updateProgress($message, $extra = []) {
+        $this->progress = min(95, $this->progress + 2);
+        $this->recentMessages[] = syncTaskTrim($message, 180);
+        if(count($this->recentMessages) > 12) {
+            $this->recentMessages = array_slice($this->recentMessages, -12);
+        }
+        $extra['output_tail'] = implode("\n", $this->recentMessages);
+        syncTaskUpdate($this->taskKey, 'running', $this->progress, $message, $extra);
+        $this->lastDbUpdateTime = time();
+
         // 只记录关键信息，减少输出量
         if(strpos($message, '处理第') !== false || strpos($message, '开始') !== false || strpos($message, '完成') !== false || strpos($message, '异常') !== false || strpos($message, '失败') !== false || strpos($message, '调试') !== false || strpos($message, '调试') !== false || strpos($message, '异常') !== false || strpos($message, '失败') !== false) {
             $this->outputBuffer[] = $message . "<br/>";
             $this->checkFlush();
         }
+    }
+
+    public function heartbeat($message, $extra = []) {
+        $currentTime = time();
+        if(($currentTime - $this->lastDbUpdateTime) < $this->dbUpdateInterval) {
+            return;
+        }
+        $this->updateProgress($message, $extra);
+    }
+
+    public function finish($summary, $detail = []) {
+        $extra = [
+            'detail' => $detail,
+            'output_tail' => implode("\n", $this->recentMessages)
+        ];
+        if(isset($detail['upstream_summary'])) {
+            $extra['upstream_summary'] = $detail['upstream_summary'];
+        }
+        syncTaskUpdate($this->taskKey, 'success', 100, $summary, $extra);
+    }
+
+    public function fail($summary, $reason, $detail = []) {
+        syncTaskUpdate($this->taskKey, 'failed', 100, $summary, [
+            'error_reason' => syncTaskTrim($reason, 255),
+            'detail' => $detail,
+            'output_tail' => implode("\n", $this->recentMessages)
+        ]);
     }
 
     public function checkTimeout() {
@@ -81,7 +272,8 @@ class SimpleTask {
 }
 
 // 创建简单任务实例
-$task = new SimpleTask('auto_sync');
+$syncTaskKey = syncTaskKey();
+$task = new SimpleTask('auto_sync', $syncTaskKey);
 
 try {
     // 获取所有启用的同步配置
@@ -92,6 +284,7 @@ try {
     $total_scanned = 0;
     $total_field_counts = [];
     $total_update_samples = [];
+    $upstream_summaries = [];
 
     while($row = $configs->fetch()) {
         $task->updateProgress("开始处理站点配置: ID=" . $row['shequ_id']);
@@ -99,19 +292,20 @@ try {
         // 获取对接站点信息
         $shequ = $DB->getRow("SELECT * FROM pre_shequ WHERE id='" . $row['shequ_id'] . "'");
         if(!$shequ) {
-            $task->updateProgress("跳过: 未找到站点信息 ID=" . $row['shequ_id']);
+            $task->updateProgress("跳过: 未找到站点信息 ID=" . $row['shequ_id'], ['error_reason' => '同步配置指向的供货站点不存在']);
             continue;
         }
+        $siteSummaryPrefix = syncTaskSiteLabel($shequ);
 
         // 检查插件是否存在
         $plugin_file = PLUGIN_ROOT . 'third_' . $shequ['type'] . '.php';
         if(!file_exists($plugin_file)) {
-            $task->updateProgress("跳过: 插件文件不存在 {$plugin_file}");
+            $task->updateProgress("跳过: 插件文件不存在 {$plugin_file}", ['error_reason' => $siteSummaryPrefix . ' 插件文件不存在']);
             continue;
         }
 
         if($shequ['type'] == 'daishua') {
-            $task->updateProgress("开始同系统完整同步");
+            $task->updateProgress("开始同系统完整同步", ['upstream_summary' => $siteSummaryPrefix]);
             $synced_count = syncDaishuaFull($shequ, $row, $task);
             $total_synced += $synced_count['synced'];
             $total_updated += $synced_count['updated'];
@@ -126,7 +320,10 @@ try {
             if(!empty($synced_count['samples']) && is_array($synced_count['samples'])) {
                 $total_update_samples = array_slice(array_merge($total_update_samples, $synced_count['samples']), 0, 20);
             }
-            $task->updateProgress("站点同步完成：已检索 {$synced_count['scanned']} 条，实际新增 {$synced_count['synced']} 条，实际更新 {$synced_count['updated']} 条，实际删除 {$synced_count['deleted']} 条");
+            if(!empty($synced_count['upstream_summary'])) {
+                $upstream_summaries[] = $synced_count['upstream_summary'];
+            }
+            $task->updateProgress("站点同步完成：已检索 {$synced_count['scanned']} 条，实际新增 {$synced_count['synced']} 条，实际更新 {$synced_count['updated']} 条，实际删除 {$synced_count['deleted']} 条", ['upstream_summary' => implode("\n", array_slice($upstream_summaries, -5))]);
             continue;
         }
 
@@ -141,17 +338,32 @@ try {
         $total_synced += $synced_count['synced'];
         $total_updated += $synced_count['updated'];
         $total_deleted += $synced_count['deleted'];
+        $total_scanned += intval($synced_count['scanned'] ?? 0);
+        if(!empty($synced_count['upstream_summary'])) {
+            $upstream_summaries[] = $synced_count['upstream_summary'];
+        }
 
-        $task->updateProgress("站点同步完成：实际新增 {$synced_count['synced']} 条，实际更新 {$synced_count['updated']} 条，实际删除 {$synced_count['deleted']} 条");
+        $task->updateProgress("站点同步完成：实际新增 {$synced_count['synced']} 条，实际更新 {$synced_count['updated']} 条，实际删除 {$synced_count['deleted']} 条", ['upstream_summary' => implode("\n", array_slice($upstream_summaries, -5))]);
     }
 
-    $task->updateProgress("同步任务完成：已检索 {$total_scanned} 条，实际新增 {$total_synced} 条，实际更新 {$total_updated} 条，实际删除 {$total_deleted} 条");
-    $syncLogDetail = json_encode(['scanned'=>$total_scanned,'added'=>$total_synced,'updated'=>$total_updated,'deleted'=>$total_deleted,'field_counts'=>$total_field_counts,'samples'=>$total_update_samples], JSON_UNESCAPED_UNICODE);
+    $task->updateProgress("同步任务完成：已检索 {$total_scanned} 条，实际新增 {$total_synced} 条，实际更新 {$total_updated} 条，实际删除 {$total_deleted} 条", ['upstream_summary' => implode("\n", array_slice($upstream_summaries, -8))]);
+    $syncLogDetail = json_encode(['scanned'=>$total_scanned,'added'=>$total_synced,'updated'=>$total_updated,'deleted'=>$total_deleted,'field_counts'=>$total_field_counts,'samples'=>$total_update_samples,'upstream_summary'=>$upstream_summaries], JSON_UNESCAPED_UNICODE);
     q8_add_site_log('sync', 'sync_full', 'all', "自动同步完成：已检索 {$total_scanned} 条，实际新增 {$total_synced} 条，实际更新 {$total_updated} 条，实际删除 {$total_deleted} 条", $syncLogDetail);
+    $task->finish("自动同步完成：已检索 {$total_scanned} 条，实际新增 {$total_synced} 条，实际更新 {$total_updated} 条，实际删除 {$total_deleted} 条", [
+        'scanned'=>$total_scanned,
+        'added'=>$total_synced,
+        'updated'=>$total_updated,
+        'deleted'=>$total_deleted,
+        'field_counts'=>$total_field_counts,
+        'samples'=>$total_update_samples,
+        'upstream_summary'=>implode("\n", array_slice($upstream_summaries, -8))
+    ]);
     echo "同步任务结束时间: " . date('Y-m-d H:i:s') . "<br/>";
 
 } catch(Exception $e) {
     $task->updateProgress("同步任务异常: " . $e->getMessage());
+    $task->fail('自动同步失败', $e->getMessage());
+    q8_add_site_log('sync', 'sync_full_failed', 'all', '自动同步失败：' . syncTaskTrim($e->getMessage(), 180), json_encode(['error_reason'=>$e->getMessage()], JSON_UNESCAPED_UNICODE));
 } finally {
     // 清理任务
     $task->cleanup();
@@ -421,12 +633,13 @@ function syncCategories($shequ, $config, $task) {
 
     try {
         $categories = third_call($shequ['type'], $shequ, 'class_list');
+        $task->updateProgress("分类接口响应：" . syncTaskUpstreamSummary($shequ, 'class_list', $categories), ['upstream_summary' => syncTaskUpstreamSummary($shequ, 'class_list', $categories)]);
         if(!is_array($categories)) {
-            $task->updateProgress("获取分类列表失败: {$categories}");
+            $task->updateProgress("获取分类列表失败: {$categories}", ['error_reason' => syncTaskSiteLabel($shequ) . ' 分类接口返回非数组', 'upstream_summary' => syncTaskUpstreamSummary($shequ, 'class_list', null, $categories)]);
             return;
         }
         if(empty($categories)) {
-            $task->updateProgress("未获取到分类数据");
+            $task->updateProgress("未获取到分类数据", ['error_reason' => syncTaskSiteLabel($shequ) . ' 分类接口无数据']);
             return;
         }
 
@@ -435,7 +648,7 @@ function syncCategories($shequ, $config, $task) {
         $updated = intval($syncCategoryResult['updated']);
         $task->updateProgress("分类同步完成: 新增{$added}, 更新{$updated}");
     } catch(Exception $e) {
-        $task->updateProgress("分类同步失败: " . $e->getMessage());
+        $task->updateProgress("分类同步失败: " . $e->getMessage(), ['error_reason' => $e->getMessage()]);
     }
 }
 
@@ -448,23 +661,28 @@ function syncProducts($shequ, $config, $task) {
     $synced = 0;
     $updated = 0;
     $deleted = 0;
+    $scanned = 0;
+    $upstreamSummary = '';
 
     try {
         // 使用 third_call 函数调用插件方法获取商品列表
         $products = third_call($shequ['type'], $shequ, 'goods_list');
+        $upstreamSummary = syncTaskUpstreamSummary($shequ, 'goods_list', $products);
+        $task->updateProgress("商品接口响应：" . $upstreamSummary, ['upstream_summary' => $upstreamSummary]);
 
         // 检查商品列表是否为数组
         if(!is_array($products)) {
-            $task->updateProgress("获取商品列表失败: {$products}");
-            return ['synced' => 0, 'updated' => 0, 'deleted' => 0];
+            $task->updateProgress("获取商品列表失败: {$products}", ['error_reason' => syncTaskSiteLabel($shequ) . ' 商品接口返回非数组', 'upstream_summary' => syncTaskUpstreamSummary($shequ, 'goods_list', null, $products)]);
+            return ['synced' => 0, 'updated' => 0, 'deleted' => 0, 'scanned' => 0, 'upstream_summary' => $upstreamSummary];
         }
 
         if(empty($products)) {
-            $task->updateProgress("未获取到商品数据");
-            return ['synced' => 0, 'updated' => 0, 'deleted' => 0];
+            $task->updateProgress("未获取到商品数据", ['error_reason' => syncTaskSiteLabel($shequ) . ' 商品接口无数据', 'upstream_summary' => $upstreamSummary]);
+            return ['synced' => 0, 'updated' => 0, 'deleted' => 0, 'scanned' => 0, 'upstream_summary' => $upstreamSummary];
         }
 
         $total_products = count($products);
+        $scanned = $total_products;
         $task->updateProgress("获取到 {$total_products} 个商品，开始分批处理");
 
         // 预加载分类信息，减少重复查询
@@ -563,10 +781,11 @@ function syncProducts($shequ, $config, $task) {
                         }
                         $task->updateProgress("批量获取商品详情成功，共 " . count($product_details_cache) . " 个商品");
                     }
-                } catch(Exception $e) {
-                    // 批量调用失败，使用单个调用
-                    $batch_supported = false;
-                }
+            } catch(Exception $e) {
+                // 批量调用失败，使用单个调用
+                $batch_supported = false;
+                $task->updateProgress("批量商品详情接口失败，切换为单个获取: " . $e->getMessage(), ['error_reason' => $e->getMessage()]);
+            }
 
                 // 如果不支持批量调用，使用单个调用但优化为批量处理
                 if(!$batch_supported) {
@@ -585,6 +804,7 @@ function syncProducts($shequ, $config, $task) {
                                 }
                             } catch(Exception $e) {
                                 // 获取商品详情失败，继续处理
+                                $task->updateProgress("商品详情接口失败: ID={$product_id} " . $e->getMessage(), ['error_reason' => $e->getMessage()]);
                             }
                         }
                     }
@@ -759,8 +979,8 @@ function syncProducts($shequ, $config, $task) {
                             'goods_param' => isset($product_detail['goods_param']) ? $product_detail['goods_param'] : (isset($product_detail['id']) ? $product_detail['id'] : ''),
                             'repeat' => intval($product_detail['repeat'] ?? 0),
                             'multi' => intval($product_detail['multi'] ?? 0),
-                            'min' => 1,
-                        'max' => intval($product_detail['max'] ?? $product_detail['limit_max'] ?? $product_detail['buy_max_limit'] ?? $product_detail['max_buy'] ?? $product_detail['buy_max'] ?? 0),
+                            'min' => max(1, intval($product_detail['min'] ?? $product_detail['limit_min'] ?? $product_detail['buy_min_limit'] ?? $product_detail['min_buy'] ?? $product_detail['buy_min'] ?? 1)),
+                            'max' => intval($product_detail['max'] ?? $product_detail['limit_max'] ?? $product_detail['buy_max_limit'] ?? $product_detail['max_buy'] ?? $product_detail['buy_max'] ?? 0),
                             'validate' => $product_detail['validate'] ?? '',
                             'valiserv' => $product_detail['valiserv'] ?? '',
                             'close' => intval($product['close'] ?? 0),
@@ -1048,11 +1268,11 @@ function syncProducts($shequ, $config, $task) {
         }
 
     } catch(Exception $e) {
-        $task->updateProgress("商品同步失败: " . $e->getMessage());
+        $task->updateProgress("商品同步失败: " . $e->getMessage(), ['error_reason' => $e->getMessage(), 'upstream_summary' => $upstreamSummary]);
         echo "商品同步失败: " . $e->getMessage() . "<br/>";
     }
 
-    return ['synced' => $synced, 'updated' => $updated, 'deleted' => $deleted];
+    return ['synced' => $synced, 'updated' => $updated, 'deleted' => $deleted, 'scanned' => $scanned, 'upstream_summary' => $upstreamSummary];
 }
 
 /**
@@ -1146,15 +1366,61 @@ function syncDaishuaFull($shequ, $config, $task) {
 
         $classes = syncDaishuaApi($shequ, 'classlist');
         $goods = syncDaishuaApi($shequ, 'goodslist');
+        $classSummary = syncTaskUpstreamSummary($shequ, 'classlist', $classes);
+        $goodsSummary = syncTaskUpstreamSummary($shequ, 'goodslist', $goods);
+        $task->updateProgress("同系统分类接口响应：" . $classSummary, ['upstream_summary' => $classSummary]);
+        $task->updateProgress("同系统商品接口响应：" . $goodsSummary, ['upstream_summary' => $goodsSummary]);
         if(!is_array($classes) || !isset($classes['data']) || !is_array($classes['data'])) {
-            throw new Exception('获取分类列表失败');
+            throw new Exception('获取分类列表失败：' . $classSummary);
         }
         if(!is_array($goods) || !isset($goods['data']) || !is_array($goods['data'])) {
-            throw new Exception('获取商品列表失败');
+            throw new Exception('获取商品列表失败：' . $goodsSummary);
         }
 
         $classMap = syncDaishuaCategories($shequ['id'], $classes['data'], $task);
-        return syncDaishuaProducts($shequ, $config, $goods['data'], $classMap, $task);
+        $remoteGoods = $goods['data'];
+        $totalGoods = count($remoteGoods);
+        $batchGoods = $remoteGoods;
+        $startPos = 0;
+        $endPos = $totalGoods;
+        $batchMode = !syncRepairExistingOnly();
+
+        if($batchMode && $totalGoods > 0) {
+            $syncLimit = !empty($config['sync_limit']) ? intval($config['sync_limit']) : 50;
+            if($syncLimit <= 0) $syncLimit = 50;
+            $currentPos = syncGetPosition($shequ['id']);
+            if($currentPos >= $totalGoods) {
+                $currentPos = 0;
+                syncResetPosition($shequ['id']);
+            }
+            $startPos = $currentPos;
+            $endPos = min($currentPos + $syncLimit, $totalGoods);
+            $batchGoods = array_slice($remoteGoods, $startPos, $syncLimit);
+            $task->updateProgress("同系统商品分段同步：上游共 {$totalGoods} 条，本轮处理 " . ($startPos + 1) . " - {$endPos} 条");
+        }
+
+        $productConfig = $config;
+        $productConfig['delete_rule'] = 0;
+        $result = syncDaishuaProducts($shequ, $productConfig, $batchGoods, $classMap, $task);
+        $result['total_remote'] = $totalGoods;
+        $result['batch_start'] = $startPos + 1;
+        $result['batch_end'] = $endPos;
+
+        if($batchMode && $endPos < $totalGoods) {
+            syncSetPosition($shequ['id'], $endPos);
+            $result['next_position'] = $endPos;
+            $task->updateProgress("本轮分段同步完成：下次将从第 " . ($endPos + 1) . " 条继续");
+        } else {
+            syncResetPosition($shequ['id']);
+            if(!syncRepairExistingOnly() && intval($config['delete_rule']) > 0) {
+                $deletedCount = syncDaishuaHandleDeletedProducts($shequ['id'], $remoteGoods, intval($config['delete_rule']), $task);
+                $result['deleted'] += $deletedCount;
+            }
+            $task->updateProgress("同系统商品已跑完整轮，上游共 {$totalGoods} 条，同步位置已重置");
+        }
+
+        $result['upstream_summary'] = $classSummary . "\n" . $goodsSummary;
+        return $result;
     } finally {
         $DB->getColumn("SELECT RELEASE_LOCK(:lock_name)", array(':lock_name' => $lockName));
     }
@@ -1187,7 +1453,7 @@ function syncDaishuaApi($shequ, $act) {
             if(is_array($json)) {
                 @file_put_contents($cacheFile, $ret);
                 if(isset($json['code']) && intval($json['code']) != 0 && intval($json['code']) != 1) {
-                    throw new Exception(isset($json['message']) ? $json['message'] : (isset($json['msg']) ? $json['msg'] : 'supplier api error'));
+                    throw new Exception('供货站点接口返回错误：' . syncTaskResponseMessage(isset($json['message']) ? $json['message'] : (isset($json['msg']) ? $json['msg'] : '未知错误')));
                 }
                 return $json;
             }
@@ -1201,7 +1467,7 @@ function syncDaishuaApi($shequ, $act) {
         $json = json_decode($ret, true);
         if(is_array($json)) {
             if(isset($json['code']) && intval($json['code']) != 0 && intval($json['code']) != 1) {
-                throw new Exception(isset($json['message']) ? $json['message'] : (isset($json['msg']) ? $json['msg'] : 'supplier api error'));
+                throw new Exception('供货站点接口返回错误：' . syncTaskResponseMessage(isset($json['message']) ? $json['message'] : (isset($json['msg']) ? $json['msg'] : '未知错误')));
             }
             return $json;
         }
@@ -1214,7 +1480,7 @@ function syncDaishuaApi($shequ, $act) {
         if(is_array($json)) return $json;
     }
 
-    throw new Exception('supplier api empty or invalid: ' . $act . ' ' . $last);
+    throw new Exception('供货站点接口无有效响应：' . syncTaskActLabel($act) . ($last !== '' ? '，响应摘要：' . $last : ''));
 }
 
 function syncEnsureCategoryMapTable() {
@@ -1364,10 +1630,13 @@ function syncDaishuaFetchProductDetails($shequ, $ids, $task)
         foreach($chunk as $goodsId) {
             try {
                 $post = 'tid=' . urlencode($goodsId) . '&user=' . urlencode($shequ['username']) . '&pass=' . urlencode($shequ['password']);
-                $ret = get_curl($url, $post);
-                if((!is_string($ret) || trim($ret) === '') && function_exists('shell_exec')) {
-                    $cmd = 'curl -ks --connect-timeout 8 --max-time 20 -X POST -d ' . escapeshellarg($post) . ' ' . escapeshellarg($url);
+                $ret = '';
+                if(function_exists('shell_exec')) {
+                    $cmd = 'curl -ks --connect-timeout 5 --max-time 12 -X POST -d ' . escapeshellarg($post) . ' ' . escapeshellarg($url);
                     $ret = shell_exec($cmd);
+                }
+                if(!is_string($ret) || trim($ret) === '') {
+                    $ret = get_curl($url, $post);
                 }
                 $json = is_string($ret) ? json_decode($ret, true) : null;
                 $detail = is_array($json) && isset($json['data']) && is_array($json['data']) ? $json['data'] : [];
@@ -1379,7 +1648,7 @@ function syncDaishuaFetchProductDetails($shequ, $ids, $task)
             }
             $done++;
         }
-        if($done === $total || $done % 200 === 0) {
+        if($done === $total || $done % 20 === 0) {
             $task->updateProgress("商品详情同步进度 {$done}/{$total}");
         }
     }
@@ -1458,6 +1727,44 @@ function syncRepairDaishuaCategoryAssignments($shequ, $config, $remoteGoods, $cl
     }
 
     return ['fixed' => $fixed, 'to_unclassified' => $toUnclassified, 'samples' => $samples];
+}
+
+function syncDaishuaHandleDeletedProducts($shequId, $remoteGoods, $deleteRule, $task) {
+    global $DB, $date;
+
+    $remoteIds = [];
+    foreach($remoteGoods as $g) {
+        $gid = syncRemoteProductId($g);
+        if($gid > 0) $remoteIds[$gid] = $gid;
+    }
+    if(empty($remoteIds)) return 0;
+
+    $deleted = 0;
+    foreach(array_chunk(array_values($remoteIds), 800) as $index => $chunk) {
+        if($index > 0) continue;
+        $placeholders = implode(',', array_fill(0, count($remoteIds), '?'));
+        $params = array_merge([intval($shequId)], array_values($remoteIds));
+        $rs = $DB->query("SELECT tid,name,close FROM pre_tools WHERE shequ=? AND goods_id NOT IN ({$placeholders})", $params);
+        while($row = $rs->fetch()) {
+            if($deleteRule == 2) {
+                syncAddPublicToolLog('offline', $row['name'], $row['tid']);
+                $DB->exec("DELETE FROM pre_tools WHERE tid=:tid", [':tid'=>$row['tid']]);
+                $deleted++;
+            } else {
+                if(intval($row['close']) == 0) {
+                    syncAddPublicToolLog('offline', $row['name'], $row['tid']);
+                    $DB->exec("UPDATE pre_tools SET close=1,uptime=:uptime WHERE tid=:tid", [':uptime'=>$date, ':tid'=>$row['tid']]);
+                    $deleted++;
+                }
+            }
+        }
+    }
+
+    if($deleted > 0) {
+        $task->updateProgress("完整轮次删除/下架处理完成：{$deleted} 条");
+    }
+
+    return $deleted;
 }
 
 function syncDaishuaClassParentId($class) {
@@ -1574,6 +1881,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
     $fieldCounts = [];
     $updateSamples = [];
     $seen = [];
+    $repairExistingOnly = syncRepairExistingOnly();
     $priceTemplate = null;
     if(!empty($config['markup_template'])) {
         $priceTemplate = $DB->getRow("SELECT * FROM pre_price WHERE id=:id AND zid=0 LIMIT 1", [':id'=>$config['markup_template']]);
@@ -1601,15 +1909,16 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         $gid = syncRemoteProductId($g);
         if($gid <= 0) continue;
         $old = isset($existing[$gid]) ? $existing[$gid] : null;
-        if(!$old || !isset($old['desc']) || trim((string)$old['desc']) === '' || syncRemoteProductName($g) === '' || syncStoredNameIsEmpty($old)) {
+        if($repairExistingOnly && !$old) continue;
+        if($old && (!isset($old['desc']) || trim((string)$old['desc']) === '' || syncStoredNameIsEmpty($old))) {
+            $needDetailIds[] = $gid;
+            continue;
+        }
+        if(!$old && !empty($config['add_goods']) && !empty($config['sync_desc'])) {
             $needDetailIds[] = $gid;
         }
     }
     $needDetailIds = array_values(array_unique($needDetailIds));
-    $detailLimit = !empty($config['sync_limit']) ? max(1, intval($config['sync_limit'])) : 50;
-    if(count($needDetailIds) > $detailLimit) {
-        $needDetailIds = array_slice($needDetailIds, 0, $detailLimit);
-    }
     if(!empty($config['sync_desc']) || !empty($needDetailIds)) {
         if(!empty($needDetailIds)) {
             $task->updateProgress("开始补取商品详情，本轮 " . count($needDetailIds) . " 个商品");
@@ -1631,6 +1940,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         $gid = syncRemoteProductId($g);
         if($gid <= 0) continue;
         if(isset($seen[$gid])) continue;
+        if($repairExistingOnly && !isset($existing[$gid])) continue;
         $g = syncNormalizeProductDetail($g);
         if(isset($detailCache[$gid])) {
             $g = array_merge($g, $detailCache[$gid]);
@@ -1638,6 +1948,9 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         }
         $seen[$gid] = $gid;
         $scanned++;
+        if($scanned === 1 || $scanned % 200 === 0) {
+            $task->heartbeat("商品处理心跳：已扫描 {$scanned} 条，远程总数 " . count($remoteGoods) . " 条");
+        }
         $old = isset($existing[$gid]) ? $existing[$gid] : null;
         $remoteCid = intval(isset($g['cid']) ? $g['cid'] : 0);
         $categoryTarget = syncResolveDaishuaCategory($config, $classMap, $remoteCid, $old ? intval($old['cid']) : 0);
@@ -1651,7 +1964,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         $priceSet = syncBuildStoredPriceSet($remotePrice, $templateId);
         $name = syncRemoteProductName($g);
         if($name === '') {
-            $task->updateProgress("跳过空商品名商品: ID={$gid}");
+            $task->heartbeat("跳过空商品名商品，继续处理中：ID={$gid}");
             continue;
         }
         $shopimg = syncNormalizeImage($shequ, isset($g['shopimg']) ? $g['shopimg'] : '');
@@ -1676,7 +1989,11 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
             if(!empty($config['sync_price'])) { $fields[] = 'price=:price'; $params[':price'] = $priceSet['price']; }
             if($remotePrices !== null) { $fields[] = 'prices=:prices'; $params[':prices'] = $remotePrices; }
             if(!empty($config['sync_cost'])) { $fields[] = 'cost=:cost'; $fields[] = 'cost2=:cost2'; $params[':cost'] = $priceSet['cost']; $params[':cost2'] = $priceSet['cost2']; }
-            if(!empty($config['sync_desc'])) { $fields[] = '`desc`=:desc'; $params[':desc'] = isset($g['desc']) ? $g['desc'] : ''; }
+            $newDesc = trim((string)(isset($g['desc']) ? $g['desc'] : ''));
+            if($newDesc !== '' && (!empty($config['sync_desc']) || trim((string)(isset($old['desc']) ? $old['desc'] : '')) === '')) {
+                $fields[] = '`desc`=:desc';
+                $params[':desc'] = isset($g['desc']) ? $g['desc'] : '';
+            }
             if(!empty($config['sync_image'])) { $fields[] = 'shopimg=:shopimg'; $params[':shopimg'] = $shopimg; }
             if(!empty($config['sync_workorder'])) {
                 $fields[] = 'input=:input'; $fields[] = 'inputs=:inputs'; $fields[] = 'alert=:alert';
@@ -1789,7 +2106,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         }
     }
 
-    if(!empty($seen) && intval($config['delete_rule']) > 0) {
+    if(!$repairExistingOnly && !empty($seen) && intval($config['delete_rule']) > 0) {
         foreach(array_chunk($seen, 800) as $i => $chunk) {
             if($i == 0) {
                 $placeholders = implode(',', array_fill(0, count($seen), '?'));

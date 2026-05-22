@@ -8,7 +8,8 @@ $title = '自动同步设置';
 if ($islogin != 1) {
     exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
-adminpermission('shequ', (isset($_REQUEST['action']) && $_REQUEST['action'] === 'run_sync_now') ? 2 : 1);
+$adminSyncAction = isset($_REQUEST['action']) ? (string)$_REQUEST['action'] : '';
+adminpermission('shequ', $adminSyncAction === 'run_sync_now' ? 2 : 1);
 
 if (!function_exists('q8_admin_sync_escape')) {
     function q8_admin_sync_escape($value)
@@ -381,8 +382,232 @@ if (!function_exists('q8_admin_sync_start_monitor_request')) {
     }
 }
 
+if (!function_exists('q8_admin_sync_start_cli_task')) {
+    function q8_admin_sync_start_cli_task($taskKey, $monitorKey)
+    {
+        if (!function_exists('exec')) {
+            return false;
+        }
+
+        $phpBin = defined('PHP_BINDIR') ? rtrim(PHP_BINDIR, '/\\') . '/php' : '';
+        if ($phpBin === '' || !is_file($phpBin)) {
+            $phpBin = '/www/server/php/74/bin/php';
+        }
+        if (!is_file($phpBin)) {
+            return false;
+        }
+
+        $script = __DIR__ . '/cx-api-synchronization.php';
+        $command = 'cd ' . escapeshellarg(dirname(__DIR__)) . ' && nohup ' . escapeshellarg($phpBin) . ' ' . escapeshellarg($script)
+            . ' key=' . escapeshellarg($monitorKey)
+            . ' task_id=' . escapeshellarg($taskKey)
+            . ' test=1 > /dev/null 2>&1 & echo $!';
+        @exec($command, $output, $code);
+
+        if ($code !== 0 || empty($output)) {
+            return false;
+        }
+
+        $pid = preg_replace('/\D+/', '', (string)$output[0]);
+        return $pid !== '' ? $pid : true;
+    }
+}
+
+if (!function_exists('q8_admin_sync_ensure_task_schema')) {
+    function q8_admin_sync_ensure_task_schema($DB)
+    {
+        q8_admin_sync_exec($DB, "CREATE TABLE IF NOT EXISTS `pre_sync_tasks` (
+            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+            `task_key` varchar(40) NOT NULL DEFAULT '',
+            `trigger_type` varchar(32) NOT NULL DEFAULT 'manual',
+            `status` varchar(16) NOT NULL DEFAULT 'queued',
+            `progress` tinyint(3) unsigned NOT NULL DEFAULT 0,
+            `summary` varchar(255) NOT NULL DEFAULT '',
+            `error_reason` varchar(255) NOT NULL DEFAULT '',
+            `upstream_summary` text,
+            `output_tail` text,
+            `detail` mediumtext,
+            `started_at` datetime DEFAULT NULL,
+            `finished_at` datetime DEFAULT NULL,
+            `updated_at` datetime DEFAULT NULL,
+            `addtime` datetime DEFAULT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `task_key` (`task_key`),
+            KEY `status` (`status`),
+            KEY `addtime` (`addtime`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    }
+}
+
+if (!function_exists('q8_admin_sync_create_task')) {
+    function q8_admin_sync_create_task($DB, $triggerType, $monitorUrl)
+    {
+        $taskKey = date('YmdHis') . substr(md5(uniqid('', true)), 0, 10);
+        $detail = q8_admin_sync_json(array(
+            'monitor_url' => $monitorUrl,
+            'created_from' => 'admin'
+        ));
+        $DB->exec("INSERT INTO `pre_sync_tasks` (`task_key`,`trigger_type`,`status`,`progress`,`summary`,`detail`,`addtime`,`updated_at`) VALUES (:task_key,:trigger_type,'queued',0,:summary,:detail,NOW(),NOW())", array(
+            ':task_key' => $taskKey,
+            ':trigger_type' => $triggerType,
+            ':summary' => '任务已创建，等待后台接口接手执行',
+            ':detail' => $detail
+        ));
+
+        return $taskKey;
+    }
+}
+
+if (!function_exists('q8_admin_sync_update_task_status')) {
+    function q8_admin_sync_update_task_status($DB, $taskKey, $status, $summary, $errorReason = '')
+    {
+        if ($taskKey === '') {
+            return;
+        }
+
+        $progress = $status === 'failed' ? 100 : 0;
+        $DB->exec("UPDATE `pre_sync_tasks` SET `status`=:status,`progress`=:progress,`summary`=:summary,`error_reason`=:error_reason,`finished_at`=NOW(),`updated_at`=NOW() WHERE `task_key`=:task_key", array(
+            ':status' => $status,
+            ':progress' => $progress,
+            ':summary' => $summary,
+            ':error_reason' => $errorReason,
+            ':task_key' => $taskKey
+        ));
+    }
+}
+
+if (!function_exists('q8_admin_sync_update_task_detail')) {
+    function q8_admin_sync_update_task_detail($DB, $taskKey, $detail)
+    {
+        if ($taskKey === '') {
+            return;
+        }
+
+        $DB->exec("UPDATE `pre_sync_tasks` SET `detail`=:detail,`updated_at`=NOW() WHERE `task_key`=:task_key", array(
+            ':detail' => q8_admin_sync_json($detail),
+            ':task_key' => $taskKey
+        ));
+    }
+}
+
+if (!function_exists('q8_admin_sync_process_alive')) {
+    function q8_admin_sync_process_alive($pid)
+    {
+        $pid = intval($pid);
+        if ($pid <= 0 || !function_exists('exec')) {
+            return null;
+        }
+
+        @exec('ps -p ' . intval($pid) . ' -o pid=', $output, $code);
+        return $code === 0 && !empty($output);
+    }
+}
+
+if (!function_exists('q8_admin_sync_task_status_text')) {
+    function q8_admin_sync_task_status_text($status)
+    {
+        $map = array(
+            'queued' => '排队中',
+            'running' => '运行中',
+            'success' => '已完成',
+            'failed' => '失败'
+        );
+
+        return isset($map[$status]) ? $map[$status] : $status;
+    }
+}
+
+if (!function_exists('q8_admin_sync_format_task')) {
+    function q8_admin_sync_format_task($row)
+    {
+        if (!$row) {
+            return null;
+        }
+
+        return array(
+            'task_key' => $row['task_key'],
+            'status' => $row['status'],
+            'status_text' => q8_admin_sync_task_status_text($row['status']),
+            'progress' => intval($row['progress']),
+            'summary' => (string)$row['summary'],
+            'error_reason' => (string)$row['error_reason'],
+            'upstream_summary' => (string)$row['upstream_summary'],
+            'output_tail' => (string)$row['output_tail'],
+            'started_at' => (string)$row['started_at'],
+            'finished_at' => (string)$row['finished_at'],
+            'updated_at' => (string)$row['updated_at'],
+            'addtime' => (string)$row['addtime']
+        );
+    }
+}
+
+if (!function_exists('q8_admin_sync_mark_stale_tasks')) {
+    function q8_admin_sync_mark_stale_tasks($DB)
+    {
+        q8_admin_sync_ensure_task_schema($DB);
+        $result = $DB->query("SELECT `task_key`,`detail`,`updated_at` FROM `pre_sync_tasks` WHERE `status`='running' AND `updated_at` IS NOT NULL AND `updated_at` < DATE_SUB(NOW(), INTERVAL 10 MINUTE) ORDER BY `id` ASC LIMIT 20");
+        while ($row = $result->fetch()) {
+            $detail = json_decode((string)$row['detail'], true);
+            $pid = is_array($detail) && !empty($detail['pid']) ? intval($detail['pid']) : 0;
+            $alive = $pid > 0 ? q8_admin_sync_process_alive($pid) : null;
+            if ($alive === true) {
+                continue;
+            }
+
+            $reason = $pid > 0
+                ? '后台 CLI 进程已退出，且任务超过 10 分钟没有写入新进度'
+                : '后台任务超过 10 分钟没有写入新进度，可能已异常退出';
+            $DB->exec("UPDATE `pre_sync_tasks` SET `status`='failed',`progress`=100,`summary`='同步进程已停止',`error_reason`=:error_reason,`finished_at`=NOW(),`updated_at`=NOW() WHERE `task_key`=:task_key AND `status`='running'", array(
+                ':error_reason' => $reason,
+                ':task_key' => $row['task_key']
+            ));
+        }
+    }
+}
+
+if (!function_exists('q8_admin_sync_fetch_recent_tasks')) {
+    function q8_admin_sync_fetch_recent_tasks($DB, $limit = 5)
+    {
+        q8_admin_sync_ensure_task_schema($DB);
+        $rows = array();
+        $limit = max(1, min(20, intval($limit)));
+        $result = $DB->query("SELECT * FROM `pre_sync_tasks` ORDER BY `id` DESC LIMIT {$limit}");
+
+        while ($row = $result->fetch()) {
+            $rows[] = q8_admin_sync_format_task($row);
+        }
+
+        return $rows;
+    }
+}
+
+if (!function_exists('q8_admin_sync_json_response')) {
+    function q8_admin_sync_json_response($response)
+    {
+        @ob_clean();
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: 0');
+        echo q8_admin_sync_json($response);
+        exit;
+    }
+}
+
+if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'sync_task_status') {
+    q8_admin_sync_ensure_task_schema($DB);
+    q8_admin_sync_mark_stale_tasks($DB);
+    $taskKey = isset($_REQUEST['task_id']) ? preg_replace('/[^a-zA-Z0-9]/', '', (string)$_REQUEST['task_id']) : '';
+
+    if ($taskKey !== '') {
+        $row = $DB->getRow("SELECT * FROM `pre_sync_tasks` WHERE `task_key`=:task_key LIMIT 1", array(':task_key' => $taskKey));
+        q8_admin_sync_json_response(array('code' => $row ? 1 : 0, 'task' => q8_admin_sync_format_task($row), 'msg' => $row ? 'ok' : '任务记录不存在'));
+    }
+
+    q8_admin_sync_json_response(array('code' => 1, 'tasks' => q8_admin_sync_fetch_recent_tasks($DB, 5)));
+}
+
 if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'run_sync_now') {
-    @header('Content-Type: text/plain; charset=utf-8');
+    q8_admin_sync_ensure_task_schema($DB);
 
     $scheme = is_https() ? 'https://' : 'http://';
     $host = !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
@@ -391,15 +616,39 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'run_sync_now') {
         $scriptBase = '/admin';
     }
     $monitorKey = (string)$DB->getColumn("SELECT `v` FROM `pre_config` WHERE `k`='monitor_key'");
-    $monitorUrl = $scheme . $host . rtrim($scriptBase, '/') . '/cx-api-synchronization.php?key=' . rawurlencode($monitorKey) . '&test=1&__cv=' . time();
+    $taskKey = q8_admin_sync_create_task($DB, 'manual', '');
+    $monitorUrl = $scheme . $host . rtrim($scriptBase, '/') . '/cx-api-synchronization.php?key=' . rawurlencode($monitorKey) . '&task_id=' . rawurlencode($taskKey) . '&test=1&__cv=' . time();
 
-    if (q8_admin_sync_start_monitor_request($monitorUrl, $host)) {
-        echo '同步任务已启动，请稍后查看同步结果和站点日志。';
-        exit;
+    $pid = q8_admin_sync_start_cli_task($taskKey, $monitorKey);
+    if ($pid !== false) {
+        q8_admin_sync_update_task_detail($DB, $taskKey, array(
+            'monitor_url' => '',
+            'created_from' => 'admin',
+            'runner' => 'cli',
+            'pid' => is_scalar($pid) ? (string)$pid : ''
+        ));
+        q8_admin_sync_json_response(array(
+            'code' => 1,
+            'msg' => '同步任务已创建，后台 CLI 正在执行，可在任务记录里查看进度。',
+            'task_id' => $taskKey
+        ));
     }
 
-    echo '同步请求失败，请检查本机 HTTP、curl 或站点访问配置';
-    exit;
+    if (q8_admin_sync_start_monitor_request($monitorUrl, $host)) {
+        q8_admin_sync_update_task_detail($DB, $taskKey, array(
+            'monitor_url' => $monitorUrl,
+            'created_from' => 'admin',
+            'runner' => 'http'
+        ));
+        q8_admin_sync_json_response(array(
+            'code' => 1,
+            'msg' => '同步任务已创建，后台正在执行，可在任务记录里查看进度。',
+            'task_id' => $taskKey
+        ));
+    }
+
+    q8_admin_sync_update_task_status($DB, $taskKey, 'failed', '同步请求未能送达后台接口', '本机 HTTP、curl 或站点访问配置不可用');
+    q8_admin_sync_json_response(array('code' => 0, 'msg' => '同步请求失败，请检查本机 HTTP、curl 或站点访问配置', 'task_id' => $taskKey));
 }
 
 if (isset($_POST['submit'])) {
@@ -540,6 +789,7 @@ if (isset($_POST['submit'])) {
 }
 
 q8_admin_sync_ensure_schema($DB);
+q8_admin_sync_ensure_task_schema($DB);
 
 list($shequRows, $shequMap) = q8_admin_sync_fetch_shequ_rows($DB);
 $priceRules = q8_admin_sync_fetch_price_rules($DB);
@@ -559,6 +809,7 @@ $lastRunTime = (string)$DB->getColumn("SELECT `v` FROM `pre_config` WHERE `k`='l
 if ($lastRunTime === '') {
     $lastRunTime = '从未运行';
 }
+$recentSyncTasks = q8_admin_sync_fetch_recent_tasks($DB, 5);
 
 $globalConfig = array(
     'sync_interval' => 5,
@@ -655,6 +906,7 @@ $pageContext = apply_filters('admin_sync_context', array(
     'stats' => $syncStats,
     'monitor_url' => $monitorUrl,
     'last_run_time' => $lastRunTime,
+    'recent_tasks' => $recentSyncTasks,
     'enabled_sites' => $enabledConfigs,
     'site_total' => count($shequRows)
 ));
@@ -760,6 +1012,36 @@ $syncAssetVersion = isset($adminAssetVersion) ? $adminAssetVersion : ((defined('
             </div>
         </div>
         <?php } ?>
+
+        <div class="admin-sync-task-panel" id="syncTaskPanel">
+            <div class="admin-sync-task-panel__header">
+                <div>
+                    <h4><i class="fa fa-tasks"></i> 后台任务记录</h4>
+                    <p>手动同步会先创建任务记录，再由后台接口持续写入进度、异常原因和上游接口摘要。</p>
+                </div>
+                <button type="button" class="btn btn-default" id="syncRefreshTasks"><i class="fa fa-refresh"></i> 刷新进度</button>
+            </div>
+            <div class="admin-sync-task-list" id="syncTaskList">
+                <?php if (!empty($recentSyncTasks)) { ?>
+                <?php foreach ($recentSyncTasks as $taskRow) { ?>
+                <article class="admin-sync-task is-<?php echo q8_admin_sync_escape($taskRow['status']); ?>" data-sync-task="<?php echo q8_admin_sync_escape($taskRow['task_key']); ?>">
+                    <div class="admin-sync-task__main">
+                        <strong><?php echo q8_admin_sync_escape($taskRow['status_text']); ?> · <?php echo q8_admin_sync_escape($taskRow['task_key']); ?></strong>
+                        <p><?php echo q8_admin_sync_escape($taskRow['summary']); ?></p>
+                        <?php if ($taskRow['error_reason'] !== '') { ?><small><?php echo q8_admin_sync_escape($taskRow['error_reason']); ?></small><?php } ?>
+                        <?php if ($taskRow['upstream_summary'] !== '') { ?><small><?php echo q8_admin_sync_escape($taskRow['upstream_summary']); ?></small><?php } ?>
+                    </div>
+                    <div class="admin-sync-task__side">
+                        <span><?php echo intval($taskRow['progress']); ?>%</span>
+                        <time><?php echo q8_admin_sync_escape($taskRow['updated_at'] !== '' ? $taskRow['updated_at'] : $taskRow['addtime']); ?></time>
+                    </div>
+                </article>
+                <?php } ?>
+                <?php } else { ?>
+                <div class="admin-sync-task-empty">暂无同步任务记录</div>
+                <?php } ?>
+            </div>
+        </div>
 
         <?php echo q8_render_action('admin_sync_panel_before', $pageContext); ?>
 

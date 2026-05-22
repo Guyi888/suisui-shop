@@ -22,6 +22,10 @@ class Price {
 
 	private $tool = array();
 
+	private $site_prid = 0;
+
+	private $manage_self_cost = 0;
+
 	private static $price_rules;
 
 
@@ -45,6 +49,7 @@ class Price {
 
 			$this->zid = $zid;
 			$this->power = $siterow['power'];
+			$this->site_prid = isset($siterow['site_prid']) ? intval($siterow['site_prid']) : 0;
 
 			// 从新表中获取价格数据
 			$rs = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$zid}'");
@@ -72,6 +77,7 @@ class Price {
 
 			$this->zid = $zid;
 			$this->power = $siterow['power'];
+			$this->site_prid = isset($siterow['site_prid']) ? intval($siterow['site_prid']) : 0;
 
 			// 从新表中获取价格数据
 			$rs = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$zid}'");
@@ -113,10 +119,11 @@ class Price {
 
 			$this->user = true;
 
-			if($data = $DB->getRow("SELECT zid,upzid,power,price FROM pre_site WHERE zid='{$siterow['upzid']}' LIMIT 1")){
+			if($data = $DB->getRow("SELECT zid,upzid,power,price,iprice,site_prid FROM pre_site WHERE zid='{$siterow['upzid']}' LIMIT 1")){
 
 				$this->zid = $data['zid'];
 				$this->power = $data['power'];
+				$this->site_prid = isset($data['site_prid']) ? intval($data['site_prid']) : 0;
 
 				// 从新表中获取价格数据
 				$rs = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$this->zid}'");
@@ -200,6 +207,33 @@ class Price {
 			$row['cost'] = $this->iprice_array[$tid];
 		}elseif($this->power==2 && isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0){
 			$row['cost2'] = $this->iprice_array[$tid];
+		}
+
+		$this->manage_self_cost = 0;
+		if($this->power==2 && isset($row['cost2']) && $row['cost2']>0){
+			$this->manage_self_cost = $row['cost2'];
+		}elseif(isset($row['cost']) && $row['cost']>0){
+			$this->manage_self_cost = $row['cost'];
+		}elseif(isset($row['price']) && $row['price']>0){
+			$this->manage_self_cost = $row['price'];
+		}
+
+		if($this->site_prid > 0 && empty($this->price_array[$tid])){
+			$site_base_price = 0;
+			if($this->power == 2 && isset($row['cost2']) && $row['cost2'] > 0){
+				$site_base_price = $row['cost2'];
+			}elseif(isset($row['cost']) && $row['cost'] > 0){
+				$site_base_price = $row['cost'];
+			}else{
+				$site_base_price = $row['price'];
+			}
+
+			$site_price = $this->buildPriceByRule($site_base_price, $this->site_prid);
+			if($site_price){
+				$row['price'] = $site_price['price'];
+				$row['cost'] = $site_price['cost'];
+				$row['cost2'] = $site_price['cost2'];
+			}
 		}
 
 		$this->tool=$row;
@@ -317,7 +351,16 @@ class Price {
 	}
 
 	public function getToolCost2($tid){
-		if(isset($this->price_array[$tid]['cost2']) && $this->price_array[$tid]['cost2']>0){
+		$baseCost2 = 0;
+		if(isset($this->tool['cost2']) && $this->tool['cost2']>0){
+			$baseCost2 = $this->tool['cost2'];
+		}elseif(isset($this->tool['cost']) && $this->tool['cost']>0){
+			$baseCost2 = $this->tool['cost'];
+		}else{
+			$baseCost2 = $this->tool['price'];
+		}
+
+		if(isset($this->price_array[$tid]['cost2']) && $this->price_array[$tid]['cost2']>=$baseCost2){
 			$cost = $this->price_array[$tid]['cost2'];
 		}elseif($this->tool['cost2']>0){
 			$cost = $this->tool['cost2'];
@@ -331,6 +374,9 @@ class Price {
 
 	public function getManageSelfCostPrice($tid){
 		if($this->power==2){
+			if($this->manage_self_cost > 0){
+				return $this->manage_self_cost;
+			}
 			if(isset($this->tool['cost2']) && $this->tool['cost2']>0){
 				return $this->tool['cost2'];
 			}elseif(isset($this->tool['cost']) && $this->tool['cost']>0){
@@ -444,7 +490,7 @@ class Price {
 
 	}
 
-	public function setPriceInfo($tid,$del,$price,$cost=0){
+	public function setPriceInfo($tid,$del,$price,$cost=0,$cost2=null){
 		global $DB;
 
 		// 确保price_array[$tid]存在
@@ -452,15 +498,41 @@ class Price {
 			$this->price_array[$tid] = array();
 		}
 
+		$selfCost = 0;
+		if($this->power==2 && $this->manage_self_cost > 0){
+			$selfCost = $this->manage_self_cost;
+		}elseif($this->power==2 && isset($this->tool['cost2']) && $this->tool['cost2']>0){
+			$selfCost = $this->tool['cost2'];
+		}elseif(isset($this->tool['cost']) && $this->tool['cost']>0){
+			$selfCost = $this->tool['cost'];
+		}elseif(isset($this->tool['price']) && $this->tool['price']>0){
+			$selfCost = $this->tool['price'];
+		}
+
+		if($cost2 !== null && $selfCost > 0 && $cost2 < $selfCost){
+			$cost2 = $selfCost;
+		}
+		if($cost2 !== null && $cost > 0 && $cost < $cost2){
+			$cost = $cost2;
+		}
+		if($cost > 0 && $price < $cost){
+			$price = $cost;
+		}elseif($cost2 !== null && $price < $cost2){
+			$price = $cost2;
+		}
+
 		// 更新内存中的价格数据
 		$this->price_array[$tid]['price'] = $price;
 		if($this->power==2) {
 			$this->price_array[$tid]['cost'] = $cost;
+			if($cost2 !== null) {
+				$this->price_array[$tid]['cost2'] = $cost2;
+			}
 		}
 		$this->price_array[$tid]['del'] = $del;
 
 		// 将价格数据保存到新表中
-		$cost2 = isset($this->price_array[$tid]['cost2']) ? $this->price_array[$tid]['cost2'] : 0;
+		$cost2 = $cost2 !== null ? $cost2 : (isset($this->price_array[$tid]['cost2']) ? $this->price_array[$tid]['cost2'] : 0);
 
 		// 使用INSERT ON DUPLICATE KEY UPDATE语法，确保数据的唯一性
 		$sql = "INSERT INTO pre_site_price (zid, tid, price, cost, cost2, del, create_time, update_time)
@@ -582,6 +654,31 @@ class Price {
 
 		// 如果规则不存在，返回false
 		return false;
+
+	}
+
+	private function buildPriceByRule($basePrice, $ruleId){
+
+		$basePrice = floatval($basePrice);
+		$price_rules = $this->getPriceRules($ruleId);
+
+		if($basePrice <= 0 || !$price_rules || !is_array($price_rules)){
+			return false;
+		}
+
+		if($price_rules['kind']==1){
+			return array(
+				'price' => round($basePrice + $price_rules['p_0'], 2),
+				'cost' => round($basePrice + $price_rules['p_1'], 2),
+				'cost2' => round($basePrice + $price_rules['p_2'], 2)
+			);
+		}
+
+		return array(
+			'price' => round($basePrice * $price_rules['p_0'], 2),
+			'cost' => round($basePrice * $price_rules['p_1'], 2),
+			'cost2' => round($basePrice * $price_rules['p_2'], 2)
+		);
 
 	}
 
