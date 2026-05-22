@@ -1,5 +1,6 @@
 <?php
 include "../includes/common.php";
+include_once __DIR__ . '/finance_helpers.php';
 $title = "收支明细";
 include "./head.php";
 if ($islogin != 1) {
@@ -7,12 +8,12 @@ if ($islogin != 1) {
 }
 function q8_record_income_actions()
 {
-	return array('提成', '奖励', '赠送', '退款', '退回', '充值', '加款', '返利', 'recharge_rebate');
+	return array_merge(q8_admin_finance_income_actions(), array('退款'));
 }
 
 function q8_record_expense_actions()
 {
-	return array('消费', '扣除', '提现', '退款扣回');
+	return q8_admin_finance_expense_actions();
 }
 
 function q8_record_action_sql($actions)
@@ -24,18 +25,40 @@ function q8_record_action_sql($actions)
 	return implode(',', $safe);
 }
 
-function q8_record_sum($where, $actions, $start = null, $end = null)
+function q8_record_sum_direction($where, $direction, $start = null, $end = null)
 {
 	global $DB;
-	$sql = "SELECT COALESCE(SUM(point),0) FROM pre_points WHERE {$where} AND action IN (" . q8_record_action_sql($actions) . ")";
+	if ($direction === 'expense') {
+		$actionWhere = "(action IN (" . q8_record_action_sql(q8_record_expense_actions()) . ") OR (action='退款' AND point<0))";
+		$expr = 'ABS(point)';
+	} else {
+		$incomeActions = array_diff(q8_record_income_actions(), array('退款'));
+		$actionWhere = "(action IN (" . q8_record_action_sql($incomeActions) . ") OR (action='退款' AND point>=0))";
+		$expr = 'point';
+	}
+	$sql = "SELECT COALESCE(SUM({$expr}),0) FROM pre_points WHERE {$where} AND {$actionWhere}";
 	if ($start) $sql .= " AND addtime>='" . addslashes($start) . "'";
 	if ($end) $sql .= " AND addtime<='" . addslashes($end) . "'";
 	return floatval($DB->getColumn($sql));
 }
 
-function q8_record_is_income($action)
+function q8_record_is_income($action, $point = 0)
 {
-	return in_array($action, q8_record_income_actions(), true);
+	return q8_admin_finance_point_direction($action, $point) === 'income';
+}
+
+function q8_record_breakdown($where, $start = null, $end = null)
+{
+	global $DB;
+	$sql = "SELECT action,
+		CASE WHEN action IN (" . q8_record_action_sql(q8_record_expense_actions()) . ") OR (action='退款' AND point<0) THEN 'expense' ELSE 'income' END AS direction,
+		COUNT(*) AS cnt,
+		ROUND(COALESCE(SUM(ABS(point)),0),2) AS total
+		FROM pre_points WHERE {$where}";
+	if ($start) $sql .= " AND addtime>='" . addslashes($start) . "'";
+	if ($end) $sql .= " AND addtime<='" . addslashes($end) . "'";
+	$sql .= " GROUP BY action, direction ORDER BY direction ASC, total DESC";
+	return $DB->getAll($sql);
 }
 
 $zid = isset($_GET["zid"]) ? intval($_GET["zid"]) : 0;
@@ -63,13 +86,16 @@ $incomeActions = q8_record_income_actions();
 $expenseActions = q8_record_expense_actions();
 
 $summary = array(
-	'today_income' => q8_record_sum($where, $incomeActions, $todayStart, $todayEnd),
-	'today_expense' => q8_record_sum($where, $expenseActions, $todayStart, $todayEnd),
-	'yesterday_income' => q8_record_sum($where, $incomeActions, $yesterdayStart, $yesterdayEnd),
-	'yesterday_expense' => q8_record_sum($where, $expenseActions, $yesterdayStart, $yesterdayEnd),
-	'all_income' => q8_record_sum($where, $incomeActions),
-	'all_expense' => q8_record_sum($where, $expenseActions),
+	'today_income' => q8_record_sum_direction($where, 'income', $todayStart, $todayEnd),
+	'today_expense' => q8_record_sum_direction($where, 'expense', $todayStart, $todayEnd),
+	'yesterday_income' => q8_record_sum_direction($where, 'income', $yesterdayStart, $yesterdayEnd),
+	'yesterday_expense' => q8_record_sum_direction($where, 'expense', $yesterdayStart, $yesterdayEnd),
+	'all_income' => q8_record_sum_direction($where, 'income'),
+	'all_expense' => q8_record_sum_direction($where, 'expense'),
 );
+$breakdownStart = $start !== '' ? $start . " 00:00:00" : null;
+$breakdownEnd = $end !== '' ? $end . " 23:59:59" : null;
+$breakdown = q8_record_breakdown($where, $breakdownStart, $breakdownEnd);
 $numrows = intval($DB->getColumn("SELECT COUNT(*) FROM pre_points WHERE {$where}"));
 $pagesize = 30;
 $pages = max(1, ceil($numrows / $pagesize));
@@ -109,6 +135,44 @@ $statusColumn = $DB->getColumn("SHOW COLUMNS FROM pre_points LIKE 'status'");
 					</tr>
 				</tbody>
 			</table>
+			<?php if (!empty($breakdown)) { ?>
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>&#31867;&#22411;</th>
+						<th>&#26041;&#21521;</th>
+						<th class="text-right">&#31508;&#25968;</th>
+						<th class="text-right">&#37329;&#39069;</th>
+						<th>&#35828;&#26126;</th>
+					</tr>
+				</thead>
+				<tbody>
+				<?php
+				foreach ($breakdown as $item) {
+					$isIncome = $item['direction'] === 'income';
+					$actionName = htmlspecialchars($item['action'], ENT_QUOTES, 'UTF-8');
+					$desc = '';
+					if ($item['action'] === '充值') $desc = '&#29992;&#25143;&#22312;&#32447;&#20805;&#20540;&#25110;&#21152;&#27454;&#21345;&#20805;&#20540;';
+					elseif ($item['action'] === '加款') $desc = '&#21518;&#21488;&#25163;&#21160;&#21152;&#27454;';
+					elseif ($item['action'] === '提成') $desc = '&#20998;&#31449;&#25110;&#19978;&#32423;&#33719;&#24471;&#30340;&#25552;&#25104;';
+					elseif ($item['action'] === '赠送' || $item['action'] === '奖励' || $item['action'] === '返利' || $item['action'] === 'recharge_rebate') $desc = '&#31614;&#21040;&#12289;&#20805;&#20540;&#36820;&#21033;&#12289;&#20219;&#21153;&#12289;&#24320;&#31449;&#36192;&#36865;&#31561;&#31119;&#21033;';
+					elseif ($item['action'] === '退款' && !$isIncome) $desc = '&#36864;&#27454;&#26102;&#25187;&#22238;&#19978;&#32423;&#25552;&#25104;';
+					elseif ($item['action'] === '退款') $desc = '&#35746;&#21333;&#36864;&#27454;&#36864;&#22238;&#29992;&#25143;&#20313;&#39069;';
+					elseif ($item['action'] === '消费') $desc = '&#20313;&#39069;&#28040;&#36153;';
+					elseif ($item['action'] === '扣除') $desc = '&#21518;&#21488;&#25163;&#21160;&#25187;&#27454;';
+					elseif ($item['action'] === '提现') $desc = '&#31449;&#28857;&#20313;&#39069;&#25552;&#29616;';
+					echo '<tr>';
+					echo '<td>' . $actionName . '</td>';
+					echo '<td>' . ($isIncome ? '<span class="label label-danger">&#25910;&#20837;</span>' : '<span class="label label-success">&#25903;&#20986;</span>') . '</td>';
+					echo '<td class="text-right">' . intval($item['cnt']) . '</td>';
+					echo '<td class="text-right"><b class="' . ($isIncome ? 'text-danger' : 'text-success') . '">&#165;' . number_format($item['total'], 2) . '</b></td>';
+					echo '<td>' . $desc . '</td>';
+					echo '</tr>';
+				}
+				?>
+				</tbody>
+			</table>
+			<?php } ?>
 			<table class="table table-striped table-hover">
 				<thead>
 					<tr><th>ID</th><th>ZID</th><th>&#29992;&#25143;</th><th>&#31867;&#22411;</th><th>&#26041;&#21521;</th><th>&#37329;&#39069;</th><th>&#35814;&#24773;</th><th>&#35746;&#21333;</th><th>&#26102;&#38388;</th><?php if($statusColumn){ ?><th>&#29366;&#24577;</th><?php } ?></tr>
@@ -117,15 +181,16 @@ $statusColumn = $DB->getColumn("SHOW COLUMNS FROM pre_points LIKE 'status'");
 				<?php
 				$rs = $DB->query("SELECT p.*,s.user,s.power FROM pre_points p LEFT JOIN pre_site s ON p.zid=s.zid WHERE {$where} ORDER BY p.id DESC LIMIT {$offset},{$pagesize}");
 				while ($res = $rs->fetch()) {
-					$isIncome = q8_record_is_income($res['action']);
+					$isIncome = q8_record_is_income($res['action'], $res['point']);
 					$orderid = function_exists('q8_resolve_point_record_orderid') ? q8_resolve_point_record_orderid($res) : (isset($res['orderid']) ? $res['orderid'] : '');
+					$amount = abs(floatval($res['point']));
 					echo '<tr>';
 					echo '<td><b>' . intval($res['id']) . '</b></td>';
 					echo '<td><a href="sitelist.php?zid=' . intval($res['zid']) . '">' . intval($res['zid']) . '</a></td>';
 					echo '<td>' . htmlspecialchars($res['user'] ? $res['user'] : '-', ENT_QUOTES, 'UTF-8') . (intval($res['power']) > 0 ? ' <span class="label label-info">&#20998;&#31449;</span>' : '') . '</td>';
 					echo '<td>' . htmlspecialchars($res['action'], ENT_QUOTES, 'UTF-8') . '</td>';
 					echo '<td>' . ($isIncome ? '<span class="label label-danger">&#25910;&#20837;</span>' : '<span class="label label-success">&#25903;&#20986;</span>') . '</td>';
-					echo '<td><b class="' . ($isIncome ? 'text-danger' : 'text-success') . '">' . ($isIncome ? '+' : '-') . round(floatval($res['point']), 2) . '</b></td>';
+					echo '<td><b class="' . ($isIncome ? 'text-danger' : 'text-success') . '">' . ($isIncome ? '+' : '-') . round($amount, 2) . '</b></td>';
 					echo '<td>' . htmlspecialchars($res['bz'], ENT_QUOTES, 'UTF-8') . '</td>';
 					echo '<td>' . ($orderid ? '<a href="./list.php?id=' . urlencode($orderid) . '" target="_blank">' . htmlspecialchars($orderid, ENT_QUOTES, 'UTF-8') . '</a>' : '-') . '</td>';
 					echo '<td>' . htmlspecialchars($res['addtime'], ENT_QUOTES, 'UTF-8') . '</td>';

@@ -1,5 +1,6 @@
 <?php
 include("../includes/common.php");
+include_once __DIR__ . '/finance_helpers.php';
 $act=isset($_GET['act'])?daddslashes($_GET['act']):null;
 
 $noAdminActions = ['create_chat_session'];
@@ -19,39 +20,31 @@ function q8_admin_dashboard_trade_chart(){
 	for($i = 6; $i >= 0; $i--) {
 		$date = date('Y-m-d', strtotime("-$i days"));
 		$start = $date . ' 00:00:00';
-		$end = $date . ' 23:59:59';
+		$end = date('Y-m-d', strtotime($date . ' +1 day')) . ' 00:00:00';
 		$point = 6 - $i;
 		if($i == 6) $chart['range_start'] = $date;
 		if($i == 0) $chart['range_end'] = $date;
-		$orderCount = $DB->getColumn("SELECT count(*) FROM pre_orders WHERE addtime>='{$start}' AND addtime<='{$end}'");
-		$payMoney = $DB->getColumn("SELECT COALESCE(sum(money),0) FROM pre_orders WHERE addtime>='{$start}' AND addtime<='{$end}' AND status IN (0,1,2)");
+		$stats = q8_admin_finance_range_stats($start, $end);
 		$chart['date'][] = array($point, date('m-d', strtotime($date)));
 		$chart['date_full'][] = $date;
-		$chart['orders'][] = array($point, intval($orderCount));
-		$chart['money'][] = array($point, round($payMoney, 2));
+		$chart['orders'][] = array($point, intval($stats['order_count']));
+		$chart['money'][] = array($point, round($stats['revenue'], 2));
 	}
 	return $chart;
 }
 
 function q8_admin_dashboard_valid_order_where($start, $end){
-	$start = addslashes($start);
-	$end = addslashes($end);
-	return "addtime>='{$start}' AND addtime<='{$end}' AND status IN (0,1,2)";
+	return q8_admin_finance_order_where($start, $end);
 }
 
 function q8_admin_dashboard_order_money($start, $end){
-	global $DB;
-	return floatval($DB->getColumn("SELECT COALESCE(SUM(money),0) FROM pre_orders WHERE " . q8_admin_dashboard_valid_order_where($start, $end)));
+	$stats = q8_admin_finance_range_stats($start, $end);
+	return floatval($stats['revenue']);
 }
 
 function q8_admin_dashboard_owner_profit($start, $end){
-	global $DB;
-	$commissionAction = hex2bin('e68f90e68890');
-	$where = q8_admin_dashboard_valid_order_where($start, $end);
-	$commissionWhere = "O.addtime>='" . addslashes($start) . "' AND O.addtime<='" . addslashes($end) . "' AND O.status IN (0,1,2)";
-	$orderProfit = floatval($DB->getColumn("SELECT COALESCE(SUM(money-cost),0) FROM pre_orders WHERE {$where}"));
-	$commission = floatval($DB->getColumn("SELECT COALESCE(SUM(P.point),0) FROM pre_points P INNER JOIN pre_orders O ON O.id=P.orderid WHERE {$commissionWhere} AND P.action=:action AND (P.status IS NULL OR P.status<>4)", array(':action' => $commissionAction)));
-	return $orderProfit - $commission;
+	$stats = q8_admin_finance_range_stats($start, $end);
+	return floatval($stats['owner_income']);
 }
 
 function q8_admin_message_scope_labels(){
@@ -185,38 +178,39 @@ case 'getcount':
 	}
 	if($isUpdate){
 		$todayStart=date("Y-m-d").' 00:00:00';
-		$todayEnd=date("Y-m-d").' 23:59:59';
+		$todayEnd=date("Y-m-d", strtotime("+1 day")).' 00:00:00';
 		$yesterdayStart = date("Y-m-d",strtotime("-1 day")).' 00:00:00';
-		$yesterdayEnd = date("Y-m-d",strtotime("-1 day")).' 23:59:59';
+		$yesterdayEnd = date("Y-m-d").' 00:00:00';
 		$thtime=$todayStart;
 		$yesterday_time = $yesterdayStart;
+		$todayFinance = q8_admin_finance_range_stats($todayStart, $todayEnd);
+		$yesterdayFinance = q8_admin_finance_range_stats($yesterdayStart, $yesterdayEnd);
 		$count1=$DB->getColumn("SELECT count(*) FROM pre_orders");
 		$count2=$DB->getColumn("SELECT count(*) FROM pre_orders WHERE status=1");
 		$count3=$DB->getColumn("SELECT count(*) FROM pre_orders WHERE status=0");
 		$count4=$DB->getColumn("SELECT count(*) FROM pre_orders WHERE addtime>='$todayStart'");
-		$count5=q8_admin_dashboard_order_money($todayStart, $todayEnd);
+		$count5=$todayFinance['revenue'];
 
 		$strtotime=strtotime($conf['build']);
 		$now=time();
 		$yxts=ceil(($now-$strtotime)/86400);
 
 		$count6=$DB->getColumn("SELECT count(*) FROM pre_site");
-		$count21=$DB->getColumn("SELECT sum(rmb) FROM pre_site");
+		$count21=$todayFinance['balance_total'];
 		$count7=$DB->getColumn("SELECT count(*) FROM pre_site WHERE addtime>='$thtime'");
-        $commissionAction = hex2bin('e68f90e68890');
-        $count8=$DB->getColumn("SELECT sum(point) FROM pre_points WHERE action='$commissionAction' AND addtime>='$thtime'");
+        $count8=$todayFinance['commission'];
         $count9=0;
         $count10=0;
 
-		$count11=$DB->getColumn("SELECT COALESCE(sum(realmoney),0) FROM `pre_tixian` WHERE `status` = 0");
+		$count11=$todayFinance['withdraw_pending'];
 
-		$count12=$DB->getColumn("SELECT sum(money) FROM `pre_pay` WHERE `type` = 'qqpay' AND `addtime` > '$thtime' AND `status` = 1");
-		$count13=$DB->getColumn("SELECT sum(money) FROM `pre_pay` WHERE `type` = 'wxpay' AND `addtime` > '$thtime' AND `status` = 1");
-		$count14=$DB->getColumn("SELECT sum(money) FROM `pre_pay` WHERE `type` = 'alipay' AND `addtime` > '$thtime' AND `status` = 1");
-		$today_total_money = q8_admin_dashboard_owner_profit($todayStart, $todayEnd);
-		$yesterday_total_money = q8_admin_dashboard_owner_profit($yesterdayStart, $yesterdayEnd);
+		$count12=$DB->getColumn("SELECT COALESCE(SUM(CAST(money AS DECIMAL(12,2))),0) FROM `pre_pay` WHERE `type` = 'qqpay' AND COALESCE(endtime, addtime) >= '$todayStart' AND COALESCE(endtime, addtime) < '$todayEnd' AND `status` = 1 AND tid NOT IN (-1,-4)");
+		$count13=$DB->getColumn("SELECT COALESCE(SUM(CAST(money AS DECIMAL(12,2))),0) FROM `pre_pay` WHERE `type` = 'wxpay' AND COALESCE(endtime, addtime) >= '$todayStart' AND COALESCE(endtime, addtime) < '$todayEnd' AND `status` = 1 AND tid NOT IN (-1,-4)");
+		$count14=$DB->getColumn("SELECT COALESCE(SUM(CAST(money AS DECIMAL(12,2))),0) FROM `pre_pay` WHERE `type` = 'alipay' AND COALESCE(endtime, addtime) >= '$todayStart' AND COALESCE(endtime, addtime) < '$todayEnd' AND `status` = 1 AND tid NOT IN (-1,-4)");
+		$today_total_money = $todayFinance['owner_income'];
+		$yesterday_total_money = $yesterdayFinance['owner_income'];
 		$count22=$count11;
-		$count23=$DB->getColumn("SELECT COALESCE(SUM(point),0) FROM pre_points WHERE action=:action AND addtime>=:start AND addtime<=:end", array(':action' => hex2bin('e58585e580bc'), ':start' => $todayStart, ':end' => $todayEnd));
+		$count23=$todayFinance['recharge_total'];
 		$count24=$DB->getColumn("SELECT count(*) FROM pre_orders WHERE status NOT IN (1,4,6) OR djzt<>3");
 
 		$count17=$DB->getColumn("SELECT count(*) FROM pre_workorder where status=0 or status=1");

@@ -62,7 +62,7 @@ $todayDate = date('Y-m-d');
             </div>
             <div class="admin-stat-card__content">
                 <p class="admin-stat-card__value">￥<span id="count5">--</span></p>
-                <p class="admin-stat-card__label">今日交易额</p>
+                <p class="admin-stat-card__label">今日订单流水</p>
             </div>
         </a>
 
@@ -76,23 +76,23 @@ $todayDate = date('Y-m-d');
             </div>
         </a>
 
-        <a class="admin-stat-card admin-stat-card--success" href="./record.php" aria-label="查看今日收益" title="收支明细页顶部展示今日收益">
+        <a class="admin-stat-card admin-stat-card--success" href="./profit.php?range=today" aria-label="查看今日主站收入" title="订单流水减成本、分站提成和站点福利后的主站收入">
             <div class="admin-stat-card__icon">
                 <i class="fa fa-money"></i>
             </div>
             <div class="admin-stat-card__content">
                 <p class="admin-stat-card__value">￥<span id="count15">--</span></p>
-                <p class="admin-stat-card__label">今日收益</p>
+                <p class="admin-stat-card__label">今日主站收入</p>
             </div>
         </a>
 
-        <a class="admin-stat-card admin-stat-card--primary" href="./record.php" aria-label="查看昨日收益" title="收支明细页顶部展示昨日收益">
+        <a class="admin-stat-card admin-stat-card--primary" href="./profit.php?range=yesterday" aria-label="查看昨日主站收入" title="订单流水减成本、分站提成和站点福利后的主站收入">
             <div class="admin-stat-card__icon">
                 <i class="fa fa-history"></i>
             </div>
             <div class="admin-stat-card__content">
                 <p class="admin-stat-card__value">￥<span id="count16">--</span></p>
-                <p class="admin-stat-card__label">昨日收益</p>
+                <p class="admin-stat-card__label">昨日主站收入</p>
             </div>
         </a>
 
@@ -112,7 +112,7 @@ $todayDate = date('Y-m-d');
             </div>
             <div class="admin-stat-card__content">
                 <p class="admin-stat-card__value">￥<span id="count23">--</span></p>
-                <p class="admin-stat-card__label">今日充值</p>
+                <p class="admin-stat-card__label">今日充值入账</p>
             </div>
         </a>
 
@@ -197,15 +197,15 @@ $todayDate = date('Y-m-d');
                 </div>
                 <div class="admin-dashboard-kpi-grid">
                     <div class="admin-dashboard-kpi">
-                        <p class="admin-dashboard-kpi__label">QQ 钱包交易额</p>
+                        <p class="admin-dashboard-kpi__label">QQ 钱包商品流水</p>
                         <p class="admin-dashboard-kpi__value">￥<span id="count12">--</span></p>
                     </div>
                     <div class="admin-dashboard-kpi">
-                        <p class="admin-dashboard-kpi__label">微信交易额</p>
+                        <p class="admin-dashboard-kpi__label">微信商品流水</p>
                         <p class="admin-dashboard-kpi__value">￥<span id="count13">--</span></p>
                     </div>
                     <div class="admin-dashboard-kpi">
-                        <p class="admin-dashboard-kpi__label">支付宝交易额</p>
+                        <p class="admin-dashboard-kpi__label">支付宝商品流水</p>
                         <p class="admin-dashboard-kpi__value">￥<span id="count14">--</span></p>
                     </div>
                 </div>
