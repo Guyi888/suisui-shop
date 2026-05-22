@@ -26,6 +26,17 @@ include "./head.php";
         </div>
         <div class="panel-body">
             <div class="timeline-list">
+                <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.12 / 2026-05-22 自动同步任务与分站价格模板修复</h4>
+                    <ul>
+                        <li>自动同步立即执行改为后台任务模式，可查看执行进度、完成数量、失败数量和错误摘要，避免浏览器等待超时被误判为同步失败。</li>
+                        <li>增强远端商品 ID 和商品名称字段兼容，减少不同供货站字段差异导致的空商品名和同步异常。</li>
+                        <li>修复用户中心站点管理中加价模板设置后，商品列表部分价格仍不按模板计算的问题。</li>
+                        <li>修复用户中心商品列表批量修改价格时，部分价格字段未完整写入导致修改不生效的问题。</li>
+                        <li>分站价格规则调整为默认跟随当前价格模板，自定义价格优先；点击恢复价格会删除自定义价格并回到模板价格。</li>
+                        <li>程序缓存版本更新到 <code>2026052212</code>，本版本不包含数据库结构变更。</li>
+                    </ul>
+                </div>
                 <div class="alert alert-warning">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.12-beta / 2026-05-22 自动同步立即执行测试版修复</h4>
                     <ul>
