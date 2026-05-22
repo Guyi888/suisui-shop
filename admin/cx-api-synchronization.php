@@ -1969,7 +1969,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         }
         $shopimg = syncNormalizeImage($shequ, isset($g['shopimg']) ? $g['shopimg'] : '');
         $remotePrices = syncExtractWholesalePrices($g);
-        $isFakaGoods = !empty($g['isfaka']) || ($old && intval($old['goods_type']) == 1);
+        $isFakaGoods = !empty($g['isfaka']) || (isset($g['goods_type']) && intval($g['goods_type']) == 1) || ($old && intval($old['goods_type']) == 1);
         $remoteMulti = $isFakaGoods ? 1 : intval(isset($g['multi']) ? $g['multi'] : 0);
         $value = intval(isset($g['value']) ? $g['value'] : 1);
         if($value < 1) $value = intval(isset($g['min']) ? $g['min'] : 1);
@@ -2001,8 +2001,10 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
                 $params[':inputs'] = isset($g['inputs']) ? $g['inputs'] : '';
                 $params[':alert'] = isset($g['alert']) ? $g['alert'] : '';
             }
+            $fields[] = 'goods_type=:goods_type';
             $fields[] = 'value=:value'; $fields[] = 'min=:min'; $fields[] = 'max=:max';
             $fields[] = '`repeat`=:repeat'; $fields[] = 'multi=:multi'; $fields[] = 'validate=:validate'; $fields[] = 'valiserv=:valiserv';
+            $params[':goods_type'] = $isFakaGoods ? 1 : intval(isset($g['goods_type']) ? $g['goods_type'] : 0);
             $params[':value'] = $value;
             $params[':min'] = intval(isset($g['min']) ? $g['min'] : 1);
             if($params[':min'] < 1) $params[':min'] = 1;
@@ -2016,7 +2018,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
             $compareMap = [
                 ':stock'=>'stock', ':close'=>'close', ':sort'=>'sort', ':cid'=>'cid', ':name'=>'name',
                 ':price'=>'price', ':cost'=>'cost', ':cost2'=>'cost2', ':desc'=>'desc', ':shopimg'=>'shopimg',
-                ':prices'=>'prices', ':input'=>'input', ':inputs'=>'inputs', ':alert'=>'alert', ':value'=>'value', ':min'=>'min',
+                ':prices'=>'prices', ':input'=>'input', ':inputs'=>'inputs', ':alert'=>'alert', ':goods_type'=>'goods_type', ':value'=>'value', ':min'=>'min',
                 ':max'=>'max', ':repeat'=>'repeat', ':multi'=>'multi', ':validate'=>'validate', ':valiserv'=>'valiserv'
             ];
             foreach($compareMap as $paramKey => $fieldName) {
@@ -2065,7 +2067,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
                 ':value'=>$value,
                 ':shequ'=>intval($shequ['id']),
                 ':goods_id'=>$gid,
-                ':goods_type'=>!empty($g['isfaka']) ? 1 : 0,
+                ':goods_type'=>$isFakaGoods ? 1 : intval(isset($g['goods_type']) ? $g['goods_type'] : 0),
                 ':repeat'=>intval(isset($g['repeat']) ? $g['repeat'] : 0),
                 ':multi'=>$remoteMulti,
                 ':min'=>max(1, intval(isset($g['min']) ? $g['min'] : 1)),

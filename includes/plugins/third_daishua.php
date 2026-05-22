@@ -89,17 +89,7 @@ class third_daishua{
 		} else {
 			$list = array();
 			foreach ($ret['data'] as $v) {
-				if($v['shopimg']&&substr($v['shopimg'],0,4)!='http'&&substr($v['shopimg'],0,2)!='//')$v['shopimg'] = 'http://'.$this->config['url'].'/'.$v['shopimg'];
-				$list[] = array(
-					'id' => $v['tid'],
-					'cid' => $v['cid'],
-					'name' => $v['name'],
-					'value' => $v['value'],
-					'shopimg' => $v['shopimg'] ? $v['shopimg'] : '',
-					'close' => $v['close'],
-					'price' => $v['price'],
-					'stock' => $v['stock']
-				);
+				$list[] = $this->format_goods_row($v, 'id');
 			}
 			return $list;
 		}
@@ -258,20 +248,36 @@ class third_daishua{
 		} else {
 			$list = array();
 			foreach ($ret['data'] as $v) {
-				if($v['shopimg']&&substr($v['shopimg'],0,4)!='http'&&substr($v['shopimg'],0,2)!='//')$v['shopimg'] = 'http://'.$this->config['url'].'/'.$v['shopimg'];
-				$list[] = array(
-					'goods_id' => $v['tid'],
-					'cid' => $v['cid'],
-					'name' => $v['name'],
-					'value' => $v['value'],
-					'shopimg' => $v['shopimg'] ? $v['shopimg'] : '',
-					'close' => $v['close'],
-					'price' => $v['price'],
-					'stock' => $v['stock']
-				);
+				$list[] = $this->format_goods_row($v, 'goods_id');
 			}
 			return $list;
 		}
+	}
+
+	private function format_goods_row($v, $id_key = 'id'){
+		if(isset($v['shopimg']) && $v['shopimg'] && substr($v['shopimg'],0,4)!='http' && substr($v['shopimg'],0,2)!='//') {
+			$v['shopimg'] = ($this->config['protocol']==1?'https://':'http://') . $this->config['url'] . '/' . $v['shopimg'];
+		}
+		$row = array(
+			$id_key => isset($v['tid']) ? $v['tid'] : (isset($v['id']) ? $v['id'] : (isset($v['goods_id']) ? $v['goods_id'] : 0)),
+			'cid' => isset($v['cid']) ? $v['cid'] : 0,
+			'name' => isset($v['name']) ? $v['name'] : '',
+			'value' => isset($v['value']) ? $v['value'] : 1,
+			'shopimg' => isset($v['shopimg']) && $v['shopimg'] ? $v['shopimg'] : '',
+			'close' => isset($v['close']) ? $v['close'] : 0,
+			'price' => isset($v['price']) ? $v['price'] : 0,
+			'stock' => array_key_exists('stock', $v) ? $v['stock'] : null
+		);
+		foreach(array('multi','min','max','isfaka','goods_type','repeat','validate','valiserv','input','inputs','alert','prices') as $key) {
+			if(array_key_exists($key, $v)) $row[$key] = $v[$key];
+		}
+		if(!isset($row['isfaka']) && isset($row['goods_type'])) {
+			$row['isfaka'] = intval($row['goods_type']) == 1 ? 1 : 0;
+		}
+		if(!isset($row['goods_type']) && isset($row['isfaka'])) {
+			$row['goods_type'] = intval($row['isfaka']) == 1 ? 1 : 0;
+		}
+		return $row;
 	}
 
 	private function get_curl($path,$post=0){

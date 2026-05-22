@@ -20,6 +20,11 @@ if (!function_exists('q8_front_stock_count')) {
 		return null;
 	}
 }
+if (!function_exists('q8_api_tool_isfaka')) {
+	function q8_api_tool_isfaka($tool) {
+		return intval(isset($tool['is_curl']) ? $tool['is_curl'] : 0) == 4 || intval(isset($tool['goods_type']) ? $tool['goods_type'] : 0) == 1 ? 1 : 0;
+	}
+}
 
 if($act=='clone')
 {
@@ -143,13 +148,11 @@ elseif($act == 'goodslistbycid')
 			$price_obj->setToolInfo($res['tid'],$res);
 			$price=$price_obj->getToolPrice($res['tid']);
 		}else $price=$res['price'];
+		$isfaka = q8_api_tool_isfaka($res);
 		if($res['is_curl']==4){
-			$isfaka = 1;
 			$res['input'] = getFakaInput();
-		}else{
-			$isfaka = 0;
 		}
-		$data[]=array('tid'=>$res['tid'],'cid'=>$res['cid'],'sort'=>$res['sort'],'name'=>$res['name'],'value'=>$res['value'],'price'=>$price,'input'=>$res['input'],'inputs'=>$res['inputs'],'desc'=>$res['desc'],'alert'=>$res['alert'],'shopimg'=>$res['shopimg'],'validate'=>$res['validate'],'valiserv'=>$res['valiserv'],'repeat'=>$res['repeat'],'multi'=>$res['multi'],'close'=>$res['close'],'prices'=>$res['prices'],'min'=>$res['min'],'max'=>$res['max'],'sales'=>$res['sales'],'isfaka'=>$isfaka,'stock'=>q8_front_stock_count($DB, $res));
+		$data[]=array('tid'=>$res['tid'],'cid'=>$res['cid'],'sort'=>$res['sort'],'name'=>$res['name'],'value'=>$res['value'],'price'=>$price,'input'=>$res['input'],'inputs'=>$res['inputs'],'desc'=>$res['desc'],'alert'=>$res['alert'],'shopimg'=>$res['shopimg'],'validate'=>$res['validate'],'valiserv'=>$res['valiserv'],'repeat'=>$res['repeat'],'multi'=>$res['multi'],'close'=>$res['close'],'prices'=>$res['prices'],'min'=>$res['min'],'max'=>$res['max'],'sales'=>$res['sales'],'isfaka'=>$isfaka,'goods_type'=>$res['goods_type'],'stock'=>q8_front_stock_count($DB, $res));
 	}
 	$result=array("code"=>0,"msg"=>"succ","data"=>$data,"count"=>count($data));
 	exit(json_encode($result));
@@ -178,15 +181,14 @@ elseif($act == 'goodslist')
 		}else{
 			$price = $res['price'];
 		}
+		$isfaka = q8_api_tool_isfaka($res);
 		if($res['is_curl']==4){
 			$count = q8_local_faka_stock_count($DB, $res['tid']);
 			//if($count==0)$res['close']=1;
-			$isfaka = 1;
 		}else{
 			$count = q8_front_stock_count($DB, $res);
-			$isfaka = 0;
 		}
-		$data[] = array('tid' => $res['tid'] , 'cid' => $res['cid'] , 'name' => $res['name'] , 'value' => $res['value'] , 'shopimg' => $res['shopimg'] , 'close' => $res['close'] , 'price' => $price , 'isfaka' => $isfaka , 'stock' => $count);
+		$data[] = array('tid' => $res['tid'] , 'cid' => $res['cid'] , 'sort' => $res['sort'], 'name' => $res['name'] , 'value' => $res['value'] , 'shopimg' => $res['shopimg'] , 'close' => $res['close'] , 'price' => $price , 'isfaka' => $isfaka , 'goods_type' => $res['goods_type'], 'multi' => $res['multi'], 'min' => $res['min'], 'max' => $res['max'], 'repeat' => $res['repeat'], 'validate' => $res['validate'], 'valiserv' => $res['valiserv'], 'input' => $res['input'], 'inputs' => $res['inputs'], 'alert' => $res['alert'], 'prices' => $res['prices'], 'stock' => $count);
 	}
 	$result['data'] = $data;
 	exit(json_encode($result));
@@ -217,17 +219,16 @@ elseif($act == 'goodsdetails')
 	}else{
 		$price = $tool['price'];
 	}
+	$isfaka = q8_api_tool_isfaka($tool);
 	if($tool['is_curl']==4){
 		$count = q8_local_faka_stock_count($DB, $tool['tid']);
 		if($count==0)$tool['close']=1;
-		$isfaka = 1;
 		$tool['input'] = getFakaInput();
 	}else{
 		$count = q8_front_stock_count($DB, $tool);
-		$isfaka = 0;
 		if(empty($tool['input']))$tool['input']='下单账号';
 	}
-	$data = array('tid'=>$tool['tid'],'cid'=>$tool['cid'],'sort'=>$tool['sort'],'name'=>$tool['name'],'value'=>$tool['value'],'price'=>$price,'prices'=>$tool['prices'],'input'=>$tool['input'],'inputs'=>$tool['inputs'],'desc'=>$tool['desc'],'alert'=>$tool['alert'],'shopimg'=>$tool['shopimg'],'repeat'=>$tool['repeat'],'multi'=>$tool['multi'],'min'=>$tool['min'],'max'=>$tool['max'],'close'=>$tool['close'],'isfaka'=>$isfaka,'stock'=>$count);
+	$data = array('tid'=>$tool['tid'],'cid'=>$tool['cid'],'sort'=>$tool['sort'],'name'=>$tool['name'],'value'=>$tool['value'],'price'=>$price,'prices'=>$tool['prices'],'input'=>$tool['input'],'inputs'=>$tool['inputs'],'desc'=>$tool['desc'],'alert'=>$tool['alert'],'shopimg'=>$tool['shopimg'],'repeat'=>$tool['repeat'],'multi'=>$tool['multi'],'min'=>$tool['min'],'max'=>$tool['max'],'close'=>$tool['close'],'isfaka'=>$isfaka,'goods_type'=>$tool['goods_type'],'stock'=>$count);
 	$result['data'] = $data;
 	exit(json_encode($result));
 }
