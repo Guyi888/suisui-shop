@@ -1358,12 +1358,201 @@ body.admin-shell-page .admin-user-filter label {
   font-weight: 700;
 }
 
+body.admin-shell-page .record-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+body.admin-shell-page .record-filter .form-control {
+  min-width: 130px;
+}
+
+body.admin-shell-page .record-filter .record-filter__keyword {
+  min-width: 240px;
+  flex: 1;
+}
+
+body.admin-shell-page .record-filter .btn {
+  min-width: 82px;
+}
+
+body.admin-shell-page .record-summary-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 4px 0 12px;
+}
+
+body.admin-shell-page .record-summary-title h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+body.admin-shell-page .record-summary-title span {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+body.admin-shell-page .record-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+body.admin-shell-page .record-stat-card {
+  display: block;
+  min-height: 92px;
+  padding: 13px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+body.admin-shell-page .record-stat-card:hover,
+body.admin-shell-page .record-stat-card:focus {
+  border-color: rgba(37, 99, 235, .36);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, .08);
+  transform: translateY(-1px);
+}
+
+body.admin-shell-page .record-stat-card.is-active {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, .12);
+}
+
+body.admin-shell-page .record-stat-card__label {
+  display: block;
+  margin-bottom: 6px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+body.admin-shell-page .record-stat-card__value {
+  display: block;
+  color: #1f2937;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+body.admin-shell-page .record-stat-card__desc {
+  display: block;
+  margin-top: 7px;
+  color: #8a94a6;
+  font-size: 12px;
+}
+
+body.admin-shell-page .record-stat-card--success .record-stat-card__value {
+  color: #1a7f37;
+}
+
+body.admin-shell-page .record-stat-card--danger .record-stat-card__value {
+  color: #c0392b;
+}
+
+body.admin-shell-page .record-stat-card--warning .record-stat-card__value {
+  color: #b7791f;
+}
+
+body.admin-shell-page .record-stat-card--info .record-stat-card__value {
+  color: #2563eb;
+}
+
+body.admin-shell-page .record-stat-card--muted .record-stat-card__value {
+  color: #64748b;
+}
+
+body.admin-shell-page .record-breakdown-table th,
+body.admin-shell-page .record-breakdown-table td {
+  vertical-align: middle !important;
+}
+
+body.admin-shell-page .record-detail-panel {
+  margin-top: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+}
+
+body.admin-shell-page .record-detail-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+body.admin-shell-page .record-detail-panel__header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+body.admin-shell-page .record-detail-panel__header p {
+  margin: 5px 0 0;
+  color: #8a94a6;
+  font-size: 12px;
+}
+
 @media (max-width: 767px) {
   body.admin-shell-page .admin-user-filter,
   body.admin-shell-page .admin-user-filter .form-group,
   body.admin-shell-page .admin-user-filter .form-control,
   body.admin-shell-page .admin-user-filter .btn {
     width: 100%;
+  }
+
+  body.admin-shell-page .record-filter {
+    display: block;
+  }
+
+  body.admin-shell-page .record-filter .form-control,
+  body.admin-shell-page .record-filter .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  body.admin-shell-page .record-summary-title {
+    display: block;
+  }
+
+  body.admin-shell-page .record-summary-title span {
+    display: block;
+    margin-top: 4px;
+  }
+
+  body.admin-shell-page .record-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.admin-shell-page .record-stat-card {
+    min-height: auto;
+  }
+
+  body.admin-shell-page .record-stat-card__value {
+    font-size: 20px;
+  }
+
+  body.admin-shell-page .record-detail-panel__header {
+    display: block;
+  }
+
+  body.admin-shell-page .record-detail-panel__header .btn {
+    width: 100%;
+    margin-top: 10px;
   }
 }
 
