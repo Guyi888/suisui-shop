@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.18 / 2026-05-23 加价模板分类应用修复</h4>
+                    <ul>
+                        <li>修复后台加价模板选择分类后仍提示“请选择至少一个分类”的问题。</li>
+                        <li>修复“应用到全站商品”仍走分类必选校验，导致无法直接应用全站商品的问题。</li>
+                        <li>修复分类下商品已绑定相同模板时，数据库实际变更 0 行被误判为失败的问题。</li>
+                        <li>分类应用接口兼容单个分类和多个分类提交，全站应用增加独立作用域识别。</li>
+                        <li>程序缓存版本更新到 <code>2026052306</code>，本版本不包含数据库结构变更。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.17 / 2026-05-23 收支明细经营卡片与联动明细优化</h4>
                     <ul>
                         <li>收支明细新增可点击经营卡片，点击订单流水、在线商品支付、充值入账、分站提成、站点福利、退款、余额消费、后台扣款、提现等卡片，可在下方直接查看所属明细。</li>

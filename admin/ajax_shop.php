@@ -420,7 +420,22 @@ break;
 case 'changePriceRule':
 	adminpermission('price', 2);
 	$id=intval($_POST['id']);
-	$cids=$_POST['cids'];
+	$scope = isset($_POST['scope']) ? trim($_POST['scope']) : '';
+	$cids = isset($_POST['cids']) ? $_POST['cids'] : array();
+	if($id<=0){
+		exit('{"code":-1,"msg":"请选择有效的加价模板"}');
+	}
+	if($scope === 'all'){
+		$count = $DB->exec("UPDATE pre_tools SET prid=:id", array(':id' => $id));
+		if($count!==false){
+			exit('{"code":0,"msg":"成功更改'.$count.'个商品的加价模板"}');
+		}else{
+			exit('{"code":-1,"msg":"更改失败：'.$DB->error().'"}');
+		}
+	}
+	if(!is_array($cids) && $cids !== ''){
+		$cids = array($cids);
+	}
 
 	// 检查cids是否为数组，确保至少有一个分类被选择
 	if(!is_array($cids) || empty($cids)){
@@ -442,8 +457,9 @@ case 'changePriceRule':
 
 	// 构建SQL语句
 	$cidsStr = implode(',', $validCids);
-	$sql="UPDATE pre_tools SET prid='$id' WHERE cid IN ($cidsStr)";
-	if($count = $DB->exec($sql)){
+	$sql="UPDATE pre_tools SET prid='".intval($id)."' WHERE cid IN ($cidsStr)";
+	$count = $DB->exec($sql);
+	if($count!==false){
 		exit('{"code":0,"msg":"成功更改'.$count.'个商品的加价模板"}');
 	}else{
 		exit('{"code":-1,"msg":"更改失败！'.$DB->error().'"}');

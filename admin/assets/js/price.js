@@ -327,10 +327,9 @@
     $.ajax({
       type: 'POST',
       url: endpoints.assign,
-      traditional: true,
       data: {
         id: ruleId,
-        cids: selectedCategories
+        'cids[]': selectedCategories
       },
       dataType: 'json'
     }).done(function (data) {
