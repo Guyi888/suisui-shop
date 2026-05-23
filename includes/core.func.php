@@ -227,6 +227,14 @@ if (!function_exists('q8_order_tool_cost')) {
 		return round($unitCost * $num, 2);
 	}
 }
+if (!function_exists('q8_order_apply_remote_cost')) {
+	function q8_order_apply_remote_cost($DB, $orderid, $result) {
+		if (!is_array($result) || !isset($result['cost']) || !is_numeric($result['cost'])) return;
+		$cost = round(floatval($result['cost']), 2);
+		if ($cost <= 0) return;
+		$DB->exec("UPDATE `pre_orders` SET `cost`=:cost WHERE `id`=:id", array(':cost' => $cost, ':id' => intval($orderid)));
+	}
+}
 if (!function_exists('q8_deliver_local_faka')) {
 	function q8_deliver_local_faka($DB, $conf, $date, $orderid, $tid, $limit, $input, $tools) {
 		$rs = $DB->query("SELECT * FROM pre_faka WHERE tid='" . intval($tid) . "' AND orderid=0 LIMIT " . intval($limit));
@@ -486,6 +494,7 @@ function processOrder($srow, $is_fenzhan = true)
 			}
 			log_result("社区对接", $param, $result, 0);
 			if ($result['code'] == 0) {
+				q8_order_apply_remote_cost($DB, $orderid, $result);
 				if (!strpos($_SERVER['PHPRC'], "phpStudy") && $shequ['status'] == 0) {
 					$DB->exec("UPDATE `pre_shequ` SET status=1 WHERE `id`='" . $shequ['id'] . "'");
 				}
@@ -705,6 +714,7 @@ function do_goods($orderid, $url = '', $post = '')
 				}
 			}
 			if ($result['code'] == 0) {
+				q8_order_apply_remote_cost($DB, $orderid, $result);
 				$status = $shequ['result'] ?: 1;
 				if ($status > 0 && !$result['faka']) {
 					$DB->exec("UPDATE `pre_orders` SET `status`='" . $status . "',`djzt`='1',`djorder`='" . $result['id'] . "',result=NULL WHERE `id`='" . $orderid . "'");

@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.23 / 2026-05-23 同系统对接真实成本写入修复</h4>
+                    <ul>
+                        <li>修复同系统对接订单只记录本地预估成本、未记录上游实际扣款，导致后台主站收入和利润统计虚高的问题。</li>
+                        <li>同系统 API 下单成功后新增返回 <code>money</code> 和 <code>cost</code> 字段，旧字段保持兼容。</li>
+                        <li>同系统对接插件会读取上游返回的真实订单金额，并在对接成功后写回本地 <code>pre_orders.cost</code>。</li>
+                        <li>自动下单和后台手动补单链路共用同一套成本写回逻辑；旧上游接口未返回真实金额时继续沿用原逻辑。</li>
+                        <li>程序缓存版本更新到 <code>2026052312</code>，本版本不包含数据库结构变更，历史订单成本需确认对账后单独回填。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.22 / 2026-05-23 价格同步模板与成本口径修复</h4>
                     <ul>
                         <li>修复自动同步商品价格未正确应用主站加价模板，导致零售价、普及价等于上游成本价的问题。</li>

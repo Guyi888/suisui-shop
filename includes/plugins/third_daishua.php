@@ -66,6 +66,9 @@ class third_daishua{
 				'code' => 0,
 				'id' => $json['orderid']
 			);
+			if (isset($json['money']) && is_numeric($json['money'])) {
+				$result['cost'] = round(floatval($json['money']), 2);
+			}
 			if($json['faka']==true){
 				$result['faka']=true;
 				$result['kmdata']=$json['kmdata'];

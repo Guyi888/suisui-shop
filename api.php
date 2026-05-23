@@ -374,6 +374,11 @@ elseif($act == 'pay')
 						$result['code'] = 0;
 						$result['message'] = 'success';
 						$result['orderid'] = $orderid;
+						$orderrow = $DB->getRow("SELECT money,cost FROM pre_orders WHERE id = '$orderid' LIMIT 1");
+						if($orderrow){
+							$result['money'] = round(floatval($orderrow['money']), 2);
+							$result['cost'] = round(floatval($orderrow['cost']), 2);
+						}
 						$djzt = $DB->getColumn("SELECT djzt FROM pre_orders WHERE id = '$orderid' LIMIT 1");
 						if($djzt == 3){
 							$rs=$DB->query("SELECT * FROM pre_faka WHERE tid='$tid' AND orderid='$orderid' ORDER BY kid ASC");
