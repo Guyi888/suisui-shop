@@ -450,19 +450,23 @@ class Price {
 
 	}
 
-	public function setToolProfit($tid,$num,$name,$money,$orderid,$userid=0){
+	public function setToolProfit($tid,$num,$name,$money,$orderid,$userid=0,$orderCost=0){
 
 		global $DB,$islogin2,$conf,$date;
 
 		if(is_numeric($userid) && strlen($userid)!=32)$islogin2=1;
 
 		$toolPrice = $this->getFinalPrice($this->getToolPrice($tid), $num);
+		$num = floatval($num);
+		if($num <= 0)$num = 1;
+		$orderCost = floatval($orderCost);
+		$actualUnitCost = $orderCost > 0 ? round($orderCost / $num, 4) : 0;
 
 		if(round($toolPrice*$num,2) != round($money,2))return false;
 
 		if($this->power==2){
 
-			$selfCost = $this->getManageSelfCostPrice($tid);
+			$selfCost = $actualUnitCost > 0 ? $actualUnitCost : $this->getManageSelfCostPrice($tid);
 			if($selfCost <= 0){
 				$selfCost = $this->getToolCost2($tid);
 			}
@@ -472,7 +476,7 @@ class Price {
 
 				$tc_point=round($profit*$num, 2);
 
-				$rs=$this->changeUserMoney($this->zid, $tc_point, '提成', '你网站用户下单 '.$name.' 获得'.$tc_point.'元提成', $orderid);
+				$rs=$this->changeUserMoney($this->zid, $tc_point, '提成', '你网站用户下单 '.$name.' 获得'.$tc_point.'元提成（成交价'.$toolPrice.'，实际成本'.round($selfCost,2).'）', $orderid);
 
 			}
 
@@ -484,17 +488,18 @@ class Price {
 
 				$tc_point=round($profit*$num, 2);
 
-				$rs=$this->changeUserMoney($this->zid, $tc_point, '提成', '你网站用户下单 '.$name.' 获得'.$tc_point.'元提成', $orderid);
+				$rs=$this->changeUserMoney($this->zid, $tc_point, '提成', '你网站用户下单 '.$name.' 获得'.$tc_point.'元提成（成交价'.$toolPrice.'，拿货价'.round($this->getToolCost($tid),2).'）', $orderid);
 
 			}
 
-			$profit2=$this->getToolCost($tid) - $this->getToolCost2($tid);
+			$upstreamCost = $actualUnitCost > 0 ? $actualUnitCost : $this->getToolCost2($tid);
+			$profit2=$this->getToolCost($tid) - $upstreamCost;
 
 			if($profit2>0 && $profit2<$money && $this->upzid>1){
 
 				$tc_point=round($profit2*$num, 2);
 
-				$rs=$this->changeUserMoney($this->upzid, $tc_point, '提成', '你下级网站(ZID:'.$this->zid.')用户下单 '.$name.' 获得'.$tc_point.'元提成', $orderid);
+				$rs=$this->changeUserMoney($this->upzid, $tc_point, '提成', '你下级网站(ZID:'.$this->zid.')用户下单 '.$name.' 获得'.$tc_point.'元提成（下级拿货价'.round($this->getToolCost($tid),2).'，实际成本'.round($upstreamCost,2).'）', $orderid);
 
 			}
 

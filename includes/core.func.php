@@ -431,7 +431,7 @@ function processOrder($srow, $is_fenzhan = true)
 	if ($srow['zid'] > 1 && $srow['money'] > 0 && $is_fenzhan == true) {
 		$price_obj = new \lib\Price($srow['zid']);
 		$price_obj->setToolInfo($srow['tid'], $tools);
-		$price_obj->setToolProfit($srow['tid'], $srow['num'], $tools['name'], $srow['money'], $orderid, $srow['userid']);
+		$price_obj->setToolProfit($srow['tid'], $srow['num'], $tools['name'], $srow['money'], $orderid, $srow['userid'], $cost);
 	}
 	$num = $tools['value'] * $srow['num'];
 	if ($num <= 0) {
