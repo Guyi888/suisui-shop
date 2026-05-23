@@ -46,67 +46,119 @@ if($islogin==1){}else exit("<script language='javascript'>window.location.href='
 <?php
 adminpermission('super', 1);
 $mod=isset($_GET['mod'])?$_GET['mod']:null;
+
+function clean_cutoff_time($days)
+{
+    return date("Y-m-d H:i:s", strtotime("-" . intval($days) . " days"));
+}
+
+function clean_format_money($money)
+{
+    $money = trim((string)$money);
+    return is_numeric($money) ? number_format((float)$money, 2, '.', '') : false;
+}
+
+function clean_exec_delete($sql)
+{
+    global $DB;
+    $result = $DB->exec($sql);
+    return $result === false ? false : intval($result);
+}
+
+function clean_sum_counts($counts)
+{
+    $total = 0;
+    foreach ($counts as $count) {
+        if ($count === false) {
+            return false;
+        }
+        $total += intval($count);
+    }
+    return $total;
+}
+
+function clean_optimize_tables($tables)
+{
+    global $DB;
+    foreach ((array)$tables as $table) {
+        $DB->exec("OPTIMIZE TABLE `" . $table . "`");
+    }
+}
+
+function clean_show_result($message, $count)
+{
+    if ($count === false) {
+        showmsg($message . '失败，请检查数据库表结构或错误日志。', 4);
+    }
+    showmsg($message . '成功，本次删除 ' . intval($count) . ' 条记录。', 1);
+}
+
 if($mod=='cleancache'){
 $CACHE->clear();
 if(function_exists("opcache_reset"))@opcache_reset();
 showmsg('清理系统设置缓存成功！',1);
 }elseif($mod=='cleanlog'){
-$DB->exec("TRUNCATE TABLE `pre_logs`");
-showmsg('清空社区对接日志成功！',1);
+$count = intval($DB->getColumn("SELECT COUNT(*) FROM `pre_logs`"));
+$result = $DB->exec("TRUNCATE TABLE `pre_logs`");
+clean_show_result('清空社区对接日志', $result === false ? false : $count);
 }elseif($mod=='cleanpay'){
-$DB->exec("DELETE FROM `pre_pay` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-30 days"))."'");
-$DB->exec("DELETE FROM `pre_pay` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-3 hours"))."' and status=0");
-$DB->exec("DELETE FROM `pre_cart` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-30 days"))."'");
-$DB->exec("DELETE FROM `pre_cart` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-12 hours"))."' and status<2");
-$DB->exec("OPTIMIZE TABLE `pre_pay`");
-showmsg('删除30天前支付记录成功！',1);
+$count = clean_sum_counts(array(
+    clean_exec_delete("DELETE FROM `pre_pay` WHERE addtime<'".clean_cutoff_time(30)."'"),
+    clean_exec_delete("DELETE FROM `pre_pay` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-3 hours"))."' and status=0"),
+    clean_exec_delete("DELETE FROM `pre_cart` WHERE addtime<'".clean_cutoff_time(30)."'"),
+    clean_exec_delete("DELETE FROM `pre_cart` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-12 hours"))."' and status<2")
+));
+clean_optimize_tables(array('pre_pay', 'pre_cart'));
+clean_show_result('删除支付记录', $count);
 }elseif($mod=='cleanorders'){
-$DB->exec("DELETE FROM `pre_orders` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-30 days"))."'");
-$DB->exec("OPTIMIZE TABLE `pre_orders`");
-showmsg('删除30天前订单记录成功！',1);
+$count = clean_exec_delete("DELETE FROM `pre_orders` WHERE addtime<'".clean_cutoff_time(30)."'");
+clean_optimize_tables('pre_orders');
+clean_show_result('删除30天前订单记录', $count);
 }elseif($mod=='cleanqiandao'){
-$DB->exec("DELETE FROM `pre_qiandao` WHERE time<'".date("Y-m-d H:i:s",strtotime("-30 days"))."'");
-$DB->exec("OPTIMIZE TABLE `pre_qiandao`");
-showmsg('删除30天前签到记录成功！',1);
+$count = clean_exec_delete("DELETE FROM `pre_qiandao` WHERE time<'".clean_cutoff_time(30)."'");
+clean_optimize_tables('pre_qiandao');
+clean_show_result('删除30天前签到记录', $count);
 }elseif($mod=='cleanwork'){
-$DB->exec("DELETE FROM `pre_workorder` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-30 days"))."'");
-$DB->exec("OPTIMIZE TABLE `pre_workorder`");
-showmsg('删除30天前工单记录成功！',1);
+$count = clean_exec_delete("DELETE FROM `pre_workorder` WHERE addtime<'".clean_cutoff_time(30)."'");
+clean_optimize_tables('pre_workorder');
+clean_show_result('删除30天前工单记录', $count);
 }elseif($mod=='cleanpoints'){
-$DB->exec("DELETE FROM `pre_points` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-7 days"))."'");
-$DB->exec("OPTIMIZE TABLE `pre_points`");
-showmsg('删除7天前收支明细成功！',1);
+$count = clean_exec_delete("DELETE FROM `pre_points` WHERE addtime<'".clean_cutoff_time(7)."'");
+clean_optimize_tables('pre_points');
+clean_show_result('删除7天前收支明细', $count);
 }elseif($mod=='cleangift'){
-$DB->exec("DELETE FROM `pre_giftlog` WHERE addtime<'".date("Y-m-d H:i:s",strtotime("-1 days"))."'");
-$DB->exec("OPTIMIZE TABLE `pre_giftlog`");
-showmsg('删除1天前中奖记录成功！',1);
+$count = clean_exec_delete("DELETE FROM `pre_giftlog` WHERE addtime<'".clean_cutoff_time(1)."'");
+clean_optimize_tables('pre_giftlog');
+clean_show_result('删除1天前中奖记录', $count);
 }elseif($mod=='cleaninvite'){
-$DB->exec("DELETE FROM `pre_invitelog` WHERE date<'".date("Y-m-d H:i:s",strtotime("-1 days"))."'");
-$DB->exec("OPTIMIZE TABLE `pre_invitelog`");
-showmsg('删除1天前推广记录成功！',1);
+$count = clean_exec_delete("DELETE FROM `pre_invitelog` WHERE date<'".clean_cutoff_time(1)."'");
+clean_optimize_tables('pre_invitelog');
+clean_show_result('删除1天前推广记录', $count);
 }elseif($mod=='cleanpayi' && $_POST['do']=='submit'){
+if(!checkRefererHost())exit();
 $days = intval($_POST['days']);
-$money = daddslashes($_POST['money']);
-if($days<=0 || $money==null)showmsg('请确保每项不能为空',3);
-$DB->exec("DELETE FROM `pre_pay` WHERE money<='$money' and addtime<'".date("Y-m-d H:i:s",strtotime("-{$days} days"))."'");
-$DB->exec("OPTIMIZE TABLE `pre_pay`");
-showmsg('删除支付记录成功！',1);
+$money = clean_format_money($_POST['money']);
+if($days<=0 || $money===false)showmsg('请确保每项不能为空，金额必须为数字',3);
+$count = clean_exec_delete("DELETE FROM `pre_pay` WHERE CAST(money AS DECIMAL(10,2))<='{$money}' and addtime<'".clean_cutoff_time($days)."'");
+clean_optimize_tables('pre_pay');
+clean_show_result('删除支付记录', $count);
 }elseif($mod=='cleanordersi' && $_POST['do']=='submit'){
 if(!checkRefererHost())exit();
 $days = intval($_POST['days']);
-$money = daddslashes($_POST['money']);
-if($days<=0 || $money==null)showmsg('请确保每项不能为空',3);
-$DB->exec("DELETE FROM `pre_orders` WHERE money<='$money' and addtime<'".date("Y-m-d H:i:s",strtotime("-{$days} days"))."'");
-$DB->exec("OPTIMIZE TABLE `pre_orders`");
-showmsg('删除订单记录成功！',1);
+$money = clean_format_money($_POST['money']);
+if($days<=0 || $money===false)showmsg('请确保每项不能为空，金额必须为数字',3);
+$count = clean_exec_delete("DELETE FROM `pre_orders` WHERE money<='{$money}' and addtime<'".clean_cutoff_time($days)."'");
+clean_optimize_tables('pre_orders');
+clean_show_result('删除订单记录', $count);
 }elseif($mod=='cleansite' && $_POST['do']=='submit'){
 if(!checkRefererHost())exit();
 $days = intval($_POST['days']);
-$money = daddslashes($_POST['money']);
-if($days<=0 || $money==null)showmsg('请确保每项不能为空',3);
-$DB->exec("DELETE FROM `pre_site` WHERE rmb<='$money' and addtime<'".date("Y-m-d H:i:s",strtotime("-{$days} days"))."' and (lasttime<'".date("Y-m-d H:i:s",strtotime("-{$days} days"))."' or lasttime is null)");
-$DB->exec("OPTIMIZE TABLE `pre_pay`");
-showmsg('删除分站记录成功！',1);
+$money = clean_format_money($_POST['money']);
+if($days<=0 || $money===false)showmsg('请确保每项不能为空，金额必须为数字',3);
+$cutoff = clean_cutoff_time($days);
+$count = clean_exec_delete("DELETE FROM `pre_site` WHERE rmb<='{$money}' and addtime<'{$cutoff}' and (lasttime<'{$cutoff}' or lasttime is null)");
+clean_optimize_tables('pre_site');
+clean_show_result('删除分站记录', $count);
 }else{
 ?>
 <div class="block">
@@ -206,7 +258,7 @@ showmsg('删除分站记录成功！',1);
                 <input type="hidden" name="do" value="submit"/>
                 <label>支付记录</label><br/>
                 <input type="text" name="days" value="" placeholder="天数" class="form-control input-sm"/> 天前
-                <input type="text" name="money" value="" placeholder="金额" class="form-control input-sm"/> 元
+                金额不超过 <input type="text" name="money" value="" placeholder="上限金额" class="form-control input-sm"/> 元（含）
                 <input type="submit" name="submit" value="立即删除" class="btn btn-sm btn-danger" onclick="return confirm('删除后无法恢复，确定继续吗？');"/>
             </form>
         </div>
@@ -216,7 +268,7 @@ showmsg('删除分站记录成功！',1);
                 <input type="hidden" name="do" value="submit"/>
                 <label>订单记录</label><br/>
                 <input type="text" name="days" value="" placeholder="天数" class="form-control input-sm"/> 天前
-                <input type="text" name="money" value="" placeholder="金额" class="form-control input-sm"/> 元
+                金额不超过 <input type="text" name="money" value="" placeholder="上限金额" class="form-control input-sm"/> 元（含）
                 <input type="submit" name="submit" value="立即删除" class="btn btn-sm btn-danger" onclick="return confirm('删除后无法恢复，确定继续吗？');"/>
             </form>
         </div>
@@ -226,7 +278,7 @@ showmsg('删除分站记录成功！',1);
                 <input type="hidden" name="do" value="submit"/>
                 <label>分站记录</label><br/>
                 <input type="text" name="days" value="30" placeholder="天数" class="form-control input-sm"/> 天前
-                <input type="text" name="money" value="0" placeholder="金额" class="form-control input-sm"/> 元
+                金额不超过 <input type="text" name="money" value="0" placeholder="上限金额" class="form-control input-sm"/> 元（含）
                 <input type="submit" name="submit" value="立即删除" class="btn btn-sm btn-danger" onclick="return confirm('删除后无法恢复，确定继续吗？');"/>
             </form>
         </div>

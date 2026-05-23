@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.19 / 2026-05-23 系统数据清理反馈优化</h4>
+                    <ul>
+                        <li>系统数据清理完成后会显示本次删除条数，方便区分“执行成功但匹配 0 条”和“执行失败”。</li>
+                        <li>修复分站记录自定义清理完成后优化错表的问题，现在会正确优化分站表。</li>
+                        <li>自定义支付记录清理补充来源校验，减少异常请求风险。</li>
+                        <li>自定义清理金额条件明确为“金额不超过 / 上限金额 / 元（含）”，避免误解为大于等于该金额。</li>
+                        <li>程序缓存版本更新到 <code>2026052308</code>，本版本不包含数据库结构变更。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.18 / 2026-05-23 加价模板分类应用修复</h4>
                     <ul>
                         <li>修复后台加价模板选择分类后仍提示“请选择至少一个分类”的问题。</li>
