@@ -173,6 +173,8 @@ class Price {
 
 		if(!$row)$row=$this->getToolInfo($tid);
 
+		$hasIprice = isset($this->iprice_array[$tid]) && floatval($this->iprice_array[$tid]) > 0;
+
 		// 保存原始价格，用于后续计算
 		$original_price = $row['price'];
 
@@ -203,10 +205,10 @@ class Price {
 		if($row['cost2'] <= 0) $row['cost2'] = $row['cost'];
 
 		//应用自定义密价
-		if($this->power==1 && isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0){
-			$row['cost'] = $this->iprice_array[$tid];
-		}elseif($this->power==2 && isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0){
-			$row['cost2'] = $this->iprice_array[$tid];
+		if($this->power==1 && $hasIprice){
+			$row['cost'] = floatval($this->iprice_array[$tid]);
+		}elseif($this->power==2 && $hasIprice){
+			$row['cost2'] = floatval($this->iprice_array[$tid]);
 		}
 
 		$this->manage_self_cost = 0;
@@ -218,7 +220,7 @@ class Price {
 			$this->manage_self_cost = $row['price'];
 		}
 
-		if($this->site_prid > 0 && empty($this->price_array[$tid])){
+		if(!$hasIprice && $this->site_prid > 0 && empty($this->price_array[$tid])){
 			$site_base_price = 0;
 			if($this->power == 2 && isset($row['cost2']) && $row['cost2'] > 0){
 				$site_base_price = $row['cost2'];

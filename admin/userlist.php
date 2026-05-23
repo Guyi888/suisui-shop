@@ -50,6 +50,18 @@ if($islogin==1){}else exit("<script language='javascript'>window.location.href='
 							<span class="input-group-addon">元</span>
 						</div>
 					</div>
+					<div class="form-group">
+						<label>备注</label>
+						<input type="text" class="form-control" name="remark" placeholder="填写加款或扣款备注">
+					</div>
+					<div class="form-group">
+						<label>赠送比例</label>
+						<div class="input-group">
+							<input type="number" step="0.01" min="0" class="form-control" name="rebate_rate" placeholder="留空自动跟随充值返利设置">
+							<span class="input-group-addon">%</span>
+						</div>
+						<p class="help-block">仅后台加款生效，留空按充值返利设置计算，填 0 表示不赠送。</p>
+					</div>
 				</form>
 			</div>
 			<div class="modal-footer">

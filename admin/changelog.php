@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.21 / 2026-05-23 分站密价优先级与余额操作优化</h4>
+                    <ul>
+                        <li>修复直属分站存在单独密价时，默认加价模板仍会二次计算成本的问题。</li>
+                        <li>单独密价现在优先作为分站最终进货成本；没有单独密价的商品仍按价格记录和默认模板计算。</li>
+                        <li>密价用户界面新增“查看当前密价商品”，方便快速定位已设置密价的商品。</li>
+                        <li>后台用户余额加款/扣款新增备注；手动加款可设置赠送比例，留空时跟随充值返利设置。</li>
+                        <li>程序缓存版本更新到 <code>2026052310</code>，本版本不包含数据库结构变更。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.20 / 2026-05-23 收支明细成本口径修复</h4>
                     <ul>
                         <li>修复收支明细中“在线商品支付”明细成本固定显示为 0 的问题。</li>

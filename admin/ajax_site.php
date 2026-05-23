@@ -49,14 +49,25 @@ switch($act){
         $do=intval($_POST['actdo']);
         $rmb=floatval($_POST['rmb']);
         $remark=trim($_POST['remark']);
+        $rebateRateRaw=isset($_POST['rebate_rate'])?trim($_POST['rebate_rate']):'';
         $row=$DB->getRow("select zid,rmb from pre_site where zid='$zid' limit 1");
         if(!$row)
             exit('{"code":-1,"msg":"当前分站不存在！"}');
+        if($rmb<=0)exit('{"code":-1,"msg":"金额必须大于0"}');
         if($do==1 && $rmb>$row['rmb'])$rmb=$row['rmb'];
+        $addstr = '';
         if($remark)$addstr = '（'.$remark.'）';
         if($do==0){
             changeUserMoney($zid, $rmb, true, '加款', '后台加款'.$rmb.'元'.$addstr);
-            if(function_exists('q8_grant_recharge_rebate')) q8_grant_recharge_rebate($zid, $rmb, 'admin');
+            if($rebateRateRaw === ''){
+                if(function_exists('q8_grant_recharge_rebate')) q8_grant_recharge_rebate($zid, $rmb, 'admin');
+            }else{
+                if(!is_numeric($rebateRateRaw))exit('{"code":-1,"msg":"赠送比例格式不正确"}');
+                $rebateRate=floatval($rebateRateRaw);
+                if($rebateRate<0)exit('{"code":-1,"msg":"赠送比例不能为负数"}');
+                $rebateMoney=round($rmb*$rebateRate/100,2);
+                if($rebateMoney>0) changeUserMoney($zid, $rebateMoney, true, '赠送', '后台加款'.$rmb.'元赠送'.$rebateRate.'%='.$rebateMoney.'元'.$addstr);
+            }
         }else{
             changeUserMoney($zid, $rmb, false, '扣除', '后台扣款'.$rmb.'元'.$addstr);
         }

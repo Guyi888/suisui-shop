@@ -22,6 +22,7 @@ $zid = isset($_GET["zid"]) ? intval($_GET["zid"]) : showmsg("参数不完整");
                 <input type="text" class="form-control" name="kw" placeholder="请输入商品名称">
             </div>
             <button type="submit" class="btn btn-info">搜索</button>&nbsp;
+            <a href="javascript:listTable('priced=1')" class="btn btn-primary"><i class="fa fa-eye"></i> 查看当前密价商品</a>&nbsp;
             <a href="javascript:clearPrice()" class="btn btn-warning">恢复原价</a>&nbsp;
             <a href="javascript:changePrice()" class="btn btn-success">一键密价修改</a>&nbsp;
             <a href="javascript:listTable('start')" class="btn btn-default" title="刷新商品列表"><i class="fa fa-refresh"></i></a>

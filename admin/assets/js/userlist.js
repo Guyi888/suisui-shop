@@ -47,6 +47,9 @@ function buildUserFilterQuery(){
 function showRecharge(zid) {
 	var $modal = $('#modal-rmb');
 	$("input[name='zid']").val(zid);
+	$("input[name='rmb']").val('');
+	$("input[name='remark']").val('');
+	$("input[name='rebate_rate']").val('');
 	if ($modal.parent()[0] !== document.body) {
 		$modal.appendTo(document.body);
 	}
@@ -97,12 +100,13 @@ $(document).ready(function(){
 		var actdo=$("select[name='do']").val();
 		var rmb=$("input[name='rmb']").val();
 		var remark=$("input[name='remark']").val();
+		var rebate_rate=$("input[name='rebate_rate']").val();
 		if(rmb==''){layer.alert('请输入金额');return false;}
 		var ii = layer.load(2, {shade:[0.1,'#fff']});
 		$.ajax({
 			type : "POST",
 			url : "ajax_site.php?act=siteRecharge",
-			data : {zid:zid,actdo:actdo,rmb:rmb,remark:remark},
+			data : {zid:zid,actdo:actdo,rmb:rmb,remark:remark,rebate_rate:rebate_rate},
 			dataType : 'json',
 			success : function(data) {
 				layer.close(ii);
