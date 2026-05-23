@@ -622,7 +622,7 @@ class Price {
 
 		global $DB;
 
-		$data = $DB->getRow("SELECT zid,upzid,power,price,iprice,endtime FROM pre_site WHERE zid='$zid' LIMIT 1");
+		$data = $DB->getRow("SELECT zid,upzid,power,price,iprice,endtime,site_prid FROM pre_site WHERE zid='$zid' LIMIT 1");
 
 		return $data;
 

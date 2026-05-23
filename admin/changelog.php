@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.22 / 2026-05-23 价格同步模板与成本口径修复</h4>
+                    <ul>
+                        <li>修复自动同步商品价格未正确应用主站加价模板，导致零售价、普及价等于上游成本价的问题。</li>
+                        <li>修复专业版价格在同步商品中可能显示或计算为 0 的问题，无模板商品现在会写入完整成本兜底。</li>
+                        <li>修复同系统/代刷同步路径中加价模板 ID 未正确应用，已配置模板的同步任务会正确绑定 <code>prid</code>。</li>
+                        <li>后台新增只读价格诊断页，可检查模板绑定、无效模板 ID、分站默认模板、密价和售价低于成本等风险。</li>
+                        <li>程序缓存版本更新到 <code>2026052311</code>，本版本不包含数据库结构变更。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.21 / 2026-05-23 分站密价优先级与余额操作优化</h4>
                     <ul>
                         <li>修复直属分站存在单独密价时，默认加价模板仍会二次计算成本的问题。</li>

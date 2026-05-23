@@ -695,10 +695,7 @@ function syncProducts($shequ, $config, $task) {
         }
 
         // 预加载加价模板，减少重复查询
-        $markup_template = null;
-        if($config['markup_template']) {
-    $markup_template = $DB->getRow("SELECT * FROM pre_price WHERE id=? AND zid=0", [$config['markup_template']]);
-        }
+        $markup_template_id = syncResolveMarkupTemplateId($config);
 
         // 预加载默认分类，减少重复查询
         $default_class = $DB->getRow("SELECT * FROM pre_class WHERE `name`=? LIMIT 1", ['默认分类']);
@@ -909,9 +906,6 @@ function syncProducts($shequ, $config, $task) {
                         // 计算价格（应用加价模板）
                         $cost_price = $product_detail['price'] ?? $product['price'] ?? 0;
                         // 应用加价模板到成本价
-                        if($markup_template) {
-                            $cost_price = calculateMarkupPrice($cost_price, $markup_template);
-                        }
                         // 获取默认下单数量 - 使用商品自身的默认数量，支持不同字段名
                         $default_num = intval($product_detail['value'] ?? $product_detail['unitnum'] ?? $product_detail['limit_min'] ?? $product_detail['buy_min_limit'] ?? $product_detail['default_num'] ?? $product_detail['default_quantity'] ?? $product_detail['buy_num'] ?? $product_detail['min_buy'] ?? $product_detail['buy_min'] ?? $product_detail['quantity'] ?? $product_detail['default_qty'] ?? $product_detail['qty'] ?? 1);
                         // 确保默认下单数量至少为1
@@ -934,7 +928,7 @@ function syncProducts($shequ, $config, $task) {
                         $price = $cost_price * $default_num;
 
                         // 价格精度处理：当计算后的价格小于0.01时，调整下单数量
-                        if($price < 0.01) {
+                        if($price > 0 && $price < 0.01) {
                             // 计算需要的调整倍数
                             $adjustment_factor = ceil(0.01 / $price);
                             // 确保调整倍数是10的倍数
@@ -945,6 +939,7 @@ function syncProducts($shequ, $config, $task) {
                             // 重新计算价格
                             $price = $cost_price * $default_num;
                         }
+                        $price_set = syncBuildStoredPriceSet($price, $markup_template_id);
 
                         // 处理图片
                         $wholesale_prices = syncExtractWholesalePrices($product_detail, $product);
@@ -960,10 +955,10 @@ function syncProducts($shequ, $config, $task) {
                             'sort' => 0,
                             'cid' => $cid,
                             'name' => $product_detail['name'],
-                            'price' => floatval($price),
-                            'cost' => floatval($cost_price),
-                            'cost2' => 0,
-                            'prid' => intval($config['markup_template'] ?? 0),
+                            'price' => $price_set['price'],
+                            'cost' => $price_set['cost'],
+                            'cost2' => $price_set['cost2'],
+                            'prid' => $markup_template_id,
                             'prices' => $wholesale_prices !== null ? $wholesale_prices : '',
                             'input' => $product_detail['input'] ?? '',
                             'inputs' => $product_detail['inputs'] ?? '',
@@ -1011,10 +1006,6 @@ function syncProducts($shequ, $config, $task) {
                 }
 
                 // 处理加价模板
-                if($markup_template) {
-                    $cost_price = calculateMarkupPrice($cost_price, $markup_template);
-                }
-
                 // 获取默认下单数量 - 使用商品自身的默认数量，支持不同字段名
                 $default_num = intval($cached_detail['value'] ?? $cached_detail['unitnum'] ?? $cached_detail['limit_min'] ?? $cached_detail['buy_min_limit'] ?? $cached_detail['default_num'] ?? $cached_detail['default_quantity'] ?? $cached_detail['buy_num'] ?? $cached_detail['min_buy'] ?? $cached_detail['quantity'] ?? $cached_detail['default_qty'] ?? $cached_detail['qty'] ?? 1);
                 // 确保默认下单数量至少为1
@@ -1037,7 +1028,7 @@ function syncProducts($shequ, $config, $task) {
                 $price = $cost_price * $default_num;
 
                 // 价格精度处理：当计算后的价格小于0.01时，调整下单数量
-                if($price < 0.01) {
+                if($price > 0 && $price < 0.01) {
                     // 计算需要的调整倍数
                     $adjustment_factor = ceil(0.01 / $price);
                     // 确保调整倍数是10的倍数
@@ -1048,6 +1039,7 @@ function syncProducts($shequ, $config, $task) {
                     // 重新计算价格
                     $price = $cost_price * $default_num;
                 }
+                $price_set = syncBuildStoredPriceSet($price, $markup_template_id);
 
                 // 检查是否有自定义价格记录
                 $has_custom_price = $DB->getColumn("SELECT COUNT(*) FROM pre_site_price WHERE tid=?", [$existing_product['tid']]);
@@ -1071,8 +1063,10 @@ function syncProducts($shequ, $config, $task) {
 
                 // 只有当勾选了价格同步选项时才同步价格
                 if($config['sync_price']) {
-                    $update_data['price'] = $price;
-                    $update_data['cost'] = floatval($cost_price);
+                    $update_data['price'] = $price_set['price'];
+                    $update_data['cost'] = $price_set['cost'];
+                    $update_data['cost2'] = $price_set['cost2'];
+                    $update_data['prid'] = $markup_template_id;
                 }
 
                 if($config['sync_class']) {
@@ -1130,7 +1124,7 @@ function syncProducts($shequ, $config, $task) {
                 if($config['sync_price'] && $has_custom_price > 0) {
                     $update_site_prices[] = [
                         'tid' => $existing_product['tid'],
-                        'price' => $price
+                        'price' => $price_set['price']
                     ];
                 }
 
@@ -1935,6 +1929,7 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
             while($row = $rs->fetch()) $existing[intval($row['goods_id'])] = $row;
         }
     }
+    $templateId = syncResolveMarkupTemplateId($config);
 
     $detailCache = [];
     $needDetailIds = [];
@@ -1992,7 +1987,6 @@ function syncDaishuaProducts($shequ, $config, $remoteGoods, $classMap, $task) {
         $remoteActive = intval(isset($g['active']) ? $g['active'] : 1);
         if($remoteActive != 1) $remoteClose = 1;
         $remotePrice = floatval(isset($g['price']) ? $g['price'] : 0);
-        $templateId = 0;
         $priceSet = syncBuildStoredPriceSet($remotePrice, $templateId);
         $name = syncRemoteProductName($g);
         if($name === '') {
@@ -2198,6 +2192,17 @@ function syncApplyPriceTemplate($remotePrice, $template) {
     return ['price'=>$price, 'cost'=>$cost, 'cost2'=>$cost2];
 }
 
+function syncResolveMarkupTemplateId($config) {
+    global $DB;
+
+    $templateId = isset($config['markup_template']) ? intval($config['markup_template']) : 0;
+    if($templateId <= 0) {
+        return 0;
+    }
+
+    return intval($DB->getColumn("SELECT COUNT(*) FROM pre_price WHERE id=? AND zid=0", [$templateId])) > 0 ? $templateId : 0;
+}
+
 function syncBuildStoredPriceSet($remotePrice, $templateId = 0) {
     $basePrice = round(floatval($remotePrice), 2);
     if($basePrice < 0) {
@@ -2206,7 +2211,7 @@ function syncBuildStoredPriceSet($remotePrice, $templateId = 0) {
     if(intval($templateId) > 0) {
         return ['price'=>$basePrice, 'cost'=>0, 'cost2'=>0];
     }
-    return ['price'=>$basePrice, 'cost'=>$basePrice, 'cost2'=>0];
+    return ['price'=>$basePrice, 'cost'=>$basePrice, 'cost2'=>$basePrice];
 }
 
 function syncAddPublicToolLog($type, $name, $tid = 0) {
@@ -2215,26 +2220,6 @@ function syncAddPublicToolLog($type, $name, $tid = 0) {
         return;
     }
 }
-/**
- * 根据加价模板计算价格
- */
-function calculateMarkupPrice($base_price, $markup_template) {
-    $price = $base_price;
-
-    if($markup_template['type'] == 1) {
-        // 固定金额加价
-        $price += $markup_template['value'];
-    } elseif($markup_template['type'] == 2) {
-        // 百分比加价
-        $price = $price * (1 + $markup_template['value'] / 100);
-    }
-
-    // 价格精度处理
-    $price = round($price, 2);
-
-    return $price;
-}
-
 /**
  * 保存远程图片到本地
  */
