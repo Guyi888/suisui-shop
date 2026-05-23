@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.20 / 2026-05-23 收支明细成本口径修复</h4>
+                    <ul>
+                        <li>修复收支明细中“在线商品支付”明细成本固定显示为 0 的问题。</li>
+                        <li>新订单成本写入增加 <code>cost2 -&gt; cost -&gt; price</code> 兜底，避免商品专业版成本为空时毛利虚高。</li>
+                        <li>在线商品支付明细会按支付单号汇总关联订单成本，方便核对订单成本和毛利。</li>
+                        <li>已落库为 0 成本的历史订单不会自动改写，如需修正可后续单独执行回填。</li>
+                        <li>程序缓存版本更新到 <code>2026052309</code>，本版本不包含数据库结构变更。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.19 / 2026-05-23 系统数据清理反馈优化</h4>
                     <ul>
                         <li>系统数据清理完成后会显示本次删除条数，方便区分“执行成功但匹配 0 条”和“执行失败”。</li>

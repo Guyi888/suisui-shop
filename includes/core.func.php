@@ -214,6 +214,19 @@ if (!function_exists('q8_send_faka_mail')) {
 		send_mail($to, $sub, $msg);
 	}
 }
+if (!function_exists('q8_order_tool_cost')) {
+	function q8_order_tool_cost($tools, $num) {
+		$num = floatval($num);
+		if ($num <= 0) $num = 1;
+		if (intval($tools['prid']) > 0) {
+			return round(floatval($tools['price']) * $num, 2);
+		}
+		$unitCost = isset($tools['cost2']) ? floatval($tools['cost2']) : 0;
+		if ($unitCost <= 0 && isset($tools['cost'])) $unitCost = floatval($tools['cost']);
+		if ($unitCost <= 0 && isset($tools['price'])) $unitCost = floatval($tools['price']);
+		return round($unitCost * $num, 2);
+	}
+}
 if (!function_exists('q8_deliver_local_faka')) {
 	function q8_deliver_local_faka($DB, $conf, $date, $orderid, $tid, $limit, $input, $tools) {
 		$rs = $DB->query("SELECT * FROM pre_faka WHERE tid='" . intval($tid) . "' AND orderid=0 LIMIT " . intval($limit));
@@ -372,11 +385,7 @@ function processOrder($srow, $is_fenzhan = true)
 	}
 	$tools = $DB->getRow("SELECT * FROM `pre_tools` WHERE `tid`='" . $srow['tid'] . "' LIMIT 1");
 	$status = 0;
-	if ($tools['prid'] == 0) {
-		$cost = $tools['cost2'] * $srow['num'];
-	} else {
-		$cost = $tools['price'] * $srow['num'];
-	}
+	$cost = q8_order_tool_cost($tools, $srow['num']);
 	// 地区加价日志记录 - 作者：@qqfaka TG：@qqfaka
 	$address = isset($srow['address']) ? $srow['address'] : '';
 	if (!empty($address)) {

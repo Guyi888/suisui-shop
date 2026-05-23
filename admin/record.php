@@ -191,7 +191,7 @@ function q8_record_detail_rows($detail, $start, $end, $zid, $kw, $page, $pagesiz
 		$where = $payWhere . ($detail === 'paid_recharge' ? " AND tid=-1" : " AND tid NOT IN (-1,-4)");
 		if ($kw !== '') $where .= " AND (trade_no LIKE '%{$safeKw}%' OR input LIKE '%{$safeKw}%' OR name LIKE '%{$safeKw}%' OR userid LIKE '%{$safeKw}%')";
 		$countSql = "SELECT COUNT(*) FROM pre_pay WHERE {$where}";
-		$sql = "SELECT {$payTime} AS rtime,zid,IF(tid=-1,'充值支付','商品支付') AS dtype,trade_no AS ref_id,CAST(money AS DECIMAL(12,2)) AS amount,0 AS cost,CAST(money AS DECIMAL(12,2)) AS profit,IFNULL(name,'支付记录') AS title,CONCAT('方式 ',IFNULL(type,''),' / 账号 ',IFNULL(input,'')) AS note,CONCAT('./payorder.php?trade_no=',trade_no) AS href FROM pre_pay WHERE {$where} ORDER BY {$payTime} DESC";
+		$sql = "SELECT {$payTime} AS rtime,zid,IF(tid=-1,'充值支付','商品支付') AS dtype,trade_no AS ref_id,CAST(money AS DECIMAL(12,2)) AS amount,COALESCE((SELECT ROUND(SUM(cost),2) FROM pre_orders WHERE tradeno=pre_pay.trade_no),0) AS cost,CAST(money AS DECIMAL(12,2))-COALESCE((SELECT ROUND(SUM(cost),2) FROM pre_orders WHERE tradeno=pre_pay.trade_no),0) AS profit,IFNULL(name,'支付记录') AS title,CONCAT('方式 ',IFNULL(type,''),' / 账号 ',IFNULL(input,'')) AS note,CONCAT('./payorder.php?trade_no=',trade_no) AS href FROM pre_pay WHERE {$where} ORDER BY {$payTime} DESC";
 	} elseif ($detail === 'refund_orders') {
 		$where = "{$orderWhere} AND status=4";
 		if ($kw !== '') $where .= " AND (id='{$safeKw}' OR tradeno LIKE '%{$safeKw}%' OR input LIKE '%{$safeKw}%')";
