@@ -27,6 +27,17 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.26 / 2026-05-24 商品搜索与从属关系查询优化</h4>
+                    <ul>
+                        <li>前台首页、用户中心在线下单和批量下单搜索商品后，会自动隐藏无关分类，只保留搜索结果商品。</li>
+                        <li>清空搜索关键词后，页面会恢复默认分类和商品选择状态，不再停留在搜索结果视图。</li>
+                        <li>后台分站列表和用户列表新增从属关系标签，可直接查看直属上级、当前层级和下级数量。</li>
+                        <li>分站列表和用户列表新增“查看从属”按钮，弹窗展示上级链条、直接下级和间接下级。</li>
+                        <li>从属关系查询基于现有 <code>pre_site.upzid</code> 层级关系生成，不新增数据库表，不改变现有归属数据。</li>
+                        <li>程序缓存版本更新到 <code>2026052416</code>，后台资源版本更新到 <code>20260521suisuiops19</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.25 / 2026-05-24 多级专业版分站价格与分润链路修复</h4>
                     <ul>
                         <li>修复下级专业版分站客户购买时，只给当前专业站记收益、未给上级专业站记录差价分润的问题。</li>

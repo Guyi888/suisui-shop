@@ -210,7 +210,7 @@ $classConfig = array(
 						</div>
 						<?php } ?>
 
-						<div class="suisui-form-grid">
+						<div class="suisui-form-grid suisui-category-grid">
 							<div class="suisui-field">
 								<label for="primary_cid">一级分类</label>
 								<select id="primary_cid" class="form-control">

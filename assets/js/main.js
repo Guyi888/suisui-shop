@@ -1775,10 +1775,34 @@ $(document).ready(function () {
     $("#display_searchBar").slideToggle();
     $("#display_selectclass").slideToggle();
   });
+  function q8ResetSearchMode() {
+    $("#tid").html('<option value="0">\u8bf7\u9009\u62e9\u5546\u54c1</option>').val(0);
+    $("#subcid").val(0);
+    $("#display_selectsubclass").hide();
+    if ($("#display_selectclass select option").length > 1) $("#display_selectclass").show();
+    $(".suisui-category-grid").show();
+    if ($("#goodType").length) {
+      $("#goodType").show("normal");
+      $("#goodTypeContent").hide("normal");
+    }
+    getPoint();
+    history.replaceState({}, null, "./");
+  }
+  function q8ApplySearchMode() {
+    $("#display_selectclass,#display_selectsubclass").hide();
+    $(".suisui-category-grid").hide();
+    if ($("#goodType").length) {
+      $("#goodType").hide("normal");
+      $("#goodTypeContent").show("normal");
+    }
+  }
+  $("#searchkw").on("input", function () {
+    if ($.trim($(this).val()) === "") q8ResetSearchMode();
+  });
   $("#doSearch").click(function () {
-    var kw = $("#searchkw").val();
+    var kw = $.trim($("#searchkw").val());
     if (kw == "") {
-      layer.msg("请先输入要搜索的内容", { time: 500 });
+      q8ResetSearchMode();
       return;
     }
     var ii = layer.load(2, { shade: [0.1, "#fff"] });
@@ -1833,7 +1857,8 @@ $(document).ready(function () {
           });
           $("#tid").val(0);
           getPoint();
-          if (num == 0 && cid != 0)
+          q8ApplySearchMode();
+          if (num == 0)
             layer.msg('<option value="0">没有搜索到相关商品</option>', {
               icon: 2,
               time: 500,

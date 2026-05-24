@@ -4,6 +4,7 @@ if ($islogin != 1) {
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }
 adminpermission("site", 1);
+include __DIR__ . "/includes/site_relation.php";
 
 $params = array();
 $orderby = "zid desc";
@@ -42,6 +43,7 @@ $where = implode(" AND ", $whereParts);
 $link = $linkParams ? "&" . http_build_query($linkParams) : "";
 
 $numrows = intval($DB->getColumn("SELECT COUNT(*) FROM pre_site WHERE {$where}", $params));
+$relationIndex = q8_admin_relation_load_index();
 $pagesize = 30;
 $pages = max(1, ceil($numrows / $pagesize));
 $page = isset($_GET["page"]) ? max(1, intval($_GET["page"])) : 1;
@@ -62,6 +64,7 @@ function q8_userlist_power_label($power)
 				<th>UID</th>
 				<th>&#31867;&#22411;</th>
 				<th>&#29992;&#25143;&#21517;</th>
+				<th>&#20174;&#23646;&#20851;&#31995;</th>
 				<th>QQ</th>
 				<th>&#27880;&#20876;IP</th>
 				<th>&#20313;&#39069;</th>
@@ -84,6 +87,7 @@ while ($res = $rs->fetch()) {
 	echo '<td><b>' . $zid . '</b></td>';
 	echo '<td>' . q8_userlist_power_label($power) . '</td>';
 	echo '<td>' . htmlspecialchars($res["user"], ENT_QUOTES, 'UTF-8') . '</td>';
+	echo '<td>' . q8_admin_relation_summary_html($res, $relationIndex) . '<button type="button" class="btn btn-default btn-xs admin-relation-btn" onclick="showSiteRelation(' . $zid . ')"><i class="fa fa-sitemap"></i> &#26597;&#30475;&#20174;&#23646;</button></td>';
 	echo '<td>' . htmlspecialchars($res["qq"], ENT_QUOTES, 'UTF-8') . '</td>';
 	echo '<td>' . $ipHtml . '</td>';
 	echo '<td><a href="javascript:showRecharge(' . $zid . ')" title="&#28857;&#20987;&#35843;&#25972;&#20313;&#39069;">' . htmlspecialchars($res["rmb"], ENT_QUOTES, 'UTF-8') . '</a></td>';
@@ -98,7 +102,7 @@ while ($res = $rs->fetch()) {
 	echo '<a href="./sso.php?zid=' . $zid . '" class="btn btn-default btn-xs" target="_blank">&#30331;&#24405;</a>';
 	echo '</td></tr>';
 }
-if ($numrows < 1) echo '<tr><td colspan="9" class="text-center text-muted">&#26242;&#26080;&#29992;&#25143;</td></tr>';
+if ($numrows < 1) echo '<tr><td colspan="10" class="text-center text-muted">&#26242;&#26080;&#29992;&#25143;</td></tr>';
 ?>
 		</tbody>
 	</table>

@@ -227,6 +227,6 @@ $.ajax({
 <?php }?>
 });
 </script>
-<script src="../assets/js/usershop.js?ver=<?php echo VERSION ?>&v=q8todayrecommend3"></script>
+<script src="../assets/js/usershop.js?ver=<?php echo VERSION ?>&v=q8todayrecommend5"></script>
 </body>
 </html>

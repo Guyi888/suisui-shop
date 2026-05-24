@@ -1332,6 +1332,105 @@ body.admin-shell-page .admin-userlist-actions {
   white-space: nowrap;
 }
 
+body.admin-shell-page .admin-relation-summary {
+  display: grid;
+  gap: 5px;
+  min-width: 180px;
+  color: #42526b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+body.admin-shell-page .admin-relation-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(22, 119, 255, 0.1);
+  color: #1677ff;
+  font-weight: 900;
+}
+
+body.admin-shell-page .admin-relation-line {
+  display: block;
+  white-space: normal;
+}
+
+body.admin-shell-page .admin-relation-btn {
+  margin-top: 8px;
+  white-space: nowrap;
+}
+
+.admin-relation-detail {
+  padding: 18px;
+  color: #24364f;
+  background: #f7fbff;
+}
+
+.admin-relation-detail h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 10px;
+  color: #14243c;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.admin-relation-current,
+.admin-relation-chain,
+.admin-relation-empty {
+  padding: 12px;
+  border: 1px solid rgba(22, 119, 255, 0.12);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.admin-relation-chain {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-relation-node {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-relation-node small {
+  color: #64748b;
+}
+
+.admin-relation-node em {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: #1677ff;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-relation-empty {
+  color: #64748b;
+  text-align: center;
+}
+
+.admin-relation-table-wrap {
+  border: 1px solid rgba(22, 119, 255, 0.1);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.admin-relation-table {
+  margin-bottom: 0;
+}
+
 body.admin-shell-page .admin-user-filter {
   display: flex;
   flex-wrap: wrap;

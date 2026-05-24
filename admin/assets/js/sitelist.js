@@ -48,6 +48,18 @@ function closeSiteDialog(){
 		siteDialogIndex = null;
 	}
 }
+function showSiteRelation(zid){
+	var dialogWidth = Math.min(860, $(window).width() - 24);
+	var dialogHeight = Math.min(640, $(window).height() - 80);
+	layer.open({
+		type: 2,
+		title: '<i class="fa fa-sitemap"></i> \u4ece\u5c5e\u5173\u7cfb',
+		area: [dialogWidth + 'px', dialogHeight + 'px'],
+		shade: 0.16,
+		skin: 'admin-shell-layer admin-relation-layer',
+		content: 'site_relation.php?zid=' + encodeURIComponent(zid)
+	});
+}
 function showRecharge(zid) {
 	var $modal = $('#modal-rmb');
 	$("input[name='zid']").val(zid);
