@@ -5,7 +5,7 @@ if (defined('IN_CRONLITE')) {
 	return;
 }
 define('CACHE_FILE', 0);
-define('VERSION', '2026052416');
+define('VERSION', '2026052417');
 define('IN_CRONLITE', true);
 define('tingdong', '3530793519');
 define('SYSTEM_ROOT', dirname(__FILE__) . '/');
@@ -284,6 +284,9 @@ if (function_exists('q8_brand_favicon_href')) {
 
 if (function_exists('q8_site_markup_template_ensure_fields')) {
 	q8_site_markup_template_ensure_fields();
+}
+if (function_exists('q8_tools_ensure_fields')) {
+	q8_tools_ensure_fields();
 }
 if (function_exists('q8_price_rule_ensure_fields')) {
 	q8_price_rule_ensure_fields();

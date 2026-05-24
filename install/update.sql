@@ -72,3 +72,17 @@ CREATE TABLE IF NOT EXISTS `shua_sync_config` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `shequ_id` (`shequ_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `shua_tools` ADD COLUMN `min_price` decimal(10,2) NOT NULL DEFAULT '0.00' AFTER `price`;
+
+CREATE TABLE IF NOT EXISTS `shua_recommend` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_name` varchar(50) NOT NULL DEFAULT '默认推荐',
+  `tid` int(11) unsigned NOT NULL,
+  `sort` int(11) unsigned NOT NULL DEFAULT '0',
+  `addtime` datetime DEFAULT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `tid` (`tid`),
+  KEY `sort` (`sort`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品推荐表';

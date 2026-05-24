@@ -221,23 +221,49 @@ switch ($act) {
 		}
 		break;
 	case 'getRecommend':
+		$defaultRecommendGroup = html_entity_decode('&#40664;&#35748;&#25512;&#33616;', ENT_QUOTES, 'UTF-8');
+		try {
+			$DB->exec("CREATE TABLE IF NOT EXISTS `pre_recommend` (
+				`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+				`group_name` varchar(50) NOT NULL DEFAULT '',
+				`tid` int(11) unsigned NOT NULL,
+				`sort` int(11) NOT NULL DEFAULT '10',
+				`addtime` datetime DEFAULT NULL,
+				`active` tinyint(1) NOT NULL DEFAULT '1',
+				PRIMARY KEY (`id`),
+				KEY `tid` (`tid`),
+				KEY `active_sort` (`active`,`sort`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+		} catch (Exception $e) {}
 		try {
 			$DB->query("SELECT * FROM pre_recommend LIMIT 1");
 		} catch (Exception $e) {
 			exit('{"code":-1,"msg":"推荐功能未启用"}');
 		}
+		try {
+			$recommendGroupColumn = $DB->getColumn("SHOW COLUMNS FROM `pre_recommend` LIKE 'group_name'");
+			if (!$recommendGroupColumn) {
+				$DB->exec("ALTER TABLE `pre_recommend` ADD COLUMN `group_name` varchar(50) NOT NULL DEFAULT '默认推荐' AFTER `id`");
+			}
+		} catch (Exception $e) {}
 
-		$rs = $DB->query("SELECT r.tid, t.name, t.cid, t.price FROM pre_recommend r LEFT JOIN pre_tools t ON r.tid = t.tid WHERE r.active=1 AND t.active=1 ORDER BY r.sort DESC, r.id DESC");
+		$rs = $DB->query("SELECT r.group_name, r.tid, t.name, t.cid, t.price FROM pre_recommend r LEFT JOIN pre_tools t ON r.tid = t.tid WHERE r.active=1 AND t.active=1 AND t.close=0 ORDER BY r.group_name ASC, r.sort ASC, r.id DESC");
+		if (!$rs) {
+			exit(json_encode(array("code" => 0, "msg" => "success", "data" => array()), JSON_UNESCAPED_UNICODE));
+		}
 		$recommend_list = array();
 		while ($res = $rs->fetch()) {
+			$groupName = isset($res['group_name']) && trim($res['group_name']) !== '' ? trim($res['group_name']) : '默认推荐';
+			if (!isset($res['group_name']) || trim($res['group_name']) === '') $groupName = $defaultRecommendGroup;
 			$recommend_list[] = array(
+				'group' => $groupName,
 				'tid' => $res['tid'],
 				'cid' => $res['cid'],
 				'name' => $res['name'],
 				'price' => $res['price']
 			);
 		}
-		exit(json_encode(array("code" => 0, "msg" => "success", "data" => $recommend_list)));
+		exit(json_encode(array("code" => 0, "msg" => "success", "data" => $recommend_list), JSON_UNESCAPED_UNICODE));
 		break;
 	case 'getrizhi':
 		$uin = isset($_GET['uin']) ? daddslashes($_GET['uin']) : exit('{"code":-1,"msg":"参数错误"}');

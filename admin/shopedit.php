@@ -290,6 +290,11 @@ $(document).ready(function() {
 </tr>
 </table>
 <div class="form-group">
+<label>控价金额（最低限价）:</label><br>
+<input type="number" step="0.01" min="0" class="form-control" name="min_price" value="0.00" placeholder="控价金额（最低限价），留空或 0 表示不启用">
+<pre><font color="green">主站设置后，下级分站及更下级分站的最终前端售卖价不能低于该金额，不影响对接成本、密价成本和分润计算。</font></pre>
+</div>
+<div class="form-group">
 <label>批发价格优惠设置:</label><br>
 <input type="text" class="form-control" name="prices" placeholder="不懂请勿填写">
 <pre><font color="green">填写格式：购满x个|减少x元单价,购满x个|减少x元单价  例如10|0.1,20|0.3,30|0.5</font></pre>
@@ -546,6 +551,11 @@ $(document).ready(function() {
 </tr>
 </table>
 <div class="form-group">
+<label>控价金额（最低限价）:</label><br>
+<input type="number" step="0.01" min="0" class="form-control" name="min_price" value="<?php echo isset($row['min_price']) ? htmlspecialchars($row['min_price']) : '0.00';?>" placeholder="控价金额（最低限价），留空或 0 表示不启用">
+<pre><font color="green">主站设置后，下级分站及更下级分站的最终前端售卖价不能低于该金额，不影响对接成本、密价成本和分润计算。</font></pre>
+</div>
+<div class="form-group">
 <label>批发价格优惠设置:</label><br>
 <input type="text" class="form-control" name="prices" value="<?php echo $row["prices"];?>">
 <pre><font color="green">填写格式：购满x个|减少x元单价,购满x个|减少x元单价  例如10|0.1,20|0.3,30|0.5</font></pre>
@@ -626,6 +636,8 @@ $(document).ready(function() {
 	$price = $prid == "0" ? $_POST["price"] : $_POST["price1"];
 	$cost = $_POST["cost"];
 	$cost2 = $_POST["cost2"];
+	$min_price = isset($_POST["min_price"]) ? round(floatval($_POST["min_price"]), 2) : 0;
+	if ($min_price < 0) $min_price = 0;
 	if ($prid == 0) {
 		if ($cost2 > $cost) {
 			showmsg("专业版加价不能高于普及版加价", 3);
@@ -668,9 +680,9 @@ $(document).ready(function() {
 		showmsg("请选择对接社区！", 3);
 	} else {
 		$sort = $DB->getColumn("select sort from pre_tools order by sort desc limit 1");
-		$sql = "INSERT INTO `pre_tools` (`cid`,`name`,`price`,`cost`,`cost2`,`prid`,`prices`,`input`,`inputs`,`desc`,`alert`,`shopimg`,`value`,`is_curl`,`curl`,`showcontent`,`shequ`,`goods_id`,`goods_type`,`goods_param`,`repeat`,`multi`,`min`,`max`,`validate`,`valiserv`,`sort`,`active`,`ts`,`addtime`) VALUES (:cid,:name,:price,:cost,:cost2,:prid,:prices,:input,:inputs,:desc,:alert,:shopimg,:value,:is_curl,:curl,:showcontent,:shequ,:goods_id,:goods_type,:goods_param,:repeat,:multi,:min,:max,:validate,:valiserv,:sort,:active,:ts,:addtime)";
+		$sql = "INSERT INTO `pre_tools` (`cid`,`name`,`price`,`min_price`,`cost`,`cost2`,`prid`,`prices`,`input`,`inputs`,`desc`,`alert`,`shopimg`,`value`,`is_curl`,`curl`,`showcontent`,`shequ`,`goods_id`,`goods_type`,`goods_param`,`repeat`,`multi`,`min`,`max`,`validate`,`valiserv`,`sort`,`active`,`ts`,`addtime`) VALUES (:cid,:name,:price,:min_price,:cost,:cost2,:prid,:prices,:input,:inputs,:desc,:alert,:shopimg,:value,:is_curl,:curl,:showcontent,:shequ,:goods_id,:goods_type,:goods_param,:repeat,:multi,:min,:max,:validate,:valiserv,:sort,:active,:ts,:addtime)";
 		$params = array(
-			":cid" => $cid, ":name" => $name, ":price" => $price, ":cost" => $cost, ":cost2" => $cost2, ":prid" => $prid, ":prices" => $prices, ":input" => $input, ":inputs" => $inputs, ":desc" => $desc, ":alert" => $alert, ":shopimg" => $shopimg, ":value" => $value, ":is_curl" => $is_curl, ":curl" => $curl, ":showcontent" => $showcontent, ":shequ" => $shequ, ":goods_id" => $goods_id, ":goods_type" => $goods_type, ":goods_param" => $goods_param, ":repeat" => $repeat, ":multi" => $multi, ":min" => $min, ":max" => $max, ":validate" => $validate, ":valiserv" => $valiserv, ":sort" => $sort + 1, ":active" => 1, ":ts" => $ts, ":addtime" => $date
+			":cid" => $cid, ":name" => $name, ":price" => $price, ":min_price" => $min_price, ":cost" => $cost, ":cost2" => $cost2, ":prid" => $prid, ":prices" => $prices, ":input" => $input, ":inputs" => $inputs, ":desc" => $desc, ":alert" => $alert, ":shopimg" => $shopimg, ":value" => $value, ":is_curl" => $is_curl, ":curl" => $curl, ":showcontent" => $showcontent, ":shequ" => $shequ, ":goods_id" => $goods_id, ":goods_type" => $goods_type, ":goods_param" => $goods_param, ":repeat" => $repeat, ":multi" => $multi, ":min" => $min, ":max" => $max, ":validate" => $validate, ":valiserv" => $valiserv, ":sort" => $sort + 1, ":active" => 1, ":ts" => $ts, ":addtime" => $date
 		);
 		if ($DB->exec($sql, $params) !== false) {
 			$tid = $DB->lastInsertId();
@@ -694,6 +706,8 @@ $(document).ready(function() {
 	$price = $prid == "0" ? $_POST["price"] : $_POST["price1"];
 	$cost = $_POST["cost"];
 	$cost2 = $_POST["cost2"];
+	$min_price = isset($_POST["min_price"]) ? round(floatval($_POST["min_price"]), 2) : 0;
+	if ($min_price < 0) $min_price = 0;
 	if ($prid == 0) {
 		if ($cost2 > $cost) {
 			showmsg("专业版加价不能高于普及版加价", 3);
@@ -735,9 +749,9 @@ $(document).ready(function() {
 	} elseif ($is_curl == 2 && !$shequ) {
 		showmsg("请选择对接社区！", 3);
 	} else {
-		$sql = "UPDATE `pre_tools` SET `cid`=:cid,`name`=:name,`price`=:price,`cost`=:cost,`cost2`=:cost2,`prid`=:prid,`prices`=:prices,`input`=:input,`inputs`=:inputs,`desc`=:desc,`alert`=:alert,`shopimg`=:shopimg,`value`=:value,`is_curl`=:is_curl,`curl`=:curl,`showcontent`=:showcontent,`shequ`=:shequ,`goods_id`=:goods_id,`goods_type`=:goods_type,`goods_param`=:goods_param,`repeat`=:repeat,`multi`=:multi,`min`=:min,`max`=:max,`validate`=:validate,`valiserv`=:valiserv,`ts`=:ts WHERE `tid`=:tid";
+		$sql = "UPDATE `pre_tools` SET `cid`=:cid,`name`=:name,`price`=:price,`min_price`=:min_price,`cost`=:cost,`cost2`=:cost2,`prid`=:prid,`prices`=:prices,`input`=:input,`inputs`=:inputs,`desc`=:desc,`alert`=:alert,`shopimg`=:shopimg,`value`=:value,`is_curl`=:is_curl,`curl`=:curl,`showcontent`=:showcontent,`shequ`=:shequ,`goods_id`=:goods_id,`goods_type`=:goods_type,`goods_param`=:goods_param,`repeat`=:repeat,`multi`=:multi,`min`=:min,`max`=:max,`validate`=:validate,`valiserv`=:valiserv,`ts`=:ts WHERE `tid`=:tid";
 		$params = array(
-			":cid" => $cid, ":name" => $name, ":price" => $price, ":cost" => $cost, ":cost2" => $cost2, ":prid" => $prid, ":prices" => $prices, ":input" => $input, ":inputs" => $inputs, ":desc" => $desc, ":alert" => $alert, ":shopimg" => $shopimg, ":value" => $value, ":is_curl" => $is_curl, ":curl" => $curl, ":showcontent" => $showcontent, ":shequ" => $shequ, ":goods_id" => $goods_id, ":goods_type" => $goods_type, ":goods_param" => $goods_param, ":repeat" => $repeat, ":multi" => $multi, ":min" => $min, ":max" => $max, ":validate" => $validate, ":valiserv" => $valiserv, ":ts" => $ts, ":tid" => $tid
+			":cid" => $cid, ":name" => $name, ":price" => $price, ":min_price" => $min_price, ":cost" => $cost, ":cost2" => $cost2, ":prid" => $prid, ":prices" => $prices, ":input" => $input, ":inputs" => $inputs, ":desc" => $desc, ":alert" => $alert, ":shopimg" => $shopimg, ":value" => $value, ":is_curl" => $is_curl, ":curl" => $curl, ":showcontent" => $showcontent, ":shequ" => $shequ, ":goods_id" => $goods_id, ":goods_type" => $goods_type, ":goods_param" => $goods_param, ":repeat" => $repeat, ":multi" => $multi, ":min" => $min, ":max" => $max, ":validate" => $validate, ":valiserv" => $valiserv, ":ts" => $ts, ":tid" => $tid
 		);
 		if ($DB->exec($sql, $params) !== false) {
 			showmsg("修改商品成功！<br/><br/><a href=\"./shoplist.php?cid=$cid\">>>返回商品列表</a>", 1);

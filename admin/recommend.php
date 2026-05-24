@@ -15,6 +15,7 @@ adminpermission('shop', 1);
 // 直接创建表（IF NOT EXISTS 安全）
 $DB->exec("CREATE TABLE IF NOT EXISTS `pre_recommend` (
 	`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+	`group_name` varchar(50) NOT NULL DEFAULT '默认推荐',
 	`tid` int(11) unsigned NOT NULL,
 	`sort` int(11) unsigned NOT NULL DEFAULT 0,
 	`addtime` datetime DEFAULT NULL,
@@ -23,6 +24,10 @@ $DB->exec("CREATE TABLE IF NOT EXISTS `pre_recommend` (
 	KEY `tid` (`tid`),
 	KEY `sort` (`sort`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品推荐表'");
+$recommendGroupColumn = $DB->getColumn("SHOW COLUMNS FROM `pre_recommend` LIKE 'group_name'");
+if (!$recommendGroupColumn) {
+	$DB->exec("ALTER TABLE `pre_recommend` ADD COLUMN `group_name` varchar(50) NOT NULL DEFAULT '默认推荐' AFTER `id`");
+}
 
 $rs=$DB->query("SELECT * FROM pre_class WHERE active=1 order by sort asc");
 $select='<option value="0">请选择商品分类</option>';
@@ -46,6 +51,14 @@ if($my=='add')
 		</span>
 		<select id="cid" class="form-control"><?php echo $select;?></select>
 		<select id="tid" name="tid" class="form-control"></select>
+	</div>
+  </div>
+  <div class="form-group">
+	<div class="input-group">
+		<span class="input-group-addon">
+			分类标签
+		</span>
+		<input type="text" name="group_name" value="默认推荐" maxlength="50" class="form-control" placeholder="例如：热门商品、会员推荐、限时优惠"/>
 	</div>
   </div>
   <div class="form-group">
@@ -88,6 +101,14 @@ elseif($my=='edit')
   <div class="form-group">
 	<div class="input-group">
 		<span class="input-group-addon">
+			分类标签
+		</span>
+		<input type="text" name="group_name" value="<?php echo htmlspecialchars(isset($row['group_name']) && $row['group_name'] !== '' ? $row['group_name'] : '默认推荐');?>" maxlength="50" class="form-control" placeholder="例如：热门商品、会员推荐、限时优惠"/>
+	</div>
+  </div>
+  <div class="form-group">
+	<div class="input-group">
+		<span class="input-group-addon">
 			排序值
 		</span>
 		<input type="number" min="1" max="1000" name="sort" value="<?php echo $row['sort'];?>" class="form-control" placeholder="输入排序值，值越小越靠前"/>
@@ -105,6 +126,8 @@ elseif($my=='edit')
 elseif($my=='add_submit')
 {
 	$tid=intval($_POST['tid']);
+	$group_name=trim($_POST['group_name']);
+	if($group_name==='')$group_name='默认推荐';
 	$sort=intval($_POST['sort']);
 	if($tid==NULL || $sort==NULL){
 		showmsg('保存错误,请确保每项都不为空!',3);
@@ -113,8 +136,8 @@ elseif($my=='add_submit')
 		if($exists){
 			showmsg('该商品已在推荐列表中！',3);
 		}else{
-			$sql="insert into `pre_recommend` (`tid`,`sort`,`addtime`,`active`) values ('".$tid."','".$sort."','".$date."','1')";
-			if($DB->exec($sql)!==false){
+			$sql="insert into `pre_recommend` (`group_name`,`tid`,`sort`,`addtime`,`active`) values (:group_name,:tid,:sort,:addtime,'1')";
+			if($DB->exec($sql, array(':group_name'=>$group_name, ':tid'=>$tid, ':sort'=>$sort, ':addtime'=>$date))!==false){
 				showmsg('添加推荐商品成功！<br/><br/><a href="./recommend.php">>>返回推荐商品列表</a>',1);
 			}else{
 				showmsg('添加推荐商品失败！'.$DB->error(),4);
@@ -130,10 +153,12 @@ elseif($my=='edit_submit')
 		showmsg('当前记录不存在！',3);
 	}
 	$sort=intval($_POST['sort']);
+	$group_name=trim($_POST['group_name']);
+	if($group_name==='')$group_name='默认推荐';
 	if($sort==NULL){
 		showmsg('保存错误,请确保每项都不为空!',3);
 	} else {
-		if($DB->exec("UPDATE `pre_recommend` SET `sort`='".$sort."' WHERE `id`='".$id."'")!==false){
+		if($DB->exec("UPDATE `pre_recommend` SET `group_name`=:group_name,`sort`=:sort WHERE `id`=:id", array(':group_name'=>$group_name, ':sort'=>$sort, ':id'=>$id))!==false){
 			showmsg('修改推荐商品成功！<br/><br/><a href="./recommend.php">>>返回推荐商品列表</a>',1);
 		}else{
 			showmsg('修改推荐商品失败！'.$DB->error(),4);

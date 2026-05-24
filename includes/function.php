@@ -1391,6 +1391,74 @@ function q8_site_markup_template_ensure_fields()
 
 }
 
+function q8_tools_table_columns($refresh = false)
+
+{
+
+	global $DB;
+
+	static $columns = null;
+
+	if ($refresh || !is_array($columns)) {
+		$columns = array();
+		$rows = $DB->getAll('SHOW COLUMNS FROM `pre_tools`');
+		if (is_array($rows)) {
+			foreach ($rows as $row) {
+				if (!empty($row['Field'])) {
+					$columns[(string)$row['Field']] = $row;
+				}
+			}
+		}
+	}
+
+	return $columns;
+
+}
+
+function q8_tools_has_column($column)
+
+{
+
+	$column = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$column);
+	if ($column === '') {
+		return false;
+	}
+
+	$columns = q8_tools_table_columns();
+	return isset($columns[$column]);
+
+}
+
+function q8_tools_ensure_fields()
+
+{
+
+	global $DB;
+
+	static $ensured = false;
+
+	if ($ensured) {
+		return;
+	}
+
+	$columns = array(
+		'min_price' => "ALTER TABLE `pre_tools` ADD COLUMN `min_price` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `price`"
+	);
+
+	foreach ($columns as $column => $sql) {
+		$safeColumn = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
+		$exists = $DB->getColumn("SHOW COLUMNS FROM `pre_tools` LIKE '{$safeColumn}'");
+		if (!$exists) {
+			$DB->exec($sql);
+		}
+	}
+
+	q8_tools_table_columns(true);
+
+	$ensured = true;
+
+}
+
 function q8_price_rule_table_columns($refresh = false)
 
 {

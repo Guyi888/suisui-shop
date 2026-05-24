@@ -38,6 +38,8 @@ class Price {
 
 	private static $price_rules;
 
+	private $min_price = 0;
+
 
 
 	public function __construct($zid,$siterow=null){
@@ -124,6 +126,7 @@ class Price {
 		global $DB,$CACHE;
 
 		if(!$row)$row=$this->getToolInfo($tid);
+		$this->min_price = isset($row['min_price']) ? floatval($row['min_price']) : 0;
 
 		$hasIprice = isset($this->iprice_array[$tid]) && floatval($this->iprice_array[$tid]) > 0;
 
@@ -187,7 +190,7 @@ class Price {
 			$this->manage_self_cost = $row['price'];
 		}
 
-		if(!$hasIprice && $this->site_prid > 0 && empty($this->price_array[$tid])){
+		if($this->site_prid > 0 && empty($this->price_array[$tid])){
 			$site_base_price = 0;
 			if($this->power == 2 && isset($row['cost2']) && $row['cost2'] > 0){
 				$site_base_price = $row['cost2'];
@@ -207,6 +210,45 @@ class Price {
 
 		$this->tool=$row;
 
+	}
+
+	public function getToolMinPrice($tid=null){
+		return $this->min_price > 0 ? $this->min_price : 0;
+	}
+
+	private function applyMinPrice($price){
+		$price = floatval($price);
+		return ($this->min_price > 0 && $price < $this->min_price) ? $this->min_price : $price;
+	}
+
+	private function resolveSalePrice($tid){
+		$cost = $this->getToolCost($tid);
+
+		$hasOwnTemplatePrice = empty($this->price_array[$tid]) && isset($this->site_rule_price_array[$tid]['price']) && $this->site_rule_price_array[$tid]['price'] >= $cost && $cost > 0;
+
+		if(isset($this->price_array[$tid]['price']) && $this->price_array[$tid]['price'] && $this->price_array[$tid]['price']>=$cost && $cost>0){
+
+			$price=$this->price_array[$tid]['price'];
+
+		}elseif($hasOwnTemplatePrice){
+
+			$price = $this->site_rule_price_array[$tid]['price'];
+
+		}elseif(isset($this->up_price_array[$tid]['price']) && $this->up_price_array[$tid]['price'] && $this->up_price_array[$tid]['price']>=$cost && $cost>0){
+
+			$price = $this->up_price_array[$tid]['price'];
+
+		}elseif($cost>0 && $cost>$this->tool['price']){
+
+			$price=$cost;
+
+		}else{
+
+			$price=$this->tool['price'];
+
+		}
+
+		return $this->applyMinPrice($price);
 	}
 
 	public function getMainPrice(){
@@ -259,7 +301,7 @@ class Price {
 
             if($row['prid'] == 0){
 
-                return $row['price'];
+                return $this->applyMinPrice($row['price']);
 
             }else{
 
@@ -267,12 +309,12 @@ class Price {
 
                 if($priceTemplate && is_array($priceTemplate)){
                     if($priceTemplate['kind'] == 1){
-                        return round($row['price'] + $priceTemplate['p_0'], 2);
+                        return $this->applyMinPrice(round($row['price'] + $priceTemplate['p_0'], 2));
                     }else{
-                        return round($row['price'] * $priceTemplate['p_0'], 2);
+                        return $this->applyMinPrice(round($row['price'] * $priceTemplate['p_0'], 2));
                     }
                 }else{
-                    return $row['price'];
+                    return $this->applyMinPrice($row['price']);
                 }
 
             }
@@ -281,47 +323,20 @@ class Price {
 
 		}
 
-		$cost = $this->getToolCost($tid);
-
-		$hasOwnTemplatePrice = empty($this->price_array[$tid]) && isset($this->site_rule_price_array[$tid]['price']) && $this->site_rule_price_array[$tid]['price'] >= $cost && $cost > 0;
-
-		if(isset($this->price_array[$tid]['price']) && $this->price_array[$tid]['price'] && $this->price_array[$tid]['price']>=$cost && $cost>0){
-
-			$price=$this->price_array[$tid]['price'];
-
-		}elseif($hasOwnTemplatePrice){
-
-			$price = $this->site_rule_price_array[$tid]['price'];
-
-		}elseif(isset($this->up_price_array[$tid]['price']) && $this->up_price_array[$tid]['price'] && $this->up_price_array[$tid]['price']>=$cost && $cost>0){
-
-			$price = $this->up_price_array[$tid]['price'];
-
-		}elseif($cost>0 && $cost>$this->tool['price']){
-
-			$price=$cost;
-
-		}else{
-
-			$price=$this->tool['price'];
-
-		}
-
-		return $price;
+		return $this->resolveSalePrice($tid);
 
 	}
 
 	public function getToolCost($tid){
-		if(isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0){
-			if($this->power==1 || ($this->power==2 && (!isset($this->price_array[$tid]['cost']) || $this->price_array[$tid]['cost']<=0))){
-				return $this->iprice_array[$tid];
-			}
-		}
 		$cost2 = $this->getToolCost2($tid);
 		if($this->power<2 && isset($this->up_price_array[$tid]['cost']) && $this->up_price_array[$tid]['cost'] && $this->up_price_array[$tid]['cost']>=$cost2){
 			$cost = $this->up_price_array[$tid]['cost'];
 		}elseif($this->power==2 && isset($this->price_array[$tid]['cost']) && $this->price_array[$tid]['cost'] && $this->price_array[$tid]['cost']>=$cost2){
 			$cost = $this->price_array[$tid]['cost'];
+		}elseif(empty($this->price_array[$tid]) && isset($this->site_rule_price_array[$tid]['cost']) && $this->site_rule_price_array[$tid]['cost'] && $this->site_rule_price_array[$tid]['cost']>=$cost2){
+			$cost = $this->site_rule_price_array[$tid]['cost'];
+		}elseif(isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0 && ($this->power==1 || ($this->power==2 && (!isset($this->price_array[$tid]['cost']) || $this->price_array[$tid]['cost']<=0)))){
+			$cost = $this->iprice_array[$tid];
 		}elseif($this->power==2 && isset($this->up_price_array[$tid]['cost2']) && $this->up_price_array[$tid]['cost2'] && $cost2>$this->tool['cost']){
 			$cost = $cost2;
 		}elseif($this->tool['cost']>0){
@@ -333,9 +348,6 @@ class Price {
 	}
 
 	public function getToolCost2($tid){
-		if($this->power==2 && isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0){
-			return $this->iprice_array[$tid];
-		}
 		$baseCost2 = 0;
 		if(isset($this->tool['cost2']) && $this->tool['cost2']>0){
 			$baseCost2 = $this->tool['cost2'];
@@ -347,6 +359,10 @@ class Price {
 
 		if(isset($this->price_array[$tid]['cost2']) && $this->price_array[$tid]['cost2']>=$baseCost2){
 			$cost = $this->price_array[$tid]['cost2'];
+		}elseif(empty($this->price_array[$tid]) && isset($this->site_rule_price_array[$tid]['cost2']) && $this->site_rule_price_array[$tid]['cost2']>=$baseCost2){
+			$cost = $this->site_rule_price_array[$tid]['cost2'];
+		}elseif($this->power==2 && isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0){
+			$cost = $this->iprice_array[$tid];
 		}elseif($this->power==2 && isset($this->up_price_array[$tid]['cost2']) && $this->up_price_array[$tid]['cost2']>=$baseCost2){
 			$cost = $this->up_price_array[$tid]['cost2'];
 		}elseif($this->tool['cost2']>0){
@@ -388,7 +404,7 @@ class Price {
 	}
 
 	public function getManageSalePrice($tid){
-		return $this->getToolPrice($tid);
+		return $this->resolveSalePrice($tid);
 	}
 
 	public function getToolDel($tid){
@@ -538,6 +554,9 @@ class Price {
 			$price = $cost;
 		}elseif($cost2 !== null && $price < $cost2){
 			$price = $cost2;
+		}
+		if($this->min_price > 0 && $price < $this->min_price){
+			$price = $this->min_price;
 		}
 
 		// 更新内存中的价格数据
@@ -698,7 +717,7 @@ class Price {
 		}
 		$this->parent_manage_self_cost = floatval($base['cost2']);
 
-		if(!$parentHasIprice && $this->parent_site_prid > 0 && empty($this->up_price_array[$tid])){
+		if($this->parent_site_prid > 0 && empty($this->up_price_array[$tid])){
 			$sitePrice = $this->buildPriceByRule($base['cost2'], $this->parent_site_prid);
 			if($sitePrice){
 				$base['price'] = floatval($sitePrice['price']);

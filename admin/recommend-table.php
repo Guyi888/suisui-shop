@@ -10,6 +10,7 @@ adminpermission("shop", 1);
 // 直接创建表（IF NOT EXISTS 安全）
 $DB->exec("CREATE TABLE IF NOT EXISTS `pre_recommend` (
 	`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+	`group_name` varchar(50) NOT NULL DEFAULT '默认推荐',
 	`tid` int(11) unsigned NOT NULL,
 	`sort` int(11) unsigned NOT NULL DEFAULT 0,
 	`addtime` datetime DEFAULT NULL,
@@ -18,6 +19,10 @@ $DB->exec("CREATE TABLE IF NOT EXISTS `pre_recommend` (
 	KEY `tid` (`tid`),
 	KEY `sort` (`sort`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品推荐表'");
+$recommendGroupColumn = $DB->getColumn("SHOW COLUMNS FROM `pre_recommend` LIKE 'group_name'");
+if (!$recommendGroupColumn) {
+	$DB->exec("ALTER TABLE `pre_recommend` ADD COLUMN `group_name` varchar(50) NOT NULL DEFAULT '默认推荐' AFTER `id`");
+}
 
 if (isset($_GET["kw"])) {
 	$kw = trim(daddslashes($_GET["kw"]));
@@ -38,7 +43,7 @@ if (isset($_GET["kw"])) {
 }
 ?>	  <div class="table-responsive">
         <table class="table table-striped">
-          <thead><tr><th>ID</th><th>商品ID</th><th>商品名称</th><th title="数字越小越靠前">排序</th><th>添加时间</th><th>状态</th><th>操作</th></tr></thead>
+          <thead><tr><th>ID</th><th>商品ID</th><th>分类标签</th><th>商品名称</th><th title="数字越小越靠前">排序</th><th>添加时间</th><th>状态</th><th>操作</th></tr></thead>
           <tbody>
 <?php
 $pagesize = isset($_GET["num"]) ? intval($_GET["num"]) : 30;
@@ -47,7 +52,8 @@ $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
 $offset = $pagesize * ($page - 1);
 $rs = $DB->query("SELECT A.*,B.name FROM pre_recommend A LEFT JOIN pre_tools B ON A.tid=B.tid WHERE" . $sql . " ORDER BY A.sort ASC, A.id DESC LIMIT " . $offset . "," . $pagesize);
 while ($res = $rs->fetch()) {
-	echo "<tr><td><b>" . $res["id"] . "</b></td><td><a href=\"./shoplist.php?tid=" . $res["tid"] . "\">" . $res["tid"] . "</a></td><td>" . $res["name"] . "</td><td>" . $res["sort"] . "</td><td>" . $res["addtime"] . "</td><td>" . ($res["active"] == 1 ? "<span class=\"btn btn-xs btn-success\" onclick=\"setActive(" . $res["id"] . ",0)\">显示</span>" : "<span class=\"btn btn-xs btn-warning\" onclick=\"setActive(" . $res["id"] . ",1)\">隐藏</span>") . "</td><td><a href=\"./recommend.php?my=edit&id=" . $res["id"] . "\" class=\"btn btn-info btn-xs\">编辑</a>&nbsp;<span class=\"btn btn-xs btn-danger\" onclick=\"delTool(" . $res["id"] . ")\">删除</span></td></tr>\r\n";
+	$groupName = isset($res["group_name"]) && $res["group_name"] !== '' ? $res["group_name"] : '默认推荐';
+	echo "<tr><td><b>" . $res["id"] . "</b></td><td><a href=\"./shoplist.php?tid=" . $res["tid"] . "\">" . $res["tid"] . "</a></td><td>" . htmlspecialchars($groupName, ENT_QUOTES, 'UTF-8') . "</td><td>" . $res["name"] . "</td><td>" . $res["sort"] . "</td><td>" . $res["addtime"] . "</td><td>" . ($res["active"] == 1 ? "<span class=\"btn btn-xs btn-success\" onclick=\"setActive(" . $res["id"] . ",0)\">显示</span>" : "<span class=\"btn btn-xs btn-warning\" onclick=\"setActive(" . $res["id"] . ",1)\">隐藏</span>") . "</td><td><a href=\"./recommend.php?my=edit&id=" . $res["id"] . "\" class=\"btn btn-info btn-xs\">编辑</a>&nbsp;<span class=\"btn btn-xs btn-danger\" onclick=\"delTool(" . $res["id"] . ")\">删除</span></td></tr>\r\n";
 }
 ?>          </tbody>
         </table>

@@ -161,6 +161,23 @@ function q8_admin_message_recount_task($taskId){
 }
 
 switch($act){
+case 'setRecommend':
+	adminpermission('shop', 2);
+	$id=intval($_GET['id']);
+	$active=intval($_GET['active']);
+	if($DB->exec("UPDATE `pre_recommend` SET `active`=:active WHERE `id`=:id", array(':active'=>$active, ':id'=>$id))!==false)
+		exit('{"code":0,"msg":"succ"}');
+	else
+		exit('{"code":-1,"msg":"修改推荐状态失败"}');
+break;
+case 'delRecommend':
+	adminpermission('shop', 2);
+	$id=intval($_GET['id']);
+	if($DB->exec("DELETE FROM `pre_recommend` WHERE `id`=:id", array(':id'=>$id))!==false)
+		exit('{"code":0,"msg":"succ"}');
+	else
+		exit('{"code":-1,"msg":"删除推荐商品失败"}');
+break;
 case 'getcount':
 	@header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 	@header('Pragma: no-cache');

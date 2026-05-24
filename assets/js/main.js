@@ -2817,71 +2817,110 @@ $(document).ready(function () {
   });
 
   $(document).on('click', '#recommendBtn', function () {
-    loadRecommendList();
+    loadRecommendListV2();
   });
 
-  function loadRecommendList() {
-    var ii = layer.load(1, {shade: [0.3, '#000']});
+  function loadRecommendListV2() {
+    var ii = layer.load(1, { shade: [0.3, '#000'] });
     $.ajax({
-      type: "GET",
-      url: "ajax.php?act=getRecommend",
-      dataType: "json",
+      type: 'GET',
+      url: 'ajax.php?act=getRecommend',
+      dataType: 'json',
       timeout: 10000,
       success: function (data) {
         layer.close(ii);
-        if (data && data.code == 0 && data.data) {
-          var html = "";
-          if (data.data.length > 0) {
-            $.each(data.data, function (index, item) {
-              html += '<div class="recommend-item" style="padding: 12px; border-bottom: 1px dashed #eee; cursor: pointer; transition: all 0.3s;" data-cid="' + (item.cid || 0) + '" data-tid="' + (item.tid || 0) + '">';
-              html += '<div style="display: flex; align-items: center;">';
-              html += '<span style="margin-right: 10px; color: #ff9f43;">★</span>';
-              html += '<span style="font-weight: bold; color: #333; flex: 1;">' + (item.name || '') + '</span>';
-              html += '<span style="color: #ff6b6b; font-size: 14px;">¥' + (item.price || '0.00') + '</span>';
-              html += '</div>';
-              html += '</div>';
-            });
-          } else {
-            html = '<div style="text-align: center; padding: 40px; color: #999;">暂无推荐商品</div>';
-          }
-
-          layer.open({
-            type: 1,
-            title: '<i class="fa fa-star" style="color: #ff9f43;"></i> 商品推荐',
-            area: ['90%', '500px'],
-            content: '<div style="max-height: 420px; overflow-y: auto; padding: 10px;">' + html + '</div>',
-            success: function(layero, index){
-              $(layero).find('.recommend-item').click(function(){
-                var cid = $(this).attr("data-cid");
-                var tid = $(this).attr("data-tid");
-                layer.close(index);
-
-                if (cid && $("#cid").length > 0) {
-                  $("#cid").val(cid);
-                  $("#cid").trigger("change");
-
-                  setTimeout(function() {
-                    if (tid && $("#tid").length > 0) {
-                      $("#tid").val(tid);
-                      $("#tid").trigger("change");
-                    }
-                  }, 300);
-                }
-              });
-            }
-          });
-        } else {
-          layer.msg(data ? (data.msg || '获取失败') : '获取失败', {icon: 2});
+        if (!data || data.code != 0 || !data.data) {
+          layer.msg(data ? (data.msg || '\u83b7\u53d6\u5931\u8d25') : '\u83b7\u53d6\u5931\u8d25', { icon: 2 });
+          return;
         }
+        var html = '';
+        if (data.data.length > 0) {
+          var groups = [];
+          var groupMap = {};
+          $.each(data.data, function (index, item) {
+            var groupName = item.group || '\u9ed8\u8ba4\u63a8\u8350';
+            if (!groupMap[groupName]) {
+              groupMap[groupName] = [];
+              groups.push(groupName);
+            }
+            groupMap[groupName].push(item);
+          });
+          html += '<div class="suisui-recommend-pop">';
+          html += '<div class="suisui-recommend-tabs" role="tablist">';
+          $.each(groups, function (index, groupName) {
+            html += '<button type="button" class="suisui-recommend-tab' + (index === 0 ? ' is-active' : '') + '" data-group-index="' + index + '">' + escapeRecommendHtml(groupName) + '</button>';
+          });
+          html += '</div><div class="suisui-recommend-panes">';
+          $.each(groups, function (index, groupName) {
+            html += '<div class="suisui-recommend-pane' + (index === 0 ? ' is-active' : '') + '" data-group-index="' + index + '">';
+            $.each(groupMap[groupName], function (itemIndex, item) {
+              html += '<button type="button" class="recommend-item suisui-recommend-card" data-cid="' + (item.cid || 0) + '" data-tid="' + (item.tid || 0) + '">';
+              html += '<span class="suisui-recommend-card__name">' + escapeRecommendHtml(item.name || '') + '</span>';
+              html += '<span class="suisui-recommend-card__meta"><b>&yen;' + escapeRecommendHtml(item.price || '0.00') + '</b><em>\u53bb\u4e0b\u5355</em></span>';
+              html += '</button>';
+            });
+            html += '</div>';
+          });
+          html += '</div></div>';
+        } else {
+          html = '<div class="suisui-recommend-empty">\u6682\u65e0\u63a8\u8350\u5546\u54c1</div>';
+        }
+        layer.open({
+          type: 1,
+          title: '<i class="fa fa-star"></i> \u5546\u54c1\u63a8\u8350',
+          area: ['90%', '520px'],
+          content: html,
+          success: function (layero, index) {
+            $(layero).find('.suisui-recommend-tab').click(function () {
+              var groupIndex = $(this).attr('data-group-index');
+              $(layero).find('.suisui-recommend-tab').removeClass('is-active');
+              $(this).addClass('is-active');
+              $(layero).find('.suisui-recommend-pane').removeClass('is-active');
+              $(layero).find('.suisui-recommend-pane[data-group-index="' + groupIndex + '"]').addClass('is-active');
+            });
+            $(layero).find('.recommend-item').click(function () {
+              var cid = $(this).attr('data-cid');
+              var tid = $(this).attr('data-tid');
+              layer.close(index);
+              if (cid && $('#cid').length > 0) {
+                $('#cid').val(cid).trigger('change');
+                setTimeout(function () {
+                  if (tid && $('#tid').length > 0) {
+                    $('#tid').val(tid).trigger('change');
+                  }
+                }, 300);
+              }
+            });
+          }
+        });
       },
-      error: function (xhr, status, error) {
+      error: function () {
         layer.close(ii);
-        layer.msg('网络错误，请稍后重试', {icon: 2});
+        layer.msg('\u7f51\u7edc\u9519\u8bef\uff0c\u8bf7\u7a0d\u540e\u91cd\u8bd5', { icon: 2 });
       }
     });
   }
 
+  function escapeRecommendHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function initRecommendLauncher() {
+    if ($('#recommendBtn').length > 0 || $('#suisuiRecommendLauncher').length > 0) return;
+    $('body').append(
+      '<button type="button" id="suisuiRecommendLauncher" class="suisui-recommend-launcher" aria-label="\u5546\u54c1\u63a8\u8350">' +
+      '<i class="fa fa-star"></i><span>\u63a8\u8350</span></button>'
+    );
+    $('#suisuiRecommendLauncher').on('click', loadRecommendListV2);
+  }
+
   if (homepage == true) {
+    initRecommendLauncher();
     getcount();
   }
   if ($_GET["buyok"]) {

@@ -501,6 +501,10 @@ switch ($act) {
             $current_self_cost_price = round($price_obj->getManageSelfCostPrice($tid), 2);
             $current_delete_status = intval($price_obj->getToolDel($tid));
             $current_min_sale_price = $can_manage_child_sites ? $current_child_normal_price : $current_self_cost_price;
+            $tool_min_price = method_exists($price_obj, 'getToolMinPrice') ? round($price_obj->getToolMinPrice($tid), 2) : 0;
+            if ($tool_min_price > $current_min_sale_price) {
+                $current_min_sale_price = $tool_min_price;
+            }
 
             if ($price_type === 'cost2') {
                 $current_value = $current_child_pro_price;

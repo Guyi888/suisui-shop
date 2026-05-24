@@ -29,3 +29,121 @@ img.logo{width: 20px;margin: -2px 5px 0 5px;}
 
 #captcha_text{height:42px;width:100%;text-align:center;border-radius:2px;background-color:#F3F3F3;color:#BBBBBB;font-size:14px;letter-spacing:0.1px;line-height:42px}#captcha_wait{display:none;height:42px;width:100%;text-align:center;border-radius:2px;background-color:#F3F3F3}.loading{margin:auto;width:70px;height:20px}.loading-dot{float:left;width:8px;height:8px;margin:18px 4px;background:#ccc;-webkit-border-radius:50%;-moz-border-radius:50%;border-radius:50%;opacity:0;-webkit-box-shadow:0 0 2px black;-moz-box-shadow:0 0 2px black;-ms-box-shadow:0 0 2px black;-o-box-shadow:0 0 2px black;box-shadow:0 0 2px black;-webkit-animation:loadingFade 1s infinite;-moz-animation:loadingFade 1s infinite;animation:loadingFade 1s infinite}.loading-dot:nth-child(1){-webkit-animation-delay:0s;-moz-animation-delay:0s;animation-delay:0s}.loading-dot:nth-child(2){-webkit-animation-delay:0.1s;-moz-animation-delay:0.1s;animation-delay:0.1s}.loading-dot:nth-child(3){-webkit-animation-delay:0.2s;-moz-animation-delay:0.2s;animation-delay:0.2s}.loading-dot:nth-child(4){-webkit-animation-delay:0.3s;-moz-animation-delay:0.3s;animation-delay:0.3s}@-webkit-keyframes loadingFade{0%{opacity:0}50%{opacity:0.8}100%{opacity:0}}@-moz-keyframes loadingFade{0%{opacity:0}50%{opacity:0.8}100%{opacity:0}}@keyframes loadingFade{0%{opacity:0}50%{opacity:0.8}100%{opacity:0}}
 .vaptcha-init-main{display:table;width:100%;height:100%;background-color:#eee} .vaptcha-init-loading{display:table-cell;vertical-align:middle;text-align:center} .vaptcha-init-loading>a{display:inline-block;width:18px;height:18px;border:none} .vaptcha-init-loading>a img{vertical-align:middle} .vaptcha-init-loading .vaptcha-text{font-family:sans-serif;font-size:12px;color:#ccc;vertical-align:middle}
+.suisui-recommend-launcher {
+  position: fixed;
+  right: 16px;
+  bottom: 92px;
+  z-index: 999;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 76px;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 0;
+  border-radius: 999px;
+  background: #1677ff;
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(22, 119, 255, .24);
+  font-weight: 800;
+}
+.suisui-recommend-launcher i {
+  color: #fff;
+}
+.suisui-recommend-pop {
+  max-height: 430px;
+  overflow: hidden;
+  background: #fff;
+}
+.suisui-recommend-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 12px 8px;
+  overflow-x: auto;
+  border-bottom: 1px solid #edf2f7;
+}
+.suisui-recommend-tab {
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #f8fbff;
+  color: #33516f;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 8px 14px;
+  white-space: nowrap;
+}
+.suisui-recommend-tab.is-active {
+  border-color: #1677ff;
+  background: #1677ff;
+  color: #fff;
+}
+.suisui-recommend-panes {
+  max-height: 370px;
+  overflow-y: auto;
+  padding: 12px;
+}
+.suisui-recommend-pane {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.suisui-recommend-pane.is-active {
+  display: grid;
+}
+.suisui-recommend-card {
+  width: 100%;
+  min-height: 82px;
+  padding: 12px;
+  border: 1px solid #e6eef8;
+  border-radius: 8px;
+  background: #fff;
+  text-align: left;
+}
+.suisui-recommend-card:hover {
+  border-color: #1677ff;
+  box-shadow: 0 8px 18px rgba(22, 119, 255, .12);
+}
+.suisui-recommend-card__name {
+  display: -webkit-box;
+  min-height: 38px;
+  overflow: hidden;
+  color: #1f2937;
+  font-weight: 800;
+  line-height: 1.4;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+.suisui-recommend-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+.suisui-recommend-card__meta b {
+  color: #ef4444;
+}
+.suisui-recommend-card__meta em {
+  color: #1677ff;
+  font-style: normal;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.suisui-recommend-empty {
+  padding: 40px 16px;
+  color: #8a98aa;
+  text-align: center;
+}
+@media (max-width: 520px) {
+  .suisui-recommend-pane {
+    grid-template-columns: 1fr;
+  }
+  .suisui-recommend-tabs {
+    padding: 10px 10px 6px;
+  }
+  .suisui-recommend-panes {
+    padding: 10px;
+  }
+}

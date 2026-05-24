@@ -754,6 +754,24 @@ CREATE TABLE `shua_toollogs` (
 insert  into `shua_toollogs`(`id`,`content`,`date`,`addtime`,`active`) values
 (1,'1111','2023-05-26','2023-05-26 00:00:00',1);
 
+/*Table structure for table `shua_recommend` */
+
+DROP TABLE IF EXISTS `shua_recommend`;
+
+CREATE TABLE `shua_recommend` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_name` varchar(50) NOT NULL DEFAULT '默认推荐',
+  `tid` int(11) unsigned NOT NULL,
+  `sort` int(11) unsigned NOT NULL DEFAULT '0',
+  `addtime` datetime DEFAULT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `tid` (`tid`),
+  KEY `sort` (`sort`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品推荐表';
+
+/*Data for the table `shua_recommend` */
+
 /*Table structure for table `shua_tools` */
 
 DROP TABLE IF EXISTS `shua_tools`;
@@ -766,6 +784,7 @@ CREATE TABLE `shua_tools` (
   `name` varchar(255) NOT NULL,
   `value` int(11) unsigned NOT NULL DEFAULT '0',
   `price` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `min_price` decimal(10,2) NOT NULL DEFAULT '0.00',
   `prid` int(11) NOT NULL DEFAULT '0',
   `cost` decimal(10,2) NOT NULL DEFAULT '0.00',
   `cost2` decimal(10,2) NOT NULL DEFAULT '0.00',
