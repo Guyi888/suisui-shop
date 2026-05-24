@@ -50,6 +50,23 @@ if (!function_exists('q8_exit_hashsalt_refresh_required')) {
 	}
 }
 
+if (!function_exists('q8_render_faka_copy_html')) {
+	function q8_render_faka_copy_html($items) {
+		if (!is_array($items)) $items = array($items);
+		$html = '<div class="q8-faka-copy-list">';
+		foreach ($items as $item) {
+			$item = trim((string)$item);
+			if ($item === '') continue;
+			$text = htmlspecialchars($item, ENT_QUOTES, 'UTF-8');
+			$html .= '<div class="q8-faka-copy-row">';
+			$html .= '<span class="q8-faka-copy-text">' . $text . '</span>';
+			$html .= '</div>';
+		}
+		$html .= '</div>';
+		return $html;
+	}
+}
+
 if (!function_exists('q8_build_tool_payload')) {
 	function q8_build_tool_payload($DB, $conf, $price_obj, $res) {
 		if (isset($_SESSION['gift_id']) && isset($_SESSION['gift_tid']) && $_SESSION['gift_tid'] == $res['tid']) {
@@ -1468,11 +1485,7 @@ switch ($act) {
 						$km_data[] = $km_row['km'] . ($km_row['pw'] ? '----' . $km_row['pw'] : '');
 					}
 					if (!empty($km_data)) {
-						$kminfo = '<div style="max-height:200px;overflow-y:auto;">';
-						foreach ($km_data as $km) {
-							$kminfo .= '<p style="margin:5px 0;">' . $km . '</p>';
-						}
-						$kminfo .= '</div>';
+						$kminfo = q8_render_faka_copy_html($km_data);
 					}
 				}
 
@@ -1480,9 +1493,8 @@ switch ($act) {
 				if (empty($kminfo) && !empty($row['result'])) {
 					// 检查result字段是否包含卡密信息
 					if (strpos($row['result'], '----') !== false || strpos($row['result'], '卡密') !== false || strpos($row['result'], '密码') !== false) {
-						$kminfo = '<div style="max-height:200px;overflow-y:auto;">';
-						$kminfo .= '<p style="margin:5px 0;">' . nl2br(htmlspecialchars($row['result'])) . '</p>';
-						$kminfo .= '</div>';
+						$km_lines = preg_split('/\r\n|\r|\n/', $row['result']);
+						$kminfo = q8_render_faka_copy_html($km_lines);
 					}
 				}
 			}

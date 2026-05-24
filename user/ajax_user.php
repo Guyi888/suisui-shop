@@ -429,6 +429,7 @@ switch ($act) {
     case 'batch_update_price':
         unset($islogin2);
         $price_obj = new \lib\Price($userrow['zid'], $userrow);
+        $can_manage_child_sites = function_exists('q8_site_can_create_child_site') ? q8_site_can_create_child_site($userrow) : ($userrow['power'] == 2);
 
         $operation = isset($_POST['operation']) ? trim($_POST['operation']) : '';
         $price_type = isset($_POST['price_type']) ? trim($_POST['price_type']) : '';
@@ -442,7 +443,7 @@ switch ($act) {
             exit('{"code":-1,"msg":"操作类型错误"}');
         }
 
-        $allowed_price_types = $userrow['power'] == 2 ? array('price', 'cost2', 'cost') : array('price');
+        $allowed_price_types = $can_manage_child_sites ? array('price', 'cost2', 'cost') : array('price');
         if (!in_array($price_type, $allowed_price_types, true)) {
             exit('{"code":-1,"msg":"价格类型错误"}');
         }
@@ -495,11 +496,11 @@ switch ($act) {
             $price_obj->setToolInfo($tid, $row);
 
             $current_sale_price = round($price_obj->getManageSalePrice($tid), 2);
-            $current_child_normal_price = $userrow['power'] == 2 ? round($price_obj->getManageChildNormalPrice($tid), 2) : 0;
-            $current_child_pro_price = $userrow['power'] == 2 ? round($price_obj->getManageChildProfessionalPrice($tid), 2) : null;
+            $current_child_normal_price = $can_manage_child_sites ? round($price_obj->getManageChildNormalPrice($tid), 2) : 0;
+            $current_child_pro_price = $can_manage_child_sites ? round($price_obj->getManageChildProfessionalPrice($tid), 2) : null;
             $current_self_cost_price = round($price_obj->getManageSelfCostPrice($tid), 2);
             $current_delete_status = intval($price_obj->getToolDel($tid));
-            $current_min_sale_price = $userrow['power'] == 2 ? $current_child_normal_price : $current_self_cost_price;
+            $current_min_sale_price = $can_manage_child_sites ? $current_child_normal_price : $current_self_cost_price;
 
             if ($price_type === 'cost2') {
                 $current_value = $current_child_pro_price;
@@ -587,7 +588,7 @@ switch ($act) {
                 }
             }
 
-            if ($userrow['power'] == 2) {
+            if ($can_manage_child_sites) {
                 if (
                     round($next_price_info['price'], 2) == $current_sale_price
                     && round($next_price_info['cost'], 2) == $current_child_normal_price

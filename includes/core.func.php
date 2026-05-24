@@ -215,21 +215,32 @@ if (!function_exists('q8_send_faka_mail')) {
 	}
 }
 if (!function_exists('q8_order_tool_cost')) {
-	function q8_order_tool_cost($tools, $num) {
+	function q8_order_tool_cost($tools, $num, $zid = 1) {
 		$num = floatval($num);
 		if ($num <= 0) $num = 1;
-		if (intval($tools['prid']) > 0) {
+		$zid = intval($zid);
+		if ($zid <= 1 && intval($tools['prid']) > 0) {
 			return round(floatval($tools['price']) * $num, 2);
 		}
 		$unitCost = isset($tools['cost2']) ? floatval($tools['cost2']) : 0;
 		if ($unitCost <= 0 && isset($tools['cost'])) $unitCost = floatval($tools['cost']);
 		if ($unitCost <= 0 && isset($tools['price'])) $unitCost = floatval($tools['price']);
+		if ($zid > 1) {
+			$price_obj = new \lib\Price($zid);
+			$price_obj->setToolInfo($tools['tid'], $tools);
+			$siteCost = floatval($price_obj->getManageSelfCostPrice($tools['tid']));
+			if ($siteCost > 0) {
+				$unitCost = $siteCost;
+			}
+		}
 		return round($unitCost * $num, 2);
 	}
 }
 if (!function_exists('q8_order_apply_remote_cost')) {
 	function q8_order_apply_remote_cost($DB, $orderid, $result) {
 		if (!is_array($result) || !isset($result['cost']) || !is_numeric($result['cost'])) return;
+		$order = $DB->getRow("SELECT zid,cost FROM `pre_orders` WHERE `id`=:id LIMIT 1", array(':id' => intval($orderid)));
+		if (!$order || intval($order['zid']) > 1) return;
 		$cost = round(floatval($result['cost']), 2);
 		if ($cost <= 0) return;
 		$DB->exec("UPDATE `pre_orders` SET `cost`=:cost WHERE `id`=:id", array(':cost' => $cost, ':id' => intval($orderid)));
@@ -365,9 +376,14 @@ function processOrder($srow, $is_fenzhan = true)
 					$cart_item = $DB->getRow("SELECT * FROM `pre_cart` WHERE `id`='" . $cart_id . "' LIMIT 1");
 					$tools = $DB->getRow("SELECT * FROM `pre_tools` WHERE `tid`='" . $cart_item['tid'] . "' LIMIT 1");
 					$input = explode("|", $cart_item['input']);
-					$cost = $tools['price'] * $cart_item['num'];
+					$cost = q8_order_tool_cost($tools, $cart_item['num'], $srow['zid']);
 					$DB->exec("INSERT INTO `pre_orders` (`tid`,`zid`,`input`,`input2`,`input3`,`input4`,`input5`,`value`,`userid`,`addtime`,`tradeno`,`money`,`cost`,`status`,`djzt`) VALUES ('" . $cart_item['tid'] . "','" . $srow['zid'] . "','" . addslashes($input[0]) . "','" . addslashes($input[1]) . "','" . addslashes($input[2]) . "','" . addslashes($input[3]) . "','" . addslashes($input[4]) . "','" . $cart_item['num'] . "','" . $srow['userid'] . "','" . $date . "','cart" . $srow['trade_no'] . "','" . $cart_item['money'] . "','" . $cost . "','0','" . ($tools['is_curl'] == 2 ? 2 : 0) . "')");
 					$orderid = $DB->lastInsertId();
+					if ($srow['zid'] > 1 && $cart_item['money'] > 0 && $is_fenzhan == true) {
+						$price_obj = new \lib\Price($srow['zid']);
+						$price_obj->setToolInfo($cart_item['tid'], $tools);
+						$price_obj->setToolProfit($cart_item['tid'], $cart_item['num'], $tools['name'], $cart_item['money'], $orderid, $srow['userid'], $cost);
+					}
 					if (do_goods($orderid)) {
 						$DB->exec("UPDATE `pre_cart` SET `endtime`='" . $date . "',`status`='1' WHERE `id`='" . $cart_id . "'");
 						$invitelog_row = $DB->getRow("SELECT * FROM `pre_invitelog` WHERE `id` = '" . $srow['inviteid'] . "' LIMIT 1");
@@ -393,7 +409,7 @@ function processOrder($srow, $is_fenzhan = true)
 	}
 	$tools = $DB->getRow("SELECT * FROM `pre_tools` WHERE `tid`='" . $srow['tid'] . "' LIMIT 1");
 	$status = 0;
-	$cost = q8_order_tool_cost($tools, $srow['num']);
+	$cost = q8_order_tool_cost($tools, $srow['num'], $srow['zid']);
 	// 地区加价日志记录 - 作者：@qqfaka TG：@qqfaka
 	$address = isset($srow['address']) ? $srow['address'] : '';
 	if (!empty($address)) {

@@ -24,6 +24,16 @@ class Price {
 
 	private $site_prid = 0;
 
+	private $site_rule_price_array = array();
+
+	private $parent_power = 0;
+
+	private $parent_site_prid = 0;
+
+	private $parent_iprice_array = array();
+
+	private $parent_manage_self_cost = 0;
+
 	private $manage_self_cost = 0;
 
 	private static $price_rules;
@@ -51,26 +61,16 @@ class Price {
 			$this->power = $siterow['power'];
 			$this->site_prid = isset($siterow['site_prid']) ? intval($siterow['site_prid']) : 0;
 
-			// 从新表中获取价格数据
-			$rs = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$zid}'");
-			while ($row = $rs->fetch()) {
-				$this->price_array[$row['tid']] = [
-					'price' => $row['price'],
-					'cost' => $row['cost'],
-					'cost2' => $row['cost2'],
-					'del' => $row['del']
-				];
-			}
+			$this->price_array = $this->loadSitePriceRows($zid);
 
-			// 获取iprice数据
-			if (!empty($siterow['iprice'])) {
-				$this->iprice_array = json_decode($siterow['iprice'], true);
-				if (!is_array($this->iprice_array)) {
-					$this->iprice_array = @unserialize($siterow['iprice']);
-					if (!is_array($this->iprice_array)) {
-						$this->iprice_array = [];
-					}
-				}
+			$this->iprice_array = $this->decodePriceArray(isset($siterow['iprice']) ? $siterow['iprice'] : '');
+
+			if(intval($siterow['upzid']) > 1 && $data = $DB->getRow("SELECT zid,power,site_prid,iprice FROM pre_site WHERE zid='{$siterow['upzid']}' AND power=2 LIMIT 1")){
+				$this->parent_power = intval($data['power']);
+				$this->parent_site_prid = isset($data['site_prid']) ? intval($data['site_prid']) : 0;
+				$this->parent_iprice_array = $this->decodePriceArray(isset($data['iprice']) ? $data['iprice'] : '');
+				$this->upzid = intval($data['zid']);
+				$this->up_price_array = $this->loadSitePriceRows($data['zid']);
 			}
 
 		}elseif($siterow['power']==1){
@@ -79,39 +79,15 @@ class Price {
 			$this->power = $siterow['power'];
 			$this->site_prid = isset($siterow['site_prid']) ? intval($siterow['site_prid']) : 0;
 
-			// 从新表中获取价格数据
-			$rs = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$zid}'");
-			while ($row = $rs->fetch()) {
-				$this->price_array[$row['tid']] = [
-					'price' => $row['price'],
-					'cost' => $row['cost'],
-					'cost2' => $row['cost2'],
-					'del' => $row['del']
-				];
-			}
+			$this->price_array = $this->loadSitePriceRows($zid);
 
-			// 获取iprice数据
-			if (!empty($siterow['iprice'])) {
-				$this->iprice_array = json_decode($siterow['iprice'], true);
-				if (!is_array($this->iprice_array)) {
-					$this->iprice_array = @unserialize($siterow['iprice']);
-					if (!is_array($this->iprice_array)) {
-						$this->iprice_array = [];
-					}
-				}
-			}
+			$this->iprice_array = $this->decodePriceArray(isset($siterow['iprice']) ? $siterow['iprice'] : '');
 
-			if($data = $DB->getRow("SELECT zid,price FROM pre_site WHERE zid='{$siterow['upzid']}' AND power=2 LIMIT 1")){
-				// 从新表中获取上级站点的价格数据
-				$rs = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$data['zid']}'");
-				while ($row = $rs->fetch()) {
-					$this->up_price_array[$row['tid']] = [
-						'price' => $row['price'],
-						'cost' => $row['cost'],
-						'cost2' => $row['cost2'],
-						'del' => $row['del']
-					];
-				}
+			if($data = $DB->getRow("SELECT zid,price,site_prid,iprice FROM pre_site WHERE zid='{$siterow['upzid']}' AND power=2 LIMIT 1")){
+				$this->parent_power = 2;
+				$this->parent_site_prid = isset($data['site_prid']) ? intval($data['site_prid']) : 0;
+				$this->parent_iprice_array = $this->decodePriceArray(isset($data['iprice']) ? $data['iprice'] : '');
+				$this->up_price_array = $this->loadSitePriceRows($data['zid']);
 				$this->upzid=$data['zid'];
 			}
 
@@ -125,39 +101,15 @@ class Price {
 				$this->power = $data['power'];
 				$this->site_prid = isset($data['site_prid']) ? intval($data['site_prid']) : 0;
 
-				// 从新表中获取价格数据
-				$rs = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$this->zid}'");
-				while ($row = $rs->fetch()) {
-					$this->price_array[$row['tid']] = [
-						'price' => $row['price'],
-						'cost' => $row['cost'],
-						'cost2' => $row['cost2'],
-						'del' => $row['del']
-					];
-				}
+				$this->price_array = $this->loadSitePriceRows($this->zid);
 
-				// 获取iprice数据
-				if (!empty($data['iprice'])) {
-					$this->iprice_array = json_decode($data['iprice'], true);
-					if (!is_array($this->iprice_array)) {
-						$this->iprice_array = @unserialize($data['iprice']);
-						if (!is_array($this->iprice_array)) {
-							$this->iprice_array = [];
-						}
-					}
-				}
+				$this->iprice_array = $this->decodePriceArray(isset($data['iprice']) ? $data['iprice'] : '');
 
-				if($this->power == 1 && $data['upzid']>1 && $data = $DB->getRow("SELECT zid,price FROM pre_site WHERE zid='{$data['upzid']}' and power=2 limit 1")){
-					// 从新表中获取上级站点的价格数据
-					$rs = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$data['zid']}'");
-					while ($row = $rs->fetch()) {
-						$this->up_price_array[$row['tid']] = [
-							'price' => $row['price'],
-							'cost' => $row['cost'],
-							'cost2' => $row['cost2'],
-							'del' => $row['del']
-						];
-					}
+				if($this->power > 0 && $data['upzid']>1 && $data = $DB->getRow("SELECT zid,price,site_prid,iprice FROM pre_site WHERE zid='{$data['upzid']}' and power=2 limit 1")){
+					$this->parent_power = 2;
+					$this->parent_site_prid = isset($data['site_prid']) ? intval($data['site_prid']) : 0;
+					$this->parent_iprice_array = $this->decodePriceArray(isset($data['iprice']) ? $data['iprice'] : '');
+					$this->up_price_array = $this->loadSitePriceRows($data['zid']);
 					$this->upzid=$data['zid'];
 				}
 
@@ -204,11 +156,26 @@ class Price {
 		if($row['cost'] <= 0) $row['cost'] = $row['price'];
 		if($row['cost2'] <= 0) $row['cost2'] = $row['cost'];
 
+		$parentInheritedPrice = $this->buildParentProfessionalPrice($tid, $row);
+		if($parentInheritedPrice){
+			$this->up_price_array[$tid] = $parentInheritedPrice;
+		}
+
 		//应用自定义密价
 		if($this->power==1 && $hasIprice){
 			$row['cost'] = floatval($this->iprice_array[$tid]);
 		}elseif($this->power==2 && $hasIprice){
 			$row['cost2'] = floatval($this->iprice_array[$tid]);
+		}
+
+		if($this->power==2 && isset($this->up_price_array[$tid]['cost2']) && floatval($this->up_price_array[$tid]['cost2']) > 0){
+			$parentCost2 = floatval($this->up_price_array[$tid]['cost2']);
+			if($parentCost2 > floatval($row['cost2'])){
+				$row['cost2'] = $parentCost2;
+			}
+			if(floatval($row['cost']) < floatval($row['cost2'])){
+				$row['cost'] = $row['cost2'];
+			}
 		}
 
 		$this->manage_self_cost = 0;
@@ -232,9 +199,9 @@ class Price {
 
 			$site_price = $this->buildPriceByRule($site_base_price, $this->site_prid);
 			if($site_price){
-				$row['price'] = $site_price['price'];
-				$row['cost'] = $site_price['cost'];
-				$row['cost2'] = $site_price['cost2'];
+				if($site_price['cost'] < $site_price['cost2'])$site_price['cost'] = $site_price['cost2'];
+				if($site_price['price'] < $site_price['cost'])$site_price['price'] = $site_price['cost'];
+				$this->site_rule_price_array[$tid] = $site_price;
 			}
 		}
 
@@ -316,9 +283,15 @@ class Price {
 
 		$cost = $this->getToolCost($tid);
 
+		$hasOwnTemplatePrice = empty($this->price_array[$tid]) && isset($this->site_rule_price_array[$tid]['price']) && $this->site_rule_price_array[$tid]['price'] >= $cost && $cost > 0;
+
 		if(isset($this->price_array[$tid]['price']) && $this->price_array[$tid]['price'] && $this->price_array[$tid]['price']>=$cost && $cost>0){
 
 			$price=$this->price_array[$tid]['price'];
+
+		}elseif($hasOwnTemplatePrice){
+
+			$price = $this->site_rule_price_array[$tid]['price'];
 
 		}elseif(isset($this->up_price_array[$tid]['price']) && $this->up_price_array[$tid]['price'] && $this->up_price_array[$tid]['price']>=$cost && $cost>0){
 
@@ -349,6 +322,8 @@ class Price {
 			$cost = $this->up_price_array[$tid]['cost'];
 		}elseif($this->power==2 && isset($this->price_array[$tid]['cost']) && $this->price_array[$tid]['cost'] && $this->price_array[$tid]['cost']>=$cost2){
 			$cost = $this->price_array[$tid]['cost'];
+		}elseif($this->power==2 && isset($this->up_price_array[$tid]['cost2']) && $this->up_price_array[$tid]['cost2'] && $cost2>$this->tool['cost']){
+			$cost = $cost2;
 		}elseif($this->tool['cost']>0){
 			$cost = $this->tool['cost'];
 		}else{
@@ -372,6 +347,8 @@ class Price {
 
 		if(isset($this->price_array[$tid]['cost2']) && $this->price_array[$tid]['cost2']>=$baseCost2){
 			$cost = $this->price_array[$tid]['cost2'];
+		}elseif($this->power==2 && isset($this->up_price_array[$tid]['cost2']) && $this->up_price_array[$tid]['cost2']>=$baseCost2){
+			$cost = $this->up_price_array[$tid]['cost2'];
 		}elseif($this->tool['cost2']>0){
 			$cost = $this->tool['cost2'];
 		}elseif($this->tool['cost']>0){
@@ -397,10 +374,16 @@ class Price {
 	}
 
 	public function getManageChildProfessionalPrice($tid){
+		if(empty($this->price_array[$tid]) && isset($this->site_rule_price_array[$tid]['cost2']) && $this->site_rule_price_array[$tid]['cost2']>0){
+			return $this->site_rule_price_array[$tid]['cost2'];
+		}
 		return $this->getToolCost2($tid);
 	}
 
 	public function getManageChildNormalPrice($tid){
+		if(empty($this->price_array[$tid]) && isset($this->site_rule_price_array[$tid]['cost']) && $this->site_rule_price_array[$tid]['cost']>0){
+			return $this->site_rule_price_array[$tid]['cost'];
+		}
 		return $this->getToolCost($tid);
 	}
 
@@ -409,7 +392,10 @@ class Price {
 	}
 
 	public function getToolDel($tid){
-		return isset($this->price_array[$tid]['del']) ? $this->price_array[$tid]['del'] : 0;
+		if(isset($this->up_price_array[$tid]['del']) && intval($this->up_price_array[$tid]['del']) === 1){
+			return 1;
+		}
+		return isset($this->price_array[$tid]['del']) ? intval($this->price_array[$tid]['del']) : 0;
 	}
 
 	public function getFinalPrice($price, $num){
@@ -477,6 +463,20 @@ class Price {
 				$tc_point=round($profit*$num, 2);
 
 				$rs=$this->changeUserMoney($this->zid, $tc_point, '提成', '你网站用户下单 '.$name.' 获得'.$tc_point.'元提成（成交价'.$toolPrice.'，实际成本'.round($selfCost,2).'）', $orderid);
+
+			}
+
+			if($this->upzid>1 && $this->parent_manage_self_cost>0){
+
+				$profit2 = $selfCost - $this->parent_manage_self_cost;
+
+				if($profit2>0 && $profit2<$money){
+
+					$tc_point=round($profit2*$num, 2);
+
+					$rs=$this->changeUserMoney($this->upzid, $tc_point, '提成', '下级网站(ZID:'.$this->zid.')用户下单 '.$name.' 获得'.$tc_point.'元提成（下级拿货价'.round($selfCost,2).'，实际成本'.round($this->parent_manage_self_cost,2).'）', $orderid);
+
+				}
 
 			}
 
@@ -676,6 +676,58 @@ class Price {
 
 	}
 
+	private function buildParentProfessionalPrice($tid, $row){
+
+		if($this->power < 1 || $this->parent_power != 2){
+			return false;
+		}
+
+		$base = array(
+			'price' => isset($row['price']) ? floatval($row['price']) : 0,
+			'cost' => isset($row['cost']) ? floatval($row['cost']) : 0,
+			'cost2' => isset($row['cost2']) ? floatval($row['cost2']) : 0,
+			'del' => 0
+		);
+		if($base['cost'] <= 0)$base['cost'] = $base['price'];
+		if($base['cost2'] <= 0)$base['cost2'] = $base['cost'];
+
+		$parentHasIprice = isset($this->parent_iprice_array[$tid]) && floatval($this->parent_iprice_array[$tid]) > 0;
+		if($parentHasIprice){
+			$base['cost2'] = floatval($this->parent_iprice_array[$tid]);
+			if($base['cost'] < $base['cost2'])$base['cost'] = $base['cost2'];
+		}
+		$this->parent_manage_self_cost = floatval($base['cost2']);
+
+		if(!$parentHasIprice && $this->parent_site_prid > 0 && empty($this->up_price_array[$tid])){
+			$sitePrice = $this->buildPriceByRule($base['cost2'], $this->parent_site_prid);
+			if($sitePrice){
+				$base['price'] = floatval($sitePrice['price']);
+				$base['cost'] = floatval($sitePrice['cost']);
+				$base['cost2'] = floatval($sitePrice['cost2']);
+			}
+		}
+
+		if(isset($this->up_price_array[$tid]) && is_array($this->up_price_array[$tid])){
+			$custom = $this->up_price_array[$tid];
+			if(isset($custom['cost2']) && floatval($custom['cost2']) >= $base['cost2']){
+				$base['cost2'] = floatval($custom['cost2']);
+			}
+			if(isset($custom['cost']) && floatval($custom['cost']) >= $base['cost2']){
+				$base['cost'] = floatval($custom['cost']);
+			}
+			if(isset($custom['price']) && floatval($custom['price']) >= $base['cost']){
+				$base['price'] = floatval($custom['price']);
+			}
+			$base['del'] = isset($custom['del']) ? intval($custom['del']) : 0;
+		}
+
+		if($base['cost'] < $base['cost2'])$base['cost'] = $base['cost2'];
+		if($base['price'] < $base['cost'])$base['price'] = $base['cost'];
+
+		return $base;
+
+	}
+
 	private function buildPriceByRule($basePrice, $ruleId){
 
 		$basePrice = floatval($basePrice);
@@ -698,6 +750,41 @@ class Price {
 			'cost' => round($basePrice * $price_rules['p_1'], 2),
 			'cost2' => round($basePrice * $price_rules['p_2'], 2)
 		);
+
+	}
+
+	private function loadSitePriceRows($zid){
+
+		global $DB;
+
+		$prices = array();
+		$zid = intval($zid);
+		if($zid <= 0)return $prices;
+
+		$rs = $DB->query("SELECT tid, price, cost, cost2, del FROM pre_site_price WHERE zid='{$zid}'");
+		while ($row = $rs->fetch()) {
+			$prices[$row['tid']] = array(
+				'price' => $row['price'],
+				'cost' => $row['cost'],
+				'cost2' => $row['cost2'],
+				'del' => $row['del']
+			);
+		}
+
+		return $prices;
+
+	}
+
+	private function decodePriceArray($raw){
+
+		if(empty($raw))return array();
+
+		$data = json_decode($raw, true);
+		if(!is_array($data)){
+			$data = @unserialize($raw);
+		}
+
+		return is_array($data) ? $data : array();
 
 	}
 

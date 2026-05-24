@@ -318,6 +318,7 @@ break;
 case 'paysite':
 	if($islogin2==1 && $userrow['power']>0)exit('{"code":-1,"msg":"您已开通过分站！"}');
 	elseif($conf['fenzhan_buy']==0)exit('{"code":-1,"msg":"当前站点未开启自助开通分站功能！"}');
+	elseif($is_fenzhan == true && function_exists('q8_site_can_create_child_site') && !q8_site_can_create_child_site(isset($siterow) ? $siterow : array()))exit('{"code":-1,"msg":"当前分站暂不支持继续开通下级分站"}');
 	$q8FenzhanPricing = q8_get_fenzhan_price_context($conf, $is_fenzhan, isset($siterow) ? $siterow : array());
 	$conf['fenzhan_price'] = $q8FenzhanPricing['normal_price'];
 	$conf['fenzhan_price2'] = $q8FenzhanPricing['professional_price'];

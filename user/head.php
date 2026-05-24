@@ -30,6 +30,7 @@ if(isset($islogin2) && $islogin2==1 && isset($DB) && isset($userrow['zid'])){
 	$q8_nav_msg_unread = q8_count_unread_messages($userrow);
 	$q8_nav_work_reply = intval($DB->getColumn("SELECT count(*) FROM pre_workorder WHERE zid='{$userrow['zid']}' AND status=1"));
 }
+$q8_can_manage_child_sites = function_exists('q8_site_can_create_child_site') ? q8_site_can_create_child_site($userrow) : (isset($userrow['power']) && $userrow['power']==2);
 
 $newuserhead=null;
 $newuserfoot=null;
@@ -590,7 +591,7 @@ if($userrow['status']==0){
                       <span>&#21152;&#20215;&#27169;&#26495;</span>
                     </a>
                   </li>
-		<?php if($userrow['power']==2){?>
+		<?php if($q8_can_manage_child_sites){?>
                   <li class="<?php echo checkIfActive('sitelist')?>">
                     <a href="./sitelist.php">
                       <i class="fa fa-building-o w-4 text-center"></i>

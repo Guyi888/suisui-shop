@@ -15,6 +15,12 @@ img.logo{width: 20px;margin: -2px 5px 0 5px;}
 #orderItem .orderContent{word-break:break-all;}
 #orderItem .orderContent img{max-width:100%}
 #alert_frame img{max-width:100%}
+.q8-faka-copy-list{max-height:220px;overflow-y:auto}
+.q8-faka-copy-row{display:flex;align-items:center;gap:8px;margin:6px 0;padding:8px 10px;background:#fff;border:1px solid #e6efff;border-radius:6px}
+.q8-faka-copy-text{flex:1;min-width:0;word-break:break-all;color:#333;font-family:Consolas,Monaco,monospace;line-height:1.5}
+.q8-faka-copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:0 0 auto;height:30px;padding:0 10px;border:1px solid rgba(52,130,255,.35);border-radius:6px;background:#eaf2ff;color:#3482ff;font-size:12px;font-weight:500;cursor:pointer}
+.q8-faka-copy-btn:hover,.q8-faka-copy-btn:focus{background:#3482ff;color:#fff;outline:none}
+@media (max-width:520px){.q8-faka-copy-row{align-items:stretch;flex-direction:column}.q8-faka-copy-btn{width:100%;height:34px}}
 
 #audio-play #audio-btn{width: 44px;height: 44px; background-size: 100% 100%;position:fixed;bottom:5%;right:6px;z-index:111;}
 #audio-play .on{background: url('../img/music_on.png') no-repeat 0 0;-webkit-animation: rotating 1.2s linear infinite;animation: rotating 1.2s linear infinite;}

@@ -30,6 +30,7 @@ if (empty($userrow['site_prid'])) {
 }
 $q8_domain_url = !empty($userrow['domain']) ? ('http://' . $userrow['domain'] . '/') : '';
 $q8_site_type_label = $userrow['power'] == 2 ? '专业版' : '普及版';
+$q8_can_manage_child_sites = function_exists('q8_site_can_create_child_site') ? q8_site_can_create_child_site($userrow) : ($userrow['power'] == 2);
 
 $title = '站点信息';
 include './head.php';
@@ -85,7 +86,7 @@ include './head.php';
                 <?php
                 if ($conf['fenzhan_upgrade'] > 0 && $userrow['power'] == 1) {
                     echo '<a href="upsite.php" class="btn btn-danger btn-xs pull-right">升级站点</a>';
-                } else {
+                } elseif ($q8_can_manage_child_sites) {
                     echo '<a href="./sitelist.php" class="btn btn-danger btn-xs pull-right">下级管理</a>';
                 }
                 ?>

@@ -83,7 +83,7 @@ function q8_sitelist_allowed_domains($conf)
     return array_values(array_unique($domains));
 }
 
-if ($userrow['power'] < 2) {
+if ($userrow['power'] < 2 || (function_exists('q8_site_can_create_child_site') && !q8_site_can_create_child_site($userrow))) {
     showmsg(q8_sitelist_text('&#20320;&#27809;&#26377;&#26435;&#38480;&#20351;&#29992;&#27492;&#21151;&#33021;'), 3);
 }
 
@@ -105,6 +105,7 @@ if ($my === 'add_submit') {
 
     $user = trim((string)(isset($_POST['user']) ? $_POST['user'] : ''));
     $pwd = trim((string)(isset($_POST['pwd']) ? $_POST['pwd'] : ''));
+    $kind = intval(isset($_POST['kind']) ? $_POST['kind'] : 1);
     $prefix = trim(strtolower((string)(isset($_POST['qz']) ? $_POST['qz'] : '')));
     $domainSuffix = trim(strtolower((string)(isset($_POST['domain']) ? $_POST['domain'] : '')));
     $qq = trim((string)(isset($_POST['qq']) ? $_POST['qq'] : ''));
@@ -115,6 +116,8 @@ if ($my === 'add_submit') {
 
     if ($user === '' || $pwd === '' || $prefix === '' || $domainSuffix === '' || $endtime === '' || $sitename === '') {
         showmsg(q8_sitelist_text('&#20445;&#23384;&#38169;&#35823;&#65292;&#35831;&#30830;&#20445;&#24517;&#22635;&#39033;&#37117;&#24050;&#23436;&#25104;'), 3);
+    } elseif ($kind !== 1 && $kind !== 2) {
+        showmsg(q8_sitelist_text('&#20998;&#31449;&#31867;&#22411;&#38169;&#35823;'), 3);
     } elseif (!in_array($domainSuffix, $allowedDomains, true)) {
         showmsg(q8_sitelist_text('&#22495;&#21517;&#21518;&#32512;&#19981;&#23384;&#22312;'));
     } elseif (strlen($prefix) < 2 || strlen($prefix) > 10 || !preg_match('/^[a-z0-9\-]+$/', $prefix)) {
@@ -138,7 +141,7 @@ if ($my === 'add_submit') {
     } else {
         $payload = array(
             'upzid' => intval($userrow['zid']),
-            'power' => 1,
+            'power' => $kind,
             'domain' => $domain,
             'domain2' => null,
             'user' => $user,
@@ -261,6 +264,13 @@ if ($my === 'delete_submit') {
             <div class="panel-heading font-bold">&#28155;&#21152;&#19979;&#32423;&#20998;&#31449;</div>
             <div class="panel-body">
                 <form action="./sitelist.php?my=add_submit" method="POST" role="form">
+                    <div class="form-group">
+                        <label>&#20998;&#31449;&#31867;&#22411;</label>
+                        <select name="kind" class="form-control">
+                            <option value="1">&#26222;&#21450;&#29256;&#20998;&#31449;</option>
+                            <option value="2">&#19987;&#19994;&#29256;&#20998;&#31449;</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label>&#31649;&#29702;&#21592;&#29992;&#25143;&#21517;</label>
                         <input type="text" class="form-control" name="user" value="" required>

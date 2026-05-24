@@ -16,6 +16,7 @@ unset($islogin2);
 if($userrow['power']==0){
 	showmsg('&#20320;&#27809;&#26377;&#26435;&#38480;&#20351;&#29992;&#27492;&#21151;&#33021;&#65281;',3);
 }
+$q8_can_manage_child_sites = function_exists('q8_site_can_create_child_site') ? q8_site_can_create_child_site($userrow) : ($userrow['power']==2);
 
 $my=isset($_GET['my'])?$_GET['my']:null;
 
@@ -83,7 +84,7 @@ echo '<form action="./shoplist.php?my=edit_submit&tid='.$tid.'&cid='.$prev_cid.'
 <label>&#21830;&#21697;&#21517;&#31216;:</label><br>
 <input type="text" class="form-control" name="name" value="'.$row['name'].'" disabled>
 </div>';
-if($userrow['power']==2)echo '
+if($q8_can_manage_child_sites)echo '
 <div class="form-group">
 <label>&#25104;&#26412;&#20215;&#26684;:</label><br>
 <input type="text" class="form-control" name="self_cost2" value="'.$price_obj->getManageSelfCostPrice($tid).'" disabled>
@@ -133,7 +134,7 @@ $maincost = $price_obj->getMainCost();// 主站商品成本价
 $maincost2 = $price_obj->getMainCost2();// 主站专业版成本价
 $del=intval($_POST['del']);
 if(!is_numeric($price) || !preg_match('/^[0-9.]+$/', $price))showmsg('&#20215;&#26684;&#36755;&#20837;&#19981;&#35268;&#33539;',3);
-if($userrow['power']==2){
+if($q8_can_manage_child_sites){
 	$cost2=round(daddslashes($_POST['cost2']),2);
 	$cost=round(daddslashes($_POST['cost']),2);
 	if(!is_numeric($cost2) || !preg_match('/^[0-9.]+$/', $cost2))showmsg('&#20215;&#26684;&#36755;&#20837;&#19981;&#35268;&#33539;',3);
@@ -400,12 +401,12 @@ echo'</ul>';
           <label for="priceType">&#35843;&#25972;&#20215;&#26684;&#65306;</label>
           <select class="form-control" id="priceType">
             <option value="price">&#38144;&#21806;&#20215;&#26684;</option>
-            <?php if($userrow['power']==2){?>
+            <?php if($q8_can_manage_child_sites){?>
             <option value="cost2">&#19979;&#32423;&#19987;&#19994;&#29256;&#20215;&#26684;</option>
             <option value="cost">&#19979;&#32423;&#26222;&#36890;&#29256;&#20215;&#26684;</option>
             <?php }?>
           </select>
-          <p class="q8-shoplist-batch-note"><?php echo $userrow['power']==2 ? '&#19987;&#19994;&#29256;&#31449;&#38271;&#21487;&#20197;&#25353;&#29031;&#38144;&#21806;&#20215;&#12289;&#19979;&#32423;&#19987;&#19994;&#29256;&#20215;&#12289;&#19979;&#32423;&#26222;&#36890;&#29256;&#20215;&#20998;&#21035;&#25209;&#37327;&#35843;&#25972;&#12290;' : '&#25209;&#37327;&#20462;&#25913;&#40664;&#35748;&#21482;&#35843;&#25972;&#26222;&#36890;&#29992;&#25143;&#30475;&#21040;&#30340;&#38144;&#21806;&#20215;&#26684;&#12290;'; ?></p>
+          <p class="q8-shoplist-batch-note"><?php echo $q8_can_manage_child_sites ? '&#19987;&#19994;&#29256;&#31449;&#38271;&#21487;&#20197;&#25353;&#29031;&#38144;&#21806;&#20215;&#12289;&#19979;&#32423;&#19987;&#19994;&#29256;&#20215;&#12289;&#19979;&#32423;&#26222;&#36890;&#29256;&#20215;&#20998;&#21035;&#25209;&#37327;&#35843;&#25972;&#12290;' : '&#25209;&#37327;&#20462;&#25913;&#40664;&#35748;&#21482;&#35843;&#25972;&#26222;&#36890;&#29992;&#25143;&#30475;&#21040;&#30340;&#38144;&#21806;&#20215;&#26684;&#12290;'; ?></p>
         </div>
 
         <div class="form-group">

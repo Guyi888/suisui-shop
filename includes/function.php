@@ -196,6 +196,12 @@ function q8_insert_site_account($payload, $conf = array(), $date = null) {
 	if (q8_site_has_column('site_prid') && !array_key_exists('site_prid', $values)) {
 		$values['site_prid'] = 0;
 	}
+	if (intval(isset($values['power']) ? $values['power'] : 0) > 0 && intval(isset($values['upzid']) ? $values['upzid'] : 0) > 0 && function_exists('q8_site_can_create_child_site')) {
+		$parentSite = $DB->getRow("SELECT zid,upzid,power FROM pre_site WHERE zid=:zid LIMIT 1", array(':zid' => intval($values['upzid'])));
+		if (!q8_site_can_create_child_site($parentSite)) {
+			return false;
+		}
+	}
 
 	$fields = array();
 	$placeholders = array();
@@ -311,6 +317,18 @@ function q8_get_fenzhan_price_context($conf, $isFenzhan = false, $siteRow = arra
 		'professional_price' => round($professionalPrice, 2),
 		'professional_cost' => round($professionalCost, 2),
 	);
+
+}
+
+function q8_site_can_create_child_site($siteRow)
+{
+
+	if (!is_array($siteRow)) {
+		return false;
+	}
+
+	return intval(isset($siteRow['power']) ? $siteRow['power'] : 0) === 2
+		&& intval(isset($siteRow['upzid']) ? $siteRow['upzid'] : 0) <= 1;
 
 }
 

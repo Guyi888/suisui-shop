@@ -28,6 +28,7 @@ $pageTitles = array(
 $title = isset($pageTitles[$mod]) ? $pageTitles[$mod] : '站点设置';
 
 include 'head.php';
+$q8_can_manage_child_sites = function_exists('q8_site_can_create_child_site') ? q8_site_can_create_child_site($userrow) : ($userrow['power'] == 2);
 
 if ($conf['fenzhan_cost2'] <= 0) {
     $conf['fenzhan_cost2'] = $conf['fenzhan_price2'];
@@ -139,7 +140,7 @@ if ($mod === 'site_n') {
             q8_user_setting_alert('所选的分站加价模板不存在');
         }
     }
-    if ($userrow['power'] == 2) {
+    if ($q8_can_manage_child_sites) {
         if (!is_numeric($ktfz_price) || !preg_match('/^[0-9.]+$/', $ktfz_price) || $ktfz_price < 0) {
             q8_user_setting_alert('普及版分站价格输入不规范');
         }
@@ -201,7 +202,7 @@ if ($mod === 'site_n') {
         }
     }
 
-    if ($userrow['power'] == 2) {
+    if ($q8_can_manage_child_sites) {
         $fields[] = '`ktfz_price`=:ktfz_price';
         $fields[] = '`ktfz_price2`=:ktfz_price2';
         $data[':ktfz_price'] = $ktfz_price;
@@ -428,7 +429,7 @@ if ($mod === 'site_n') {
                         </select>
                         <pre>未单独改价的商品将按分站自己的进货价叠加此模板，上级调价和新商品也会继续使用这套规则。</pre>
                     </div>
-                    <?php if ($userrow['power'] == 2) { ?>
+                    <?php if ($q8_can_manage_child_sites) { ?>
                     <div class="form-group">
                         <label>普及版分站价格</label>
                         <input type="text" name="ktfz_price" value="<?php echo $userrow['ktfz_price'] > 0 ? htmlspecialchars($userrow['ktfz_price'], ENT_QUOTES, 'UTF-8') : htmlspecialchars($conf['fenzhan_price'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control">

@@ -50,10 +50,14 @@ if(!empty($conf['staticurl'])){
 
 if(!empty($conf['gg_announce']))$conf['anounce']=$conf['gg_announce'].$conf['anounce'];
 
+if($is_fenzhan == true && function_exists('q8_site_can_create_child_site') && !q8_site_can_create_child_site(isset($siterow) ? $siterow : array())){
+	$conf['fenzhan_buy'] = 0;
+}
 if($is_fenzhan == true && $siterow['power']==2){
-	if($siterow['ktfz_price']>0)$conf['fenzhan_price']=$siterow['ktfz_price'];
-	if($conf['fenzhan_cost2']<=0)$conf['fenzhan_cost2']=$conf['fenzhan_price2'];
-	if($siterow['ktfz_price2']>0 && $siterow['ktfz_price2']>=$conf['fenzhan_cost2'])$conf['fenzhan_price2']=$siterow['ktfz_price2'];
+	$q8FenzhanPricing = q8_get_fenzhan_price_context($conf, $is_fenzhan, isset($siterow) ? $siterow : array());
+	$conf['fenzhan_price'] = $q8FenzhanPricing['normal_price'];
+	$conf['fenzhan_price2'] = $q8FenzhanPricing['professional_price'];
+	$conf['fenzhan_cost2'] = $q8FenzhanPricing['professional_cost'];
 }
 
 if($conf['sitename_hide']==1 && !empty($conf['title'])){

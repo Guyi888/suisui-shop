@@ -10,6 +10,7 @@ exit("<script language='javascript'>window.location.href='../?mod=faka&&id={$_GE
 }
 $title = '平台首页';
 include 'head.php';
+$q8_can_manage_child_sites = isset($q8_can_manage_child_sites) ? $q8_can_manage_child_sites : (function_exists('q8_site_can_create_child_site') ? q8_site_can_create_child_site($userrow) : ($userrow['power']==2));
 q8_site_admin_notice_ensure_fields();
 $q8_admin_notice_context = $userrow['power'] > 0 ? q8_site_admin_notice_context($userrow, $conf) : array('html' => '');
 $q8_user_uid = intval($userrow['zid']);
@@ -293,7 +294,7 @@ echo '<div class="alert alert-danger"><span class="btn-sm btn-danger">重要</sp
 								</a>
 							</div>
 							<div class="col-xs-4 simple-function-item">
-								<?php if($userrow['power']==2){?>
+								<?php if($q8_can_manage_child_sites){?>
 								<a href="sitelist.php" class="simple-function-link">
 									<i class="fa fa-sitemap simple-function-icon"></i>
 									<div class="simple-function-label">&#20998;&#31449;&#31649;&#29702;</div>
@@ -380,7 +381,7 @@ echo '<div class="alert alert-danger"><span class="btn-sm btn-danger">重要</sp
 						<div class="simple-site-item"><div class="simple-site-label">&#25105;&#30340;&#22495;&#21517;&#9312;</div><div class="simple-site-value"><a href="http://<?php echo $userrow['domain']?>" target="_blank" rel="noreferrer" class="simple-domain-link"><?php echo $userrow['domain']?></a></div></div>
 						<?php if($userrow['domain2']){?><div class="simple-site-item"><div class="simple-site-label">&#25105;&#30340;&#22495;&#21517;&#9313;</div><div class="simple-site-value"><a href="http://<?php echo $userrow['domain2']?>" target="_blank" rel="noreferrer" class="simple-domain-link"><?php echo $userrow['domain2']?></a></div></div><?php }?>
 					<div class="simple-site-item"><div class="simple-site-label">&#32593;&#31449;&#21517;&#31216;</div><div class="simple-site-value"><span class="site-name"><?php echo $userrow['sitename']?></span><a href="usetmoban.php?mod=site" class="btn btn-xs btn-info simple-site-action">&#31435;&#21363;&#26356;&#25442;</a></div></div>
-						<div class="simple-site-item"><div class="simple-site-label">&#20195;&#29702;&#31867;&#22411;</div><div class="simple-site-value"><span class="agent-type"><?php echo ($userrow['power']==2?'<font color=red>&#19987;&#19994;&#29256;</font>':'<font color=red>&#26222;&#21450;&#29256;</font>')?></span><?php if($conf['fenzhan_upgrade']>0 && $userrow['power']==1){?><a href="upsite.php" class="btn btn-danger btn-xs simple-site-action">&#21319;&#32423;&#31449;&#28857;</a><?php }else{?><a href="./sitelist.php" class="btn btn-danger btn-xs simple-site-action">&#19979;&#32423;&#31649;&#29702;</a><?php }?></div></div>
+						<div class="simple-site-item"><div class="simple-site-label">&#20195;&#29702;&#31867;&#22411;</div><div class="simple-site-value"><span class="agent-type"><?php echo ($userrow['power']==2?'<font color=red>&#19987;&#19994;&#29256;</font>':'<font color=red>&#26222;&#21450;&#29256;</font>')?></span><?php if($conf['fenzhan_upgrade']>0 && $userrow['power']==1){?><a href="upsite.php" class="btn btn-danger btn-xs simple-site-action">&#21319;&#32423;&#31449;&#28857;</a><?php }elseif($q8_can_manage_child_sites){?><a href="./sitelist.php" class="btn btn-danger btn-xs simple-site-action">&#19979;&#32423;&#31649;&#29702;</a><?php }?></div></div>
 						<?php if($conf['fenzhan_expiry']>0){?><div class="simple-site-item"><div class="simple-site-label">&#21040;&#26399;&#26102;&#38388;</div><div class="simple-site-value"><span class="expiry-time"><?php echo $userrow['endtime']?></span><a href="renew.php" class="btn btn-xs btn-primary simple-site-action">&#31435;&#21363;&#32493;&#26399;</a></div></div><?php }?>
 						<div class="simple-site-item"><div class="simple-site-label">&#24403;&#21069;&#29366;&#24577;</div><div class="simple-site-value"><span class="site-status"><?php echo ($conf['fenzhan_expiry']>0 && $userrow['endtime']<$date?'<font color="red">&#24050;&#21040;&#26399;</font>':'<font color="green">&#27491;&#24120;&#36816;&#34892;</font>');?></span></div></div>
 					<?php }else{?>

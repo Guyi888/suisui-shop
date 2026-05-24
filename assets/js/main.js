@@ -1298,14 +1298,39 @@ function showOrder(id, skey) {
     },
   });
 }
-function copyText(text) {
+$(document).on("click", ".q8-faka-copy-btn", function () {
+  var text = $(this).attr("data-card") || $(this).siblings(".q8-faka-copy-text").text();
+  copyText(text, "\u5361\u5bc6\u590d\u5236\u6210\u529f");
+});
+
+function copyTextFallback(text) {
   var input = document.createElement("textarea");
   input.value = text;
+  input.setAttribute("readonly", "readonly");
+  input.style.position = "fixed";
+  input.style.left = "-9999px";
+  input.style.top = "0";
   document.body.appendChild(input);
+  input.focus();
   input.select();
-  document.execCommand("Copy");
+  input.setSelectionRange(0, input.value.length);
+  var ok = document.execCommand("copy");
   document.body.removeChild(input);
-  layer.msg("复制成功");
+  return ok;
+}
+
+function copyText(text, message) {
+  text = text || "";
+  message = message || "\u590d\u5236\u6210\u529f";
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function () {
+      layer.msg(message);
+    }).catch(function () {
+      layer.msg(copyTextFallback(text) ? message : "\u590d\u5236\u5931\u8d25\uff0c\u8bf7\u624b\u52a8\u590d\u5236");
+    });
+    return;
+  }
+  layer.msg(copyTextFallback(text) ? message : "\u590d\u5236\u5931\u8d25\uff0c\u8bf7\u624b\u52a8\u590d\u5236");
 }
 
 function formatTimestamp(timestamp) {

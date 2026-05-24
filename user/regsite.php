@@ -10,6 +10,9 @@ if($islogin2==1 && $userrow['power']>0){
 }elseif($conf['fenzhan_buy']==0){
 	@header('Content-Type: text/html; charset=UTF-8');
 	exit("<script language='javascript'>alert('当前站点未开启自助开通分站功能！');window.location.href='./';</script>");
+}elseif($is_fenzhan == true && function_exists('q8_site_can_create_child_site') && !q8_site_can_create_child_site(isset($siterow) ? $siterow : array())){
+	@header('Content-Type: text/html; charset=UTF-8');
+	exit("<script language='javascript'>alert('当前分站暂不支持继续开通下级分站');window.location.href='./';</script>");
 }
 
 $q8FenzhanPricing = q8_get_fenzhan_price_context($conf, $is_fenzhan, isset($siterow) ? $siterow : array());
