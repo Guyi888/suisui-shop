@@ -25,9 +25,27 @@ if (!function_exists('q8_api_tool_isfaka')) {
 		return intval(isset($tool['is_curl']) ? $tool['is_curl'] : 0) == 4 || intval(isset($tool['goods_type']) ? $tool['goods_type'] : 0) == 1 ? 1 : 0;
 	}
 }
+if (!function_exists('q8_api_require_docking_site')) {
+	function q8_api_require_docking_site($userrow) {
+		if (!isset($userrow['power']) || intval($userrow['power']) < 1) {
+			exit('{"code":-1,"message":"普通用户不支持API对接，请使用分站账号"}');
+		}
+	}
+}
 if (!function_exists('q8_api_docking_price')) {
 	function q8_api_docking_price($price_obj, $tid) {
 		return method_exists($price_obj, 'getManageSelfCostPrice') ? $price_obj->getManageSelfCostPrice($tid) : $price_obj->getToolPrice($tid);
+	}
+}
+if (!function_exists('q8_api_check_repeat_order')) {
+	function q8_api_check_repeat_order($DB, $tid, $input, $toolName) {
+		$thtime = date("Y-m-d") . ' 00:00:00';
+		$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", array(':tid' => intval($tid), ':input' => $input));
+		if ($row['input'] && $row['status'] == 0) {
+			exit('{"code":-1,"message":"您今天添加的' . $toolName . '正在排队中，请勿重复提交！"}');
+		} elseif ($row['addtime'] > $thtime) {
+			exit('{"code":-1,"message":"您今天已添加过' . $toolName . '，请勿重复提交！"}');
+		}
 	}
 }
 
@@ -137,6 +155,7 @@ elseif($act == 'goodslistbycid')
 		$pass = trim(daddslashes($_POST['pass']));
 		$userrow = $DB->getRow("SELECT * FROM `pre_site` WHERE `user` = '{$user}' LIMIT 1");
 		if ($userrow && $userrow['user'] == $user && $userrow['pwd'] == $pass && $userrow['status'] == 1) {
+			q8_api_require_docking_site($userrow);
 			$islogin2 = 1;
 			$price_obj = new \lib\Price($userrow['zid'],$userrow);
 		} elseif ($userrow && $userrow['status'] == 0) {
@@ -170,6 +189,7 @@ elseif($act == 'goodslist')
 		$pass = trim(daddslashes($_POST['pass']));
 		$userrow = $DB->getRow("SELECT * FROM `pre_site` WHERE `user` = '{$user}' LIMIT 1");
 		if ($userrow && $userrow['user'] == $user && $userrow['pwd'] == $pass && $userrow['status'] == 1) {
+			q8_api_require_docking_site($userrow);
 			$islogin2 = 1;
 			$price_obj = new \lib\Price($userrow['zid'],$userrow);
 		} elseif ($userrow && $userrow['status'] == 0) {
@@ -208,6 +228,7 @@ elseif($act == 'goodsdetails')
 		$pass = trim(daddslashes($_POST['pass']));
 		$userrow = $DB->getRow("SELECT * FROM `pre_site` WHERE `user` = '{$user}' LIMIT 1");
 		if ($userrow && $userrow['user'] == $user && $userrow['pwd'] == $pass && $userrow['status'] == 1) {
+			q8_api_require_docking_site($userrow);
 			$islogin2 = 1;
 			$price_obj = new \lib\Price($userrow['zid'],$userrow);
 		} elseif ($userrow && $userrow['status'] == 0) {
@@ -298,10 +319,14 @@ elseif($act == 'pay')
 		}
 		$userrow = $DB->getRow("SELECT * FROM `pre_site` WHERE `user` = '{$user}' LIMIT 1");
 		if ($userrow && $userrow['user'] == $user && $userrow['pwd'] == $pass && $userrow['status'] == 1) {
+			q8_api_require_docking_site($userrow);
 			$result['code'] = 0;
 			if(in_array($input1,explode("|",$conf['blacklist']))) exit('{"code":-1,"message":"你的下单账号已被拉黑，无法下单！"}');
 			$front_stock_count = q8_front_stock_count($DB, $tool);
 			$nums=($tool['value']>1?$tool['value']:1)*$num;
+			if($tool['repeat']==0){
+				q8_api_check_repeat_order($DB, $tid, $input1, $tool['name']);
+			}
 			if($tool['is_curl']==4){
 				$count = q8_local_faka_stock_count($DB, $tid);
 				$nums=($tool['value']>1?$tool['value']:1)*$num;
@@ -311,14 +336,6 @@ elseif($act == 'pay')
 			elseif($front_stock_count!==null){
 				if($front_stock_count==0)exit('{"code":-1,"message":"该商品库存不足，请联系站长增加库存！"}');
 				if($nums>$front_stock_count)exit('{"code":-1,"message":"你所购买的数量超过库存数量！"}');
-			}
-			elseif($tool['repeat']==0){
-				$thtime=date("Y-m-d").' 00:00:00';
-				$row=$DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid'=>$tid, ':input'=>$inputvalue]);
-				if($row['input'] && $row['status']==0)
-					exit('{"code":-1,"message":"您今天添加的'.$tool['name'].'正在排队中，请勿重复提交！"}');
-				elseif($row['addtime']>$thtime)
-					exit('{"code":-1,"message":"您今天已添加过'.$tool['name'].'，请勿重复提交！"}');
 			}
 			if($tool['validate']==1 && is_numeric($input1)){
 				if(validate_qzone($input1)==false) exit('{"code":-1,"message":"你的QQ空间设置了访问权限，无法下单！"}');
@@ -348,8 +365,8 @@ elseif($act == 'pay')
 			$i=2;
 			$neednum = $num;
 			foreach($inputs as $inputname){
-				if(strpos($inputname,'[multi]')!==false && isset(${'inputvalue'.$i}) && is_numeric(${'inputvalue'.$i})){
-					$val = intval(${'inputvalue'.$i});
+				if(strpos($inputname,'[multi]')!==false && isset(${'input'.$i}) && is_numeric(${'input'.$i})){
+					$val = intval(${'input'.$i});
 					if($val>0){
 						$neednum = $neednum * $val;
 					}
@@ -360,26 +377,29 @@ elseif($act == 'pay')
 			$need = $price * $neednum;
 			if($need == 0) exit('{"code":-2,"message":"不支持免费商品对接"}');
 			if ($userrow['rmb'] < $need) exit('{"code":-2,"message":"余额不足，购买此商品还差' . ($need - $userrow['rmb']) . '元"}');
+			$need = sprintf('%.2f', round(floatval($need), 2));
+			$zid = intval($userrow['zid']);
 
 			$trade_no = date("YmdHis").rand(111,999).'RMB';
 			$input = $input1 . ($input2 ? '|' . $input2 : null) . ($input3 ? '|' . $input3 : null) . ($input4 ? '|' . $input4 : null) . ($input5 ? '|' . $input5 : null);
 			$sql="INSERT INTO `pre_pay` (`trade_no`,`type`,`tid`,`zid`,`input`,`num`,`name`,`money`,`ip`,`userid`,`addtime`,`blockdj`,`status`) VALUES (:trade_no, :type, :tid, :zid, :input, :num, :name, :money, :ip, :userid, NOW(), :blockdj, 0)";
-			$data = [':trade_no'=>$trade_no, ':type'=>'rmb', ':tid'=>$tid, ':zid'=>$userrow['zid'], ':input'=>$input, ':num'=>$num, ':name'=>$tool['name'], ':money'=>$need, ':ip'=>$clientip, ':userid'=>$userrow['zid'], ':blockdj'=>$blockdj?$blockdj:0];
+			$data = [':trade_no'=>$trade_no, ':type'=>'rmb', ':tid'=>$tid, ':zid'=>$zid, ':input'=>$input, ':num'=>$num, ':name'=>$tool['name'], ':money'=>$need, ':ip'=>$clientip, ':userid'=>$zid, ':blockdj'=>$blockdj?$blockdj:0];
 			if ($DB->exec($sql, $data)) {
-				if ($DB->exec("UPDATE `pre_site` SET `rmb` = `rmb` - {$need} WHERE `zid` = '{$userrow['zid']}'") && $DB->exec("UPDATE `pre_pay` SET `status` = 1 WHERE `trade_no` = '{$trade_no}'")) {
-					addPointRecord($userrow['zid'], $need, '消费', 'API购买 '.$tool['name']);
+				$deducted = $DB->exec("UPDATE `pre_site` SET `rmb` = `rmb` - {$need} WHERE `zid` = '{$zid}' AND `rmb` >= {$need}");
+				if ($deducted && $DB->exec("UPDATE `pre_pay` SET `status` = 1 WHERE `trade_no` = '{$trade_no}'")) {
+					addPointRecord($zid, $need, '消费', 'API购买 '.$tool['name']);
 					$srow['tid'] = $tid;
 					$srow['num'] = $num;
 					$srow['input'] = $input;
-					$srow['zid'] = $userrow['zid'];
+					$srow['zid'] = $zid;
 					$srow['money'] = $need;
 					$srow['trade_no'] = $trade_no;
-					$srow['userid'] = $userrow['zid'];
+					$srow['userid'] = $zid;
 					if($orderid = processOrder($srow)){
 						$result['code'] = 0;
 						$result['message'] = 'success';
 						$result['orderid'] = $orderid;
-						$orderrow = $DB->getRow("SELECT money,cost FROM pre_orders WHERE id = '$orderid' LIMIT 1");
+						$orderrow = $DB->getRow("SELECT money,cost,result FROM pre_orders WHERE id = '$orderid' LIMIT 1");
 						if($orderrow){
 							$result['money'] = round(floatval($orderrow['money']), 2);
 							$result['cost'] = round(floatval($orderrow['cost']), 2);
@@ -396,12 +416,24 @@ elseif($act == 'pay')
 									$kmdata[]=array('card'=>$res['km']);
 								}
 							}
-							$result['faka']=true;
-							$result['kmdata']=$kmdata;
+							if(empty($kmdata) && !empty($orderrow['result'])){
+								$rows = q8_extract_remote_faka_rows(array('订单结果' => $orderrow['result']));
+								foreach($rows as $row){
+									$item = array('card'=>$row['card']);
+									if(!empty($row['pass'])) $item['pass'] = $row['pass'];
+									$kmdata[] = $item;
+								}
+							}
+							if(!empty($kmdata)){
+								$result['faka']=true;
+								$result['kmdata']=$kmdata;
+							}
 						}
 					} else {
 						$result['message'] = '下单失败 : ' . $DB->error();
 					}
+				} elseif (!$deducted) {
+					$result['message'] = '余额不足或余额已变化，请刷新后重试';
 				} else {
 					$result['message'] = '下单失败 : ' . $DB->error();
 				}
@@ -446,7 +478,18 @@ elseif($act == 'search')
 			}
 		}
 		if($row['result']){
+			if (!is_array($list)) $list = array();
 			$list['订单结果'] = $row['result'];
+		} else {
+			$faka_result = q8_order_faka_result($DB, $id);
+			if ($faka_result !== '') {
+				if (!is_array($list)) $list = array();
+				$list['订单结果'] = $faka_result;
+				$row['result'] = $faka_result;
+				if ($row['status'] == 1) {
+					$DB->exec("UPDATE `pre_orders` SET `result`=:result WHERE `id`=:id", array(':result' => $faka_result, ':id' => $id));
+				}
+			}
 		}
 		$result['code'] = 0;
 		$result['message'] = 'success';

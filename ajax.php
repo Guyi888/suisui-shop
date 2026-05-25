@@ -296,9 +296,12 @@ switch ($act) {
 			// 对于批量购买订单(tid=-3)，需要特殊处理
 			if ($srow['tid'] == -3) {
 				// 先扣费
-				if ($DB->exec("UPDATE `pre_site` SET `rmb`=`rmb`-:money WHERE `zid`=:zid", [':money' => $srow['money'], ':zid' => $userrow['zid']])) {
+				if ($DB->exec("UPDATE `pre_site` SET `rmb`=`rmb`-:money WHERE `zid`=:zid AND `rmb`>=:money_check", [':money' => $srow['money'], ':money_check' => $srow['money'], ':zid' => $userrow['zid']])) {
 					// 更新订单状态为已支付
-				$DB->exec("UPDATE `pre_pay` SET `type`='rmb',`status`='1',`endtime`=NOW() WHERE `trade_no`=:orderid", [':orderid' => $orderid]);
+				if (!$DB->exec("UPDATE `pre_pay` SET `type`='rmb',`status`='1',`endtime`=NOW() WHERE `trade_no`=:orderid AND `status`=0", [':orderid' => $orderid])) {
+					$DB->exec("UPDATE `pre_site` SET `rmb`=`rmb`+:money WHERE `zid`=:zid", [':money' => $srow['money'], ':zid' => $userrow['zid']]);
+					exit('{"code":-2,"msg":"当前订单已付款过，请勿重复提交"}');
+				}
 					$srow['type'] = 'rmb';
 					$srow['status'] = 1;
 
@@ -313,21 +316,28 @@ switch ($act) {
 						exit('{"code":-1,"msg":"批量下单失败！' . $DB->error() . '"}');
 					}
 				} else {
-					exit('{"code":-1,"msg":"扣费失败！' . $DB->error() . '"}');
+					exit('{"code":-1,"msg":"余额不足或余额已变化，请刷新后重试"}');
 				}
 			} else {
 				// 普通订单处理
-			if ($DB->exec("UPDATE `pre_site` SET `rmb`=`rmb`-:money WHERE `zid`=:zid", [':money' => $srow['money'], ':zid' => $userrow['zid']]) && $DB->exec("UPDATE `pre_pay` SET `type`='rmb',`status`='1',`endtime`=NOW() WHERE `trade_no`=:orderid", [':orderid' => $orderid])) {
+			if ($DB->exec("UPDATE `pre_site` SET `rmb`=`rmb`-:money WHERE `zid`=:zid AND `rmb`>=:money_check", [':money' => $srow['money'], ':money_check' => $srow['money'], ':zid' => $userrow['zid']])) {
+					if (!$DB->exec("UPDATE `pre_pay` SET `type`='rmb',`status`='1',`endtime`=NOW() WHERE `trade_no`=:orderid AND `status`=0", [':orderid' => $orderid])) {
+						$DB->exec("UPDATE `pre_site` SET `rmb`=`rmb`+:money WHERE `zid`=:zid", [':money' => $srow['money'], ':zid' => $userrow['zid']]);
+						exit('{"code":-2,"msg":"当前订单已付款过，请勿重复提交"}');
+					}
 					$srow['type'] = 'rmb';
-					if ($orderid = processOrder($srow)) {
-						addPointRecord($userrow['zid'], $srow['money'], '消费', '购买 ' . $srow['name'] . ' (' . $orderid . ')', $orderid);
-						exit('{"code":1,"msg":"您所购买的商品已付款成功，感谢购买！","orderid":"' . $orderid . '"}');
+					$trade_no = $orderid;
+					if ($created_orderid = processOrder($srow)) {
+						addPointRecord($userrow['zid'], $srow['money'], '消费', '购买 ' . $srow['name'] . ' (' . $created_orderid . ')', $created_orderid);
+						exit('{"code":1,"msg":"您所购买的商品已付款成功，感谢购买！","orderid":"' . $created_orderid . '"}');
 					} else {
+						$DB->exec("UPDATE `pre_site` SET `rmb`=`rmb`+:money WHERE `zid`=:zid", [':money' => $srow['money'], ':zid' => $userrow['zid']]);
+						$DB->exec("UPDATE `pre_pay` SET `type`='',`status`='0',`endtime`=NULL WHERE `trade_no`=:orderid", [':orderid' => $trade_no]);
 						addPointRecord($userrow['zid'], $srow['money'], '消费', '购买 ' . $srow['name']);
 						exit('{"code":-1,"msg":"下单失败！' . $DB->error() . '"}');
 					}
 				} else {
-					exit('{"code":-1,"msg":"下单失败！' . $DB->error() . '"}');
+					exit('{"code":-1,"msg":"余额不足或余额已变化，请刷新后重试"}');
 				}
 			}
 		} else {
@@ -592,7 +602,8 @@ switch ($act) {
 			$cart_item = $DB->getRow("SELECT * FROM `pre_cart` WHERE `id`=:shop_id LIMIT 1", array(':shop_id' => $shop_id));
 			if (!$cart_item) exit('{"code":-1,"msg":"商品不存在！"}');
 			if ($cart_item['userid'] != $cookiesid || $cart_item['status'] > 1) exit('{"code":-1,"msg":"商品权限校验失败"}');
-			$tool = $DB->getRow("SELECT * FROM pre_tools WHERE tid=:tid LIMIT 1", array(':tid' => $cart_item['tid']));
+			$tid = intval($cart_item['tid']);
+			$tool = $DB->getRow("SELECT * FROM pre_tools WHERE tid=:tid LIMIT 1", array(':tid' => $tid));
 		} else {
 			$tid = intval($_POST['tid']);
 			$tool = $DB->getRow("SELECT A.*,B.blockpay FROM pre_tools A LEFT JOIN pre_class B ON A.cid=B.cid WHERE tid=:tid LIMIT 1", array(':tid' => $tid));
@@ -681,6 +692,14 @@ switch ($act) {
 			$local_faka_count = q8_local_faka_stock_count($DB, $tid);
 			$nums = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
 			$required_faka_count = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
+			if ($tool['repeat'] == 0) {
+				$thtime = date("Y-m-d") . ' 00:00:00';
+				$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid' => $tid, ':input' => $inputvalue]);
+				if ($row['input'] && $row['status'] == 0)
+					exit('{"code":-1,"msg":"您今天添加的' . $tool['name'] . '正在排队中，请勿重复提交！"}');
+				elseif ($row['addtime'] > $thtime)
+					exit('{"code":-1,"msg":"您今天已添加过' . $tool['name'] . '，请勿重复提交！"}');
+			}
 			if ($tool['is_curl'] == 4) {
 				if (!$islogin2 && $conf['faka_input'] == 0 && !checkEmail($inputvalue)) {
 					exit('{"code":-1,"msg":"邮箱格式不正确"}');
@@ -692,13 +711,6 @@ switch ($act) {
 			} elseif (($front_stock_count = q8_front_stock_count($DB, $tool)) !== null) {
 				if ($front_stock_count == 0) exit('{"code":-1,"msg":"该商品库存不足，请联系站长增加库存！"}');
 				if ($required_faka_count > $front_stock_count) exit('{"code":-1,"msg":"你所购买的数量超过库存数量！"}');
-			} elseif ($tool['repeat'] == 0) {
-				$thtime = date("Y-m-d") . ' 00:00:00';
-				$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid' => $tid, ':input' => $inputvalue]);
-				if ($row['input'] && $row['status'] == 0)
-					exit('{"code":-1,"msg":"您今天添加的' . $tool['name'] . '正在排队中，请勿重复提交！"}');
-				elseif ($row['addtime'] > $thtime)
-					exit('{"code":-1,"msg":"您今天已添加过' . $tool['name'] . '，请勿重复提交！"}');
 			}
 			if ($tool['validate'] == 1 && is_numeric($inputvalue)) {
 				if (validate_qzone($inputvalue) == false)
@@ -1029,6 +1041,22 @@ switch ($act) {
 			}
 			if ($num == 0) exit('{"code":-1,"msg":"下单账号不能为空"}');
 
+			if ($tool['repeat'] == 0) {
+				$thtime = date("Y-m-d") . ' 00:00:00';
+				$seen_inputs = [];
+				foreach ($inputs as $inputvalue) {
+					if (isset($seen_inputs[$inputvalue])) {
+						exit('{"code":-1,"msg":"批量下单中存在重复账号，请勿重复提交！"}');
+					}
+					$seen_inputs[$inputvalue] = true;
+					$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid' => $tid, ':input' => $inputvalue]);
+					if ($row['input'] && $row['status'] == 0)
+						exit('{"code":-1,"msg":"您今天添加的' . $tool['name'] . '正在排队中，请勿重复提交！"}');
+					elseif ($row['addtime'] > $thtime)
+						exit('{"code":-1,"msg":"您今天已添加过' . $tool['name'] . '，请勿重复提交！"}');
+				}
+			}
+
 			$local_faka_count = q8_local_faka_stock_count($DB, $tid);
 			$nums = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
 			if ($tool['is_curl'] == 4) {
@@ -1249,6 +1277,14 @@ switch ($act) {
 				exit('{"code":-1,"msg":"验证失败"}');
 			}
 			if (in_array($inputvalue, explode("|", $conf['blacklist']))) exit('{"code":-1,"msg":"你的下单账号已被拉黑，无法下单！"}');
+			if ($tool['repeat'] == 0) {
+				$thtime = date("Y-m-d") . ' 00:00:00';
+				$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid' => $tid, ':input' => $inputvalue]);
+				if ($row['input'] && $row['status'] == 0)
+					exit('{"code":-1,"msg":"您今天添加的' . $tool['name'] . '正在排队中，请勿重复提交！"}');
+				elseif ($row['addtime'] > $thtime)
+					exit('{"code":-1,"msg":"您今天已添加过' . $tool['name'] . '，请勿重复提交！"}');
+			}
 			if ($tool['is_curl'] == 4) {
 				if (!$islogin2 && $conf['faka_input'] == 0 && !checkEmail($inputvalue)) {
 					exit('{"code":-1,"msg":"邮箱格式不正确"}');
@@ -1260,13 +1296,6 @@ switch ($act) {
 			} elseif ($tool['stock'] !== null) {
 				if ($tool['stock'] == 0) exit('{"code":-1,"msg":"该商品库存不足，请联系站长增加库存！"}');
 				if ($num > $tool['stock']) exit('{"code":-1,"msg":"你所购买的数量超过库存数量！"}');
-			} elseif ($tool['repeat'] == 0) {
-				$thtime = date("Y-m-d") . ' 00:00:00';
-				$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid' => $tid, ':input' => $inputvalue]);
-				if ($row['input'] && $row['status'] == 0)
-					exit('{"code":-1,"msg":"您今天添加的' . $tool['name'] . '正在排队中，请勿重复提交！"}');
-				elseif ($row['addtime'] > $thtime)
-					exit('{"code":-1,"msg":"您今天已添加过' . $tool['name'] . '，请勿重复提交！"}');
 			}
 			if ($tool['validate'] == 1 && is_numeric($inputvalue)) {
 				if (validate_qzone($inputvalue) == false)

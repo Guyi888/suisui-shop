@@ -329,7 +329,9 @@ class Price {
 
 	public function getToolCost($tid){
 		$cost2 = $this->getToolCost2($tid);
-		if($this->power<2 && isset($this->up_price_array[$tid]['cost']) && $this->up_price_array[$tid]['cost'] && $this->up_price_array[$tid]['cost']>=$cost2){
+		if($this->power==1 && isset($this->iprice_array[$tid]) && $this->iprice_array[$tid]>0){
+			$cost = $this->iprice_array[$tid];
+		}elseif($this->power<2 && isset($this->up_price_array[$tid]['cost']) && $this->up_price_array[$tid]['cost'] && $this->up_price_array[$tid]['cost']>=$cost2){
 			$cost = $this->up_price_array[$tid]['cost'];
 		}elseif($this->power==2 && isset($this->price_array[$tid]['cost']) && $this->price_array[$tid]['cost'] && $this->price_array[$tid]['cost']>=$cost2){
 			$cost = $this->price_array[$tid]['cost'];
@@ -357,7 +359,9 @@ class Price {
 			$baseCost2 = $this->tool['price'];
 		}
 
-		if(isset($this->price_array[$tid]['cost2']) && $this->price_array[$tid]['cost2']>=$baseCost2){
+		if($this->power==1 && $this->parent_manage_self_cost > 0){
+			$cost = $this->parent_manage_self_cost;
+		}elseif(isset($this->price_array[$tid]['cost2']) && $this->price_array[$tid]['cost2']>=$baseCost2){
 			$cost = $this->price_array[$tid]['cost2'];
 		}elseif(empty($this->price_array[$tid]) && isset($this->site_rule_price_array[$tid]['cost2']) && $this->site_rule_price_array[$tid]['cost2']>=$baseCost2){
 			$cost = $this->site_rule_price_array[$tid]['cost2'];
@@ -376,7 +380,7 @@ class Price {
 	}
 
 	public function getManageSelfCostPrice($tid){
-		if($this->manage_self_cost > 0){
+		if($this->power==2 && $this->manage_self_cost > 0){
 			return $this->manage_self_cost;
 		}
 		if($this->power==2){
@@ -458,13 +462,20 @@ class Price {
 
 		if(is_numeric($userid) && strlen($userid)!=32)$islogin2=1;
 
-		$toolPrice = $this->getFinalPrice($this->getToolPrice($tid), $num);
+		$salePrice = $this->getFinalPrice($this->getManageSalePrice($tid), $num);
+		$selfBuyPrice = $this->getFinalPrice($this->getManageSelfCostPrice($tid), $num);
 		$num = floatval($num);
 		if($num <= 0)$num = 1;
 		$orderCost = floatval($orderCost);
 		$actualUnitCost = $orderCost > 0 ? round($orderCost / $num, 4) : 0;
 
-		if(round($toolPrice*$num,2) != round($money,2))return false;
+		if(round($salePrice*$num,2) == round($money,2)){
+			$toolPrice = $salePrice;
+		}elseif(round($selfBuyPrice*$num,2) == round($money,2)){
+			return false;
+		}else{
+			return false;
+		}
 
 		if($this->power==2){
 
@@ -508,7 +519,7 @@ class Price {
 
 			}
 
-			$upstreamCost = $actualUnitCost > 0 ? $actualUnitCost : $this->getToolCost2($tid);
+			$upstreamCost = $this->parent_manage_self_cost > 0 ? $this->parent_manage_self_cost : $this->getToolCost2($tid);
 			$profit2=$this->getToolCost($tid) - $upstreamCost;
 
 			if($profit2>0 && $profit2<$money && $this->upzid>1){
@@ -517,6 +528,20 @@ class Price {
 
 				$rs=$this->changeUserMoney($this->upzid, $tc_point, '提成', '你下级网站(ZID:'.$this->zid.')用户下单 '.$name.' 获得'.$tc_point.'元提成（下级拿货价'.round($this->getToolCost($tid),2).'，实际成本'.round($upstreamCost,2).'）', $orderid);
 
+			}
+
+			$currentZid = $this->upzid;
+			while($currentZid>1){
+				$parentPrice = new self($currentZid);
+				$parentPrice->setToolInfo($tid);
+				if($parentPrice->upzid<=1 || $parentPrice->parent_manage_self_cost<=0)break;
+				$parentSelfCost = $parentPrice->getManageSelfCostPrice($tid);
+				$parentProfit = $parentSelfCost - $parentPrice->parent_manage_self_cost;
+				if($parentProfit>0 && $parentProfit<$money){
+					$tc_point=round($parentProfit*$num, 2);
+					$rs=$this->changeUserMoney($parentPrice->upzid, $tc_point, '提成', '下级网站(ZID:'.$currentZid.')的下级用户下单 '.$name.' 获得'.$tc_point.'元提成（下级拿货价'.round($parentSelfCost,2).'，实际成本'.round($parentPrice->parent_manage_self_cost,2).'）', $orderid);
+				}
+				$currentZid = $parentPrice->upzid;
 			}
 
 		}
@@ -699,6 +724,20 @@ class Price {
 
 		if($this->power < 1 || $this->parent_power != 2){
 			return false;
+		}
+
+		if($this->upzid > 1){
+			$parentTool = $this->getToolInfo($tid);
+			if(!$parentTool)$parentTool = $row;
+			$parentPrice = new self($this->upzid);
+			$parentPrice->setToolInfo($tid, $parentTool);
+			$this->parent_manage_self_cost = floatval($parentPrice->getManageSelfCostPrice($tid));
+			return array(
+				'price' => floatval($parentPrice->getManageSalePrice($tid)),
+				'cost' => floatval($parentPrice->getManageChildNormalPrice($tid)),
+				'cost2' => floatval($parentPrice->getManageChildProfessionalPrice($tid)),
+				'del' => $parentPrice->getToolDel($tid)
+			);
 		}
 
 		$base = array(

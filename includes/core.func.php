@@ -93,8 +93,22 @@ if (!function_exists('q8_local_faka_stock_count')) {
 }
 if (!function_exists('q8_build_faka_text')) {
 	function q8_build_faka_text($km, $pw = '') {
+		$km = htmlspecialchars((string)$km, ENT_QUOTES, 'UTF-8');
+		$pw = htmlspecialchars((string)$pw, ENT_QUOTES, 'UTF-8');
 		if (!empty($pw)) return "&#21345;&#21495;&#65306;" . $km . " &#23494;&#30721;&#65306;" . $pw . "<br/>";
 		return $km . "<br/>";
+	}
+}
+if (!function_exists('q8_order_faka_result')) {
+	function q8_order_faka_result($DB, $orderid) {
+		$kmdata = '';
+		$rs = $DB->query("SELECT km,pw FROM pre_faka WHERE orderid=:orderid ORDER BY kid ASC", array(':orderid' => intval($orderid)));
+		if ($rs) {
+			while ($row = $rs->fetch(PDO::FETCH_ASSOC)) {
+				$kmdata .= q8_build_faka_text($row['km'], $row['pw']);
+			}
+		}
+		return $kmdata;
 	}
 }
 if (!function_exists('q8_remote_order_completed')) {
@@ -250,11 +264,17 @@ if (!function_exists('q8_deliver_local_faka')) {
 	function q8_deliver_local_faka($DB, $conf, $date, $orderid, $tid, $limit, $input, $tools) {
 		$rs = $DB->query("SELECT * FROM pre_faka WHERE tid='" . intval($tid) . "' AND orderid=0 LIMIT " . intval($limit));
 		$kmdata = '';
+		$delivered = 0;
 		while ($res = $rs->fetch()) {
+			$updated = $DB->exec("UPDATE `pre_faka` SET `orderid`='" . intval($orderid) . "',`usetime`='" . $date . "' WHERE `kid`='" . intval($res['kid']) . "' AND `orderid`=0");
+			if (!$updated) continue;
 			$kmdata .= q8_build_faka_text($res['km'], $res['pw']);
-			$DB->exec("UPDATE `pre_faka` SET `orderid`='" . intval($orderid) . "',`usetime`='" . $date . "' WHERE `kid`='" . intval($res['kid']) . "'");
+			$delivered++;
 		}
-		if ($kmdata === '') return false;
+		if ($delivered < intval($limit)) {
+			$DB->exec("UPDATE `pre_faka` SET `orderid`=0,`usetime`=NULL WHERE `orderid`='" . intval($orderid) . "'");
+			return false;
+		}
 		$DB->exec("UPDATE `pre_orders` SET `status`='1',`result`='" . addslashes($kmdata) . "',`djzt`='3' WHERE `id`='" . intval($orderid) . "'");
 		q8_send_faka_mail($conf, $tools, $input, $kmdata, $date);
 		return true;
@@ -478,14 +498,12 @@ function processOrder($srow, $is_fenzhan = true)
 			if ($result['faka'] == true) {
 				$kmdata = '';
 				foreach ($result['kmdata'] as $km_arr) {
-					$DB->query("INSERT INTO `pre_faka` (`tid`,`km`,`pw`,`orderid`,`addtime`,`usetime`) VALUES ('" . $srow['tid'] . "','" . $km_arr['card'] . "','" . $km_arr['pass'] . "','" . $orderid . "',NOW(),NOW())");
-					if (!empty($km_arr['pass'])) {
-						$kmdata = $kmdata . ("卡号：" . $km_arr['card'] . " 密码：" . $km_arr['pass'] . "<br/>");
-					} else {
-						$kmdata = $kmdata . ($km_arr['card'] . "<br/>");
-					}
+					$card = daddslashes($km_arr['card']);
+					$pass = daddslashes($km_arr['pass']);
+					$DB->query("INSERT INTO `pre_faka` (`tid`,`km`,`pw`,`orderid`,`addtime`,`usetime`) VALUES ('" . $srow['tid'] . "','" . $card . "','" . $pass . "','" . $orderid . "',NOW(),NOW())");
+					$kmdata .= q8_build_faka_text($km_arr['card'], $km_arr['pass']);
 				}
-				$DB->exec("UPDATE `pre_orders` SET `status`='1',`djzt`='3',`result`='" . $kmdata . "',`djorder`='" . $result['id'] . "' WHERE `id`='" . $orderid . "'");
+				$DB->exec("UPDATE `pre_orders` SET `status`='1',`djzt`='3',`result`='" . addslashes($kmdata) . "',`djorder`='" . $result['id'] . "' WHERE `id`='" . $orderid . "'");
 				if (!empty($kmdata)) {
 					if (is_numeric($input[0]) && strlen($input[0]) <= 10) {
 						$to = $input[0] . "@qq.com";
@@ -534,13 +552,21 @@ function processOrder($srow, $is_fenzhan = true)
 		$limit = $srow['num'];
 		$rs = $DB->query("SELECT * FROM pre_faka WHERE `tid`='" . $srow['tid'] . "' AND orderid=0 LIMIT " . $limit . '');
 		$kmdata = '';
+		$delivered = 0;
 		while ($res = $rs->fetch()) {
+			$updated = $DB->exec("UPDATE `pre_faka` SET `orderid`='" . $orderid . "',`usetime`='" . $date . "' WHERE `kid`='" . $res['kid'] . "' AND `orderid`=0");
+			if (!$updated) continue;
 			if (!empty($res['pw'])) {
 				$kmdata = $kmdata . ("卡号：" . $res['km'] . " 密码：" . $res['pw'] . "<br/>");
 			} else {
 				$kmdata = $kmdata . ($res['km'] . "<br/>");
 			}
-			$DB->exec("UPDATE `pre_faka` SET `orderid`='" . $orderid . "',`usetime`='" . $date . "' WHERE `kid`='" . $res['kid'] . "'");
+			$delivered++;
+		}
+		if ($delivered < intval($limit)) {
+			$DB->exec("UPDATE `pre_faka` SET `orderid`=0,`usetime`=NULL WHERE `orderid`='" . $orderid . "'");
+			$status = 0;
+			$DB->exec("UPDATE `pre_orders` SET `status`='0',`djzt`='4' WHERE `id`='" . $orderid . "'");
 		}
 		switch ($conf['faka_input']) {
 			case 0:
@@ -558,9 +584,9 @@ function processOrder($srow, $is_fenzhan = true)
 			default:
 				break;
 		}
-		if (!empty($kmdata)) {
+		if (!empty($kmdata) && $delivered >= intval($limit)) {
 			$status = 1;
-			$DB->exec("UPDATE `pre_orders` SET `status`='1',`result`='" . $kmdata . "',`djzt`='3' WHERE `id`='" . $orderid . "'");
+			$DB->exec("UPDATE `pre_orders` SET `status`='1',`result`='" . addslashes($kmdata) . "',`djzt`='3' WHERE `id`='" . $orderid . "'");
 			$sub = $conf['sitename'] . " 卡密购买提醒";
 			$msg = $conf['faka_mail'];
 			$msg = str_replace("[kmdata]", $kmdata, $msg);
@@ -699,14 +725,12 @@ function do_goods($orderid, $url = '', $post = '')
 			if ($result['faka'] == true) {
 				$kmdata = '';
 				foreach ($result['kmdata'] as $km_arr) {
-					$DB->query("INSERT INTO `pre_faka` (`tid`,`km`,`pw`,`orderid`,`addtime`,`usetime`) VALUES ('" . $order_row['tid'] . "','" . $km_arr['card'] . "','" . $km_arr['pass'] . "','" . $orderid . "',NOW(),NOW())");
-					if (!empty($km_arr['pass'])) {
-						$kmdata = $kmdata . ("卡号：" . $km_arr['card'] . " 密码：" . $km_arr['pass'] . "<br/>");
-					} else {
-						$kmdata = $kmdata . ($km_arr['card'] . "<br/>");
-					}
+					$card = daddslashes($km_arr['card']);
+					$pass = daddslashes($km_arr['pass']);
+					$DB->query("INSERT INTO `pre_faka` (`tid`,`km`,`pw`,`orderid`,`addtime`,`usetime`) VALUES ('" . $order_row['tid'] . "','" . $card . "','" . $pass . "','" . $orderid . "',NOW(),NOW())");
+					$kmdata .= q8_build_faka_text($km_arr['card'], $km_arr['pass']);
 				}
-				$DB->exec("UPDATE `pre_orders` SET `status`='1',`djzt`='3',`djorder`='" . $result['id'] . "' WHERE `id`='" . $orderid . "'");
+				$DB->exec("UPDATE `pre_orders` SET `status`='1',`djzt`='3',`result`='" . addslashes($kmdata) . "',`djorder`='" . $result['id'] . "' WHERE `id`='" . $orderid . "'");
 				if (!empty($kmdata)) {
 					if (is_numeric($input[0]) && strlen($input[0]) <= 10) {
 						$to = $input[0] . "@qq.com";
@@ -754,16 +778,19 @@ function do_goods($orderid, $url = '', $post = '')
 		$limit = $order_row['value'];
 		$rs = $DB->query("SELECT * FROM pre_faka WHERE tid='" . $order_row['tid'] . "' AND orderid=0 LIMIT " . $limit . '');
 		$kmdata = '';
+		$delivered = 0;
 		while ($res = $rs->fetch()) {
+			$updated = $DB->exec("UPDATE `pre_faka` SET `orderid`='" . $orderid . "',`usetime`='" . $date . "' WHERE `kid`='" . $res['kid'] . "' AND `orderid`=0");
+			if (!$updated) continue;
 			if (!empty($res['pw'])) {
 				$kmdata = $kmdata . ("卡号：" . $res['km'] . " 密码：" . $res['pw'] . "<br/>");
 			} else {
 				$kmdata = $kmdata . ($res['km'] . "<br/>");
 			}
-			$DB->exec("UPDATE `pre_faka` SET `orderid`='" . $orderid . "',`usetime`='" . $date . "' WHERE `kid`='" . $res['kid'] . "'");
+			$delivered++;
 		}
-		if (!empty($kmdata)) {
-			$DB->exec("UPDATE `pre_orders` SET `status`='1',`djzt`='3' WHERE `id`='" . $orderid . "'");
+		if (!empty($kmdata) && $delivered >= intval($limit)) {
+			$DB->exec("UPDATE `pre_orders` SET `status`='1',`djzt`='3',`result`='" . addslashes($kmdata) . "' WHERE `id`='" . $orderid . "'");
 			if (is_numeric($input[0]) && strlen($input[0]) <= 10) {
 				$to = $input[0] . "@qq.com";
 			} else {
@@ -785,6 +812,7 @@ function do_goods($orderid, $url = '', $post = '')
 			}
 			$message = "发卡成功，商品发货成功！";
 		} else {
+			$DB->exec("UPDATE `pre_faka` SET `orderid`=0,`usetime`=NULL WHERE `orderid`='" . $orderid . "'");
 			$DB->exec("UPDATE `pre_orders` SET `status`='0',`djzt`='4' WHERE `id`='" . $orderid . "'");
 			$message = "卡密库存不足，发卡失败！";
 		}
