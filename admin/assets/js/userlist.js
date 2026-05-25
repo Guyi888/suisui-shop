@@ -20,6 +20,7 @@ function listTable(query){
 			$("#listTable").html(data)
 		},
 		error:function(data){
+			layer.close(ii);
 			layer.msg('服务器错误');
 			return false;
 		}
@@ -138,11 +139,11 @@ $(document).ready(function(){
 	});
 	$("#search_submit").click(function(){
 		var kw=$("input[name='kw']").val();
-		$("#search").modal('hide');
+		$("#userSearchModal").modal('hide');
 		if(kw == ''){
 			listTable('start');
 		}else{
-			listTable('kw='+kw);
+			listTable('kw='+encodeURIComponent(kw));
 		}
 	});
 	$("#tabSort").change(function(){

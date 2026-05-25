@@ -8,12 +8,12 @@ include './head.php';
 if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 ?>
     <div class="col-md-12 center-block" style="float: none;">
-<div class="modal" align="left" id="search" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" align="left" id="userSearchModal" tabindex="-1" role="dialog" aria-labelledby="userSearchModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myModalLabel">搜索用户</h4>
+        <h4 class="modal-title" id="userSearchModalLabel">搜索用户</h4>
       </div>
       <div class="modal-body">
 <input type="text" class="form-control" name="kw" placeholder="请输入用户名或ID或QQ"><br/>
@@ -263,7 +263,7 @@ $numrows=$DB->getColumn("SELECT count(*) from pre_site");
 <div class="block-title clearfix">
 <h2>&#31995;&#32479;&#20849;&#26377; <b><?php echo $numrows?></b> &#20010;&#29992;&#25143;&#65288;&#21547;&#20998;&#31449;&#29992;&#25143;&#65289;</h2>
 </div>
-<a href="./userlist.php?my=add" class="btn btn-primary">添加用户</a>&nbsp;<a href="#" data-toggle="modal" data-target="#search" id="search" class="btn btn-success">搜索</a>&nbsp;<a href="javascript:listTable('start')" class="btn btn-default" title="刷新用户列表"><i class="fa fa-refresh"></i></a>
+<a href="./userlist.php?my=add" class="btn btn-primary">添加用户</a>&nbsp;<a href="#" data-toggle="modal" data-target="#userSearchModal" id="userSearchOpen" class="btn btn-success">搜索</a>&nbsp;<a href="javascript:listTable('start')" class="btn btn-default" title="刷新用户列表"><i class="fa fa-refresh"></i></a>
 <div class="form-inline admin-user-filter">
 	<div class="form-group">
 		<label for="userPowerFilter">类型</label>

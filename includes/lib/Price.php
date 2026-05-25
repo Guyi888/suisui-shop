@@ -289,11 +289,11 @@ class Price {
 
 			}elseif($this->power==1 && !$this->user){
 
-				return $this->getToolCost($tid);
+				return $this->getManageSelfCostPrice($tid);
 
 			}elseif($this->power==2 && !$this->user){
 
-				return $this->getToolCost2($tid);
+				return $this->getManageSelfCostPrice($tid);
 
 			}else{
 
@@ -376,10 +376,10 @@ class Price {
 	}
 
 	public function getManageSelfCostPrice($tid){
+		if($this->manage_self_cost > 0){
+			return $this->manage_self_cost;
+		}
 		if($this->power==2){
-			if($this->manage_self_cost > 0){
-				return $this->manage_self_cost;
-			}
 			if(isset($this->tool['cost2']) && $this->tool['cost2']>0){
 				return $this->tool['cost2'];
 			}elseif(isset($this->tool['cost']) && $this->tool['cost']>0){

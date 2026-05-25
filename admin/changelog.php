@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.31 / 2026-05-25 分站自购成本与用户搜索修复</h4>
+                    <ul>
+                        <li>修复分站站长自己登录前台购买商品时，被自己站点加价模板抬高拿货价的问题。</li>
+                        <li>站长本人自购现在按当前站长真实拿货成本执行，分站模板继续只影响下级专业价、下级普通价和前台销售价。</li>
+                        <li>修复后台用户列表搜索弹窗和搜索按钮使用重复 ID，导致点击搜索可能只出现黑色遮罩的问题。</li>
+                        <li>用户列表搜索关键词改为编码后请求，Ajax 失败时会关闭加载层，避免遮罩残留。</li>
+                        <li>程序缓存版本更新到 <code>2026052504</code>，本版本不包含数据库结构变更。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.30 / 2026-05-25 手动同步任务触发修复</h4>
                     <ul>
                         <li>修复 HTTPS 站点手动同步任务创建后，后台任务记录长期停留在“排队中 / 0%”的问题。</li>
