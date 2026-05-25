@@ -25,6 +25,11 @@ if (!function_exists('q8_api_tool_isfaka')) {
 		return intval(isset($tool['is_curl']) ? $tool['is_curl'] : 0) == 4 || intval(isset($tool['goods_type']) ? $tool['goods_type'] : 0) == 1 ? 1 : 0;
 	}
 }
+if (!function_exists('q8_api_docking_price')) {
+	function q8_api_docking_price($price_obj, $tid) {
+		return method_exists($price_obj, 'getManageSelfCostPrice') ? $price_obj->getManageSelfCostPrice($tid) : $price_obj->getToolPrice($tid);
+	}
+}
 
 if($act=='clone')
 {
@@ -146,7 +151,7 @@ elseif($act == 'goodslistbycid')
 	while($res = $rs->fetch(PDO::FETCH_ASSOC)){
 		if(isset($price_obj)){
 			$price_obj->setToolInfo($res['tid'],$res);
-			$price=$price_obj->getToolPrice($res['tid']);
+			$price=q8_api_docking_price($price_obj, $res['tid']);
 		}else $price=$res['price'];
 		$isfaka = q8_api_tool_isfaka($res);
 		if($res['is_curl']==4){
@@ -177,7 +182,7 @@ elseif($act == 'goodslist')
 	while($res = $rs->fetch()){
 		if($islogin2 == 1 && isset($price_obj)){
 			$price_obj->setToolInfo($res['tid'],$res);
-			$price = $price_obj->getToolPrice($res['tid']);
+			$price = q8_api_docking_price($price_obj, $res['tid']);
 		}else{
 			$price = $res['price'];
 		}
@@ -215,7 +220,7 @@ elseif($act == 'goodsdetails')
 	if(!$tool)exit('{"code":-1,"message":"商品不存在"}');
 	if($islogin2 == 1 && isset($price_obj)){
 		$price_obj->setToolInfo($tid, $tool);
-		$price = $price_obj->getToolPrice($tid);
+		$price = q8_api_docking_price($price_obj, $tid);
 	}else{
 		$price = $tool['price'];
 	}
@@ -336,7 +341,7 @@ elseif($act == 'pay')
 			$islogin2 = 1;
 			$price_obj = new \lib\Price($userrow['zid'],$userrow);
 			$price_obj->setToolInfo($tid,$tool);
-			$price = $price_obj->getToolPrice($tid);
+			$price = q8_api_docking_price($price_obj, $tid);
 			$price=$price_obj->getFinalPrice($price, $num);
 			if(!$price)exit('{"code":-1,"message":"当前商品批发价格优惠设置不正确"}');
 

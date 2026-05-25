@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.29 / 2026-05-25 同系统对接密价输出修复</h4>
+                    <ul>
+                        <li>修复同系统对接商品列表在专业版分站账号认证后，返回下级专业价而不是当前对接账号真实拿货成本的问题。</li>
+                        <li>分类商品列表、商品详情和 API 下单扣款统一使用当前对接账号自己的拿货成本，避免展示价和扣款价不一致。</li>
+                        <li>上游给下游设置密价后，下游重新同步商品时会按密价成本入库，不再被上游模板继续抬成下级专业价。</li>
+                        <li>前台游客价、普通前台下单、分站前台销售价和既有分润链路保持不变。</li>
+                        <li>程序缓存版本更新到 <code>2026052502</code>，本版本不包含数据库结构变更。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.28 / 2026-05-25 推荐入口与密价成本口径修复</h4>
                     <ul>
                         <li>后台商品与发卡菜单补齐“推荐商品”入口，方便直接进入推荐商品配置页。</li>
