@@ -67,7 +67,7 @@ $pageRows = $pricedOnly ? array_slice($listRows, $offset, $pagesize) : $listRows
 foreach ($pageRows as $res) {
 	$price_obj->setToolInfo($res["tid"], $res);
 	if ($price_obj->getPower() == 2) {
-		$price = $price_obj->getToolCost2($res["tid"]);
+		$price = $price_obj->getManageSelfCostPrice($res["tid"]);
 	} else {
 		$price = $price_obj->getToolCost($res["tid"]);
 	}

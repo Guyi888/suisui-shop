@@ -859,7 +859,7 @@ $renderMenuBadge = function($value) {
 	</ul>
 </li>
 
-<li class="<?php echo checkIfActive('classlist,shoplist,shopedit,price,shoprank,cardlist,shopnoo,region_price,seckill,fakalist,fakakms,mailcon,toollogs,stock_notice,pricecontrol')?>">
+<li class="<?php echo checkIfActive('classlist,shoplist,shopedit,price,shoprank,recommend,cardlist,shopnoo,region_price,seckill,fakalist,fakakms,mailcon,toollogs,stock_notice,pricecontrol')?>">
 	<a href="javascript:void(0)" class="sidebar-nav-menu"><i class="fa fa-chevron-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="fa fa-shopping-cart sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">商品与发卡</span></a>
 	<ul>
 	<li>
@@ -875,6 +875,11 @@ $renderMenuBadge = function($value) {
 	<li>
 		<a class="<?php echo checkIfActive("shoprank") ?>" href="./shoprank.php">
 			商品销量排行
+		</a>
+	</li>
+	<li>
+		<a class="<?php echo checkIfActive("recommend") ?>" href="./recommend.php">
+			推荐商品
 		</a>
 	</li>
 	<li>

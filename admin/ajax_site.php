@@ -183,7 +183,7 @@ switch($act){
                 continue;
             }
             $price_obj->setToolInfo($row['tid'],$row);
-            if($price_obj->getPower()==2)$price = $price_obj->getToolCost2($row['tid']);
+            if($price_obj->getPower()==2)$price = $price_obj->getManageSelfCostPrice($row['tid']);
             else $price = $price_obj->getToolCost($row['tid']);
 
             if($type == 0){

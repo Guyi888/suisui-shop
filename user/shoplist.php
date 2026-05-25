@@ -139,7 +139,7 @@ if($q8_can_manage_child_sites){
 	$cost=round(daddslashes($_POST['cost']),2);
 	if(!is_numeric($cost2) || !preg_match('/^[0-9.]+$/', $cost2))showmsg('&#20215;&#26684;&#36755;&#20837;&#19981;&#35268;&#33539;',3);
 	if(!is_numeric($cost) || !preg_match('/^[0-9.]+$/', $cost))showmsg('&#20215;&#26684;&#36755;&#20837;&#19981;&#35268;&#33539;',3);
-	if($cost2<$price_obj->getToolCost2($tid)){
+	if($cost2<$price_obj->getManageSelfCostPrice($tid)){
 		showmsg('&#19979;&#32423;&#19987;&#19994;&#29256;&#20215;&#26684;&#19981;&#33021;&#20302;&#20110;&#25104;&#26412;&#20215;&#26684;&#65281;',3);
 	}
 	if($cost<$cost2){
