@@ -692,14 +692,6 @@ switch ($act) {
 			$local_faka_count = q8_local_faka_stock_count($DB, $tid);
 			$nums = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
 			$required_faka_count = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
-			if ($tool['repeat'] == 0) {
-				$thtime = date("Y-m-d") . ' 00:00:00';
-				$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid' => $tid, ':input' => $inputvalue]);
-				if ($row['input'] && $row['status'] == 0)
-					exit('{"code":-1,"msg":"您今天添加的' . $tool['name'] . '正在排队中，请勿重复提交！"}');
-				elseif ($row['addtime'] > $thtime)
-					exit('{"code":-1,"msg":"您今天已添加过' . $tool['name'] . '，请勿重复提交！"}');
-			}
 			if ($tool['is_curl'] == 4) {
 				if (!$islogin2 && $conf['faka_input'] == 0 && !checkEmail($inputvalue)) {
 					exit('{"code":-1,"msg":"邮箱格式不正确"}');
@@ -1041,21 +1033,6 @@ switch ($act) {
 			}
 			if ($num == 0) exit('{"code":-1,"msg":"下单账号不能为空"}');
 
-			if ($tool['repeat'] == 0) {
-				$thtime = date("Y-m-d") . ' 00:00:00';
-				$seen_inputs = [];
-				foreach ($inputs as $inputvalue) {
-					if (isset($seen_inputs[$inputvalue])) {
-						exit('{"code":-1,"msg":"批量下单中存在重复账号，请勿重复提交！"}');
-					}
-					$seen_inputs[$inputvalue] = true;
-					$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid' => $tid, ':input' => $inputvalue]);
-					if ($row['input'] && $row['status'] == 0)
-						exit('{"code":-1,"msg":"您今天添加的' . $tool['name'] . '正在排队中，请勿重复提交！"}');
-					elseif ($row['addtime'] > $thtime)
-						exit('{"code":-1,"msg":"您今天已添加过' . $tool['name'] . '，请勿重复提交！"}');
-				}
-			}
 
 			$local_faka_count = q8_local_faka_stock_count($DB, $tid);
 			$nums = ($tool['value'] > 1 ? $tool['value'] : 1) * $num;
@@ -1277,14 +1254,6 @@ switch ($act) {
 				exit('{"code":-1,"msg":"验证失败"}');
 			}
 			if (in_array($inputvalue, explode("|", $conf['blacklist']))) exit('{"code":-1,"msg":"你的下单账号已被拉黑，无法下单！"}');
-			if ($tool['repeat'] == 0) {
-				$thtime = date("Y-m-d") . ' 00:00:00';
-				$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", [':tid' => $tid, ':input' => $inputvalue]);
-				if ($row['input'] && $row['status'] == 0)
-					exit('{"code":-1,"msg":"您今天添加的' . $tool['name'] . '正在排队中，请勿重复提交！"}');
-				elseif ($row['addtime'] > $thtime)
-					exit('{"code":-1,"msg":"您今天已添加过' . $tool['name'] . '，请勿重复提交！"}');
-			}
 			if ($tool['is_curl'] == 4) {
 				if (!$islogin2 && $conf['faka_input'] == 0 && !checkEmail($inputvalue)) {
 					exit('{"code":-1,"msg":"邮箱格式不正确"}');

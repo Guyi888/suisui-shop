@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.33 / 2026-05-26 重复购买拦截回归修复</h4>
+                    <ul>
+                        <li>修复 API 对接下单时，允许复购商品可能被“今天已添加过，请勿重复提交”误拦截的问题。</li>
+                        <li>修复普通前台下单、批量下单和卡密兑换入口复用同类拦截逻辑，导致正常重复购买失败的问题。</li>
+                        <li>清理已不再使用的 API 重复购买拦截函数，避免后续入口误调用。</li>
+                        <li>库存、余额、黑名单、必填项和数量上下限校验保持不变，本版本不包含数据库结构变更。</li>
+                        <li>程序缓存版本更新到 <code>2026052507</code>。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.32 / 2026-05-25 价格层级与订单分润链路修复</h4>
                     <ul>
                         <li>修复分站用户下单后，分润校验误用站长自购成本，导致订单成交价与校验价不一致时不写入提成流水的问题。</li>

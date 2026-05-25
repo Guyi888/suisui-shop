@@ -37,17 +37,6 @@ if (!function_exists('q8_api_docking_price')) {
 		return method_exists($price_obj, 'getManageSelfCostPrice') ? $price_obj->getManageSelfCostPrice($tid) : $price_obj->getToolPrice($tid);
 	}
 }
-if (!function_exists('q8_api_check_repeat_order')) {
-	function q8_api_check_repeat_order($DB, $tid, $input, $toolName) {
-		$thtime = date("Y-m-d") . ' 00:00:00';
-		$row = $DB->getRow("SELECT id,input,status,addtime FROM pre_orders WHERE tid=:tid AND input=:input ORDER BY id DESC LIMIT 1", array(':tid' => intval($tid), ':input' => $input));
-		if ($row['input'] && $row['status'] == 0) {
-			exit('{"code":-1,"message":"您今天添加的' . $toolName . '正在排队中，请勿重复提交！"}');
-		} elseif ($row['addtime'] > $thtime) {
-			exit('{"code":-1,"message":"您今天已添加过' . $toolName . '，请勿重复提交！"}');
-		}
-	}
-}
 
 if($act=='clone')
 {
@@ -324,9 +313,7 @@ elseif($act == 'pay')
 			if(in_array($input1,explode("|",$conf['blacklist']))) exit('{"code":-1,"message":"你的下单账号已被拉黑，无法下单！"}');
 			$front_stock_count = q8_front_stock_count($DB, $tool);
 			$nums=($tool['value']>1?$tool['value']:1)*$num;
-			if($tool['repeat']==0){
-				q8_api_check_repeat_order($DB, $tid, $input1, $tool['name']);
-			}
+			// API 对接下单不在这里按账号拦截重复购买，避免运营站点正常复购被上游误拒。
 			if($tool['is_curl']==4){
 				$count = q8_local_faka_stock_count($DB, $tid);
 				$nums=($tool['value']>1?$tool['value']:1)*$num;
