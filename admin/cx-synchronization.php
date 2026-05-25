@@ -346,7 +346,30 @@ if (!function_exists('q8_admin_sync_start_monitor_request')) {
         $request .= "User-Agent: SuiSuiSync/1.0\r\n";
         $request .= "Connection: Close\r\n\r\n";
 
-        foreach (array('127.0.0.1:80', 'ssl://127.0.0.1:443') as $target) {
+        if (function_exists('curl_init')) {
+            $scheme = !empty($parts['scheme']) ? strtolower($parts['scheme']) : 'http';
+            $port = $scheme === 'https' ? 443 : 80;
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+            curl_setopt($ch, CURLOPT_NOSIGNAL, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            if (!empty($parts['host']) && defined('CURLOPT_RESOLVE')) {
+                curl_setopt($ch, CURLOPT_RESOLVE, array($parts['host'] . ':' . $port . ':127.0.0.1'));
+            }
+            curl_exec($ch);
+            $errno = curl_errno($ch);
+            curl_close($ch);
+            return $errno === 0 || $errno === 28;
+        }
+
+        $scheme = !empty($parts['scheme']) ? strtolower($parts['scheme']) : 'http';
+        $targets = $scheme === 'https' ? array('ssl://127.0.0.1:443') : array('127.0.0.1:80');
+        foreach ($targets as $target) {
             $targetParts = explode(':', $target);
             $scheme = count($targetParts) > 2 ? $targetParts[0] : '';
             $port = intval($targetParts[count($targetParts) - 1]);
@@ -361,21 +384,6 @@ if (!function_exists('q8_admin_sync_start_monitor_request')) {
             fwrite($fp, $request);
             fclose($fp);
             return true;
-        }
-
-        if (function_exists('curl_init')) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_exec($ch);
-            $errno = curl_errno($ch);
-            curl_close($ch);
-            return $errno === 0 || $errno === 28;
         }
 
         return false;

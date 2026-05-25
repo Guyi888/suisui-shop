@@ -27,6 +27,16 @@ include "./head.php";
         <div class="panel-body">
             <div class="timeline-list">
                 <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> v1.0.2.30 / 2026-05-25 手动同步任务触发修复</h4>
+                    <ul>
+                        <li>修复 HTTPS 站点手动同步任务创建后，后台任务记录长期停留在“排队中 / 0%”的问题。</li>
+                        <li>当 Web PHP 禁用 <code>exec</code> 时，后台退回 HTTP/HTTPS 触发同步接口会按当前站点协议执行，不再把 80 端口 301 跳转误判为成功。</li>
+                        <li>curl 触发会将当前域名解析到 <code>127.0.0.1</code>，减少外网回环和代理层对同步启动的影响。</li>
+                        <li>同步任务可正常进入“运行中”，后续会显示完成结果或明确失败原因。</li>
+                        <li>程序缓存版本更新到 <code>2026052503</code>，本版本不包含数据库结构变更。</li>
+                    </ul>
+                </div>
+                <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle"></i> v1.0.2.29 / 2026-05-25 同系统对接密价输出修复</h4>
                     <ul>
                         <li>修复同系统对接商品列表在专业版分站账号认证后，返回下级专业价而不是当前对接账号真实拿货成本的问题。</li>
